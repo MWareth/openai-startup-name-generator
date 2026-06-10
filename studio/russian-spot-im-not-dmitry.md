@@ -12,8 +12,8 @@ stopping the scroll of Russian-speaking viewers.
 - **Visual:** Dmitry (Slavic-looking man) smiling, **fanning a stack of AED 1,000
   notes** toward the camera. On-screen text: **"MAKE MONEY WITH ME 💵"**
 - **He says (0–2s):** "Make money with me."
-- **He says (2–6s), in Russian:** «Привет, меня зовут Дмитрий, я из Киева.»
-  *(English: "Hi, my name is Dmitry, I'm from Kyiv.")*
+- **He says (2–6s), in Russian:** «Привет, меня зовут Дмитрий, и Дубай изменил
+  мою жизнь.»  *(English: "Hi, my name is Dmitry, and Dubai changed my life.")*
 - **Then:** hard cut → the Marwan reveal (Shot 2).
 
 *(Note: avatars can't hold real cash — so film your own hand fanning the notes
