@@ -1,11 +1,24 @@
 {
   "brand": {
-    "company": "Marwan Wareth Real Estate",
-    "presented_by": "Marwan Wareth"
+    "company": "Bridges and Allies Real Estate",
+    "presented_by": "Marwan Wareth",
+    "tagline": "Property Research & Advisory",
+    "contact": {
+      "title": "Real Estate Consultant"
+    }
   },
-  "address": "Zaya Hameni — Unit E706, JVC District 15, Dubai",
-  "price": "Est. Value: AED 1,940,000   |   Fair Rent: AED 128,000 / yr",
+  "address": "Zaya Hameni — Unit E706, JVC District 15, Dubai (For Rent)",
+  "price": "Fair Rent ~AED 128,000 / year",
   "overall_score": 72,
+  "rent_snapshot": {
+    "highlight_row": 2,
+    "rows": [
+      {"scenario": "Conservative (tenant target)", "rent": "AED 120,000", "per_sqft": "AED 85", "gross_yield": "6.2%", "net_yield": "4.1%"},
+      {"scenario": "Most-likely (fair market)", "rent": "AED 128,000", "per_sqft": "AED 91", "gross_yield": "6.6%", "net_yield": "4.5%"},
+      {"scenario": "Optimistic (furnished)", "rent": "AED 138,000", "per_sqft": "AED 98", "gross_yield": "7.1%", "net_yield": "4.9%"}
+    ],
+    "verdict": "<b>Rent verdict:</b> Fair market rent for E706 is ~<b>AED 128,000/yr</b>. Anchor your offer at the DLD index and target <b>AED 120,000–125,000</b> unfurnished (low-mid floor = leverage). A softening, supply-heavy 2026 market favours the tenant. Treat any asking price of <b>AED 150,000+</b> as overpriced — that reflects the building's larger 1,866–3,138 sqft units, not this 1,404 sqft layout. Furnished adds ~AED 10,000–15,000."
+  },
   "property_details": {
     "beds": "2",
     "baths": "2",

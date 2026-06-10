@@ -421,41 +421,42 @@ def generate_report(data, output_path):
     # =====================================================================
     # PAGE 1 — COVER
     # =====================================================================
+    from reportlab.lib.enums import TA_CENTER
     brand = data.get("brand", {})
     if brand.get("logo", True) is not False:
-        from reportlab.lib.enums import TA_CENTER
-        logo = draw_brand_logo(110)
+        logo = draw_brand_logo(92)
         logo.hAlign = "CENTER"
-        elements.append(Spacer(1, 0.3 * inch))
+        elements.append(Spacer(1, 0.12 * inch))
         elements.append(logo)
-        elements.append(Spacer(1, 8))
+        elements.append(Spacer(1, 6))
         if brand.get("company"):
             elements.append(Paragraph(
                 brand["company"],
-                ParagraphStyle("BrandCompany", parent=S["title"], fontSize=20,
-                               alignment=TA_CENTER, spaceAfter=2)))
-        if brand.get("presented_by"):
+                ParagraphStyle("BrandCompany", parent=S["title"], fontSize=18,
+                               leading=22, alignment=TA_CENTER, spaceAfter=0)))
+        if brand.get("tagline"):
             elements.append(Paragraph(
-                f'Presented by {brand["presented_by"]}',
-                ParagraphStyle("BrandBy", parent=S["subtitle"], fontSize=11,
-                               alignment=TA_CENTER, textColor=COLORS["muted"]
-                               if "muted" in COLORS else COLORS["text"])))
-        elements.append(Spacer(1, 0.2 * inch))
+                brand["tagline"],
+                ParagraphStyle("BrandTag", parent=S["subtitle"], fontSize=10,
+                               alignment=TA_CENTER)))
+        elements.append(Spacer(1, 0.12 * inch))
     else:
-        elements.append(Spacer(1, 0.5 * inch))
-    elements.append(Paragraph("AI Property Analysis Report", S["title"]))
-    elements.append(Spacer(1, 30))
+        elements.append(Spacer(1, 0.35 * inch))
+    elements.append(Paragraph("Property Analysis Report", S["title"]))
+    elements.append(Spacer(1, 14))
     elements.append(Paragraph(address, S["address"]))
-    elements.append(Spacer(1, 12))
-    elements.append(Paragraph(price, S["price"]))
     elements.append(Spacer(1, 8))
+    cover_price_style = ParagraphStyle("CoverPrice", parent=S["price"],
+                                       fontSize=25, leading=30)
+    elements.append(Paragraph(price, cover_price_style))
+    elements.append(Spacer(1, 6))
     elements.append(Paragraph(f"Generated: {date_str}", S["subtitle"]))
-    elements.append(Spacer(1, 30))
+    elements.append(Spacer(1, 18))
 
     # Property Score gauge
-    gauge = draw_score_gauge(overall_score, size=140)
+    gauge = draw_score_gauge(overall_score, size=104)
     elements.append(gauge)
-    elements.append(Spacer(1, 24))
+    elements.append(Spacer(1, 10))
 
     # Grade + signal
     color = score_color(overall_score)
@@ -464,14 +465,14 @@ def generate_report(data, output_path):
         f'(Grade: <font color="{color.hexval()}">{grade}</font>)',
         S["grade_large"]
     ))
-    elements.append(Spacer(1, 10))
+    elements.append(Spacer(1, 8))
     elements.append(Paragraph(
         f'Signal: <font color="{sig_color.hexval()}">{signal}</font>',
         ParagraphStyle("SignalLine", parent=S["signal"],
-                       textColor=sig_color, fontSize=24)
+                       textColor=sig_color, fontSize=22)
     ))
 
-    elements.append(Spacer(1, 30))
+    elements.append(Spacer(1, 18))
 
     # Property details mini-table on cover
     prop_details = data.get("property_details", {})
@@ -482,12 +483,17 @@ def generate_report(data, output_path):
     lot_size = prop_details.get("lot_size", "0.18 acres")
     prop_type = prop_details.get("property_type", "Single Family Residence")
 
+    cell = ParagraphStyle("DetailCell", parent=S["body"], fontSize=9, leading=11)
+
+    def _c(txt):
+        return Paragraph(str(txt), cell)
+
     details_data = [
-        ["Property Type", prop_type, "Year Built", year_built],
-        ["Bedrooms", beds, "Bathrooms", baths],
-        ["Square Feet", sqft, "Lot Size", lot_size],
+        ["Property Type", _c(prop_type), "Year Built", _c(year_built)],
+        ["Bedrooms", _c(beds), "Bathrooms", _c(baths)],
+        ["Square Feet", _c(sqft), "Lot Size", _c(lot_size)],
     ]
-    details_table = Table(details_data, colWidths=[100, 130, 100, 130])
+    details_table = Table(details_data, colWidths=[95, 170, 80, 115])
     details_style = [
         ("BACKGROUND", (0, 0), (0, -1), COLORS["light_bg"]),
         ("BACKGROUND", (2, 0), (2, -1), COLORS["light_bg"]),
@@ -497,14 +503,17 @@ def generate_report(data, output_path):
         ("GRID", (0, 0), (-1, -1), 0.5, COLORS["border"]),
         ("TEXTCOLOR", (0, 0), (-1, -1), COLORS["text"]),
         ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
-        ("TOPPADDING", (0, 0), (-1, -1), 6),
-        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
     ]
     details_table.setStyle(TableStyle(details_style))
     elements.append(details_table)
 
-    elements.append(Spacer(1, 24))
-    elements.append(Paragraph(DISCLAIMER_TEXT, S["disclaimer"]))
+    elements.append(Spacer(1, 10))
+    elements.append(Paragraph(
+        "For educational / research purposes only — not financial or investment "
+        "advice. Verify all figures with a RERA-licensed professional.",
+        ParagraphStyle("CoverDisc", parent=S["footer"], alignment=TA_CENTER)))
 
     elements.append(PageBreak())
 
@@ -578,14 +587,16 @@ def generate_report(data, output_path):
     if not comps:
         comps = default_comps
 
+    comp_cell = ParagraphStyle("CompAddr", parent=S["body_small"], fontSize=8.5, leading=10)
     comp_data = [["Address", "Sale Price", "Sq Ft", "$/Sq Ft", "Sold", "Distance"]]
     for c in comps:
         comp_data.append([
-            c.get("address", ""), c.get("price", ""), c.get("sqft", ""),
+            Paragraph(str(c.get("address", "")), comp_cell),
+            c.get("price", ""), c.get("sqft", ""),
             c.get("price_sqft", ""), c.get("sold_date", ""), c.get("distance", "")
         ])
 
-    comp_table = Table(comp_data, colWidths=[100, 80, 60, 60, 70, 60])
+    comp_table = Table(comp_data, colWidths=[150, 92, 48, 70, 70, 52])
     comp_table.setStyle(standard_table_style([("ALIGN", (1, 0), (-1, -1), "CENTER")]))
     elements.append(comp_table)
 
@@ -603,13 +614,39 @@ def generate_report(data, output_path):
     elements.append(PageBreak())
 
     # =====================================================================
-    # PAGE 3 — CASH FLOW PROJECTION
+    # PAGE 3 — RENTAL ANALYSIS & CASH FLOW
     # =====================================================================
-    elements.append(Paragraph("Cash Flow Projection", S["heading"]))
+    elements.append(Paragraph("Rental Analysis &amp; Cash Flow", S["heading"]))
     elements.append(Spacer(1, 6))
 
+    # --- Rent snapshot (scenario rents) ---
+    rent_snapshot = data.get("rent_snapshot")
+    if rent_snapshot:
+        elements.append(Paragraph("Rent Snapshot", S["subheading"]))
+        rs_data = [["Scenario", "Annual Rent", "Per Sq Ft", "Gross Yield", "Net Yield"]]
+        for r in rent_snapshot.get("rows", []):
+            rs_data.append([
+                r.get("scenario", ""), r.get("rent", ""), r.get("per_sqft", ""),
+                r.get("gross_yield", ""), r.get("net_yield", ""),
+            ])
+        rs_table = Table(rs_data, colWidths=[150, 110, 80, 80, 80])
+        rs_extra = [("ALIGN", (1, 0), (-1, -1), "CENTER")]
+        # Highlight the "most likely" row if flagged
+        ml = rent_snapshot.get("highlight_row")
+        if ml is not None:
+            rs_extra.append(("FONTNAME", (0, ml), (-1, ml), "Helvetica-Bold"))
+            rs_extra.append(("BACKGROUND", (0, ml), (-1, ml), COLORS["light_bg"]))
+        rs_table.setStyle(standard_table_style(rs_extra))
+        elements.append(rs_table)
+        if rent_snapshot.get("verdict"):
+            elements.append(Spacer(1, 6))
+            elements.append(Paragraph(rent_snapshot["verdict"],
+                                      ParagraphStyle("RentVerdict", parent=S["body"],
+                                                     fontSize=10, leading=14)))
+        elements.append(Spacer(1, 14))
+
     # Monthly cash flow table
-    elements.append(Paragraph("Monthly &amp; Annual Cash Flow", S["subheading"]))
+    elements.append(Paragraph("Operating Cash Flow (Buy-to-Let)", S["subheading"]))
     cashflow = data.get("cashflow", {})
 
     cf_items = cashflow.get("items", [
@@ -927,15 +964,53 @@ def generate_report(data, output_path):
 
     # Footer + disclaimer
     footer_line = "Generated by AI Real Estate Analyst"
-    if brand.get("company") or brand.get("presented_by"):
-        parts = []
-        if brand.get("company"):
-            parts.append(brand["company"])
-        if brand.get("presented_by"):
-            parts.append(f"Presented by {brand['presented_by']}")
-        footer_line = "  —  ".join(parts) + "  |  Powered by AI Real Estate Analyst"
+    if brand.get("company"):
+        footer_line = f"{brand['company']}  |  Powered by AI Real Estate Analyst"
     elements.append(Paragraph(footer_line, S["footer"]))
     elements.append(Paragraph(DISCLAIMER_TEXT, S["disclaimer"]))
+
+    # =====================================================================
+    # CLOSING PAGE — Prepared by / contact
+    # =====================================================================
+    if brand.get("presented_by") or brand.get("company"):
+        elements.append(PageBreak())
+        elements.append(Spacer(1, 1.4 * inch))
+        if brand.get("logo", True) is not False:
+            clogo = draw_brand_logo(100)
+            clogo.hAlign = "CENTER"
+            elements.append(clogo)
+            elements.append(Spacer(1, 16))
+        if brand.get("company"):
+            elements.append(Paragraph(
+                brand["company"],
+                ParagraphStyle("CloseCompany", parent=S["title"], fontSize=22,
+                               leading=26, alignment=TA_CENTER, spaceAfter=4)))
+        elements.append(Paragraph(
+            "Thank you", ParagraphStyle("CloseThanks", parent=S["subtitle"],
+                                        fontSize=13, alignment=TA_CENTER)))
+        elements.append(Spacer(1, 26))
+        if brand.get("presented_by"):
+            elements.append(Paragraph(
+                "Prepared by", ParagraphStyle("CloseBy", parent=S["subtitle"],
+                                              fontSize=11, alignment=TA_CENTER)))
+            elements.append(Paragraph(
+                brand["presented_by"],
+                ParagraphStyle("CloseName", parent=S["title"], fontSize=18,
+                               leading=22, alignment=TA_CENTER, spaceAfter=2)))
+        contact = brand.get("contact", {})
+        contact_bits = []
+        if contact.get("title"):
+            contact_bits.append(contact["title"])
+        if contact.get("phone"):
+            contact_bits.append(contact["phone"])
+        if contact.get("email"):
+            contact_bits.append(contact["email"])
+        for bit in contact_bits:
+            elements.append(Paragraph(
+                bit, ParagraphStyle("CloseContact", parent=S["subtitle"],
+                                    fontSize=11, alignment=TA_CENTER, spaceAfter=1)))
+        elements.append(Spacer(1, 40))
+        elements.append(Paragraph(DISCLAIMER_TEXT, S["disclaimer"]))
 
     # Build PDF
     doc.build(elements)
