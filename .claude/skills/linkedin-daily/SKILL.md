@@ -67,6 +67,33 @@ text-in-image unless asked). Then:
   that Nano Banana isn't wired up yet (needs a Google `GEMINI_API_KEY` +
   network access — see `scripts/nano_banana.py` header).
 
+## Publishing — Playwright (local, optional, human-in-the-loop)
+
+The user can semi-automate posting with Playwright. **This runs on the user's
+own computer, not the remote/web session** (no browser + network is locked down
+here). It **pre-fills** the post and **stops for the user to click Post** — it
+never auto-posts.
+
+When the user wants to publish a generated draft this way:
+
+1. Save the post text to a file, e.g. `~/linkedin_post_$(date +%F).txt`, and
+   note the image path (from Nano Banana).
+2. Have the user run, on their machine:
+   ```bash
+   python ~/.claude/skills/linkedin-daily/scripts/post_to_linkedin.py \
+     --text-file ~/linkedin_post_$(date +%F).txt --image ~/linkedin_image.png
+   ```
+3. A visible browser opens, logs in (persistent profile; uses `LINKEDIN_EMAIL`
+   / `LINKEDIN_PASSWORD` env vars on first run, reuses the session after),
+   opens the composer, fills text + image, then **waits for the user to review
+   and click Post**.
+
+One-time setup on the user's machine: `pip install playwright` &&
+`playwright install chromium`; set `LINKEDIN_EMAIL` / `LINKEDIN_PASSWORD`.
+Caveats: LinkedIn's ToS discourage automation, and selectors can change — the
+script reports which step failed so the user can finish by hand. Keep usage
+gentle (one post/day, human clicks Post).
+
 ## Output format
 
 ```
