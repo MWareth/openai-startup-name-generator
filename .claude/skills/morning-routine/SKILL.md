@@ -70,8 +70,14 @@ Help the user shape the day:
 
 ## Section 5 — Leads / Pipeline (Asana) 🤝
 
-Surface the day's lead picture from the user's Asana CRM board. Use the
-`asana-leads` skill's CLI:
+Surface the day's lead picture from the user's Asana CRM board. **Read-only:
+this section ONLY displays leads — never write, comment on, or move anything
+in Asana during the morning routine.** Asana is exclusively the user's
+client/lead CRM; never push news, market data, or content ideas into it.
+Updates to Asana happen only when the user explicitly asks (via the
+`asana-leads` skill), never from here.
+
+Use the `asana-leads` skill's CLI (read command only):
 
 ```bash
 python3 ~/.claude/skills/asana-leads/scripts/asana_leads.py list
