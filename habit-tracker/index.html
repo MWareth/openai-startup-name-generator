@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0f172a" />
+<title>Morning Routine · Habit Tracker</title>
+<style>
+  :root{
+    --bg:#0b1020; --card:#141b30; --card2:#1b2440; --line:#27314f;
+    --text:#e8edf7; --muted:#8b97b5;
+    --accent:#5ad1ff; --accent2:#a78bfa; --good:#34d399; --warn:#fbbf24;
+    --shadow:0 18px 50px rgba(0,0,0,.45);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(167,139,250,.18), transparent 60%),
+      radial-gradient(1000px 500px at -10% 10%, rgba(90,209,255,.16), transparent 55%),
+      var(--bg);
+    color:var(--text); min-height:100vh; padding:28px 16px 64px;
+  }
+  .wrap{max-width:560px;margin:0 auto}
+  header{margin-bottom:22px}
+  .eyebrow{color:var(--muted);font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700}
+  h1{margin:6px 0 2px;font-size:30px;line-height:1.15;font-weight:800;
+     background:linear-gradient(90deg,var(--accent),var(--accent2));
+     -webkit-background-clip:text;background-clip:text;color:transparent}
+  .date{color:var(--muted);font-size:15px;font-weight:600}
+
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:20px 0 24px}
+  .stat{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);
+        border-radius:18px;padding:16px 14px;text-align:center;box-shadow:var(--shadow)}
+  .stat .num{font-size:26px;font-weight:800;line-height:1}
+  .stat .lab{color:var(--muted);font-size:12px;margin-top:6px;font-weight:600}
+  .fire{color:var(--warn)}
+
+  .ring-card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--line);
+    border-radius:22px;padding:20px;display:flex;align-items:center;gap:18px;box-shadow:var(--shadow);margin-bottom:22px}
+  .ring{position:relative;width:96px;height:96px;flex:0 0 auto}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:22px}
+  .ring-meta h2{margin:0 0 4px;font-size:18px}
+  .ring-meta p{margin:0;color:var(--muted);font-size:14px}
+
+  ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+  li.habit{display:flex;align-items:center;gap:14px;background:var(--card);
+    border:1px solid var(--line);border-radius:16px;padding:14px 14px;cursor:pointer;
+    transition:transform .12s ease, border-color .2s, background .2s; user-select:none}
+  li.habit:hover{border-color:#3a4a72;transform:translateY(-1px)}
+  li.habit.done{background:linear-gradient(180deg,rgba(52,211,153,.10),rgba(52,211,153,.03));border-color:rgba(52,211,153,.4)}
+  .check{width:26px;height:26px;border-radius:9px;border:2px solid #3a4a72;flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;transition:.18s}
+  li.habit.done .check{background:var(--good);border-color:var(--good)}
+  .check svg{opacity:0;transform:scale(.5);transition:.18s}
+  li.habit.done .check svg{opacity:1;transform:scale(1)}
+  .emoji{font-size:20px;flex:0 0 auto}
+  .label{flex:1;font-size:16px;font-weight:600}
+  li.habit.done .label{color:var(--muted);text-decoration:line-through}
+  .del{opacity:0;color:var(--muted);background:none;border:none;font-size:20px;cursor:pointer;
+    padding:4px 6px;border-radius:8px;transition:.15s}
+  li.habit:hover .del{opacity:.7}
+  .del:hover{opacity:1;color:#fb7185;background:rgba(251,113,133,.1)}
+
+  .add{display:flex;gap:10px;margin-top:16px}
+  .add input{flex:1;background:var(--card);border:1px solid var(--line);color:var(--text);
+    border-radius:14px;padding:13px 14px;font-size:15px;outline:none}
+  .add input:focus{border-color:var(--accent)}
+  .add button{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#06121f;border:none;
+    border-radius:14px;padding:0 18px;font-weight:800;font-size:15px;cursor:pointer}
+
+  .done-banner{text-align:center;margin:22px 0 0;padding:16px;border-radius:16px;
+    background:linear-gradient(90deg,rgba(52,211,153,.15),rgba(167,139,250,.15));
+    border:1px solid rgba(52,211,153,.35);font-weight:700;display:none}
+  .done-banner.show{display:block;animation:pop .4s ease}
+  @keyframes pop{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+
+  footer{margin-top:30px;text-align:center;color:var(--muted);font-size:12.5px;line-height:1.6}
+  footer button{background:none;border:1px solid var(--line);color:var(--muted);border-radius:10px;
+    padding:7px 12px;cursor:pointer;font-size:12.5px;margin-top:8px}
+  footer button:hover{color:var(--text);border-color:#3a4a72}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Morning Routine</div>
+    <h1 id="greeting">Good morning ☀️</h1>
+    <div class="date" id="today"></div>
+  </header>
+
+  <div class="ring-card">
+    <div class="ring">
+      <svg width="96" height="96" viewBox="0 0 96 96">
+        <circle cx="48" cy="48" r="42" fill="none" stroke="#27314f" stroke-width="9"/>
+        <circle id="ringFg" cx="48" cy="48" r="42" fill="none" stroke="url(#g)" stroke-width="9"
+          stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="264"/>
+        <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#5ad1ff"/><stop offset="1" stop-color="#a78bfa"/>
+        </linearGradient></defs>
+      </svg>
+      <div class="pct" id="ringPct">0%</div>
+    </div>
+    <div class="ring-meta">
+      <h2 id="ringTitle">Let's get the day started</h2>
+      <p id="ringSub">Tap a habit to check it off.</p>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="num" id="sDone">0/0</div><div class="lab">Today</div></div>
+    <div class="stat"><div class="num fire" id="sStreak">0 🔥</div><div class="lab">Day streak</div></div>
+    <div class="stat"><div class="num" id="sBest">0</div><div class="lab">Best streak</div></div>
+  </div>
+
+  <ul id="list"></ul>
+
+  <div class="add">
+    <input id="newHabit" type="text" placeholder="Add a habit (e.g. 🏃 Walk 5k)" maxlength="60"/>
+    <button id="addBtn">Add</button>
+  </div>
+
+  <div class="done-banner" id="banner">🎉 Routine complete! Streak extended. Have a great day.</div>
+
+  <footer>
+    Saved on this device · resets each morning · streaks keep your history
+    <br/><button id="resetDay">Reset today</button>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const KEY = "morningRoutine.v1";
+  const DEFAULTS = [
+    {emoji:"💧", label:"Hydrate (glass of water)"},
+    {emoji:"🧘", label:"Move / exercise"},
+    {emoji:"📓", label:"Journal / intention for the day"},
+    {emoji:"🍳", label:"Healthy breakfast"},
+    {emoji:"📵", label:"No-scroll focus block planned"},
+    {emoji:"🏠", label:"Follow up with 3 leads / clients"},
+    {emoji:"📲", label:"Post 1 piece of content"},
+  ];
+
+  const todayKey = () => new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD local
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; } };
+  const save = (s) => localStorage.setItem(KEY, JSON.stringify(s));
+
+  function state(){
+    const s = load();
+    if(!s.habits){ s.habits = DEFAULTS.map((h,i)=>({id:"d"+i, ...h})); }
+    if(!s.log) s.log = {};                 // { 'YYYY-MM-DD': [habitIds done] }
+    if(!s.meta) s.meta = {best:0, lastComplete:null, streak:0};
+    return s;
+  }
+
+  function isComplete(s, day){
+    const done = s.log[day] || [];
+    return s.habits.length>0 && s.habits.every(h => done.includes(h.id));
+  }
+
+  // Recompute streak of consecutive complete days ending today (or yesterday).
+  function computeStreak(s){
+    let streak = 0;
+    let d = new Date();
+    // if today not complete, start counting from yesterday so a streak shown
+    // reflects days fully done before today.
+    if(!isComplete(s, todayKey())) d.setDate(d.getDate()-1);
+    for(;;){
+      const k = d.toLocaleDateString("en-CA");
+      if(isComplete(s,k)){ streak++; d.setDate(d.getDate()-1); }
+      else break;
+    }
+    return streak;
+  }
+
+  let s = state();
+
+  const $ = id => document.getElementById(id);
+  const list = $("list");
+
+  function render(){
+    const day = todayKey();
+    const done = s.log[day] || [];
+    // header
+    const now = new Date();
+    const h = now.getHours();
+    $("greeting").textContent = h<12 ? "Good morning ☀️" : h<18 ? "Good afternoon 🌤️" : "Good evening 🌙";
+    $("today").textContent = now.toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+
+    // list
+    list.innerHTML = "";
+    s.habits.forEach(hb=>{
+      const li = document.createElement("li");
+      li.className = "habit" + (done.includes(hb.id)?" done":"");
+      li.innerHTML =
+        '<span class="check"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#06121f" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>'+
+        '<span class="emoji">'+hb.emoji+'</span>'+
+        '<span class="label"></span>'+
+        '<button class="del" title="Remove">&times;</button>';
+      li.querySelector(".label").textContent = hb.label;
+      li.addEventListener("click", e=>{ if(e.target.closest(".del")) return; toggle(hb.id); });
+      li.querySelector(".del").addEventListener("click", e=>{ e.stopPropagation(); removeHabit(hb.id); });
+      list.appendChild(li);
+    });
+
+    // stats + ring
+    const total = s.habits.length, count = done.filter(id=>s.habits.some(h=>h.id===id)).length;
+    const pct = total? Math.round(count/total*100) : 0;
+    $("sDone").textContent = count+"/"+total;
+    const streak = computeStreak(s);
+    s.meta.best = Math.max(s.meta.best||0, streak);
+    $("sStreak").textContent = streak+" 🔥";
+    $("sBest").textContent = s.meta.best;
+    $("ringFg").style.strokeDashoffset = 264 - (264*pct/100);
+    $("ringPct").textContent = pct+"%";
+    $("ringTitle").textContent = pct===100 ? "All done — nice work! 🙌" : pct>=50 ? "Great momentum" : "Let's get the day started";
+    $("ringSub").textContent = pct===100 ? "Every habit checked." : (count+" of "+total+" done · "+(total-count)+" to go");
+    $("banner").classList.toggle("show", pct===100 && total>0);
+  }
+
+  function toggle(id){
+    const day = todayKey();
+    const arr = s.log[day] || (s.log[day]=[]);
+    const i = arr.indexOf(id);
+    if(i>=0) arr.splice(i,1); else arr.push(id);
+    save(s); render();
+  }
+  function removeHabit(id){
+    s.habits = s.habits.filter(h=>h.id!==id);
+    Object.values(s.log).forEach(a=>{const i=a.indexOf(id); if(i>=0)a.splice(i,1);});
+    save(s); render();
+  }
+  function addHabit(){
+    const inp = $("newHabit"); let v = inp.value.trim(); if(!v) return;
+    // split leading emoji if present
+    let emoji="✅", label=v;
+    const m = v.match(/^(\p{Emoji}️?|\p{Extended_Pictographic})\s*(.*)$/u);
+    if(m && m[2]){ emoji=m[1]; label=m[2]; }
+    s.habits.push({id:"u"+Date.now(), emoji, label});
+    inp.value=""; save(s); render();
+  }
+
+  $("addBtn").addEventListener("click", addHabit);
+  $("newHabit").addEventListener("keydown", e=>{ if(e.key==="Enter") addHabit(); });
+  $("resetDay").addEventListener("click", ()=>{ s.log[todayKey()]=[]; save(s); render(); });
+
+  render();
+})();
+</script>
+</body>
+</html>
