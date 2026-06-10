@@ -7,14 +7,28 @@ stopping the scroll of Russian-speaking viewers.
 
 ---
 
-## 🎞 Shot 1 — "Dmitry" · Russian · 0–5s
-- **On screen:** a Ukrainian/Slavic-looking man, friendly, speaking to camera
-  (HeyGen avatar OR stock-style avatar). Casual-professional.
-- **RU:** «Привет! Меня зовут Дмитрий, я из Киева, и я ищу новую возможность
-  в Дубае…»
+## 🎞 Shot 1 — "Dmitry" · Money hook + Russian intro · 0–6s
+- **On screen:** a Ukrainian/Slavic-looking man fanning a stack of **AED 1,000
+  notes** toward camera, confident smile. Big on-screen text: **"MAKE MONEY WITH
+  ME 💵"**.
+- **Hook (0–2s):** «Зарабатывай со мной!»  *(spoken) — on-screen text in English:
+  "MAKE MONEY WITH ME"*
+  - **Gloss:** "Make money with me!"  *(Prefer it in English? Have him say
+    "Make money with me" in English, then switch to Russian for the intro.)*
+- **Intro (2–6s) RU:** «Привет! Меня зовут Дмитрий, я из Киева, и я ищу новую
+  возможность в Дубае…»
 - **Gloss:** "Hi! My name is Dmitry, I'm from Kyiv, and I'm looking for a new
   opportunity in Dubai…"
-- **Then:** hard cut (record-scratch / freeze-frame).
+- **Then:** hard cut (record-scratch / freeze-frame) into the reveal.
+
+> 🎥 **The cash shot — important:** a HeyGen talking avatar **can't realistically
+> hold real banknotes**. Best ways to get the AED 1,000 hook:
+> 1) **Film it** — your own hand fanning AED 1,000 notes for 1–2s as the opener,
+>    then cut to Dmitry talking; or
+> 2) **B-roll overlay** — a stock clip of dirham notes fanning under the "MAKE
+>    MONEY WITH ME" text + Russian VO; or
+> 3) **AI image insert** — a generated picture of a man holding AED 1,000 notes,
+>    shown for the hook, then cut to the talking avatar.
 
 ## 🎞 Shot 2 — The reveal · Marwan · English · 5–12s
 - **On screen:** YOU, Marwan (film yourself on a phone — the real face after the
