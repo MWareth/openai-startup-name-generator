@@ -3,6 +3,8 @@
     "company": "Bridges and Allies Real Estate",
     "presented_by": "Marwan Wareth",
     "tagline": "Property Research & Advisory",
+    "logo": false,
+    "hide_disclaimer": true,
     "contact": {
       "title": "Real Estate Consultant"
     }
