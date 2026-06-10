@@ -1,0 +1,42 @@
+// ============================================================
+//  BACKEND MODULE  —  save as:  backend/habits.jsw
+//  (Wix Editor → Velo sidebar → Backend → New .jsw file → "habits")
+//
+//  Reads/writes the "HabitDays" collection, automatically scoped to
+//  the logged-in member (collection permissions do the filtering, so
+//  each member only ever sees their own rows).
+// ============================================================
+import wixData from 'wix-data';
+
+const COLLECTION = 'HabitDays';
+
+// Return all of the current member's saved days.
+export async function getMyDays() {
+  const res = await wixData.query(COLLECTION).limit(1000).find();
+  return res.items;
+}
+
+// Insert or update one day's progress for the current member.
+// date       : "YYYY-MM-DD"
+// doneIdsStr : JSON string array of completed habit ids
+// habitsStr  : JSON string of the member's habit list
+export async function saveDay(date, doneIdsStr, habitsStr) {
+  const existing = await wixData
+    .query(COLLECTION)
+    .eq('date', date)
+    .limit(1)
+    .find();
+
+  if (existing.items.length) {
+    const row = existing.items[0];
+    row.doneIds = doneIdsStr;
+    row.habitsJson = habitsStr;
+    return wixData.update(COLLECTION, row);
+  }
+
+  return wixData.insert(COLLECTION, {
+    date,
+    doneIds: doneIdsStr,
+    habitsJson: habitsStr,
+  });
+}
