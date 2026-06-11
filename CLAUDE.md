@@ -3,6 +3,8 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 > **What this repo actually is:** this is the working home base for **Dee's Treats** — a dessert-business marketing/creative operation. The Next.js app below is the original fork it was cloned from and is incidental. Most work here is copy, content, campaign assets, and ad creative, not application code. Read the Dee's Treats context first.
+>
+> **All Dee's Treats work lives in [`deestreats/`](deestreats/README.md)** — campaigns, copy, brand, assets. Default new creative work there.
 
 ---
 
