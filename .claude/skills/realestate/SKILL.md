@@ -1,6 +1,6 @@
 ---
 name: realestate
-description: AI Real Estate Analyst — main entry point and router for property research and analysis. Use when the user asks to analyze a property, estimate rental income or cash flow, run comps/valuation, evaluate an investment (buy-hold, BRRRR, flip), write an MLS listing, assess a neighborhood or market, run mortgage/affordability math, compare or screen properties, or produce a client-ready PDF report. Routes /realestate <command> (analyze, quick, comps, rental, listing, invest, neighborhood, flip, commercial, mortgage, market, compare, screen, report-pdf) to the matching sub-skill. Educational/research use only — not financial advice.
+description: AI Real Estate Analyst — main entry point and router for property research and analysis. Use when the user asks to analyze a property, estimate rental income or cash flow, run comps/valuation, evaluate an investment (buy-hold, BRRRR, flip), write an MLS listing, assess a neighborhood or market, run mortgage/affordability math, compare or screen properties, or produce a client-ready PDF report. Routes /realestate <command> (analyze, quick, comps, rental, listing, invest, neighborhood, flip, commercial, offplan, mortgage, market, compare, screen, report-pdf) to the matching sub-skill. Educational/research use only — not financial advice.
 ---
 
 # AI Real Estate Analyst — Main Orchestrator
@@ -22,6 +22,7 @@ You are a comprehensive AI real estate research and analysis system for Claude C
 | `/realestate neighborhood <address>` | Schools, crime, walkability, demographics, growth | PROPERTY-NEIGHBORHOOD-[ADDRESS].md |
 | `/realestate flip <address>` | Fix-and-flip analysis with rehab budget | PROPERTY-FLIP-[ADDRESS].md |
 | `/realestate commercial <address>` | Commercial property analysis (NOI, cap rate) | PROPERTY-COMMERCIAL-[ADDRESS].md |
+| `/realestate offplan <project/area>` | UAE/Dubai off-plan analysis (developer, payment plan, escrow) | PROPERTY-OFFPLAN-[PROJECT].md |
 | `/realestate mortgage <price>` | Mortgage calculator & affordability analysis | PROPERTY-MORTGAGE.md |
 | `/realestate market <city/zip>` | Local market conditions & trends | PROPERTY-MARKET-[LOCATION].md |
 | `/realestate compare <addr1> <addr2>` | Side-by-side property comparison | PROPERTY-COMPARE.md |
@@ -89,6 +90,7 @@ Before running any analysis, detect the property type:
 - **Commercial** → Focus on: NOI, cap rate, lease terms, tenant quality, zoning, environmental
 - **Land** → Focus on: zoning, buildability, utilities access, entitlements, highest-and-best-use analysis
 - **Short-Term Rental** → Focus on: ADR, occupancy rate, seasonality, local regulations, STR comps
+- **Off-Plan / Under Construction (UAE)** → Route to `realestate-offplan`. Focus on: developer track record, payment plan, RERA/DLD escrow protections, completion risk, handover yield
 
 ## Output Standards
 
