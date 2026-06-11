@@ -167,7 +167,7 @@
     <h2 id="formTitle">Add Order</h2>
     <div class="grid2">
       <div class="field"><label>Date</label><input type="date" id="f_date"></div>
-      <div class="field" style="position:relative"><label>Customer</label>
+      <div class="field" style="position:relative"><label>Customer <span style="color:var(--red)">*</span></label>
         <input id="f_customer" placeholder="Start typing a name…" autocomplete="off"
                oninput="customerType()" onfocus="customerType()"
                onblur="setTimeout(()=>{var s=document.getElementById('contactSuggest');if(s)s.style.display='none'},180)">
@@ -175,7 +175,7 @@
       </div>
     </div>
     <div class="grid2">
-      <div class="field"><label>Phone</label><input id="f_phone" placeholder="05x xxx xxxx" autocomplete="off"></div>
+      <div class="field"><label>Phone <span style="color:var(--red)">*</span></label><input id="f_phone" placeholder="05x xxx xxxx" autocomplete="off"></div>
       <div class="field"><label>Home address</label><input id="f_address" placeholder="Area, building, villa…" autocomplete="off"></div>
     </div>
     <div class="grid2">
@@ -449,7 +449,7 @@ function buildItemRows(items){
   for(let i=0;i<3;i++){
     const cur=items[i];
     html+=`<div class="itemrow"><div class="itemgrid">
-      <div class="field" style="margin:0"><label>Item ${i+1}</label>
+      <div class="field" style="margin:0"><label>Item ${i+1}${i===0?' <span style="color:var(--red)">*</span>':''}</label>
         <select id="item${i}" onchange="itemPicked(${i})">
           <option value="">— none —</option>
           ${menu.map(m=>`<option value="${esc(m.name)}" ${cur&&cur.name===m.name?'selected':''}>${esc(m.name)}</option>`).join('')}
@@ -504,7 +504,9 @@ function recalc(){
 }
 function saveOrder(){
   const data=collectForm();
-  if(!data.items.length){alert('Add at least one item.');return;}
+  if(!data.customer){alert('Please enter the customer name.');document.getElementById('f_customer').focus();return;}
+  if(!data.phone){alert('Please enter the phone number.');document.getElementById('f_phone').focus();return;}
+  if(!data.items.length){alert('Please add at least Item 1.');document.getElementById('item0').focus();return;}
   upsertContact(data.customer,data.phone,data.address);
   if(editingId){
     const i=orders.findIndex(x=>x.id===editingId);
