@@ -111,8 +111,7 @@
 <header>
   <div>
     <span class="logochip">
-      <img class="logo" src="dees-logo.png" alt="Dee's Treats"
-           onerror="this.style.display='none';document.getElementById('logoText').style.display='inline-block'">
+      <img class="logo" src="dees-logo.png" alt="Dee's Treats" onerror="logoFallback(this)">
       <span id="logoText" class="logoText" style="display:none">dee's<small>TREATS</small></span>
     </span>
     <div class="sub">Orders Log · delivery is tracked separately, never deducted from Net Revenue.</div>
@@ -257,6 +256,13 @@ let monthFilter='all';
 function load(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v||def}catch(e){return def}}
 function save(){localStorage.setItem(ORDERS_KEY,JSON.stringify(orders));localStorage.setItem(MENU_KEY,JSON.stringify(menu));}
 const AED=n=>'AED '+(Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
+
+/* Header logo: try dees-logo.png, then dees-icon.png, then text */
+function logoFallback(img){
+  if(!img.dataset.tried){img.dataset.tried='1';img.src='dees-icon.png';return;}
+  img.style.display='none';
+  document.getElementById('logoText').style.display='inline-block';
+}
 
 /* ---------- Order math ----------
    subtotal      = sum of item prices
