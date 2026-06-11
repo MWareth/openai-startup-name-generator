@@ -1,0 +1,13 @@
+{
+  "name": "Dee's Treats — Orders Log",
+  "short_name": "Dee's Treats",
+  "description": "Order tracker for Dee's Treats. Delivery is tracked separately from net revenue.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fbf4e6",
+  "theme_color": "#4a2c20",
+  "icons": [
+    { "src": "dees-icon.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "dees-icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}

@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#4a2c20" />
 <title>Dee's Treats — Orders Log</title>
+<!-- Home-screen icon (iPhone uses apple-touch-icon; Android uses the manifest) -->
+<link rel="apple-touch-icon" href="dees-icon.png" />
+<link rel="icon" type="image/png" href="dees-icon.png" />
+<link rel="manifest" href="manifest.json" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Dee's Treats" />
 <style>
   :root{
     --brown:#4a2c20;
@@ -70,6 +77,11 @@
   .rowact button:hover{color:var(--brown)}
   tfoot td{background:var(--brown);color:var(--cream);font-weight:700;padding:11px 10px}
   .empty{padding:40px;text-align:center;color:var(--brown-soft)}
+  .monthbar{display:flex;align-items:center;gap:8px;padding:0 0 12px;flex-wrap:wrap}
+  .monthbar label{font-size:12px;font-weight:600;color:var(--brown-soft)}
+  .monthbar select{padding:8px 11px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;font-weight:600;color:var(--brown)}
+  tbody tr.monthhead td{background:var(--brown);color:var(--cream);font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.6px;padding:8px 12px}
+  tbody tr.monthsub td{background:var(--cream-2);color:var(--brown);font-weight:600;font-size:12px;border-bottom:2px solid var(--brown-soft);padding:7px 12px}
 
   /* Modal */
   .overlay{position:fixed;inset:0;background:rgba(40,24,16,.55);display:none;align-items:flex-start;justify-content:center;z-index:40;overflow:auto;padding:30px 14px}
@@ -119,6 +131,7 @@
 <div class="hint">Tip: pick items from the dropdown and prices fill in automatically (editable). Platform commission auto-sets (Direct = 0%, delivery apps = 30%) but you can change it.</div>
 
 <div class="wrap">
+  <div class="monthbar" id="monthbar"></div>
   <div class="tablecard">
     <table>
       <thead>
@@ -219,9 +232,27 @@ const DEFAULT_MENU=[
   {name:"Carrot Balls — 8 pcs",price:55},
 ];
 
-let orders=load(ORDERS_KEY,[]);
+const DEFAULT_ORDERS=[
+  {id:'seed1', date:'2026-05-21', customer:'Wataryu Ito', platform:'Direct (WhatsApp/IG)', payment:'Paid',   discount:6.5, comm:0, delivery:0,  items:[{name:"Dee's Bundle (Tasting Box)",price:320}]},
+  {id:'seed2', date:'2026-05-22', customer:'Nastya Salt',  platform:'Direct (WhatsApp/IG)', payment:'Paid',   discount:15,  comm:0, delivery:0,  items:[{name:'Lazy Cake — Whole',price:175}]},
+  {id:'seed3', date:'2026-05-28', customer:'Ada',          platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'San Sebastian — Whole',price:280}]},
+  {id:'seed4', date:'2026-05-27', customer:'Ryo',          platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:20, items:[{name:"Dee's Bundle (Tasting Box)",price:320}]},
+  {id:'seed5', date:'2026-06-11', customer:'Yehia',        platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'Lazy Cake — Whole',price:175}]},
+  {id:'seed6', date:'2026-06-11', customer:'David',        platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'San Sebastian — Whole',price:280}]},
+  {id:'seed7', date:'2026-06-04', customer:'Yara',         platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'Pavlova — Whole',price:260}]},
+  {id:'seed8', date:'2026-06-04', customer:'Yara',         platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'San Sebastian — Whole',price:280}]},
+  {id:'seed9', date:'2026-06-06', customer:'Zaghloul',     platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'Pavlova — Mini',price:60}]},
+  {id:'seed10',date:'2026-06-11', customer:'Nofal',        platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'Carrot Balls — 8 pcs',price:55}]},
+];
+
+let orders;
+const _stored=localStorage.getItem(ORDERS_KEY);
+if(_stored===null){orders=DEFAULT_ORDERS.slice();localStorage.setItem(ORDERS_KEY,JSON.stringify(orders));}
+else{try{orders=JSON.parse(_stored)||[]}catch(e){orders=[]}}
+
 let menu=load(MENU_KEY,DEFAULT_MENU);
 let editingId=null;
+let monthFilter='all';
 
 function load(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v||def}catch(e){return def}}
 function save(){localStorage.setItem(ORDERS_KEY,JSON.stringify(orders));localStorage.setItem(MENU_KEY,JSON.stringify(menu));}
@@ -242,45 +273,77 @@ function computed(o){
   return {subtotal,afterDiscount,commission,delivery:+o.delivery||0,net};
 }
 
+/* ---------- Months ---------- */
+function monthKey(d){const dt=new Date(d);if(!d||isNaN(dt))return 'unknown';return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0');}
+function monthLabel(key){if(key==='unknown')return 'No date';const [y,m]=key.split('-');return new Date(+y,+m-1,1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});}
+function sortedOrders(){return orders.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));}
+
+function renderMonthBar(){
+  const months=[...new Set(sortedOrders().map(o=>monthKey(o.date)))];
+  if(monthFilter!=='all' && !months.includes(monthFilter))monthFilter='all';
+  const opts=['<option value="all">All months</option>']
+    .concat(months.map(m=>`<option value="${m}">${monthLabel(m)}</option>`)).join('');
+  const bar=document.getElementById('monthbar');
+  bar.innerHTML=`<label>🗓️ View month:</label><select onchange="monthFilter=this.value;render()">${opts}</select>`;
+  bar.querySelector('select').value=monthFilter;
+}
+
 /* ---------- Render ---------- */
+function rowHtml(o,i,c){
+  const it=o.items||[];
+  const cell=(n)=>it[n]?`<td class="item">${esc(it[n].name)}</td><td class="num price">${it[n].price?AED(it[n].price):'—'}</td>`:`<td class="muted">—</td><td class="num muted">—</td>`;
+  return `<tr ondblclick="openForm('${o.id}')">
+    <td>${i}</td>
+    <td>${fmtDate(o.date)}</td>
+    <td>${esc(o.customer||'')}</td>
+    <td>${esc(o.platform||'')}</td>
+    ${cell(0)}${cell(1)}${cell(2)}
+    <td class="num">${AED(c.subtotal)}</td>
+    <td class="num">${o.discount?o.discount+'%':'—'}</td>
+    <td class="num">${AED(c.afterDiscount)}</td>
+    <td class="num">${o.comm?o.comm+'%':'—'}</td>
+    <td class="num delivery">${c.delivery?AED(c.delivery):'—'}</td>
+    <td class="num">${AED(c.net)}</td>
+    <td class="pay ${o.payment}">${o.payment||''}</td>
+    <td class="rowact"><button onclick="event.stopPropagation();openForm('${o.id}')">✏️</button></td>
+  </tr>`;
+}
 function render(){
+  renderMonthBar();
   const tb=document.getElementById('rows');
-  if(!orders.length){
-    tb.innerHTML=`<tr><td colspan="18" class="empty">No orders yet. Click <b>+ Add Order</b> to log your first one.</td></tr>`;
+  const all=sortedOrders();
+  const list=monthFilter==='all'?all:all.filter(o=>monthKey(o.date)===monthFilter);
+  if(!list.length){
+    tb.innerHTML=`<tr><td colspan="18" class="empty">No orders ${monthFilter==='all'?'yet. Click <b>+ Add Order</b> to log your first one.':'in this month.'}</td></tr>`;
     document.getElementById('foot').innerHTML='';
     renderStats({subtotal:0,afterDiscount:0,delivery:0,net:0,count:0});
     return;
   }
-  let T={subtotal:0,afterDiscount:0,delivery:0,net:0};
-  tb.innerHTML=orders.map((o,i)=>{
+  const T={subtotal:0,afterDiscount:0,delivery:0,net:0};
+  let html='',curMonth=null,m=null,i=0;
+  const flush=()=>{ if(m) html+=`<tr class="monthsub"><td colspan="18">↳ ${esc(m.label)} subtotal — ${m.count} orders · Net ${AED(m.net)} · Delivery (separate) ${AED(m.delivery)}</td></tr>`; };
+  list.forEach(o=>{
+    const mk=monthKey(o.date);
+    if(monthFilter==='all' && mk!==curMonth){
+      flush();
+      curMonth=mk; m={label:monthLabel(mk),net:0,delivery:0,count:0};
+      html+=`<tr class="monthhead"><td colspan="18">📅 ${esc(monthLabel(mk))}</td></tr>`;
+    }
     const c=computed(o);
     T.subtotal+=c.subtotal;T.afterDiscount+=c.afterDiscount;T.delivery+=c.delivery;T.net+=c.net;
-    const it=o.items||[];
-    const cell=(n)=>it[n]?`<td class="item">${esc(it[n].name)}</td><td class="num price">${it[n].price?AED(it[n].price):'—'}</td>`:`<td class="muted">—</td><td class="num muted">—</td>`;
-    return `<tr ondblclick="openForm('${o.id}')">
-      <td>${i+1}</td>
-      <td>${fmtDate(o.date)}</td>
-      <td>${esc(o.customer||'')}</td>
-      <td>${esc(o.platform||'')}</td>
-      ${cell(0)}${cell(1)}${cell(2)}
-      <td class="num">${AED(c.subtotal)}</td>
-      <td class="num">${o.discount?o.discount+'%':'—'}</td>
-      <td class="num">${AED(c.afterDiscount)}</td>
-      <td class="num">${o.comm?o.comm+'%':'—'}</td>
-      <td class="num delivery">${c.delivery?AED(c.delivery):'—'}</td>
-      <td class="num">${AED(c.net)}</td>
-      <td class="pay ${o.payment}">${o.payment||''}</td>
-      <td class="rowact"><button onclick="event.stopPropagation();openForm('${o.id}')">✏️</button></td>
-    </tr>`;
-  }).join('');
+    if(m){m.net+=c.net;m.delivery+=c.delivery;m.count++;}
+    html+=rowHtml(o,++i,c);
+  });
+  if(monthFilter==='all') flush();
+  tb.innerHTML=html;
   document.getElementById('foot').innerHTML=`<tr>
-    <td colspan="10">TOTALS · ${orders.length} orders</td>
+    <td colspan="10">${monthFilter==='all'?'GRAND TOTAL':monthLabel(monthFilter)} · ${list.length} orders</td>
     <td class="num">${AED(T.subtotal)}</td><td></td>
     <td class="num">${AED(T.afterDiscount)}</td><td></td>
     <td class="num">${AED(T.delivery)}</td>
     <td class="num">${AED(T.net)}</td><td colspan="2"></td>
   </tr>`;
-  renderStats({...T,count:orders.length});
+  renderStats({...T,count:list.length});
 }
 function renderStats(T){
   document.getElementById('stats').innerHTML=`
