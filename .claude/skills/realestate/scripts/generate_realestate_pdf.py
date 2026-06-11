@@ -34,6 +34,42 @@ except ImportError:
 
 
 # ---------------------------------------------------------------------------
+# Fonts — cooler modern type (Outfit display + Work Sans text), Helvetica fallback
+# ---------------------------------------------------------------------------
+FONT_R, FONT_H = "Helvetica", "Helvetica-Bold"
+
+def _register_fonts():
+    global FONT_R, FONT_H
+    here = os.path.dirname(os.path.abspath(__file__))
+    cands = [
+        os.path.join(here, "..", "..", "..", "..", "assets", "fonts"),
+        os.path.join(here, "assets", "fonts"),
+        "/home/user/openai-startup-name-generator/assets/fonts",
+    ]
+    fdir = next((c for c in cands if os.path.exists(os.path.join(c, "Outfit-Regular.ttf"))), None)
+    if not fdir:
+        return
+    try:
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+        from reportlab.pdfbase.pdfmetrics import registerFontFamily
+        pdfmetrics.registerFont(TTFont("Outfit", os.path.join(fdir, "Outfit-Regular.ttf")))
+        pdfmetrics.registerFont(TTFont("Outfit-Bold", os.path.join(fdir, "Outfit-Bold.ttf")))
+        pdfmetrics.registerFont(TTFont("WorkSans", os.path.join(fdir, "WorkSans-Regular.ttf")))
+        pdfmetrics.registerFont(TTFont("WorkSans-Bold", os.path.join(fdir, "WorkSans-Bold.ttf")))
+        pdfmetrics.registerFont(TTFont("WorkSans-Italic", os.path.join(fdir, "WorkSans-Italic.ttf")))
+        registerFontFamily("WorkSans", normal="WorkSans", bold="WorkSans-Bold",
+                           italic="WorkSans-Italic", boldItalic="WorkSans-Bold")
+        registerFontFamily("Outfit", normal="Outfit", bold="Outfit-Bold",
+                           italic="Outfit", boldItalic="Outfit-Bold")
+        FONT_R, FONT_H = "WorkSans", "Outfit-Bold"
+    except Exception as e:
+        print("font registration fell back to Helvetica:", e)
+
+_register_fonts()
+
+
+# ---------------------------------------------------------------------------
 # Color palette — Real Estate theme
 # ---------------------------------------------------------------------------
 COLORS = {
@@ -188,12 +224,12 @@ def draw_score_gauge(score, size=140):
     # Score text
     d.add(String(cx, cy + 2, str(int(score)),
                  fontSize=36, fillColor=COLORS["navy"],
-                 textAnchor="middle", fontName="Helvetica-Bold"))
+                 textAnchor="middle", fontName=FONT_H))
 
     # "/ 100" label
     d.add(String(cx, cy - 18, "/ 100",
                  fontSize=10, fillColor=COLORS["gray"],
-                 textAnchor="middle", fontName="Helvetica"))
+                 textAnchor="middle", fontName=FONT_R))
 
     return d
 
@@ -215,7 +251,7 @@ def create_bar_chart(categories, scores, width=470, height=200):
         # Category label
         d.add(String(label_x, y + 5, cat[:25],
                      fontSize=9, fillColor=COLORS["text"],
-                     textAnchor="start", fontName="Helvetica"))
+                     textAnchor="start", fontName=FONT_R))
 
         # Background bar
         d.add(Rect(bar_x, y, max_bar_width, bar_height,
@@ -230,7 +266,7 @@ def create_bar_chart(categories, scores, width=470, height=200):
         # Score label
         d.add(String(bar_x + max_bar_width + 10, y + 5, f"{int(score)}/100",
                      fontSize=10, fillColor=COLORS["text"],
-                     textAnchor="start", fontName="Helvetica-Bold"))
+                     textAnchor="start", fontName=FONT_H))
 
     return d
 
@@ -251,7 +287,7 @@ def create_neighborhood_bar_chart(categories, scores, width=470, height=160):
 
         d.add(String(label_x, y + 4, cat[:22],
                      fontSize=9, fillColor=COLORS["text"],
-                     textAnchor="start", fontName="Helvetica"))
+                     textAnchor="start", fontName=FONT_R))
 
         d.add(Rect(bar_x, y, max_bar_width, bar_height,
                    fillColor=COLORS["light_bg"], strokeColor=None, rx=3))
@@ -271,7 +307,7 @@ def create_neighborhood_bar_chart(categories, scores, width=470, height=160):
 
         d.add(String(bar_x + max_bar_width + 10, y + 4, f"{int(score)}/100",
                      fontSize=9, fillColor=COLORS["text"],
-                     textAnchor="start", fontName="Helvetica-Bold"))
+                     textAnchor="start", fontName=FONT_H))
 
     return d
 
@@ -287,75 +323,85 @@ def get_styles():
         "title": ParagraphStyle(
             "RETitle", parent=styles["Title"],
             fontSize=28, textColor=COLORS["navy"],
-            spaceAfter=4, fontName="Helvetica-Bold",
+            spaceAfter=4, fontName=FONT_H,
             leading=34
         ),
         "address": ParagraphStyle(
             "REAddress", parent=styles["Title"],
             fontSize=22, textColor=COLORS["forest_green"],
-            spaceAfter=4, fontName="Helvetica-Bold",
+            spaceAfter=4, fontName=FONT_H,
             leading=28
         ),
         "price": ParagraphStyle(
             "REPrice", parent=styles["Title"],
             fontSize=36, textColor=COLORS["warm_gold"],
-            spaceAfter=4, fontName="Helvetica-Bold",
+            spaceAfter=4, fontName=FONT_H,
             leading=42
         ),
         "subtitle": ParagraphStyle(
             "RESubtitle", parent=styles["Normal"],
             fontSize=14, textColor=COLORS["gray"],
-            spaceAfter=6, fontName="Helvetica"
+            spaceAfter=6, fontName=FONT_R
+        ),
+        "preparedfor": ParagraphStyle(
+            "REPreparedFor", parent=styles["Normal"],
+            fontSize=13, textColor=COLORS["warm_gold"], alignment=1,
+            spaceAfter=2, fontName=FONT_H, leading=17
+        ),
+        "presented": ParagraphStyle(
+            "REPresented", parent=styles["Normal"],
+            fontSize=8.5, textColor=HexColor("#1f6feb"), alignment=1,
+            spaceAfter=2, fontName=FONT_R, leading=12
         ),
         "heading": ParagraphStyle(
             "REHeading", parent=styles["Heading1"],
             fontSize=20, textColor=COLORS["navy"],
             spaceBefore=16, spaceAfter=10,
-            fontName="Helvetica-Bold"
+            fontName=FONT_H
         ),
         "subheading": ParagraphStyle(
             "RESubheading", parent=styles["Heading2"],
             fontSize=14, textColor=COLORS["forest_green"],
             spaceBefore=12, spaceAfter=6,
-            fontName="Helvetica-Bold"
+            fontName=FONT_H
         ),
         "body": ParagraphStyle(
             "REBody", parent=styles["Normal"],
             fontSize=10, textColor=COLORS["text"],
-            spaceAfter=6, fontName="Helvetica", leading=14
+            spaceAfter=6, fontName=FONT_R, leading=14
         ),
         "body_small": ParagraphStyle(
             "REBodySmall", parent=styles["Normal"],
             fontSize=8, textColor=COLORS["text"],
-            spaceAfter=4, fontName="Helvetica", leading=11
+            spaceAfter=4, fontName=FONT_R, leading=11
         ),
         "signal": ParagraphStyle(
             "RESignal", parent=styles["Title"],
             fontSize=22, textColor=COLORS["forest_green"],
-            spaceAfter=4, fontName="Helvetica-Bold",
+            spaceAfter=4, fontName=FONT_H,
             alignment=1
         ),
         "footer": ParagraphStyle(
             "REFooter", parent=styles["Normal"],
             fontSize=7, textColor=COLORS["gray"],
-            fontName="Helvetica", leading=10
+            fontName=FONT_R, leading=10
         ),
         "disclaimer": ParagraphStyle(
             "REDisclaimer", parent=styles["Normal"],
             fontSize=6.5, textColor=COLORS["gray"],
-            fontName="Helvetica", leading=9,
+            fontName=FONT_R, leading=9,
             spaceBefore=8
         ),
         "grade_large": ParagraphStyle(
             "REGrade", parent=styles["Title"],
             fontSize=18, textColor=COLORS["navy"],
-            spaceAfter=6, fontName="Helvetica-Bold",
+            spaceAfter=6, fontName=FONT_H,
             alignment=1
         ),
         "bullet": ParagraphStyle(
             "REBullet", parent=styles["Normal"],
             fontSize=10, textColor=COLORS["text"],
-            spaceAfter=4, fontName="Helvetica", leading=14,
+            spaceAfter=4, fontName=FONT_R, leading=14,
             leftIndent=16, bulletIndent=4
         ),
     }
@@ -370,7 +416,8 @@ def standard_table_style(extra=None):
     cmds = [
         ("BACKGROUND", (0, 0), (-1, 0), COLORS["header_bg"]),
         ("TEXTCOLOR", (0, 0), (-1, 0), COLORS["white"]),
-        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTNAME", (0, 0), (-1, 0), FONT_H),
+        ("FONTNAME", (0, 1), (-1, -1), FONT_R),
         ("FONTSIZE", (0, 0), (-1, -1), 9),
         ("GRID", (0, 0), (-1, -1), 0.5, COLORS["border"]),
         ("ROWBACKGROUNDS", (0, 1), (-1, -1), [COLORS["white"], COLORS["light_bg"]]),
@@ -452,9 +499,14 @@ def generate_report(data, output_path):
     cover_price_style = ParagraphStyle("CoverPrice", parent=S["price"],
                                        fontSize=25, leading=30)
     elements.append(Paragraph(price, cover_price_style))
+    elements.append(Spacer(1, 8))
+    if brand.get("prepared_for"):
+        elements.append(Paragraph(f'Prepared exclusively for {brand["prepared_for"]}', S["preparedfor"]))
+    if brand.get("presented_by"):
+        elements.append(Paragraph(f'Presented by {brand["presented_by"]}', S["presented"]))
     elements.append(Spacer(1, 6))
     elements.append(Paragraph(f"Generated: {date_str}", S["subtitle"]))
-    elements.append(Spacer(1, 18))
+    elements.append(Spacer(1, 16))
 
     # Property Score gauge
     gauge = draw_score_gauge(overall_score, size=104)
@@ -500,8 +552,8 @@ def generate_report(data, output_path):
     details_style = [
         ("BACKGROUND", (0, 0), (0, -1), COLORS["light_bg"]),
         ("BACKGROUND", (2, 0), (2, -1), COLORS["light_bg"]),
-        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
-        ("FONTNAME", (2, 0), (2, -1), "Helvetica-Bold"),
+        ("FONTNAME", (0, 0), (0, -1), FONT_H),
+        ("FONTNAME", (2, 0), (2, -1), FONT_H),
         ("FONTSIZE", (0, 0), (-1, -1), 9),
         ("GRID", (0, 0), (-1, -1), 0.5, COLORS["border"]),
         ("TEXTCOLOR", (0, 0), (-1, -1), COLORS["text"]),
@@ -554,7 +606,7 @@ def generate_report(data, output_path):
         f'Grade: <font color="{color.hexval()}">{grade}</font> &nbsp; | &nbsp; '
         f'Signal: <font color="{sig_color.hexval()}">{signal}</font>',
         ParagraphStyle("SignalBadge", parent=S["body"], fontSize=12,
-                       fontName="Helvetica-Bold", alignment=1, spaceAfter=12)
+                       fontName=FONT_H, alignment=1, spaceAfter=12)
     ))
 
     # Score breakdown table
@@ -574,7 +626,7 @@ def generate_report(data, output_path):
     for i, sc in enumerate(cat_scores, 1):
         c = score_color(sc)
         score_style_extra.append(("TEXTCOLOR", (3, i), (3, i), c))
-        score_style_extra.append(("FONTNAME", (3, i), (3, i), "Helvetica-Bold"))
+        score_style_extra.append(("FONTNAME", (3, i), (3, i), FONT_H))
     score_table.setStyle(standard_table_style(score_style_extra))
     elements.append(score_table)
     elements.append(Spacer(1, 16))
@@ -617,6 +669,32 @@ def generate_report(data, output_path):
 
     elements.append(PageBreak())
 
+    # ----- Current Availability / Inventory (optional) -----
+    inv = data.get("inventory")
+    if inv:
+        elements.append(Paragraph(inv.get("title", "Current Availability"), S["heading"]))
+        if inv.get("subtitle"):
+            elements.append(Paragraph(inv["subtitle"], S["body"]))
+        elements.append(Spacer(1, 4))
+        cols = inv.get("columns", ["Unit", "Beds", "View", "Size (sqft)", "Price (AED)"])
+        inv_hd = ParagraphStyle("InvHd", parent=S["body_small"], textColor=COLORS["white"],
+                                fontName=FONT_H)
+        inv_data = [[Paragraph(str(c), inv_hd) for c in cols]]
+        for r in inv.get("rows", []):
+            inv_data.append([Paragraph(str(x), S["body_small"]) for x in r])
+        ncol = len(cols)
+        widths = inv.get("col_widths", [55, 45, 130, 95, 110][:ncol])
+        inv_table = Table(inv_data, colWidths=widths, repeatRows=1)
+        inv_extra = [("ALIGN", (1, 1), (1, -1), "CENTER")]
+        for hr in inv.get("highlight_rows", []):
+            inv_extra.append(("BACKGROUND", (0, hr), (-1, hr), COLORS["light_bg"]))
+        inv_table.setStyle(standard_table_style(inv_extra))
+        elements.append(inv_table)
+        if inv.get("note"):
+            elements.append(Spacer(1, 6))
+            elements.append(Paragraph(inv["note"], S["body_small"]))
+        elements.append(PageBreak())
+
     # =====================================================================
     # PAGE 3 — RENTAL ANALYSIS & CASH FLOW
     # =====================================================================
@@ -638,7 +716,7 @@ def generate_report(data, output_path):
         # Highlight the "most likely" row if flagged
         ml = rent_snapshot.get("highlight_row")
         if ml is not None:
-            rs_extra.append(("FONTNAME", (0, ml), (-1, ml), "Helvetica-Bold"))
+            rs_extra.append(("FONTNAME", (0, ml), (-1, ml), FONT_H))
             rs_extra.append(("BACKGROUND", (0, ml), (-1, ml), COLORS["light_bg"]))
         rs_table.setStyle(standard_table_style(rs_extra))
         elements.append(rs_table)
@@ -675,7 +753,7 @@ def generate_report(data, output_path):
     ]
     # Highlight net cash flow row (last row)
     last_row = len(cf_items)
-    cf_style_extra.append(("FONTNAME", (0, last_row), (-1, last_row), "Helvetica-Bold"))
+    cf_style_extra.append(("FONTNAME", (0, last_row), (-1, last_row), FONT_H))
     cf_style_extra.append(("BACKGROUND", (0, last_row), (-1, last_row), COLORS["light_bg"]))
     cf_table.setStyle(standard_table_style(cf_style_extra))
     elements.append(cf_table)
@@ -685,14 +763,15 @@ def generate_report(data, output_path):
     elements.append(Paragraph("Investment Metrics", S["subheading"]))
     inv_metrics = data.get("investment_metrics", {})
 
+    _A = lambda t: Paragraph(str(t), S["body_small"])
     metrics_items = [
         ["Metric", "Value", "Assessment"],
-        ["Cap Rate", inv_metrics.get("cap_rate", "5.2%"), inv_metrics.get("cap_rate_status", "Fair — above 5% threshold")],
-        ["Cash-on-Cash Return", inv_metrics.get("cash_on_cash", "3.8%"), inv_metrics.get("coc_status", "Below average — aim for 8%+")],
-        ["Gross Rent Multiplier", inv_metrics.get("grm", "16.1x"), inv_metrics.get("grm_status", "Average for metro area")],
-        ["Debt Service Coverage", inv_metrics.get("dscr", "1.05"), inv_metrics.get("dscr_status", "Tight — lenders prefer 1.25+")],
-        ["1% Rule", inv_metrics.get("one_pct", "0.52%"), inv_metrics.get("one_pct_status", "Below 1% — typical for appreciation market")],
-        ["Break-Even Occupancy", inv_metrics.get("breakeven", "92%"), inv_metrics.get("breakeven_status", "Tight margin — low vacancy tolerance")],
+        ["Cap Rate", inv_metrics.get("cap_rate", "5.2%"), _A(inv_metrics.get("cap_rate_status", "Fair — above 5% threshold"))],
+        ["Cash-on-Cash Return", inv_metrics.get("cash_on_cash", "3.8%"), _A(inv_metrics.get("coc_status", "Below average — aim for 8%+"))],
+        ["Gross Rent Multiplier", inv_metrics.get("grm", "16.1x"), _A(inv_metrics.get("grm_status", "Average for metro area"))],
+        ["Debt Service Coverage", inv_metrics.get("dscr", "1.05"), _A(inv_metrics.get("dscr_status", "Tight — lenders prefer 1.25+"))],
+        ["1% Rule", inv_metrics.get("one_pct", "0.52%"), _A(inv_metrics.get("one_pct_status", "Below 1% — typical for appreciation market"))],
+        ["Break-Even Occupancy", inv_metrics.get("breakeven", "92%"), _A(inv_metrics.get("breakeven_status", "Tight margin — low vacancy tolerance"))],
     ]
 
     metrics_table = Table(metrics_items, colWidths=[140, 80, 240])
@@ -721,7 +800,7 @@ def generate_report(data, output_path):
     mort_table = Table(mort_data, colWidths=[160, 200])
     mort_style = [
         ("ALIGN", (1, 0), (1, -1), "CENTER"),
-        ("FONTNAME", (1, 6), (1, 7), "Helvetica-Bold"),
+        ("FONTNAME", (1, 6), (1, 7), FONT_H),
     ]
     mort_table.setStyle(standard_table_style(mort_style))
     elements.append(mort_table)
@@ -765,7 +844,8 @@ def generate_report(data, output_path):
 
     hood_data = [["Factor", "Detail", "Notes"]]
     for h in hood_details:
-        hood_data.append([h.get("factor", ""), h.get("detail", ""),
+        hood_data.append([h.get("factor", ""),
+                          Paragraph(h.get("detail", ""), S["body_small"]),
                           Paragraph(h.get("notes", ""), S["body_small"])])
 
     hood_table = Table(hood_data, colWidths=[130, 130, 210])
@@ -800,6 +880,26 @@ def generate_report(data, output_path):
     elements.append(Paragraph("Investment Analysis", S["heading"]))
     elements.append(Spacer(1, 6))
 
+    # Payment plan (off-plan) — optional
+    pp = data.get("payment_plan")
+    if pp:
+        elements.append(Paragraph(pp.get("title", "Payment Plan"), S["subheading"]))
+        pp_data = [["Stage", "%", "When"]]
+        for r in pp.get("rows", []):
+            pp_data.append([r.get("stage", ""), r.get("percent", ""), r.get("when", "")])
+        pp_table = Table(pp_data, colWidths=[200, 70, 170])
+        pp_extra = [("ALIGN", (1, 0), (1, -1), "CENTER")]
+        hl = pp.get("highlight_row")
+        if hl is not None:
+            pp_extra.append(("FONTNAME", (0, hl), (-1, hl), FONT_H))
+            pp_extra.append(("BACKGROUND", (0, hl), (-1, hl), COLORS["light_bg"]))
+        pp_table.setStyle(standard_table_style(pp_extra))
+        elements.append(pp_table)
+        if pp.get("note"):
+            elements.append(Spacer(1, 6))
+            elements.append(Paragraph(pp["note"], S["body"]))
+        elements.append(Spacer(1, 14))
+
     # Investment strategies
     elements.append(Paragraph("Investment Strategy Comparison", S["subheading"]))
     strategies = data.get("strategies", [])
@@ -819,8 +919,9 @@ def generate_report(data, output_path):
 
     strat_data = [["Strategy", "Projected Return", "Timeframe", "Key Risk"]]
     for s in strategies:
-        strat_data.append([s.get("strategy", ""), s.get("projected_return", ""),
-                           s.get("timeframe", ""),
+        strat_data.append([Paragraph(s.get("strategy", ""), S["body_small"]),
+                           Paragraph(s.get("projected_return", ""), S["body_small"]),
+                           Paragraph(s.get("timeframe", ""), S["body_small"]),
                            Paragraph(s.get("risk", ""), S["body_small"])])
 
     strat_table = Table(strat_data, colWidths=[110, 100, 95, 165])
@@ -852,7 +953,7 @@ def generate_report(data, output_path):
     proj_style = [
         ("ALIGN", (1, 0), (-1, -1), "CENTER"),
         ("TEXTCOLOR", (3, 1), (3, -1), COLORS["forest_green"]),
-        ("FONTNAME", (3, 1), (3, -1), "Helvetica-Bold"),
+        ("FONTNAME", (3, 1), (3, -1), FONT_H),
     ]
     proj_table.setStyle(standard_table_style(proj_style))
     elements.append(proj_table)
@@ -886,7 +987,7 @@ def generate_report(data, output_path):
         sc_style.append(("TEXTCOLOR", (2, 1), (2, 1), COLORS["forest_green"]))
         sc_style.append(("TEXTCOLOR", (2, 2), (2, 2), COLORS["sky_blue"]))
         sc_style.append(("TEXTCOLOR", (2, 3), (2, 3), COLORS["danger"]))
-        sc_style.append(("FONTNAME", (2, 1), (2, 3), "Helvetica-Bold"))
+        sc_style.append(("FONTNAME", (2, 1), (2, 3), FONT_H))
     sc_table.setStyle(standard_table_style(sc_style))
     elements.append(sc_table)
 
@@ -924,7 +1025,7 @@ def generate_report(data, output_path):
         f'Signal: <font color="{rec_color.hexval()}">{rec_signal}</font> &nbsp; | &nbsp; '
         f'Suggested Offer: <font color="{COLORS["forest_green"].hexval()}">{rec_offer}</font>',
         ParagraphStyle("RecLine", parent=S["body"], fontSize=13,
-                       fontName="Helvetica-Bold", alignment=1, spaceAfter=12)
+                       fontName=FONT_H, alignment=1, spaceAfter=12)
     ))
 
     elements.append(Paragraph(rec_summary, S["body"]))
@@ -993,6 +1094,10 @@ def generate_report(data, output_path):
         elements.append(Paragraph(
             "Thank you", ParagraphStyle("CloseThanks", parent=S["subtitle"],
                                         fontSize=13, alignment=TA_CENTER)))
+        if brand.get("prepared_for"):
+            elements.append(Spacer(1, 10))
+            elements.append(Paragraph(
+                f'Prepared exclusively for {brand["prepared_for"]}', S["preparedfor"]))
         elements.append(Spacer(1, 26))
         if brand.get("presented_by"):
             elements.append(Paragraph(
@@ -1014,6 +1119,9 @@ def generate_report(data, output_path):
             elements.append(Paragraph(
                 bit, ParagraphStyle("CloseContact", parent=S["subtitle"],
                                     fontSize=11, alignment=TA_CENTER, spaceAfter=1)))
+        if brand.get("presented_by"):
+            elements.append(Spacer(1, 6))
+            elements.append(Paragraph(f'Presented by {brand["presented_by"]}', S["presented"]))
         if not brand.get("hide_disclaimer"):
             elements.append(Spacer(1, 40))
             elements.append(Paragraph(DISCLAIMER_TEXT, S["disclaimer"]))
