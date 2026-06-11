@@ -139,6 +139,36 @@ def geo_pattern(c, x0, y0, w, h, cols=6, rows=5):
             c.drawPath(p, stroke=0, fill=1)
 
 
+def draw_image_cover(c, path, x, y, w, h, dim=0.0):
+    """Draw an image cropped to fill the (x,y,w,h) box, optional dark overlay."""
+    import os
+    if not path or not os.path.exists(path):
+        return False
+    try:
+        from reportlab.lib.utils import ImageReader
+        img = ImageReader(path)
+        iw, ih = img.getSize()
+        scale = max(w / iw, h / ih)
+        dw, dh = iw * scale, ih * scale
+        c.saveState()
+        p = c.beginPath()
+        p.rect(x, y, w, h)
+        c.clipPath(p, stroke=0, fill=0)
+        c.drawImage(img, x - (dw - w) / 2, y - (dh - h) / 2, dw, dh,
+                    mask="auto")
+        if dim > 0:
+            c.setFillColor(C["bg"])
+            c.setFillAlpha(dim)
+            c.rect(x, y, w, h, stroke=0, fill=1)
+            c.setFillAlpha(1)
+        c.restoreState()
+        return True
+    except Exception as e:
+        print(f"  (image skipped: {path}: {e})")
+        c.restoreState()
+        return False
+
+
 def wrap_text(c, text, font, size, max_w):
     words, lines, cur = text.split(), [], ""
     for w in words:
@@ -332,14 +362,15 @@ def slide_intro(c, d):
 
 def slide_why_dubai(c, d):
     begin_slide(c)
-    section_label(c, "Why Invest in Dubai Now?", MARGIN, PAGE_H - 0.85 * inch)
-    y = slide_title(c, d["deck"]["why_dubai"]["headline"], PAGE_H - 1.35 * inch, 19)
+    section_label(c, "Why Invest in Dubai Now?", MARGIN, PAGE_H - 0.75 * inch)
+    para(c, d["deck"]["why_dubai"]["headline"], MARGIN, PAGE_H - 1.15 * inch,
+         PAGE_W - 2 * MARGIN, font="Helvetica-Bold", size=16, leading=21)
     blocks = d["deck"]["why_dubai"]["blocks"]
     col_w = (PAGE_W - 2 * MARGIN - 0.4 * inch) / 2
-    positions = [(MARGIN, PAGE_H * 0.555), (MARGIN + col_w + 0.4 * inch, PAGE_H * 0.555),
-                 (MARGIN, PAGE_H * 0.155), (MARGIN + col_w + 0.4 * inch, PAGE_H * 0.155)]
+    positions = [(MARGIN, PAGE_H * 0.425), (MARGIN + col_w + 0.4 * inch, PAGE_H * 0.425),
+                 (MARGIN, PAGE_H * 0.085), (MARGIN + col_w + 0.4 * inch, PAGE_H * 0.085)]
     for (bx, by), block in zip(positions, blocks[:4]):
-        bh = PAGE_H * 0.345
+        bh = PAGE_H * 0.30
         c.setFillColor(C["bg_panel"])
         c.roundRect(bx, by, col_w, bh, 8, stroke=0, fill=1)
         c.setFillColor(C["green"])
@@ -404,7 +435,9 @@ def slide_investor_profiles(c, d):
 
 def slide_project_cover(c, d, p, idx, total):
     begin_slide(c)
-    geo_pattern(c, PAGE_W * 0.62, 0, PAGE_W * 0.38, PAGE_H, cols=4, rows=7)
+    if not draw_image_cover(c, p.get("cover_image"),
+                            PAGE_W * 0.46, 0, PAGE_W * 0.54, PAGE_H, dim=0.12):
+        geo_pattern(c, PAGE_W * 0.62, 0, PAGE_W * 0.38, PAGE_H, cols=4, rows=7)
     c.setFillColor(C["gray"])
     c.setFont("Helvetica-Bold", 11)
     c.drawString(MARGIN, PAGE_H * 0.70, f"PROJECT {idx} OF {total}")
@@ -425,7 +458,7 @@ def slide_project_cover(c, d, p, idx, total):
     c.setFont("Helvetica-Bold", 15)
     c.drawString(MARGIN + c.stringWidth("Developer : ", "Helvetica", 15), y,
                  p["developer"])
-    if "score" in p:
+    if "score" in p and not d["deck"].get("hide_scores"):
         s = p["score"]["total"]
         g = p["score"].get("grade", grade_for(s))
         stat_chip(c, MARGIN, PAGE_H * 0.13, 2.4 * inch, 0.7 * inch,
@@ -581,12 +614,12 @@ def slide_resale(c, d, p, fin):
         c.drawString(bx + 16, by + bh - 28, sc["label"])
         if sc["note"]:
             para(c, sc["note"], bx + 16, by + bh - 48, col_w - 32,
-                 size=9, color=C["gray"], max_lines=2)
+                 size=9, color=C["gray"], max_lines=3)
         rows = [["Estimated Selling Price", f"AED {fmt(sc['sell'])}"],
                 ["", cur + fmt(sc["sell"] * fx)],
                 ["Estimated Profit", f"AED {fmt(sc['profit'])}"],
                 ["", cur + fmt(sc["profit"] * fx)]]
-        yy = by + bh - 70
+        yy = by + bh - 105
         for label, val in rows:
             c.setFillColor(C["gray"])
             c.setFont("Helvetica", 10)
@@ -653,6 +686,40 @@ def slide_score(c, d, p):
     c.showPage()
 
 
+def slide_gallery(c, d, p):
+    """Optional photo gallery: p['gallery'] = list of image paths (max 4)."""
+    import os
+    imgs = [g for g in p.get("gallery", []) if os.path.exists(g)][:4]
+    if not imgs:
+        return
+    begin_slide(c)
+    c.setFillColor(C["white"])
+    c.setFont("Helvetica-Bold", 20)
+    c.drawString(MARGIN, PAGE_H - 0.95 * inch, p["name"].replace("\n", " "))
+    c.setFillColor(C["green"])
+    c.setFont("Helvetica-Bold", 12)
+    c.drawString(MARGIN, PAGE_H - 1.25 * inch, "PROJECT GALLERY")
+    top, bottom = PAGE_H - 1.55 * inch, 0.6 * inch
+    gap = 0.18 * inch
+    area_w = PAGE_W - 2 * MARGIN
+    if len(imgs) == 1:
+        cells = [(MARGIN, bottom, area_w, top - bottom)]
+    elif len(imgs) == 2:
+        cw = (area_w - gap) / 2
+        cells = [(MARGIN + i * (cw + gap), bottom, cw, top - bottom)
+                 for i in range(2)]
+    else:
+        cw = (area_w - gap) / 2
+        ch = (top - bottom - gap) / 2
+        cells = [(MARGIN + (i % 2) * (cw + gap),
+                  bottom + (1 - i // 2) * (ch + gap), cw, ch)
+                 for i in range(len(imgs))]
+    for img, (x, y, w, h) in zip(imgs, cells):
+        draw_image_cover(c, img, x, y, w, h)
+    footer(c, d["branding"])
+    c.showPage()
+
+
 def slide_comparison(c, d, fins):
     if len(d["projects"]) < 2:
         return
@@ -683,9 +750,10 @@ def slide_comparison(c, d, fins):
         f"{f['resale'][0]['roi']:.0f}%" if f["resale"] else "—")
     row("ROI Long-Term", lambda p, f:
         f"{f['resale'][1]['roi']:.0f}%" if len(f["resale"]) > 1 else "—")
-    row("Off-Plan Score", lambda p, f:
-        f"{p['score']['total']}/100 ({p['score'].get('grade', grade_for(p['score']['total']))})"
-        if p.get("score") else "—")
+    if not d["deck"].get("hide_scores"):
+        row("Off-Plan Score", lambda p, f:
+            f"{p['score']['total']}/100 ({p['score'].get('grade', grade_for(p['score']['total']))})"
+            if p.get("score") else "—")
     dark_table(c, MARGIN, PAGE_H - 1.85 * inch, cols, rows,
                row_h=0.40 * inch, font_size=9,
                align=["left"] + ["right"] * n)
@@ -753,10 +821,12 @@ def build(data, out_path):
     for i, (p, fin) in enumerate(zip(data["projects"], fins), 1):
         slide_project_cover(c, data, p, i, total)
         slide_developer(c, data, p)
+        slide_gallery(c, data, p)
         slide_fact_sheet(c, data, p, fin)
         slide_price_rental(c, data, p, fin)
         slide_resale(c, data, p, fin)
-        slide_score(c, data, p)
+        if not data["deck"].get("hide_scores"):
+            slide_score(c, data, p)
     slide_comparison(c, data, fins)
     slide_text_page(c, data, "Important Notice", "Please Read",
                     data["deck"]["notice_paragraphs"])
