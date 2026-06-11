@@ -1,34 +1,30 @@
-# Dee's Treats — Orders Log (web app)
+# Dee's Treats — Website & Orders Tool
 
-A single-file order tracker you can open on any phone or laptop. Same columns as the
-spreadsheet, but **delivery fee is its own column and is never deducted from Net Revenue**.
+This folder is published with GitHub Pages (Source: branch `master`, folder `/docs`).
 
-- `index.html` — the whole app. No install, no server, works offline.
-- Data is saved in **your browser** on the device you use. Use **Export CSV** to back it up
-  or move it to another device (then **Import CSV** there).
+## Two things live here
 
-## How Net Revenue works here
+### 1. Public website — `index.html`
+The customer-facing Dee's Treats site (hero, menu, story, gallery, reviews,
+build-your-order, contact). This is your main link:
 ```
-Subtotal       = sum of item prices
-After Discount  = Subtotal − Discount %
-Net Revenue     = After Discount − Platform Commission %   ← delivery NOT subtracted
-Delivery Fee    = its own column + its own total
+https://mwareth.github.io/openai-startup-name-generator/
 ```
-The dashboard also shows **"Net after delivery absorbed"** so you can still see the true
-bottom line when you cover delivery yourself.
+- Edit menu items/prices/reviews in the `MENU` and `REVIEWS` lists inside `index.html`.
+- Add your WhatsApp number: set `const WHATSAPP=''` near the top of the script to your
+  number (country code, no `+`, e.g. `'9715XXXXXXXX'`).
+- Add photos by dropping files into `img/` — see `img/README.md` for the file names.
 
-## Two ways to use it
+### 2. Private orders tool — `orders.html`
+Your internal order log (delivery tracked separately from net revenue, monthly totals,
+CSV export). Bookmark it / add to home screen:
+```
+https://mwareth.github.io/openai-startup-name-generator/orders.html
+```
+Data is stored in your browser on each device. Use Export/Import CSV to move it.
 
-### A) Just open the file (fastest)
-Download `index.html` and open it in any browser. Done.
+## Logo & icon files (used by both)
+- `dees-logo.png` — wide logo for the headers (transparent background ideal)
+- `dees-icon.png` — square logo on a cream background, for the phone home-screen icon
 
-### B) Get a permanent link (access anywhere) — GitHub Pages
-1. On GitHub, open this repo → **Settings** → **Pages**.
-2. Under "Build and deployment", set **Source = Deploy from a branch**.
-3. Choose your branch and **folder = `/docs`**, then **Save**.
-4. Wait ~1 minute. Your link appears at the top of the Pages screen, like:
-   `https://<your-username>.github.io/openai-startup-name-generator/`
-5. Open that link on your phone, add it to your home screen, and log orders anywhere.
-
-> Note: with GitHub Pages the data still lives in each device's browser. If you want
-> orders to **sync automatically across devices**, ask and I'll wire up free cloud storage.
+Until these exist, a styled "dee's TREATS" text shows instead — nothing breaks.
