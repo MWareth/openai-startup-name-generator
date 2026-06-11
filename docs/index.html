@@ -4,373 +4,348 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <meta name="theme-color" content="#4a2c20" />
-<title>Dee's Treats — Homemade Desserts in Dubai</title>
-<meta name="description" content="Dee's Treats — homemade, freshly baked desserts in Dubai. San Sebastian cheesecake, pavlova, lazy cake, crème brûlée, carrot cake & more. Order on Instagram @deestreats.ae." />
+<title>Dee's Treats — Homemade Desserts Delivered in Dubai</title>
+<meta name="description" content="Dee's Treats — homemade, freshly baked desserts delivered across Dubai. San Sebastian cheesecake, pavlova, lazy cake, crème brûlée, carrot cake & more. Order on Instagram @deestreats.ae." />
 <link rel="apple-touch-icon" href="dees-icon.png" />
 <link rel="icon" type="image/png" href="dees-icon.png" />
 <style>
   :root{
     --brown:#4a2c20; --brown-soft:#6b4636; --cream:#fbf4e6; --cream-2:#f3e7d0;
-    --gold:#c79a3a; --gold-soft:#e3c477; --sky:#d8e6ec; --line:#e3d4ba; --ink:#3a2a20;
+    --gold:#c79a3a; --gold-soft:#e3c477; --sky:#dce7ec; --line:#e7d9c0; --line:#e3d4ba;
+    --ink:#3a2a20; --shadow:0 8px 26px rgba(74,44,32,.10);
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--cream);line-height:1.5}
-  a{color:inherit}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:#fff;line-height:1.5}
+  a{color:inherit;text-decoration:none}
   h1,h2,h3{margin:0;font-weight:800;color:var(--brown);letter-spacing:-.5px}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
-  .rounded-font{font-family:"Arial Rounded MT Bold","Helvetica Rounded",Verdana,system-ui,Arial,sans-serif;font-weight:900}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+  .rounded{font-family:"Arial Rounded MT Bold","Helvetica Rounded",Verdana,system-ui,Arial,sans-serif;font-weight:900}
+  button{font-family:inherit}
 
-  /* NAV */
-  nav{position:sticky;top:0;z-index:50;background:rgba(74,44,32,.97);backdrop-filter:blur(6px)}
-  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
-  .brand{display:flex;align-items:center;gap:10px;text-decoration:none}
-  .brand .mark{display:flex;flex-direction:column;align-items:center;line-height:.82}
-  .brand .mark .d{font-size:24px;letter-spacing:-1.5px;color:var(--cream)}
-  .brand .mark .t{font-size:8px;letter-spacing:4px;color:var(--gold-soft);font-weight:800}
-  .brand img.logo{height:40px;display:none}
-  .navlinks{display:flex;gap:22px;align-items:center}
-  .navlinks a{color:var(--cream);text-decoration:none;font-size:14px;font-weight:600;opacity:.9}
-  .navlinks a:hover{opacity:1;color:var(--gold-soft)}
-  .navlinks a.cta{background:var(--gold);color:var(--brown);padding:9px 16px;border-radius:30px;opacity:1}
-  .navlinks a.cta:hover{background:var(--gold-soft)}
-  .menutoggle{display:none;background:none;border:none;color:var(--cream);font-size:24px;cursor:pointer}
-  @media(max-width:760px){
-    .navlinks{position:fixed;inset:62px 0 auto 0;background:var(--brown);flex-direction:column;gap:0;padding:8px 0;display:none;border-top:1px solid rgba(255,255,255,.1)}
-    .navlinks.open{display:flex}
-    .navlinks a{padding:14px 20px;width:100%;text-align:center}
-    .navlinks a.cta{border-radius:0;margin:6px 20px;width:auto}
-    .menutoggle{display:block}
-  }
+  /* ANNOUNCE */
+  .announce{background:var(--brown);color:var(--cream);text-align:center;font-size:13px;padding:7px 12px;font-weight:600}
+  .announce b{color:var(--gold-soft)}
+
+  /* HEADER */
+  header{position:sticky;top:0;z-index:40;background:var(--cream);box-shadow:0 2px 10px rgba(74,44,32,.08)}
+  .hrow{display:flex;align-items:center;gap:14px;height:64px}
+  .brand{display:flex;align-items:center;gap:8px}
+  .brand img{height:42px;display:none}
+  .brand .mk{display:flex;flex-direction:column;align-items:center;line-height:.82}
+  .brand .mk .d{font-size:26px;letter-spacing:-1.5px;color:var(--brown)}
+  .brand .mk .t{font-size:8px;letter-spacing:4px;color:var(--gold);font-weight:800}
+  .search{flex:1;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:30px;padding:0 14px;height:42px;max-width:480px}
+  .search input{border:none;outline:none;flex:1;font:inherit;background:transparent;font-size:14px}
+  .cartbtn{display:flex;align-items:center;gap:8px;background:var(--brown);color:var(--cream);border:none;border-radius:30px;padding:0 16px;height:42px;font-weight:700;cursor:pointer;font-size:14px;white-space:nowrap}
+  .cartbtn .count{background:var(--gold);color:var(--brown);border-radius:20px;padding:1px 8px;font-size:12px;font-weight:800}
+  /* category chips */
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--brown);border-radius:30px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer}
+  .chip.active{background:var(--brown);color:var(--cream);border-color:var(--brown)}
+  @media(max-width:640px){.search{max-width:none}.brand .mk .d{font-size:22px}}
 
   /* HERO */
-  .hero{background:linear-gradient(180deg,var(--sky),var(--cream));text-align:center;padding:54px 0 46px;position:relative;overflow:hidden}
-  .hero .logobadge{background:var(--cream);display:inline-flex;flex-direction:column;align-items:center;padding:14px 30px;border-radius:22px;box-shadow:0 10px 30px rgba(74,44,32,.12);line-height:.8}
-  .hero .logobadge .d{font-size:60px;letter-spacing:-3px;color:var(--brown)}
-  .hero .logobadge .t{font-size:15px;letter-spacing:8px;color:var(--brown);font-weight:800;margin-top:4px}
-  .hero img.herologo{max-width:300px;width:70%;display:none;margin:0 auto}
-  .hero .pitch{margin:22px auto 6px;font-size:15px;font-weight:700;color:var(--brown);text-transform:uppercase;letter-spacing:2px}
-  .hero h1{font-size:34px;margin:8px auto 6px;max-width:620px}
-  .hero .sub{color:var(--brown-soft);max-width:520px;margin:0 auto 26px;font-size:16px}
-  .btnrow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-  .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;padding:13px 22px;border-radius:30px;cursor:pointer;border:none;font-size:15px;font-family:inherit}
-  .btn-ig{background:var(--brown);color:var(--cream)}
-  .btn-ig:hover{background:#5e3a2b}
+  .hero{background:linear-gradient(115deg,var(--sky),var(--cream));}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center;padding:42px 18px}
+  .hero .ey{color:var(--gold);font-weight:800;letter-spacing:3px;text-transform:uppercase;font-size:12px}
+  .hero h1{font-size:40px;margin:10px 0 12px;line-height:1.05}
+  .hero p{font-size:17px;color:var(--brown-soft);margin:0 0 22px;max-width:440px}
+  .hero .heroimg{aspect-ratio:1;border-radius:26px;background:linear-gradient(135deg,var(--gold-soft),var(--cream-2));display:flex;align-items:center;justify-content:center;font-size:120px;box-shadow:var(--shadow);overflow:hidden}
+  .hero .heroimg img{width:100%;height:100%;object-fit:cover}
+  .btnrow{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:13px 22px;border-radius:30px;cursor:pointer;border:none;font-size:15px;font-family:inherit}
+  .btn-brown{background:var(--brown);color:var(--cream)} .btn-brown:hover{background:#5e3a2b}
+  .btn-gold{background:var(--gold);color:var(--brown)} .btn-gold:hover{background:var(--gold-soft)}
   .btn-wa{background:#25d366;color:#fff}
-  .btn-wa:hover{filter:brightness(.95)}
-  .btn-gold{background:var(--gold);color:var(--brown)}
-  .btn-gold:hover{background:var(--gold-soft)}
-  .btn-outline{background:transparent;border:2px solid var(--brown);color:var(--brown)}
+  .btn-ig{background:var(--brown);color:var(--cream)}
+  @media(max-width:760px){.hero .wrap{grid-template-columns:1fr}.hero .heroimg{order:-1;font-size:90px}.hero h1{font-size:32px}}
 
-  /* SECTIONS */
-  section{padding:54px 0}
-  .sechead{text-align:center;margin-bottom:34px}
-  .sechead h2{font-size:30px}
-  .sechead p{color:var(--brown-soft);margin:8px auto 0;max-width:520px}
-  .eyebrow{color:var(--gold);font-weight:800;letter-spacing:3px;text-transform:uppercase;font-size:12px}
+  /* SECTION */
+  section{padding:46px 0}
+  .sechead{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;gap:12px;flex-wrap:wrap}
+  .sechead .ey{color:var(--gold);font-weight:800;letter-spacing:3px;text-transform:uppercase;font-size:12px}
+  .sechead h2{font-size:28px;margin-top:4px}
 
-  /* MENU */
-  .menugrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px}
-  .card{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;box-shadow:0 6px 18px rgba(74,44,32,.06);display:flex;flex-direction:column}
-  .card .photo{aspect-ratio:4/3;background:linear-gradient(135deg,var(--cream-2),var(--gold-soft));display:flex;align-items:center;justify-content:center;font-size:52px;position:relative}
-  .card .photo img{width:100%;height:100%;object-fit:cover;display:block}
-  .card .body{padding:14px 16px 16px}
-  .card h3{font-size:19px}
-  .card .serves{font-size:11px;color:var(--gold);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-top:2px}
-  .card .prices{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
-  .card .price{background:var(--cream);border:1px solid var(--line);border-radius:20px;padding:4px 11px;font-size:13px;font-weight:700;color:var(--brown)}
-  .card .price b{color:var(--gold);font-weight:800}
-  .card .desc{font-size:13px;color:var(--brown-soft);margin-top:9px}
+  /* PRODUCTS */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+  .pcard{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .12s}
+  .pcard:hover{transform:translateY(-3px)}
+  .pcard .ph{aspect-ratio:1;background:linear-gradient(135deg,var(--cream-2),var(--gold-soft));display:flex;align-items:center;justify-content:center;font-size:60px;position:relative}
+  .pcard .ph img{width:100%;height:100%;object-fit:cover}
+  .pcard .tag{position:absolute;top:10px;left:10px;background:var(--gold);color:var(--brown);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:4px 9px;border-radius:20px}
+  .pcard .pb{padding:14px;display:flex;flex-direction:column;flex:1}
+  .pcard h3{font-size:18px}
+  .pcard .ds{font-size:12.5px;color:var(--brown-soft);margin:5px 0 10px;flex:1}
+  .pcard .buy{display:flex;gap:8px;align-items:center;margin-top:auto}
+  .pcard select{flex:1;padding:9px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--cream);font-size:13px;font-weight:600}
+  .addbtn{background:var(--gold);color:var(--brown);border:none;border-radius:10px;padding:9px 14px;font-weight:800;cursor:pointer;font-size:13px;white-space:nowrap}
+  .addbtn:hover{background:var(--gold-soft)}
 
-  /* STORY */
-  .story{background:var(--brown);color:var(--cream)}
-  .story h2{color:var(--cream)}
-  .story .grid{display:grid;grid-template-columns:1fr 1fr;gap:30px;align-items:center}
-  .story p{color:#f0e3cf;font-size:16px}
-  .story .badges{display:flex;gap:14px;flex-wrap:wrap;margin-top:18px}
-  .story .badge{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px 16px;flex:1;min-width:120px;text-align:center}
-  .story .badge .big{font-size:22px;font-weight:800;color:var(--gold-soft)}
-  .story .badge .small{font-size:12px;color:#e8dcc8;margin-top:2px}
-  @media(max-width:680px){.story .grid{grid-template-columns:1fr}}
-
-  /* GALLERY */
-  .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
-  .gallery .gi{aspect-ratio:1;border-radius:14px;background:linear-gradient(135deg,var(--cream-2),var(--gold-soft));display:flex;align-items:center;justify-content:center;font-size:38px;overflow:hidden}
-  .gallery .gi img{width:100%;height:100%;object-fit:cover}
+  /* INFO STRIP */
+  .info{background:var(--brown);color:var(--cream)}
+  .info .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:34px 18px;text-align:center}
+  .info .it .ic{font-size:30px}
+  .info .it .t{font-weight:800;margin-top:6px;color:var(--gold-soft)}
+  .info .it .s{font-size:12.5px;color:#e8dcc8;margin-top:2px}
+  @media(max-width:640px){.info .wrap{grid-template-columns:1fr 1fr}}
 
   /* REVIEWS */
   .reviews{background:var(--sky)}
   .revgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
-  .rev{background:#fff;border-radius:16px;padding:22px;box-shadow:0 6px 18px rgba(74,44,32,.06)}
-  .rev .stars{color:var(--gold);font-size:15px;letter-spacing:2px}
-  .rev p{font-size:15px;color:var(--ink);margin:10px 0 14px;font-style:italic}
-  .rev .who{font-weight:800;color:var(--brown);font-size:14px}
+  .rev{background:#fff;border-radius:16px;padding:22px;box-shadow:var(--shadow)}
+  .rev .st{color:var(--gold);letter-spacing:2px}
+  .rev p{font-style:italic;margin:10px 0 12px}
+  .rev .wh{font-weight:800;color:var(--brown);font-size:14px}
 
-  /* ORDER */
-  .order{background:var(--cream-2)}
-  .orderbox{background:#fff;border-radius:20px;padding:26px;box-shadow:0 10px 30px rgba(74,44,32,.1);max-width:640px;margin:0 auto}
-  .oitem{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
-  .oitem .nm{font-weight:600;font-size:14px}
-  .oitem .vr{display:flex;align-items:center;gap:8px}
-  .oitem select{padding:7px 9px;border:1px solid var(--line);border-radius:8px;font:inherit;background:var(--cream)}
-  .oitem .qty{display:flex;align-items:center;gap:8px}
-  .qbtn{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--cream);font-size:18px;font-weight:800;color:var(--brown);cursor:pointer;line-height:1}
-  .qn{min-width:22px;text-align:center;font-weight:700}
-  .ordertotal{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:20px;font-weight:800;color:var(--brown)}
-  .ordernote{font-size:12px;color:var(--brown-soft);margin-top:6px;text-align:center}
+  /* FOOTER */
+  footer{background:var(--brown);color:#e8dcc8;padding:40px 18px 26px}
+  footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:24px;max-width:1120px;margin:0 auto}
+  footer h4{color:var(--cream);margin:0 0 10px;font-size:15px}
+  footer a{color:#e8dcc8;display:block;padding:4px 0;font-size:14px}
+  footer a:hover{color:var(--gold-soft)}
+  footer .ft-mark{font-size:26px;color:var(--cream);letter-spacing:-1px}
+  footer .copy{text-align:center;opacity:.6;font-size:12px;margin-top:26px}
+  @media(max-width:640px){footer .cols{grid-template-columns:1fr 1fr}}
 
-  /* CONTACT / LINK IN BIO */
-  .contact{text-align:center}
-  .links{display:flex;flex-direction:column;gap:12px;max-width:380px;margin:0 auto}
-  .linkbtn{display:flex;align-items:center;justify-content:center;gap:10px;padding:15px;border-radius:14px;text-decoration:none;font-weight:700;font-size:15px;border:2px solid var(--brown)}
-  .linkbtn.fill{background:var(--brown);color:var(--cream);border-color:var(--brown)}
-  .linkbtn.ig{background:linear-gradient(45deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;border:none}
-  .linkbtn.wa{background:#25d366;color:#fff;border:none}
-
-  footer{background:var(--brown);color:#e8dcc8;text-align:center;padding:30px 20px;font-size:13px}
-  footer a{color:var(--gold-soft);text-decoration:none}
-  footer .ft-mark{font-size:22px;color:var(--cream);letter-spacing:-1px}
+  /* CART DRAWER */
+  .drawer-bg{position:fixed;inset:0;background:rgba(40,24,16,.5);z-index:60;display:none}
+  .drawer-bg.open{display:block}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:380px;max-width:92vw;background:var(--cream);z-index:61;transform:translateX(100%);transition:transform .22s;display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.25)}
+  .drawer.open{transform:translateX(0)}
+  .drawer .dh{display:flex;align-items:center;justify-content:space-between;padding:18px;background:var(--brown);color:var(--cream)}
+  .drawer .dh h3{color:var(--cream)}
+  .drawer .x{background:none;border:none;color:var(--cream);font-size:24px;cursor:pointer;line-height:1}
+  .drawer .body{flex:1;overflow:auto;padding:14px 18px}
+  .citem{display:flex;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+  .citem .emo{font-size:30px}
+  .citem .ci-nm{font-weight:700;font-size:14px}
+  .citem .ci-vr{font-size:12px;color:var(--brown-soft)}
+  .citem .ci-q{display:flex;align-items:center;gap:7px;margin-top:4px}
+  .qb{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:#fff;font-weight:800;cursor:pointer;color:var(--brown)}
+  .citem .ci-pr{margin-left:auto;font-weight:800;color:var(--brown);white-space:nowrap}
+  .drawer .foot{padding:16px 18px;border-top:1px solid var(--line);background:var(--cream-2)}
+  .drawer .tot{display:flex;justify-content:space-between;font-size:20px;font-weight:800;color:var(--brown);margin-bottom:12px}
+  .drawer .foot .btn{width:100%;justify-content:center;margin-bottom:8px}
+  .emptycart{text-align:center;color:var(--brown-soft);padding:50px 16px}
 </style>
 </head>
-<body>
+<body id="top">
 
-<!-- NAV -->
-<nav>
-  <div class="wrap">
-    <a class="brand" href="#top">
-      <img class="logo" src="dees-logo.png" alt="Dee's Treats" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-      <span class="mark rounded-font"><span class="d">dee's</span><span class="t">TREATS</span></span>
-    </a>
-    <button class="menutoggle" onclick="document.getElementById('navlinks').classList.toggle('open')">☰</button>
-    <div class="navlinks" id="navlinks" onclick="this.classList.remove('open')">
-      <a href="#menu">Menu</a>
-      <a href="#story">Our Story</a>
-      <a href="#gallery">Gallery</a>
-      <a href="#reviews">Reviews</a>
-      <a class="cta" href="#order">Order Now</a>
-    </div>
-  </div>
-</nav>
+<div class="announce">🚚 Freshly baked & delivered across <b>Dubai</b> · please order <b>24h ahead</b></div>
 
-<!-- HERO -->
-<header class="hero" id="top">
+<header>
   <div class="wrap">
-    <img class="herologo" src="dees-logo.png" alt="Dee's Treats" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'">
-    <span class="logobadge rounded-font"><span class="d">dee's</span><span class="t">TREATS</span></span>
-    <div class="pitch">Homemade · Freshly Baked · 24h Ahead</div>
-    <h1>Dubai's made-to-order homemade desserts 🤍</h1>
-    <p class="sub">San Sebastian cheesecake, pavlova, lazy cake, crème brûlée, carrot cake & more — baked fresh to order and delivered across Dubai.</p>
-    <div class="btnrow">
-      <a class="btn btn-ig" href="https://ig.me/m/deestreats.ae" target="_blank" rel="noopener">📩 Order on Instagram</a>
-      <a class="btn btn-gold" href="#menu">🍰 See the Menu</a>
+    <div class="hrow">
+      <a class="brand" href="#top">
+        <img src="dees-logo.png" alt="Dee's Treats" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="mk rounded"><span class="d">dee's</span><span class="t">TREATS</span></span>
+      </a>
+      <label class="search">
+        🔍 <input id="search" placeholder="Search desserts…" oninput="renderProducts()">
+      </label>
+      <button class="cartbtn" onclick="openCart()">🛒 Order <span class="count" id="cartCount">0</span></button>
     </div>
+    <div class="chips" id="chips"></div>
   </div>
 </header>
 
-<!-- MENU -->
-<section id="menu">
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <div class="ey">Homemade · Freshly Baked · 24h Ahead</div>
+      <h1>Dubai's homemade desserts, made to order 🤍</h1>
+      <p>San Sebastian cheesecake, pavlova, lazy cake, crème brûlée & more — baked fresh and delivered to your door.</p>
+      <div class="btnrow">
+        <a class="btn btn-gold" href="#shop">🍰 Order Now</a>
+        <a class="btn btn-ig" href="https://ig.me/m/deestreats.ae" target="_blank" rel="noopener">📩 Message us</a>
+      </div>
+    </div>
+    <div class="heroimg"><img src="img/hero.jpg" alt="" onerror="this.replaceWith(document.createTextNode('🍰'))"></div>
+  </div>
+</div>
+
+<!-- SHOP -->
+<section id="shop">
   <div class="wrap">
     <div class="sechead">
-      <div class="eyebrow">El Menu</div>
-      <h2>Our Treats</h2>
-      <p>Every order is baked fresh — please order 24 hours ahead. Whole cakes serve 6–8.</p>
-    </div>
-    <div class="menugrid" id="menugrid"></div>
-  </div>
-</section>
-
-<!-- STORY -->
-<section class="story" id="story">
-  <div class="wrap">
-    <div class="grid">
       <div>
-        <div class="eyebrow">Our Story</div>
-        <h2>Made by hand, in Dubai</h2>
-        <p>Dee's Treats started with a simple belief: dessert should taste like it was made with love, in a real kitchen — not a factory. Everything is homemade, baked fresh the day it reaches you, and never sits on a shelf.</p>
-        <p>From our signature burnt Basque San Sebastian to nostalgic lazy cake, each treat is made to order for your table, your celebration, your moment.</p>
-        <div class="badges">
-          <div class="badge"><div class="big">100%</div><div class="small">Homemade</div></div>
-          <div class="badge"><div class="big">24h</div><div class="small">Freshly baked</div></div>
-          <div class="badge"><div class="big">Dubai</div><div class="small">Delivered to you</div></div>
-        </div>
-      </div>
-      <div class="gallery" style="align-self:stretch">
-        <div class="gi"><img src="img/story1.jpg" alt="" onerror="this.replaceWith(document.createTextNode('🍰'))"></div>
-        <div class="gi"><img src="img/story2.jpg" alt="" onerror="this.replaceWith(document.createTextNode('🧁'))"></div>
-        <div class="gi"><img src="img/story3.jpg" alt="" onerror="this.replaceWith(document.createTextNode('🥧'))"></div>
-        <div class="gi"><img src="img/story4.jpg" alt="" onerror="this.replaceWith(document.createTextNode('🍮'))"></div>
+        <div class="ey">Our Menu</div>
+        <h2 id="shopTitle">All Treats</h2>
       </div>
     </div>
+    <div class="grid" id="grid"></div>
   </div>
 </section>
 
-<!-- GALLERY -->
-<section id="gallery">
+<!-- INFO -->
+<div class="info">
   <div class="wrap">
-    <div class="sechead">
-      <div class="eyebrow">Gallery</div>
-      <h2>Fresh from the kitchen</h2>
-      <p>A taste of what we make. Follow <a href="https://instagram.com/deestreats.ae" target="_blank" rel="noopener" style="color:var(--gold);font-weight:700">@deestreats.ae</a> for more.</p>
-    </div>
-    <div class="gallery" id="gallery"></div>
+    <div class="it"><div class="ic">👩‍🍳</div><div class="t">100% Homemade</div><div class="s">Made by hand, never mass-produced</div></div>
+    <div class="it"><div class="ic">⏱️</div><div class="t">Freshly Baked</div><div class="s">Baked the day it reaches you</div></div>
+    <div class="it"><div class="ic">🚙</div><div class="t">Dubai Delivery</div><div class="s">Brought to your door</div></div>
+    <div class="it"><div class="ic">💬</div><div class="t">Easy Ordering</div><div class="s">Straight through Instagram DM</div></div>
   </div>
-</section>
+</div>
 
 <!-- REVIEWS -->
 <section class="reviews" id="reviews">
   <div class="wrap">
-    <div class="sechead">
-      <div class="eyebrow">Reviews</div>
-      <h2>What people are saying</h2>
-    </div>
+    <div class="sechead"><div><div class="ey">Reviews</div><h2>Loved across Dubai</h2></div></div>
     <div class="revgrid" id="revgrid"></div>
   </div>
 </section>
 
-<!-- ORDER -->
-<section class="order" id="order">
-  <div class="wrap">
-    <div class="sechead">
-      <div class="eyebrow">Order Now</div>
-      <h2>Build your order</h2>
-      <p>Tap the items you want — we'll put together your message and open Instagram (or WhatsApp) to send it to us.</p>
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="cols">
+    <div>
+      <div class="ft-mark rounded">dee's TREATS</div>
+      <p style="max-width:300px">Homemade, freshly baked desserts made to order and delivered across Dubai. 🤍</p>
     </div>
-    <div class="orderbox">
-      <div id="orderitems"></div>
-      <div class="ordertotal"><span>Total</span><span id="ordertotal">AED 0</span></div>
-      <div class="btnrow" style="margin-top:18px">
-        <button class="btn btn-ig" onclick="sendOrder('ig')">📩 Order on Instagram</button>
-        <button class="btn btn-wa" onclick="sendOrder('wa')">🟢 Order on WhatsApp</button>
-      </div>
-      <div class="ordernote">Your order is copied to your clipboard automatically — just paste it into the chat. Please order 24h ahead.</div>
+    <div>
+      <h4>Order</h4>
+      <a href="https://ig.me/m/deestreats.ae" target="_blank" rel="noopener">📩 Instagram DM</a>
+      <a id="footWa" href="#" target="_blank" rel="noopener">🟢 WhatsApp</a>
+      <a href="#shop">🍰 Browse menu</a>
     </div>
-  </div>
-</section>
-
-<!-- CONTACT -->
-<section class="contact" id="contact">
-  <div class="wrap">
-    <div class="sechead">
-      <div class="eyebrow">Find Us</div>
-      <h2>Order & follow</h2>
-      <p>Made-to-order homemade desserts · Dubai, UAE</p>
-    </div>
-    <div class="links">
-      <a class="linkbtn ig" href="https://instagram.com/deestreats.ae" target="_blank" rel="noopener">📸 @deestreats.ae</a>
-      <a class="linkbtn fill" href="https://ig.me/m/deestreats.ae" target="_blank" rel="noopener">📩 Order via Instagram DM</a>
-      <a class="linkbtn wa" id="walink" href="#" target="_blank" rel="noopener">🟢 Order on WhatsApp</a>
+    <div>
+      <h4>Follow</h4>
+      <a href="https://instagram.com/deestreats.ae" target="_blank" rel="noopener">📸 @deestreats.ae</a>
+      <a href="#reviews">⭐ Reviews</a>
     </div>
   </div>
-</section>
-
-<footer>
-  <div class="ft-mark rounded-font">dee's TREATS</div>
-  <p>Homemade desserts, made to order in Dubai 🤍<br>
-  Order on <a href="https://instagram.com/deestreats.ae" target="_blank" rel="noopener">@deestreats.ae</a></p>
-  <p style="opacity:.6;margin-top:14px">© <span id="yr"></span> Dee's Treats</p>
+  <div class="copy">© <span id="yr"></span> Dee's Treats · Dubai, UAE</div>
 </footer>
+
+<!-- CART DRAWER -->
+<div class="drawer-bg" id="drawerBg" onclick="closeCart()"></div>
+<div class="drawer" id="drawer">
+  <div class="dh"><h3>🛒 Your Order</h3><button class="x" onclick="closeCart()">×</button></div>
+  <div class="body" id="cartBody"></div>
+  <div class="foot">
+    <div class="tot"><span>Total</span><span id="cartTotal">AED 0</span></div>
+    <button class="btn btn-ig" onclick="sendOrder('ig')">📩 Send order on Instagram</button>
+    <button class="btn btn-wa" onclick="sendOrder('wa')">🟢 Send order on WhatsApp</button>
+    <div style="font-size:11px;color:var(--brown-soft);text-align:center;margin-top:4px">Your order is copied automatically — just paste it in the chat.</div>
+  </div>
+</div>
 
 <script>
 /* ====== CONFIG ====== */
 const INSTAGRAM='deestreats.ae';
-const WHATSAPP=''; // <-- put your number here later, e.g. '9715XXXXXXXX' (country code, no +, no spaces)
+const WHATSAPP=''; // put your number here, e.g. '9715XXXXXXXX' (country code, no + or spaces)
 
-/* ====== MENU DATA ====== */
-const MENU=[
-  {key:'pavlova', name:'Pavlova', emoji:'🍓', serves:'serves 6–8', desc:'Crisp meringue, soft cloud centre, fresh berries.',
-    variants:[{label:'Mini',price:60},{label:'Whole',price:260}]},
-  {key:'sansebastian', name:'San Sebastian', emoji:'🧀', serves:'serves 6–8', desc:'Burnt Basque cheesecake — caramelised top, creamy inside.',
-    variants:[{label:'Mini',price:35},{label:'Whole',price:280}]},
-  {key:'lazycake', name:'Lazy Cake', emoji:'🍫', serves:'serves 6–8', desc:'No-bake chocolate biscuit cake with nuts.',
-    variants:[{label:'Mini',price:80},{label:'Whole',price:175}]},
-  {key:'carrotballs', name:'Healthy Carrot Balls', emoji:'🟤', serves:'energy bites', desc:'Wholesome, naturally sweet little bites.',
+/* ====== PRODUCTS ====== */
+const PRODUCTS=[
+  {key:'sansebastian',name:'San Sebastian',cat:'Cheesecakes',emoji:'🧀',tag:'Bestseller',desc:'Burnt Basque cheesecake — caramelised top, creamy inside.',
+    variants:[{label:'Mini',price:35},{label:'Whole (6–8)',price:280}]},
+  {key:'pavlova',name:'Pavlova',cat:'Pastries',emoji:'🍓',tag:'',desc:'Crisp meringue, soft centre, fresh berries.',
+    variants:[{label:'Mini',price:60},{label:'Whole (6–8)',price:260}]},
+  {key:'lazycake',name:'Lazy Cake',cat:'Cakes',emoji:'🍫',tag:'',desc:'No-bake chocolate biscuit cake with nuts.',
+    variants:[{label:'Mini',price:80},{label:'Whole (6–8)',price:175}]},
+  {key:'carrotcake',name:'Carrot Cake',cat:'Cakes',emoji:'🥕',tag:'',desc:'Spiced, soft, cream cheese finish.',
+    variants:[{label:'Mini',price:35},{label:'Whole (6–8)',price:180}]},
+  {key:'carrotballs',name:'Healthy Carrot Balls',cat:'Healthy',emoji:'🟤',tag:'Healthy',desc:'Wholesome, naturally sweet energy bites.',
     variants:[{label:'6 pcs',price:40},{label:'8 pcs',price:55},{label:'12 pcs',price:75}]},
-  {key:'carrotcake', name:'Carrot Cake', emoji:'🥕', serves:'serves 6–8', desc:'Spiced, soft, with cream cheese finish.',
-    variants:[{label:'Mini',price:35},{label:'Whole',price:180}]},
-  {key:'cremebrulee', name:'Crème Brûlée', emoji:'🍮', serves:'pack of 4', desc:'Silky custard under a crackly caramel top.',
+  {key:'cremebrulee',name:'Crème Brûlée',cat:'Pastries',emoji:'🍮',tag:'',desc:'Silky custard under a crackly caramel top.',
     variants:[{label:'Pack of 4',price:80}]},
-  {key:'bundle', name:"Dee's Bundle", emoji:'🎁', serves:'tasting box', desc:'1 San Sebastian · 2 crème brûlée · 1 mini pavlova · 4 carrot balls · 4 mini lazy cakes.',
+  {key:'bundle',name:"Dee's Bundle",cat:'Bundles',emoji:'🎁',tag:'Best value',desc:'1 San Sebastian · 2 crème brûlée · 1 mini pavlova · 4 carrot balls · 4 mini lazy cakes.',
     variants:[{label:'Tasting Box',price:320}]},
 ];
-
+const CATS=['All','Cakes','Cheesecakes','Pastries','Healthy','Bundles'];
 const REVIEWS=[
-  {stars:5, text:'The San Sebastian was unreal — caramelised on top and so creamy. Disappeared in minutes!', who:'— Sara, Dubai Marina'},
-  {stars:5, text:'Ordered the bundle for a family gathering. Everything tasted fresh and homemade. Will order again.', who:'— Omar, JVC'},
-  {stars:5, text:'Best lazy cake I\'ve had in Dubai. Brought back childhood memories. Highly recommend!', who:'— Layla, Downtown'},
+  {st:5,text:'The San Sebastian was unreal — caramelised on top and so creamy. Gone in minutes!',wh:'— Sara, Dubai Marina'},
+  {st:5,text:'Ordered the bundle for a family gathering. Everything tasted fresh and homemade.',wh:'— Omar, JVC'},
+  {st:5,text:'Best lazy cake I\'ve had in Dubai. Brought back childhood memories!',wh:'— Layla, Downtown'},
 ];
 
+let activeCat='All';
+const cart={}; // id -> {key,name,emoji,label,price,qty}
 const AED=n=>'AED '+(+n).toLocaleString('en-US');
 
-/* ---- render menu cards ---- */
-document.getElementById('menugrid').innerHTML=MENU.map(m=>`
-  <div class="card">
-    <div class="photo"><img src="img/${m.key}.jpg" alt="${m.name}" onerror="this.replaceWith(document.createTextNode('${m.emoji}'))"></div>
-    <div class="body">
-      <h3>${m.name}</h3>
-      <div class="serves">${m.serves}</div>
-      <div class="prices">${m.variants.map(v=>`<span class="price">${v.label} <b>${AED(v.price)}</b></span>`).join('')}</div>
-      <div class="desc">${m.desc}</div>
-    </div>
-  </div>`).join('');
+/* ---- chips ---- */
+document.getElementById('chips').innerHTML=CATS.map(c=>`<button class="chip${c===activeCat?' active':''}" onclick="setCat('${c}')">${c}</button>`).join('');
+function setCat(c){activeCat=c;document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active',b.textContent===c));document.getElementById('shopTitle').textContent=c==='All'?'All Treats':c;renderProducts();document.getElementById('shop').scrollIntoView({behavior:'smooth'});}
 
-/* ---- gallery ---- */
-const gemojis=['🍰','🧁','🍮','🥧','🍫','🍓','🥕','🎁'];
-document.getElementById('gallery').innerHTML=gemojis.map((e,i)=>`
-  <div class="gi"><img src="img/gallery${i+1}.jpg" alt="" onerror="this.replaceWith(document.createTextNode('${e}'))"></div>`).join('');
+/* ---- products ---- */
+function renderProducts(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const list=PRODUCTS.filter(p=>(activeCat==='All'||p.cat===activeCat)&&(p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)));
+  const el=document.getElementById('grid');
+  if(!list.length){el.innerHTML='<p style="color:var(--brown-soft);padding:20px">No treats match that. Try another search or category.</p>';return;}
+  el.innerHTML=list.map(p=>`
+    <div class="pcard">
+      <div class="ph">${p.tag?`<span class="tag">${p.tag}</span>`:''}<img src="img/${p.key}.jpg" alt="${p.name}" onerror="this.replaceWith(document.createTextNode('${p.emoji}'))"></div>
+      <div class="pb">
+        <h3>${p.name}</h3>
+        <div class="ds">${p.desc}</div>
+        <div class="buy">
+          <select id="v-${p.key}">${p.variants.map((v,i)=>`<option value="${i}">${v.label} · ${AED(v.price)}</option>`).join('')}</select>
+          <button class="addbtn" onclick="addToCart('${p.key}')">＋ Add</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
 
 /* ---- reviews ---- */
-document.getElementById('revgrid').innerHTML=REVIEWS.map(r=>`
-  <div class="rev"><div class="stars">${'★'.repeat(r.stars)}</div><p>"${r.text}"</p><div class="who">${r.who}</div></div>`).join('');
+document.getElementById('revgrid').innerHTML=REVIEWS.map(r=>`<div class="rev"><div class="st">${'★'.repeat(r.st)}</div><p>"${r.text}"</p><div class="wh">${r.wh}</div></div>`).join('');
 
-/* ---- order builder ---- */
-const qty={};
-document.getElementById('orderitems').innerHTML=MENU.map(m=>`
-  <div class="oitem">
-    <div>
-      <div class="nm">${m.emoji} ${m.name}</div>
-    </div>
-    <div class="vr">
-      <select id="sel-${m.key}" onchange="updateTotal()">
-        ${m.variants.map((v,i)=>`<option value="${i}">${v.label} · ${AED(v.price)}</option>`).join('')}
-      </select>
-      <div class="qty">
-        <button class="qbtn" onclick="bump('${m.key}',-1)">−</button>
-        <span class="qn" id="qn-${m.key}">0</span>
-        <button class="qbtn" onclick="bump('${m.key}',1)">+</button>
-      </div>
-    </div>
-  </div>`).join('');
-
-function bump(key,d){qty[key]=Math.max(0,(qty[key]||0)+d);document.getElementById('qn-'+key).textContent=qty[key];updateTotal();}
-function selectedVariant(m){const i=+document.getElementById('sel-'+m.key).value;return m.variants[i];}
-function orderLines(){
-  const lines=[];let total=0;
-  MENU.forEach(m=>{const q=qty[m.key]||0;if(q>0){const v=selectedVariant(m);const sub=v.price*q;total+=sub;lines.push(`• ${q}× ${m.name} (${v.label}) — ${AED(sub)}`);}});
-  return {lines,total};
+/* ---- cart ---- */
+function addToCart(key){
+  const p=PRODUCTS.find(x=>x.key===key);
+  const vi=+document.getElementById('v-'+key).value;
+  const v=p.variants[vi];
+  const id=key+'|'+v.label;
+  if(cart[id])cart[id].qty++; else cart[id]={key,name:p.name,emoji:p.emoji,label:v.label,price:v.price,qty:1};
+  updateCart(); flashCart();
 }
-function updateTotal(){document.getElementById('ordertotal').textContent=AED(orderLines().total);}
+function cartChange(id,d){if(!cart[id])return;cart[id].qty+=d;if(cart[id].qty<=0)delete cart[id];updateCart();renderCart();}
+function cartCount(){return Object.values(cart).reduce((s,i)=>s+i.qty,0);}
+function cartTotal(){return Object.values(cart).reduce((s,i)=>s+i.qty*i.price,0);}
+function updateCart(){document.getElementById('cartCount').textContent=cartCount();document.getElementById('cartTotal').textContent=AED(cartTotal());}
+function flashCart(){const b=document.querySelector('.cartbtn');b.style.transform='scale(1.08)';setTimeout(()=>b.style.transform='',150);}
+function renderCart(){
+  const items=Object.entries(cart);
+  const body=document.getElementById('cartBody');
+  if(!items.length){body.innerHTML='<div class="emptycart">Your order is empty.<br>Tap <b>＋ Add</b> on any treat 🍰</div>';document.getElementById('cartTotal').textContent=AED(0);return;}
+  body.innerHTML=items.map(([id,it])=>`
+    <div class="citem">
+      <div class="emo">${it.emoji}</div>
+      <div>
+        <div class="ci-nm">${it.name}</div>
+        <div class="ci-vr">${it.label} · ${AED(it.price)}</div>
+        <div class="ci-q"><button class="qb" onclick="cartChange('${id}',-1)">−</button><b>${it.qty}</b><button class="qb" onclick="cartChange('${id}',1)">＋</button></div>
+      </div>
+      <div class="ci-pr">${AED(it.price*it.qty)}</div>
+    </div>`).join('');
+  document.getElementById('cartTotal').textContent=AED(cartTotal());
+}
+function openCart(){renderCart();document.getElementById('drawer').classList.add('open');document.getElementById('drawerBg').classList.add('open');}
+function closeCart(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawerBg').classList.remove('open');}
 
 function buildMessage(){
-  const {lines,total}=orderLines();
-  if(!lines.length)return null;
-  return `Hi Dee's Treats! 🤍 I'd like to order:\n${lines.join('\n')}\n\nTotal: ${AED(total)}\n\nName:\nDelivery date/time:\nArea in Dubai:`;
+  const items=Object.values(cart);
+  if(!items.length)return null;
+  const lines=items.map(i=>`• ${i.qty}× ${i.name} (${i.label}) — ${AED(i.price*i.qty)}`);
+  return `Hi Dee's Treats! 🤍 I'd like to order:\n${lines.join('\n')}\n\nTotal: ${AED(cartTotal())}\n\nName:\nDelivery date/time:\nArea in Dubai:`;
 }
 function sendOrder(channel){
   const msg=buildMessage();
-  if(!msg){alert('Add at least one item with the + button first 🙂');return;}
+  if(!msg){alert('Add at least one treat to your order first 🙂');return;}
   if(navigator.clipboard)navigator.clipboard.writeText(msg).catch(()=>{});
   if(channel==='wa'){
     if(!WHATSAPP){alert('Your order is copied! Paste it into our Instagram DM (WhatsApp number coming soon).');window.open('https://ig.me/m/'+INSTAGRAM,'_blank');return;}
     window.open('https://wa.me/'+WHATSAPP+'?text='+encodeURIComponent(msg),'_blank');
-  }else{
-    window.open('https://ig.me/m/'+INSTAGRAM,'_blank');
-  }
+  }else window.open('https://ig.me/m/'+INSTAGRAM,'_blank');
 }
 
-/* whatsapp footer link */
-(function(){const w=document.getElementById('walink');w.href=WHATSAPP?('https://wa.me/'+WHATSAPP):('https://ig.me/m/'+INSTAGRAM);})();
+/* init */
+document.getElementById('footWa').href=WHATSAPP?('https://wa.me/'+WHATSAPP):('https://ig.me/m/'+INSTAGRAM);
 document.getElementById('yr').textContent=new Date().getFullYear();
-updateTotal();
+renderProducts(); updateCart();
 </script>
 </body>
 </html>

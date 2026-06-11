@@ -4,7 +4,10 @@ Drop your photos into this `img/` folder using these **exact file names** and th
 website will use them automatically. Until a photo exists, a colored tile with an
 emoji shows in its place — so the site always looks complete.
 
-## Menu photos (square or 4:3 works best)
+## Hero photo (big image at the top, square works best)
+- `hero.jpg`
+
+## Menu photos (square works best)
 - `pavlova.jpg`
 - `sansebastian.jpg`
 - `lazycake.jpg`
