@@ -1,0 +1,152 @@
+{
+  "brand": {
+    "company": "Bridges and Allies Real Estate",
+    "presented_by": "Marwan Wareth",
+    "tagline": "Property Research & Advisory",
+    "logo": false,
+    "hide_disclaimer": true,
+    "contact": {
+      "title": "Real Estate Consultant"
+    }
+  },
+  "address": "Zaya Hameni — Unit E706, JVC District 15, Dubai (For Rent)",
+  "price": "Fair Rent ~AED 128,000 / year",
+  "overall_score": 72,
+  "rent_snapshot": {
+    "highlight_row": 2,
+    "rows": [
+      {"scenario": "Conservative (tenant target)", "rent": "AED 120,000", "per_sqft": "AED 85", "gross_yield": "6.2%", "net_yield": "4.1%"},
+      {"scenario": "Most-likely (fair market)", "rent": "AED 128,000", "per_sqft": "AED 91", "gross_yield": "6.6%", "net_yield": "4.5%"},
+      {"scenario": "Optimistic (furnished)", "rent": "AED 138,000", "per_sqft": "AED 98", "gross_yield": "7.1%", "net_yield": "4.9%"}
+    ],
+    "verdict": "<b>Rent verdict:</b> Fair market rent for E706 is ~<b>AED 128,000/yr</b>. Anchor your offer at the DLD index and target <b>AED 120,000–125,000</b> unfurnished (low-mid floor = leverage). A softening, supply-heavy 2026 market favours the tenant. Treat any asking price of <b>AED 150,000+</b> as overpriced — that reflects the building's larger 1,866–3,138 sqft units, not this 1,404 sqft layout. Furnished adds ~AED 10,000–15,000."
+  },
+  "property_details": {
+    "beds": "2",
+    "baths": "2",
+    "sqft": "1,404",
+    "year_built": "~2014",
+    "lot_size": "N/A (Apartment)",
+    "property_type": "2BR Apartment — Tower E, ~7th floor"
+  },
+  "categories": {
+    "Value & Comps": {"score": 76, "weight": "25%"},
+    "Income Potential": {"score": 68, "weight": "20%"},
+    "Neighborhood Quality": {"score": 76, "weight": "20%"},
+    "Investment Upside": {"score": 72, "weight": "20%"},
+    "Market Conditions": {"score": 68, "weight": "15%"}
+  },
+  "comps": [
+    {"address": "Zaya Hameni (subject bldg)", "price": "AED 1,899,999", "sqft": "1,404", "price_sqft": "AED 1,353", "sold_date": "2026", "distance": "0 mi"},
+    {"address": "Zaya Hameni", "price": "AED 2,100,000", "sqft": "1,500", "price_sqft": "AED 1,400", "sold_date": "2026", "distance": "0 mi"},
+    {"address": "Belgravia 3 (Dist 15)", "price": "AED 1,870,455", "sqft": "1,300", "price_sqft": "AED 1,439", "sold_date": "DLD avg", "distance": "0.4 mi"},
+    {"address": "Belgravia 1 (Dist 14)", "price": "AED 1,825,000", "sqft": "1,250", "price_sqft": "AED 1,460", "sold_date": "2026", "distance": "0.6 mi"},
+    {"address": "Bloom Towers (Dist 10)", "price": "AED 1,417,222", "sqft": "1,200", "price_sqft": "AED 1,181", "sold_date": "DLD avg", "distance": "0.8 mi"}
+  ],
+  "comp_summary": {
+    "avg_price": "AED 1,940,000 (adj. value)",
+    "avg_price_sqft": "AED 1,382 / sqft"
+  },
+  "cashflow": {
+    "items": [
+      {"item": "Gross Rental Income", "monthly": "AED 10,667", "annual": "AED 128,000"},
+      {"item": "Service Charge (~15/sqft)", "monthly": "-AED 1,755", "annual": "-AED 21,060"},
+      {"item": "Property Management (8%)", "monthly": "-AED 853", "annual": "-AED 10,240"},
+      {"item": "Maintenance (2%)", "monthly": "-AED 213", "annual": "-AED 2,560"},
+      {"item": "Vacancy Allowance (4%)", "monthly": "-AED 427", "annual": "-AED 5,120"},
+      {"item": "Insurance / Misc", "monthly": "-AED 125", "annual": "-AED 1,500"},
+      {"item": "Property Tax (Dubai)", "monthly": "AED 0", "annual": "AED 0"},
+      {"item": "Net Operating Income", "monthly": "AED 7,293", "annual": "AED 87,520"}
+    ]
+  },
+  "investment_metrics": {
+    "cap_rate": "4.5% net",
+    "cap_rate_status": "Gross yield 6.6%; net slightly below Dubai 5-7% norm (service-charge drag)",
+    "cash_on_cash": "~4.5%",
+    "coc_status": "Cash buyer; positive and stable. ~Neutral at 80% LTV",
+    "grm": "15.2x",
+    "grm_status": "Price-to-annual-rent; typical for premium Dubai towers",
+    "dscr": "~1.0",
+    "dscr_status": "Cash-flow-neutral at 80% LTV / ~4.4% rate — larger deposit advised",
+    "one_pct": "0.55%/mo",
+    "one_pct_status": "Below 1% rule — normal for Dubai capital-growth markets",
+    "breakeven": "Year 3-4",
+    "breakeven_status": "Buy-to-let break-even vs simply renting"
+  },
+  "mortgage": {
+    "purchase_price": "AED 1,850,000",
+    "down_payment": "AED 370,000 (20%)",
+    "loan_amount": "AED 1,480,000",
+    "rate": "~4.4% (EIBOR-linked)",
+    "term": "25-year",
+    "monthly_pi": "AED 8,133",
+    "monthly_piti": "AED 9,888 (incl. service charge)"
+  },
+  "neighborhood": {
+    "scores": {
+      "Schools / Nurseries": 65,
+      "Safety": 85,
+      "Walkability & Amenities": 75,
+      "Demographics & Economy": 80,
+      "Growth Trajectory": 75
+    },
+    "details": [
+      {"factor": "Schools", "detail": "JSS International (KHDA Very Good)", "notes": "In-community; Nord Anglia & Sunmarke nearby"},
+      {"factor": "Safety", "detail": "Very safe, 24/7 security", "notes": "Dubai low-crime; main issue is construction noise"},
+      {"factor": "Walkability", "detail": "Circle Mall + 30+ parks", "notes": "Strong for Dubai; car-dependent cross-city"},
+      {"factor": "Connectivity", "detail": "Al Khail / SZR / Hessa St", "notes": "Marina ~20m, Downtown ~25m; no Metro until 2029"},
+      {"factor": "Rental Demand", "detail": "2,052 new 2BR contracts/yr", "notes": "Deep, renter-heavy tenant pool"},
+      {"factor": "Growth", "detail": "+75% prices 2020-2026", "notes": "Blue Line Metro 2029 proximity premium"}
+    ],
+    "demographics": {
+      "population_growth": "Dubai +208k residents in 2025 (>4M)",
+      "median_age": "30-45 (young families & professionals)",
+      "employment_rate": "Diversified expat economy",
+      "major_employers": "Media City, Internet City, Marina, Business Bay (nearby)"
+    }
+  },
+  "strategies": [
+    {"strategy": "Buy & Hold (primary)", "projected_return": "~6.6% gross / ~4.5% net yield", "timeframe": "5+ years",
+     "pros": "Tax-free income + appreciation; high liquidity in Dubai's #1-volume district",
+     "risk": "Thin leveraged cash flow; 2026 supply may soften rents"},
+    {"strategy": "Light-Reno Reposition", "projected_return": "+AED 12-18k/yr rent uplift", "timeframe": "1-3 months",
+     "pros": "Push rent toward 135k+ ceiling; modest resale premium",
+     "risk": "Capped upside; many units already well-finished"},
+    {"strategy": "Fix & Flip / Resale", "projected_return": "Thin (ready unit)", "timeframe": "<12 months",
+     "pros": "High liquidity, easy exit",
+     "risk": "~8-9% round-trip costs erode short-term margin"}
+  ],
+  "appreciation_projections": [
+    {"year": "Year 1", "conservative": "AED 1,905,500", "moderate": "AED 1,942,500", "aggressive": "AED 1,979,500"},
+    {"year": "Year 3", "conservative": "AED 2,021,500", "moderate": "AED 2,141,600", "aggressive": "AED 2,266,800"},
+    {"year": "Year 5", "conservative": "AED 2,144,700", "moderate": "AED 2,361,100", "aggressive": "AED 2,594,800"},
+    {"year": "Year 10", "conservative": "AED 2,486,200", "moderate": "AED 3,013,500", "aggressive": "AED 3,639,300"}
+  ],
+  "scenarios": [
+    {"scenario": "Bull Case", "probability": "25%", "return": "+8% to +15%/yr",
+     "trigger": "Population surge continues, Blue Line momentum, supply absorbed"},
+    {"scenario": "Base Case", "probability": "50%", "return": "+3% to +6%/yr",
+     "trigger": "Normalisation: steady prices, flat-to-soft rents as 2026 stock lands"},
+    {"scenario": "Bear Case", "probability": "25%", "return": "-5% to flat",
+     "trigger": "Oversupply outpaces demand, EIBOR rises above 5%, rent discounts deepen"}
+  ],
+  "recommendation": {
+    "signal": "BUY",
+    "summary": "For a tenant, E706 is a RENT-SMART opportunity: fair rent is ~AED 128,000/yr, so anchor negotiations at the DLD index and target AED 120,000-125,000 unfurnished — a softening, supply-heavy market gives you leverage, and any 150k+ ask (which reflects the building's larger 1,866-3,138 sqft units) is overpriced for this 1,404 sqft layout. For an investor, it is a sound Grade-A buy-and-hold at ≤ AED 1.90M: tax-free ~6.6% gross income, deep tenant demand in Dubai's highest-volume community, and appreciation tailwinds (Hessa St upgrade, 2029 Blue Line Metro). Net yield (~4.5%) is capped by premium service charges, and leveraged cash flow is thin at current rates — so cash or a larger deposit and a 5+ year horizon are key.",
+    "suggested_offer": "Rent: AED 120,000-125,000/yr  |  Buy: ≤ AED 1,900,000",
+    "action_items": [
+      "Verify the exact RERA service charge for Tower E (biggest yield variable)",
+      "Confirm furnished vs unfurnished and cheque count before negotiating rent",
+      "Check the DLD/RERA rental index calculator for the legal renewal cap",
+      "Inspect immediate surroundings for active construction / noise near Tower E",
+      "If buying: stress-test the mortgage at +1% EIBOR and confirm the reserve fund"
+    ]
+  },
+  "risk_factors": [
+    {"factor": "Supply Wave (2026)", "probability": "High", "impact": "Medium", "notes": "JVC top oversupply-watch zone; softens rents and compresses yields toward 6-7%"},
+    {"factor": "Service-Charge Drag", "probability": "High", "impact": "Medium", "notes": "~AED 21k/yr (~16.5% of rent) is the single biggest yield killer — verify Tower E figure"},
+    {"factor": "Leverage / Rate Risk", "probability": "Medium", "impact": "Medium", "notes": "Cash flow turns negative if rates >5% or rent sits at the 117k floor"},
+    {"factor": "Transaction Costs", "probability": "Medium", "impact": "Medium", "notes": "~8-9% round-trip; any sub-3-year hold is risky — buy-to-let, not a flip"},
+    {"factor": "Construction Noise", "probability": "Medium", "impact": "Low-Med", "notes": "Newer JVC pockets face 1-2 more years of disruption; inspect nearby plots"}
+  ]
+}
