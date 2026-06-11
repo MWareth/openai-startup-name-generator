@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#4a2c20" />
+<title>Dee's Treats — Orders Log</title>
+<style>
+  :root{
+    --brown:#4a2c20;
+    --brown-soft:#6b4636;
+    --cream:#fbf4e6;
+    --cream-2:#f3e7d0;
+    --line:#e3d4ba;
+    --green:#2f7d4f;
+    --red:#b5482f;
+    --blue:#3858a6;
+    --ink:#3a2a20;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--cream);color:var(--ink);
+  }
+  header{
+    background:var(--brown);color:var(--cream);padding:16px 18px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
+    position:sticky;top:0;z-index:20;
+  }
+  header h1{font-size:18px;margin:0;letter-spacing:.5px}
+  header .sub{font-size:12px;opacity:.8;font-weight:400}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+  button{
+    font:inherit;border:none;border-radius:8px;padding:9px 13px;cursor:pointer;font-weight:600;font-size:13px;
+  }
+  .btn-primary{background:var(--cream);color:var(--brown)}
+  .btn-ghost{background:transparent;color:var(--cream);border:1px solid rgba(255,255,255,.4)}
+  .btn-ghost:hover{background:rgba(255,255,255,.12)}
+  .btn-danger{background:var(--red);color:#fff}
+
+  .stats{display:flex;gap:12px;flex-wrap:wrap;padding:14px 18px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:140px}
+  .stat .label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--brown-soft);font-weight:600}
+  .stat .value{font-size:20px;font-weight:700;color:var(--brown);margin-top:3px}
+  .stat .value.muted{color:var(--brown-soft);font-size:16px}
+
+  .wrap{padding:0 18px 60px}
+  .tablecard{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:auto}
+  table{border-collapse:collapse;width:100%;font-size:13px;min-width:1100px}
+  thead th{
+    background:var(--brown);color:var(--cream);padding:10px 10px;text-align:left;font-size:11px;
+    text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;position:sticky;top:0;
+  }
+  tbody td{padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody tr:nth-child(even){background:var(--cream)}
+  tbody tr:hover{background:var(--cream-2)}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .muted{color:#a99}
+  .pay{font-weight:700}
+  .pay.Paid{color:var(--green)}
+  .pay.Unpaid{color:var(--red)}
+  .item{color:var(--brown)}
+  .price{color:var(--green);font-variant-numeric:tabular-nums}
+  .delivery{color:var(--blue);font-weight:600}
+  .rowact button{background:transparent;padding:4px 6px;font-size:13px;color:var(--brown-soft)}
+  .rowact button:hover{color:var(--brown)}
+  tfoot td{background:var(--brown);color:var(--cream);font-weight:700;padding:11px 10px}
+  .empty{padding:40px;text-align:center;color:var(--brown-soft)}
+
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(40,24,16,.55);display:none;align-items:flex-start;justify-content:center;z-index:40;overflow:auto;padding:30px 14px}
+  .overlay.open{display:flex}
+  .modal{background:var(--cream);border-radius:16px;width:100%;max-width:560px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .modal h2{margin:0 0 14px;color:var(--brown);font-size:18px}
+  .field{margin-bottom:12px}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--brown-soft);margin-bottom:4px}
+  .field input,.field select{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .grid3{display:grid;grid-template-columns:2fr 1fr;gap:10px;align-items:end}
+  .itemrow{border:1px dashed var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:#fffdf8}
+  .calc{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin:6px 0 14px;font-size:13px}
+  .calc .line{display:flex;justify-content:space-between;padding:3px 0}
+  .calc .net{font-weight:700;color:var(--brown);border-top:1px solid var(--line);margin-top:5px;padding-top:7px;font-size:15px}
+  .calc .sep{color:var(--blue)}
+  .modal-actions{display:flex;justify-content:space-between;gap:10px;margin-top:8px}
+  .hint{font-size:12px;color:var(--brown-soft);padding:0 18px 10px}
+  .pill{display:inline-block;background:var(--cream-2);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--brown-soft)}
+  @media(max-width:600px){
+    .grid2{grid-template-columns:1fr}
+    header h1{font-size:16px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🧁 DEE'S TREATS — Orders Log</h1>
+    <div class="sub">Delivery is tracked separately and never deducted from Net Revenue.</div>
+  </div>
+  <div class="toolbar">
+    <button class="btn-primary" onclick="openForm()">+ Add Order</button>
+    <button class="btn-ghost" onclick="exportCSV()">Export CSV</button>
+    <button class="btn-ghost" onclick="document.getElementById('importFile').click()">Import CSV</button>
+    <button class="btn-ghost" onclick="openMenu()">Menu &amp; Prices</button>
+    <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importCSV(event)" />
+  </div>
+</header>
+
+<div class="stats" id="stats"></div>
+
+<div class="hint">Tip: pick items from the dropdown and prices fill in automatically (editable). Platform commission auto-sets (Direct = 0%, delivery apps = 30%) but you can change it.</div>
+
+<div class="wrap">
+  <div class="tablecard">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th><th>Date</th><th>Customer</th><th>Platform</th>
+          <th>Item 1</th><th class="num">Price 1</th>
+          <th>Item 2</th><th class="num">Price 2</th>
+          <th>Item 3</th><th class="num">Price 3</th>
+          <th class="num">Subtotal</th><th class="num">Disc %</th><th class="num">After Disc</th>
+          <th class="num">Comm %</th><th class="num">Delivery</th><th class="num">Net Revenue</th>
+          <th>Payment</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+      <tfoot id="foot"></tfoot>
+    </table>
+  </div>
+</div>
+
+<!-- Order modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="formTitle">Add Order</h2>
+    <div class="grid2">
+      <div class="field"><label>Date</label><input type="date" id="f_date"></div>
+      <div class="field"><label>Customer</label><input id="f_customer" placeholder="Name"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Platform</label>
+        <select id="f_platform" onchange="platformChanged()">
+          <option>Direct (WhatsApp/IG)</option>
+          <option>Instagram</option>
+          <option>Deliveroo</option>
+          <option>Talabat</option>
+          <option>Careem</option>
+          <option>Noon</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Payment</label>
+        <select id="f_payment"><option>Paid</option><option>Unpaid</option></select>
+      </div>
+    </div>
+
+    <div id="itemRows"></div>
+
+    <div class="grid2">
+      <div class="field"><label>Discount %</label><input type="number" id="f_discount" value="0" min="0" step="0.5" oninput="recalc()"></div>
+      <div class="field"><label>Platform Commission %</label><input type="number" id="f_comm" value="0" min="0" step="1" oninput="recalc()"></div>
+    </div>
+    <div class="field"><label>Delivery Fee (AED) — separate, not deducted from Net Revenue</label>
+      <input type="number" id="f_delivery" value="0" min="0" step="1" oninput="recalc()"></div>
+
+    <div class="calc" id="calc"></div>
+
+    <div class="modal-actions">
+      <button class="btn-danger" id="deleteBtn" onclick="deleteCurrent()" style="display:none">Delete</button>
+      <div style="display:flex;gap:8px;margin-left:auto">
+        <button class="btn-ghost" style="color:var(--brown);border-color:var(--line)" onclick="closeForm()">Cancel</button>
+        <button class="btn-primary" style="background:var(--brown);color:var(--cream)" onclick="saveOrder()">Save Order</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Menu modal -->
+<div class="overlay" id="menuOverlay">
+  <div class="modal">
+    <h2>Menu &amp; Prices</h2>
+    <div class="hint" style="padding:0 0 10px">These feed the item dropdowns. Edit prices or add items.</div>
+    <div id="menuList"></div>
+    <div class="grid3" style="margin-top:10px">
+      <div class="field" style="margin:0"><label>New item</label><input id="newItemName" placeholder="e.g. Brownies — 9 pcs"></div>
+      <div class="field" style="margin:0"><label>Price</label><input type="number" id="newItemPrice" value="0"></div>
+    </div>
+    <button class="btn-primary" style="background:var(--brown);color:var(--cream);margin-top:10px" onclick="addMenuItem()">Add to menu</button>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn-primary" style="background:var(--brown);color:var(--cream);margin-left:auto" onclick="closeMenu()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Storage ---------- */
+const ORDERS_KEY='deestreats_orders_v1';
+const MENU_KEY='deestreats_menu_v1';
+
+const DEFAULT_MENU=[
+  {name:"Dee's Bundle (Tasting Box)",price:320},
+  {name:"San Sebastian — Whole",price:280},
+  {name:"San Sebastian — Mini",price:0},
+  {name:"Pavlova — Whole",price:260},
+  {name:"Pavlova — Mini",price:60},
+  {name:"Lazy Cake — Whole",price:175},
+  {name:"Crème Brûlée",price:0},
+  {name:"Brownies",price:0},
+  {name:"Carrot Cake Muffins",price:0},
+  {name:"Carrot Balls — 8 pcs",price:55},
+];
+
+let orders=load(ORDERS_KEY,[]);
+let menu=load(MENU_KEY,DEFAULT_MENU);
+let editingId=null;
+
+function load(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v||def}catch(e){return def}}
+function save(){localStorage.setItem(ORDERS_KEY,JSON.stringify(orders));localStorage.setItem(MENU_KEY,JSON.stringify(menu));}
+const AED=n=>'AED '+(Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
+
+/* ---------- Order math ----------
+   subtotal      = sum of item prices
+   afterDiscount = subtotal * (1 - discount%)
+   commission    = afterDiscount * comm%
+   NET REVENUE   = afterDiscount - commission        (delivery NOT included)
+   delivery      = its own column / total
+*/
+function computed(o){
+  const subtotal=(o.items||[]).reduce((s,it)=>s+(+it.price||0),0);
+  const afterDiscount=subtotal*(1-(+o.discount||0)/100);
+  const commission=afterDiscount*((+o.comm||0)/100);
+  const net=afterDiscount-commission;
+  return {subtotal,afterDiscount,commission,delivery:+o.delivery||0,net};
+}
+
+/* ---------- Render ---------- */
+function render(){
+  const tb=document.getElementById('rows');
+  if(!orders.length){
+    tb.innerHTML=`<tr><td colspan="18" class="empty">No orders yet. Click <b>+ Add Order</b> to log your first one.</td></tr>`;
+    document.getElementById('foot').innerHTML='';
+    renderStats({subtotal:0,afterDiscount:0,delivery:0,net:0,count:0});
+    return;
+  }
+  let T={subtotal:0,afterDiscount:0,delivery:0,net:0};
+  tb.innerHTML=orders.map((o,i)=>{
+    const c=computed(o);
+    T.subtotal+=c.subtotal;T.afterDiscount+=c.afterDiscount;T.delivery+=c.delivery;T.net+=c.net;
+    const it=o.items||[];
+    const cell=(n)=>it[n]?`<td class="item">${esc(it[n].name)}</td><td class="num price">${it[n].price?AED(it[n].price):'—'}</td>`:`<td class="muted">—</td><td class="num muted">—</td>`;
+    return `<tr ondblclick="openForm('${o.id}')">
+      <td>${i+1}</td>
+      <td>${fmtDate(o.date)}</td>
+      <td>${esc(o.customer||'')}</td>
+      <td>${esc(o.platform||'')}</td>
+      ${cell(0)}${cell(1)}${cell(2)}
+      <td class="num">${AED(c.subtotal)}</td>
+      <td class="num">${o.discount?o.discount+'%':'—'}</td>
+      <td class="num">${AED(c.afterDiscount)}</td>
+      <td class="num">${o.comm?o.comm+'%':'—'}</td>
+      <td class="num delivery">${c.delivery?AED(c.delivery):'—'}</td>
+      <td class="num">${AED(c.net)}</td>
+      <td class="pay ${o.payment}">${o.payment||''}</td>
+      <td class="rowact"><button onclick="event.stopPropagation();openForm('${o.id}')">✏️</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('foot').innerHTML=`<tr>
+    <td colspan="10">TOTALS · ${orders.length} orders</td>
+    <td class="num">${AED(T.subtotal)}</td><td></td>
+    <td class="num">${AED(T.afterDiscount)}</td><td></td>
+    <td class="num">${AED(T.delivery)}</td>
+    <td class="num">${AED(T.net)}</td><td colspan="2"></td>
+  </tr>`;
+  renderStats({...T,count:orders.length});
+}
+function renderStats(T){
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><div class="label">Net Revenue</div><div class="value">${AED(T.net)}</div></div>
+    <div class="stat"><div class="label">Delivery (separate)</div><div class="value muted" style="color:var(--blue)">${AED(T.delivery)}</div></div>
+    <div class="stat"><div class="label">Net after delivery absorbed</div><div class="value muted">${AED(T.net-T.delivery)}</div></div>
+    <div class="stat"><div class="label">Orders</div><div class="value">${T.count}</div></div>`;
+}
+function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function fmtDate(d){if(!d)return '';const dt=new Date(d);if(isNaN(dt))return d;return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}
+
+/* ---------- Form ---------- */
+function openForm(id){
+  editingId=id||null;
+  const o=id?orders.find(x=>x.id===id):null;
+  document.getElementById('formTitle').textContent=id?'Edit Order':'Add Order';
+  document.getElementById('deleteBtn').style.display=id?'inline-block':'none';
+  document.getElementById('f_date').value=o?o.date:new Date().toISOString().slice(0,10);
+  document.getElementById('f_customer').value=o?o.customer||'':'';
+  document.getElementById('f_platform').value=o?o.platform||'Direct (WhatsApp/IG)':'Direct (WhatsApp/IG)';
+  document.getElementById('f_payment').value=o?o.payment||'Paid':'Paid';
+  document.getElementById('f_discount').value=o?o.discount||0:0;
+  document.getElementById('f_comm').value=o?o.comm||0:0;
+  document.getElementById('f_delivery').value=o?o.delivery||0:0;
+  buildItemRows(o?o.items:[]);
+  recalc();
+  document.getElementById('overlay').classList.add('open');
+}
+function closeForm(){document.getElementById('overlay').classList.remove('open');editingId=null}
+
+function buildItemRows(items){
+  items=items||[];
+  let html='';
+  for(let i=0;i<3;i++){
+    const cur=items[i];
+    html+=`<div class="itemrow"><div class="grid3">
+      <div class="field" style="margin:0"><label>Item ${i+1}</label>
+        <select id="item${i}" onchange="itemPicked(${i})">
+          <option value="">— none —</option>
+          ${menu.map(m=>`<option value="${esc(m.name)}" ${cur&&cur.name===m.name?'selected':''}>${esc(m.name)}</option>`).join('')}
+        </select></div>
+      <div class="field" style="margin:0"><label>Price</label>
+        <input type="number" id="price${i}" value="${cur?cur.price:0}" min="0" oninput="recalc()"></div>
+    </div></div>`;
+  }
+  document.getElementById('itemRows').innerHTML=html;
+}
+function itemPicked(i){
+  const name=document.getElementById('item'+i).value;
+  const m=menu.find(x=>x.name===name);
+  if(m)document.getElementById('price'+i).value=m.price;
+  recalc();
+}
+function platformChanged(){
+  const p=document.getElementById('f_platform').value;
+  const direct=/Direct|Instagram/i.test(p);
+  document.getElementById('f_comm').value=direct?0:30;
+  recalc();
+}
+function collectForm(){
+  const items=[];
+  for(let i=0;i<3;i++){
+    const name=document.getElementById('item'+i).value;
+    if(name)items.push({name,price:+document.getElementById('price'+i).value||0});
+  }
+  return {
+    date:document.getElementById('f_date').value,
+    customer:document.getElementById('f_customer').value.trim(),
+    platform:document.getElementById('f_platform').value,
+    payment:document.getElementById('f_payment').value,
+    discount:+document.getElementById('f_discount').value||0,
+    comm:+document.getElementById('f_comm').value||0,
+    delivery:+document.getElementById('f_delivery').value||0,
+    items
+  };
+}
+function recalc(){
+  const c=computed(collectForm());
+  document.getElementById('calc').innerHTML=`
+    <div class="line"><span>Subtotal</span><span>${AED(c.subtotal)}</span></div>
+    <div class="line"><span>After discount</span><span>${AED(c.afterDiscount)}</span></div>
+    <div class="line"><span>Platform commission</span><span>− ${AED(c.commission)}</span></div>
+    <div class="line net"><span>Net Revenue</span><span>${AED(c.net)}</span></div>
+    <div class="line sep"><span>Delivery (separate, not deducted)</span><span>${AED(c.delivery)}</span></div>`;
+}
+function saveOrder(){
+  const data=collectForm();
+  if(!data.items.length){alert('Add at least one item.');return;}
+  if(editingId){
+    const i=orders.findIndex(x=>x.id===editingId);
+    orders[i]={...orders[i],...data};
+  }else{
+    orders.push({id:'o'+Date.now()+Math.random().toString(36).slice(2,6),...data});
+  }
+  save();render();closeForm();
+}
+function deleteCurrent(){
+  if(!editingId)return;
+  if(confirm('Delete this order?')){orders=orders.filter(x=>x.id!==editingId);save();render();closeForm();}
+}
+
+/* ---------- Menu ---------- */
+function openMenu(){renderMenu();document.getElementById('menuOverlay').classList.add('open')}
+function closeMenu(){document.getElementById('menuOverlay').classList.remove('open');render()}
+function renderMenu(){
+  document.getElementById('menuList').innerHTML=menu.map((m,i)=>`
+    <div class="grid3" style="margin-bottom:6px">
+      <input value="${esc(m.name)}" onchange="menu[${i}].name=this.value;save()">
+      <input type="number" value="${m.price}" onchange="menu[${i}].price=+this.value||0;save()">
+      <button class="btn-danger" style="padding:6px" onclick="menu.splice(${i},1);save();renderMenu()">✕</button>
+    </div>`).join('');
+}
+function addMenuItem(){
+  const n=document.getElementById('newItemName').value.trim();
+  if(!n)return;
+  menu.push({name:n,price:+document.getElementById('newItemPrice').value||0});
+  document.getElementById('newItemName').value='';document.getElementById('newItemPrice').value=0;
+  save();renderMenu();
+}
+
+/* ---------- CSV ---------- */
+function exportCSV(){
+  const head=['Order #','Date','Customer','Platform','Item 1','Price 1','Item 2','Price 2','Item 3','Price 3','Subtotal','Discount %','After Discount','Platform Comm %','Delivery Fee','Net Revenue','Payment'];
+  const rows=orders.map((o,i)=>{
+    const c=computed(o);const it=o.items||[];
+    const cell=n=>[it[n]?it[n].name:'',it[n]?it[n].price:''];
+    return [i+1,o.date,o.customer,o.platform,...cell(0),...cell(1),...cell(2),
+      c.subtotal,o.discount,r2(c.afterDiscount),o.comm,c.delivery,r2(c.net),o.payment];
+  });
+  const csv=[head,...rows].map(r=>r.map(csvCell).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='dees-treats-orders.csv';a.click();
+}
+function r2(n){return Math.round(n*100)/100}
+function csvCell(v){v=(v==null?'':''+v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function importCSV(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const lines=parseCSV(reader.result);
+      const head=lines.shift().map(h=>h.toLowerCase().trim());
+      const col=name=>head.findIndex(h=>h.includes(name));
+      const imported=lines.filter(l=>l.length>1&&(l[col('customer')]||l[col('item 1')])).map(l=>{
+        const items=[];
+        [['item 1','price 1'],['item 2','price 2'],['item 3','price 3']].forEach(([a,b])=>{
+          const name=l[col(a)];if(name)items.push({name,price:+l[col(b)]||0});
+        });
+        return {
+          id:'o'+Date.now()+Math.random().toString(36).slice(2,6),
+          date:l[col('date')]||'',customer:l[col('customer')]||'',platform:l[col('platform')]||'',
+          payment:l[col('payment')]||'Paid',discount:+l[col('discount')]||0,
+          comm:+l[col('comm')]||0,delivery:+l[col('delivery')]||0,items
+        };
+      });
+      if(confirm(`Import ${imported.length} orders? This adds them to your current list.`)){
+        orders=orders.concat(imported);save();render();
+      }
+    }catch(err){alert('Could not read that CSV. Make sure it was exported from this app.')}
+    e.target.value='';
+  };
+  reader.readAsText(file);
+}
+function parseCSV(text){
+  const rows=[];let row=[],cur='',q=false;
+  for(let i=0;i<text.length;i++){const ch=text[i];
+    if(q){if(ch==='"'){if(text[i+1]==='"'){cur+='"';i++}else q=false}else cur+=ch}
+    else{if(ch==='"')q=true;else if(ch===','){row.push(cur);cur=''}
+    else if(ch==='\n'){row.push(cur);rows.push(row);row=[];cur=''}
+    else if(ch!=='\r')cur+=ch}}
+  if(cur||row.length){row.push(cur);rows.push(row)}
+  return rows;
+}
+
+/* close on overlay click */
+document.querySelectorAll('.overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open')}));
+
+render();
+</script>
+</body>
+</html>
