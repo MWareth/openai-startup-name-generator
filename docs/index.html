@@ -163,7 +163,7 @@
         <a class="btn btn-ig" href="https://ig.me/m/deestreats.ae" target="_blank" rel="noopener">📩 Message us</a>
       </div>
     </div>
-    <div class="heroimg"><img src="img/hero.jpg" alt="" onerror="this.replaceWith(document.createTextNode('🍰'))"></div>
+    <div class="heroimg"><img src="hero.jpg" alt="" onerror="this.replaceWith(document.createTextNode('🍰'))"></div>
   </div>
 </div>
 
@@ -278,7 +278,7 @@ function renderProducts(){
   if(!list.length){el.innerHTML='<p style="color:var(--brown-soft);padding:20px">No treats match that. Try another search or category.</p>';return;}
   el.innerHTML=list.map(p=>`
     <div class="pcard">
-      <div class="ph">${p.tag?`<span class="tag">${p.tag}</span>`:''}<img src="img/${p.key}.jpg" alt="${p.name}" onerror="this.replaceWith(document.createTextNode('${p.emoji}'))"></div>
+      <div class="ph">${p.tag?`<span class="tag">${p.tag}</span>`:''}<img src="${p.key}.jpg" alt="${p.name}" onerror="this.replaceWith(document.createTextNode('${p.emoji}'))"></div>
       <div class="pb">
         <h3>${p.name}</h3>
         <div class="ds">${p.desc}</div>
