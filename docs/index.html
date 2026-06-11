@@ -28,7 +28,11 @@
     position:sticky;top:0;z-index:20;
   }
   header h1{font-size:18px;margin:0;letter-spacing:.5px}
-  header .sub{font-size:12px;opacity:.8;font-weight:400}
+  header .sub{font-size:12px;opacity:.8;font-weight:400;margin-top:5px}
+  .logochip{background:var(--cream);border-radius:12px;padding:6px 14px;display:inline-flex;align-items:center;min-height:40px}
+  .logochip img.logo{height:36px;display:block}
+  .logoText{font-weight:800;color:var(--brown);font-size:24px;line-height:1;letter-spacing:-.5px}
+  .logoText small{font-size:10px;letter-spacing:4px;font-weight:700;margin-left:3px;vertical-align:middle}
   .toolbar{display:flex;gap:8px;flex-wrap:wrap}
   button{
     font:inherit;border:none;border-radius:8px;padding:9px 13px;cursor:pointer;font-weight:600;font-size:13px;
@@ -94,8 +98,12 @@
 <body>
 <header>
   <div>
-    <h1>🧁 DEE'S TREATS — Orders Log</h1>
-    <div class="sub">Delivery is tracked separately and never deducted from Net Revenue.</div>
+    <span class="logochip">
+      <img class="logo" src="dees-logo.png" alt="Dee's Treats"
+           onerror="this.style.display='none';document.getElementById('logoText').style.display='inline-block'">
+      <span id="logoText" class="logoText" style="display:none">dee's<small>TREATS</small></span>
+    </span>
+    <div class="sub">Orders Log · delivery is tracked separately, never deducted from Net Revenue.</div>
   </div>
   <div class="toolbar">
     <button class="btn-primary" onclick="openForm()">+ Add Order</button>
