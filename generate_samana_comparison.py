@@ -2,6 +2,7 @@
 """Branded Samana off-plan comparison PDF (Bridges and Allies Real Estate).
 Usage: python3 generate_samana_comparison.py "Mr Faisal" output.pdf
 """
+import os
 import sys
 from datetime import datetime
 from reportlab.lib.pagesizes import letter
@@ -11,10 +12,31 @@ from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.platypus import (SimpleDocTemplate, Paragraph, Spacer, Table,
                                 TableStyle, PageBreak)
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase.pdfmetrics import registerFontFamily
+
+# ---- Register cooler modern fonts (Outfit for display, Work Sans for text) ----
+_FD = os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "fonts")
+HEAD, BODY, BODYB, BODYI = "Helvetica-Bold", "Helvetica", "Helvetica-Bold", "Helvetica-Oblique"
+try:
+    pdfmetrics.registerFont(TTFont("Outfit", os.path.join(_FD, "Outfit-Regular.ttf")))
+    pdfmetrics.registerFont(TTFont("Outfit-Bold", os.path.join(_FD, "Outfit-Bold.ttf")))
+    pdfmetrics.registerFont(TTFont("WorkSans", os.path.join(_FD, "WorkSans-Regular.ttf")))
+    pdfmetrics.registerFont(TTFont("WorkSans-Bold", os.path.join(_FD, "WorkSans-Bold.ttf")))
+    pdfmetrics.registerFont(TTFont("WorkSans-Italic", os.path.join(_FD, "WorkSans-Italic.ttf")))
+    registerFontFamily("Outfit", normal="Outfit", bold="Outfit-Bold",
+                       italic="Outfit", boldItalic="Outfit-Bold")
+    registerFontFamily("WorkSans", normal="WorkSans", bold="WorkSans-Bold",
+                       italic="WorkSans-Italic", boldItalic="WorkSans-Bold")
+    HEAD, BODY, BODYB, BODYI = "Outfit-Bold", "WorkSans", "WorkSans-Bold", "WorkSans-Italic"
+except Exception as e:
+    print("Font registration fell back to Helvetica:", e)
 
 NAVY = HexColor("#1a2332")
 GREEN = HexColor("#2e7d4f")
 GOLD = HexColor("#c79a3b")
+BLUE = HexColor("#1f6feb")
 LIGHT = HexColor("#f4f6f8")
 BORDER = HexColor("#d4dae0")
 TEXT = HexColor("#2b3440")
@@ -26,27 +48,29 @@ def st(name, **kw):
     return ParagraphStyle(name, parent=ss["Normal"], **kw)
 
 S = {
-    "company": st("co", fontSize=18, leading=22, alignment=TA_CENTER,
-                  textColor=NAVY, fontName="Helvetica-Bold"),
-    "tag": st("tag", fontSize=10, alignment=TA_CENTER, textColor=GRAY),
-    "title": st("ti", fontSize=27, leading=32, alignment=TA_CENTER,
-                textColor=NAVY, fontName="Helvetica-Bold"),
+    "company": st("co", fontSize=19, leading=23, alignment=TA_CENTER,
+                  textColor=NAVY, fontName=HEAD),
+    "tag": st("tag", fontSize=10, alignment=TA_CENTER, textColor=GRAY, fontName=BODY),
+    "title": st("ti", fontSize=29, leading=34, alignment=TA_CENTER,
+                textColor=NAVY, fontName=HEAD),
     "sub": st("su", fontSize=14, leading=18, alignment=TA_CENTER,
-              textColor=GREEN, fontName="Helvetica-Bold"),
+              textColor=GREEN, fontName=HEAD),
     "for": st("fo", fontSize=13, leading=17, alignment=TA_CENTER,
-              textColor=GOLD, fontName="Helvetica-Bold"),
-    "muted": st("mu", fontSize=11, alignment=TA_CENTER, textColor=GRAY),
+              textColor=GOLD, fontName=HEAD),
+    # small blue "Presented by" line
+    "presented": st("pr", fontSize=8.5, leading=12, alignment=TA_CENTER,
+                    textColor=BLUE, fontName=BODYI),
+    "muted": st("mu", fontSize=11, alignment=TA_CENTER, textColor=GRAY, fontName=BODY),
     "h": st("h", fontSize=18, leading=22, textColor=NAVY,
-            fontName="Helvetica-Bold", spaceBefore=10, spaceAfter=8),
+            fontName=HEAD, spaceBefore=10, spaceAfter=8),
     "h2": st("h2", fontSize=13, leading=16, textColor=GREEN,
-             fontName="Helvetica-Bold", spaceBefore=8, spaceAfter=4),
-    "body": st("b", fontSize=10, leading=14, textColor=TEXT, spaceAfter=5),
-    "cell": st("c", fontSize=8.5, leading=11, textColor=TEXT),
-    "cellb": st("cb", fontSize=8.5, leading=11, textColor=TEXT,
-                fontName="Helvetica-Bold"),
+             fontName=HEAD, spaceBefore=8, spaceAfter=4),
+    "body": st("b", fontSize=10, leading=14, textColor=TEXT, spaceAfter=5, fontName=BODY),
+    "cell": st("c", fontSize=8.5, leading=11, textColor=TEXT, fontName=BODY),
+    "cellb": st("cb", fontSize=8.5, leading=11, textColor=TEXT, fontName=BODYB),
     "hd": st("hd", fontSize=9, leading=11, textColor=white,
-             fontName="Helvetica-Bold", alignment=TA_CENTER),
-    "foot": st("ft", fontSize=7.5, leading=10, textColor=GRAY, alignment=TA_CENTER),
+             fontName=HEAD, alignment=TA_CENTER),
+    "foot": st("ft", fontSize=7.5, leading=10, textColor=GRAY, alignment=TA_CENTER, fontName=BODYI),
 }
 
 P = lambda t, s="cell": Paragraph(t, S[s])
@@ -106,6 +130,8 @@ def build(prepared_for, out):
     E.append(Paragraph("Hills South 3 &nbsp;·&nbsp; Greenfield 1 &nbsp;·&nbsp; Boulevard Heights", S["sub"]))
     E.append(Spacer(1, 28))
     E.append(Paragraph(f"Prepared exclusively for {prepared_for}", S["for"]))
+    E.append(Spacer(1, 6))
+    E.append(Paragraph("Presented by Marwan Wareth", S["presented"]))
     E.append(Spacer(1, 10))
     E.append(Paragraph(f"Generated: {datetime.now().strftime('%B %d, %Y')}", S["muted"]))
     E.append(Spacer(1, 40))
@@ -202,9 +228,10 @@ def build(prepared_for, out):
     E.append(Spacer(1, 30))
     E.append(Paragraph(f"Prepared exclusively for {prepared_for}", S["for"]))
     E.append(Spacer(1, 22))
-    E.append(Paragraph("Prepared by", S["muted"]))
     E.append(Paragraph("Marwan Wareth", S["title"]))
     E.append(Paragraph("Real Estate Consultant", S["muted"]))
+    E.append(Spacer(1, 6))
+    E.append(Paragraph("Presented by Marwan Wareth", S["presented"]))
 
     doc.build(E)
     print("Generated:", out)
