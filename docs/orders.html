@@ -102,7 +102,14 @@
   .modal-actions{display:flex;justify-content:space-between;gap:10px;margin-top:8px}
   .hint{font-size:12px;color:var(--brown-soft);padding:0 18px 10px}
   .pill{display:inline-block;background:var(--cream-2);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--brown-soft)}
+  .suggest{position:absolute;left:0;right:0;top:100%;margin-top:2px;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 26px rgba(40,24,16,.18);z-index:6;display:none;max-height:210px;overflow:auto}
+  .suggest .sg{padding:8px 11px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--cream)}
+  .suggest .sg:hover{background:var(--cream)}
+  .suggest .sg .sgaddr{display:block;font-size:11px;color:var(--brown-soft);margin-top:1px}
+  .crow{display:grid;grid-template-columns:1.2fr 1fr 1.5fr auto;gap:6px;margin-bottom:6px}
+  .crow input{padding:8px 9px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff}
   @media(max-width:600px){
+    .crow{grid-template-columns:1fr 1fr;}
     .grid2{grid-template-columns:1fr}
     header h1{font-size:16px}
   }
@@ -121,6 +128,7 @@
     <button class="btn-primary" onclick="openForm()">+ Add Order</button>
     <button class="btn-ghost" onclick="exportCSV()">Export CSV</button>
     <button class="btn-ghost" onclick="document.getElementById('importFile').click()">Import CSV</button>
+    <button class="btn-ghost" onclick="openContacts()">👤 Contacts</button>
     <button class="btn-ghost" onclick="openMenu()">Menu &amp; Prices</button>
     <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importCSV(event)" />
   </div>
@@ -136,7 +144,7 @@
     <table>
       <thead>
         <tr>
-          <th>#</th><th>Date</th><th>Customer</th><th>Platform</th>
+          <th>#</th><th>Date</th><th>Customer</th><th>Phone</th><th>Platform</th>
           <th>Item 1</th><th class="num">Price 1</th>
           <th>Item 2</th><th class="num">Price 2</th>
           <th>Item 3</th><th class="num">Price 3</th>
@@ -157,7 +165,16 @@
     <h2 id="formTitle">Add Order</h2>
     <div class="grid2">
       <div class="field"><label>Date</label><input type="date" id="f_date"></div>
-      <div class="field"><label>Customer</label><input id="f_customer" placeholder="Name"></div>
+      <div class="field" style="position:relative"><label>Customer</label>
+        <input id="f_customer" placeholder="Start typing a name…" autocomplete="off"
+               oninput="customerType()" onfocus="customerType()"
+               onblur="setTimeout(()=>{var s=document.getElementById('contactSuggest');if(s)s.style.display='none'},180)">
+        <div id="contactSuggest" class="suggest"></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Phone</label><input id="f_phone" placeholder="05x xxx xxxx" autocomplete="off"></div>
+      <div class="field"><label>Home address</label><input id="f_address" placeholder="Area, building, villa…" autocomplete="off"></div>
     </div>
     <div class="grid2">
       <div class="field"><label>Platform</label>
@@ -193,6 +210,26 @@
         <button class="btn-ghost" style="color:var(--brown);border-color:var(--line)" onclick="closeForm()">Cancel</button>
         <button class="btn-primary" style="background:var(--brown);color:var(--cream)" onclick="saveOrder()">Save Order</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contacts modal -->
+<div class="overlay" id="contactsOverlay">
+  <div class="modal">
+    <h2>👤 Contacts</h2>
+    <div class="hint" style="padding:0 0 10px">Saved automatically when you log an order with a name. Type a name in the order form to auto-fill phone &amp; address.</div>
+    <input id="contactSearch" placeholder="🔍 Search by name…" oninput="renderContacts()" style="width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;margin-bottom:12px">
+    <div id="contactsList"></div>
+    <h2 style="font-size:15px;margin:16px 0 8px">Add a contact</h2>
+    <div class="crow">
+      <input id="nc_name" placeholder="Name">
+      <input id="nc_phone" placeholder="Phone">
+      <input id="nc_address" placeholder="Home address">
+      <button class="btn-primary" style="background:var(--brown);color:var(--cream);padding:8px 12px" onclick="addContactManual()">Add</button>
+    </div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn-primary" style="background:var(--brown);color:var(--cream);margin-left:auto" onclick="closeContacts()">Done</button>
     </div>
   </div>
 </div>
@@ -238,14 +275,14 @@ const DEFAULT_MENU=[
 const DEFAULT_ORDERS=[
   {id:'seed1', date:'2026-05-21', customer:'Wataryu Ito', platform:'Direct (WhatsApp/IG)', payment:'Paid',   discount:6.5, comm:0, delivery:0,  items:[{name:"Dee's Bundle (Tasting Box)",price:320}]},
   {id:'seed2', date:'2026-05-22', customer:'Nastya Salt',  platform:'Direct (WhatsApp/IG)', payment:'Paid',   discount:15,  comm:0, delivery:0,  items:[{name:'Lazy Cake — Whole',price:175}]},
-  {id:'seed3', date:'2026-05-28', customer:'Ada',          platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'San Sebastian — Whole',price:280}]},
-  {id:'seed4', date:'2026-05-27', customer:'Ryo',          platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:20, items:[{name:"Dee's Bundle (Tasting Box)",price:320}]},
-  {id:'seed5', date:'2026-06-11', customer:'Yehia',        platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'Lazy Cake — Whole',price:175}]},
-  {id:'seed6', date:'2026-06-11', customer:'David',        platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'San Sebastian — Whole',price:280}]},
-  {id:'seed7', date:'2026-06-04', customer:'Yara',         platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'Pavlova — Whole',price:260}]},
-  {id:'seed8', date:'2026-06-04', customer:'Yara',         platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'San Sebastian — Whole',price:280}]},
-  {id:'seed9', date:'2026-06-06', customer:'Zaghloul',     platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'Pavlova — Mini',price:60}]},
-  {id:'seed10',date:'2026-06-11', customer:'Nofal',        platform:'Direct (WhatsApp/IG)', payment:'Unpaid', discount:0,   comm:0, delivery:0,  items:[{name:'Carrot Balls — 8 pcs',price:55}]},
+  {id:'seed3', date:'2026-05-28', customer:'Ada',          platform:'Direct (WhatsApp/IG)', payment:'Paid', discount:0,   comm:0, delivery:0,  items:[{name:'San Sebastian — Whole',price:280}]},
+  {id:'seed4', date:'2026-05-27', customer:'Ryo',          platform:'Direct (WhatsApp/IG)', payment:'Paid', discount:0,   comm:0, delivery:20, items:[{name:"Dee's Bundle (Tasting Box)",price:320}]},
+  {id:'seed5', date:'2026-06-11', customer:'Yehia',        platform:'Direct (WhatsApp/IG)', payment:'Paid', discount:0,   comm:0, delivery:0,  items:[{name:'Lazy Cake — Whole',price:175}]},
+  {id:'seed6', date:'2026-06-11', customer:'David',        platform:'Direct (WhatsApp/IG)', payment:'Paid', discount:0,   comm:0, delivery:0,  items:[{name:'San Sebastian — Whole',price:280}]},
+  {id:'seed7', date:'2026-06-04', customer:'Yara',         platform:'Direct (WhatsApp/IG)', payment:'Paid', discount:0,   comm:0, delivery:0,  items:[{name:'Pavlova — Whole',price:260}]},
+  {id:'seed8', date:'2026-06-04', customer:'Yara',         platform:'Direct (WhatsApp/IG)', payment:'Paid', discount:0,   comm:0, delivery:0,  items:[{name:'San Sebastian — Whole',price:280}]},
+  {id:'seed9', date:'2026-06-06', customer:'Zaghloul',     platform:'Direct (WhatsApp/IG)', payment:'Paid', discount:0,   comm:0, delivery:0,  items:[{name:'Pavlova — Mini',price:60}]},
+  {id:'seed10',date:'2026-06-11', customer:'Nofal',        platform:'Direct (WhatsApp/IG)', payment:'Paid', discount:0,   comm:0, delivery:0,  items:[{name:'Carrot Balls — 8 pcs',price:55}]},
 ];
 
 let orders;
@@ -254,11 +291,22 @@ if(_stored===null){orders=DEFAULT_ORDERS.slice();localStorage.setItem(ORDERS_KEY
 else{try{orders=JSON.parse(_stored)||[]}catch(e){orders=[]}}
 
 let menu=load(MENU_KEY,DEFAULT_MENU);
+const CONTACTS_KEY='deestreats_contacts_v1';
+let contacts=load(CONTACTS_KEY,[]);
 let editingId=null;
 let monthFilter='all';
 
+/* one-time: mark the pre-loaded sample orders as Paid */
+if(!localStorage.getItem('deestreats_mig_paid_v1')){
+  orders.forEach(o=>{if(String(o.id).startsWith('seed'))o.payment='Paid';});
+  localStorage.setItem('deestreats_mig_paid_v1','1');
+}
+/* build the contacts book from existing orders */
+orders.forEach(o=>{if(o.customer)upsertContact(o.customer,o.phone,o.address);});
+save();
+
 function load(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v||def}catch(e){return def}}
-function save(){localStorage.setItem(ORDERS_KEY,JSON.stringify(orders));localStorage.setItem(MENU_KEY,JSON.stringify(menu));}
+function save(){localStorage.setItem(ORDERS_KEY,JSON.stringify(orders));localStorage.setItem(MENU_KEY,JSON.stringify(menu));localStorage.setItem(CONTACTS_KEY,JSON.stringify(contacts));}
 const AED=n=>'AED '+(Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
 
 /* Header logo: try dees-logo.png, then dees-icon.png, then text */
@@ -306,6 +354,7 @@ function rowHtml(o,i,c){
     <td>${i}</td>
     <td>${fmtDate(o.date)}</td>
     <td>${esc(o.customer||'')}</td>
+    <td>${esc(o.phone||'')}</td>
     <td>${esc(o.platform||'')}</td>
     ${cell(0)}${cell(1)}${cell(2)}
     <td class="num">${AED(c.subtotal)}</td>
@@ -324,20 +373,20 @@ function render(){
   const all=sortedOrders();
   const list=monthFilter==='all'?all:all.filter(o=>monthKey(o.date)===monthFilter);
   if(!list.length){
-    tb.innerHTML=`<tr><td colspan="18" class="empty">No orders ${monthFilter==='all'?'yet. Click <b>+ Add Order</b> to log your first one.':'in this month.'}</td></tr>`;
+    tb.innerHTML=`<tr><td colspan="19" class="empty">No orders ${monthFilter==='all'?'yet. Click <b>+ Add Order</b> to log your first one.':'in this month.'}</td></tr>`;
     document.getElementById('foot').innerHTML='';
     renderStats({subtotal:0,afterDiscount:0,delivery:0,net:0,count:0});
     return;
   }
   const T={subtotal:0,afterDiscount:0,delivery:0,net:0};
   let html='',curMonth=null,m=null,i=0;
-  const flush=()=>{ if(m) html+=`<tr class="monthsub"><td colspan="18">↳ ${esc(m.label)} subtotal — ${m.count} orders · Net ${AED(m.net)} · Delivery (separate) ${AED(m.delivery)}</td></tr>`; };
+  const flush=()=>{ if(m) html+=`<tr class="monthsub"><td colspan="19">↳ ${esc(m.label)} subtotal — ${m.count} orders · Net ${AED(m.net)} · Delivery (separate) ${AED(m.delivery)}</td></tr>`; };
   list.forEach(o=>{
     const mk=monthKey(o.date);
     if(monthFilter==='all' && mk!==curMonth){
       flush();
       curMonth=mk; m={label:monthLabel(mk),net:0,delivery:0,count:0};
-      html+=`<tr class="monthhead"><td colspan="18">📅 ${esc(monthLabel(mk))}</td></tr>`;
+      html+=`<tr class="monthhead"><td colspan="19">📅 ${esc(monthLabel(mk))}</td></tr>`;
     }
     const c=computed(o);
     T.subtotal+=c.subtotal;T.afterDiscount+=c.afterDiscount;T.delivery+=c.delivery;T.net+=c.net;
@@ -347,7 +396,7 @@ function render(){
   if(monthFilter==='all') flush();
   tb.innerHTML=html;
   document.getElementById('foot').innerHTML=`<tr>
-    <td colspan="10">${monthFilter==='all'?'GRAND TOTAL':monthLabel(monthFilter)} · ${list.length} orders</td>
+    <td colspan="11">${monthFilter==='all'?'GRAND TOTAL':monthLabel(monthFilter)} · ${list.length} orders</td>
     <td class="num">${AED(T.subtotal)}</td><td></td>
     <td class="num">${AED(T.afterDiscount)}</td><td></td>
     <td class="num">${AED(T.delivery)}</td>
@@ -373,6 +422,9 @@ function openForm(id){
   document.getElementById('deleteBtn').style.display=id?'inline-block':'none';
   document.getElementById('f_date').value=o?o.date:new Date().toISOString().slice(0,10);
   document.getElementById('f_customer').value=o?o.customer||'':'';
+  document.getElementById('f_phone').value=o?o.phone||'':'';
+  document.getElementById('f_address').value=o?o.address||'':'';
+  document.getElementById('contactSuggest').style.display='none';
   document.getElementById('f_platform').value=o?o.platform||'Direct (WhatsApp/IG)':'Direct (WhatsApp/IG)';
   document.getElementById('f_payment').value=o?o.payment||'Paid':'Paid';
   document.getElementById('f_discount').value=o?o.discount||0:0;
@@ -422,6 +474,8 @@ function collectForm(){
   return {
     date:document.getElementById('f_date').value,
     customer:document.getElementById('f_customer').value.trim(),
+    phone:document.getElementById('f_phone').value.trim(),
+    address:document.getElementById('f_address').value.trim(),
     platform:document.getElementById('f_platform').value,
     payment:document.getElementById('f_payment').value,
     discount:+document.getElementById('f_discount').value||0,
@@ -442,6 +496,7 @@ function recalc(){
 function saveOrder(){
   const data=collectForm();
   if(!data.items.length){alert('Add at least one item.');return;}
+  upsertContact(data.customer,data.phone,data.address);
   if(editingId){
     const i=orders.findIndex(x=>x.id===editingId);
     orders[i]={...orders[i],...data};
@@ -449,6 +504,53 @@ function saveOrder(){
     orders.push({id:'o'+Date.now()+Math.random().toString(36).slice(2,6),...data});
   }
   save();render();closeForm();
+}
+
+/* ---------- Contacts ---------- */
+function upsertContact(name,phone,address){
+  name=(name||'').trim(); if(!name)return;
+  let c=contacts.find(x=>x.name.toLowerCase()===name.toLowerCase());
+  if(c){c.name=name; if(phone)c.phone=phone; if(address)c.address=address;}
+  else contacts.push({name,phone:phone||'',address:address||''});
+}
+function customerType(){
+  const q=document.getElementById('f_customer').value.trim().toLowerCase();
+  const box=document.getElementById('contactSuggest');
+  if(!q){box.style.display='none';box.innerHTML='';return;}
+  const matches=contacts.filter(c=>c.name.toLowerCase().includes(q)).slice(0,6);
+  if(!matches.length){box.style.display='none';return;}
+  box.innerHTML=matches.map(c=>`<div class="sg" onclick="pickContact('${encodeURIComponent(c.name)}')"><b>${esc(c.name)}</b>${c.phone?' · '+esc(c.phone):''}${c.address?`<span class="sgaddr">${esc(c.address)}</span>`:''}</div>`).join('');
+  box.style.display='block';
+}
+function pickContact(enc){
+  const c=contacts.find(x=>x.name===decodeURIComponent(enc));
+  if(!c)return;
+  document.getElementById('f_customer').value=c.name;
+  document.getElementById('f_phone').value=c.phone||'';
+  document.getElementById('f_address').value=c.address||'';
+  document.getElementById('contactSuggest').style.display='none';
+}
+function openContacts(){document.getElementById('contactSearch').value='';renderContacts();document.getElementById('contactsOverlay').classList.add('open')}
+function closeContacts(){document.getElementById('contactsOverlay').classList.remove('open');render()}
+function renderContacts(){
+  const el=document.getElementById('contactsList');
+  if(!contacts.length){el.innerHTML='<p class="muted" style="padding:6px">No contacts yet — they\'re added automatically when you save an order with a name, or add one below.</p>';return;}
+  const q=(document.getElementById('contactSearch').value||'').toLowerCase();
+  const list=contacts.filter(c=>c.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name));
+  if(!list.length){el.innerHTML='<p class="muted" style="padding:6px">No contact matches that search.</p>';return;}
+  el.innerHTML=list.map(c=>{const i=contacts.indexOf(c);return `
+    <div class="crow">
+      <input value="${esc(c.name)}" onchange="contacts[${i}].name=this.value;save()" placeholder="Name">
+      <input value="${esc(c.phone||'')}" onchange="contacts[${i}].phone=this.value;save()" placeholder="Phone">
+      <input value="${esc(c.address||'')}" onchange="contacts[${i}].address=this.value;save()" placeholder="Home address">
+      <button class="btn-danger" style="padding:6px 9px" onclick="if(confirm('Delete this contact?')){contacts.splice(${i},1);save();renderContacts()}">✕</button>
+    </div>`;}).join('');
+}
+function addContactManual(){
+  const n=document.getElementById('nc_name').value.trim(); if(!n){alert('Enter a name.');return;}
+  upsertContact(n,document.getElementById('nc_phone').value.trim(),document.getElementById('nc_address').value.trim());
+  document.getElementById('nc_name').value='';document.getElementById('nc_phone').value='';document.getElementById('nc_address').value='';
+  save();renderContacts();
 }
 function deleteCurrent(){
   if(!editingId)return;
@@ -476,11 +578,11 @@ function addMenuItem(){
 
 /* ---------- CSV ---------- */
 function exportCSV(){
-  const head=['Order #','Date','Customer','Platform','Item 1','Price 1','Item 2','Price 2','Item 3','Price 3','Subtotal','Discount %','After Discount','Platform Comm %','Delivery Fee','Net Revenue','Payment'];
+  const head=['Order #','Date','Customer','Phone','Address','Platform','Item 1','Price 1','Item 2','Price 2','Item 3','Price 3','Subtotal','Discount %','After Discount','Platform Comm %','Delivery Fee','Net Revenue','Payment'];
   const rows=orders.map((o,i)=>{
     const c=computed(o);const it=o.items||[];
     const cell=n=>[it[n]?it[n].name:'',it[n]?it[n].price:''];
-    return [i+1,o.date,o.customer,o.platform,...cell(0),...cell(1),...cell(2),
+    return [i+1,o.date,o.customer,o.phone||'',o.address||'',o.platform,...cell(0),...cell(1),...cell(2),
       c.subtotal,o.discount,r2(c.afterDiscount),o.comm,c.delivery,r2(c.net),o.payment];
   });
   const csv=[head,...rows].map(r=>r.map(csvCell).join(',')).join('\n');
@@ -503,10 +605,11 @@ function importCSV(e){
         [['item 1','price 1'],['item 2','price 2'],['item 3','price 3']].forEach(([a,b])=>{
           const name=l[col(a)];if(name)items.push({name,price:+l[col(b)]||0});
         });
+        const get=name=>{const i=col(name);return i>=0?(l[i]||''):'';};
         return {
           id:'o'+Date.now()+Math.random().toString(36).slice(2,6),
-          date:l[col('date')]||'',customer:l[col('customer')]||'',platform:l[col('platform')]||'',
-          payment:l[col('payment')]||'Paid',discount:+l[col('discount')]||0,
+          date:get('date'),customer:get('customer'),phone:get('phone'),address:get('address'),
+          platform:get('platform'),payment:get('payment')||'Paid',discount:+l[col('discount')]||0,
           comm:+l[col('comm')]||0,delivery:+l[col('delivery')]||0,items
         };
       });
