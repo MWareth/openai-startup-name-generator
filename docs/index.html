@@ -36,10 +36,11 @@
   }
   header h1{font-size:18px;margin:0;letter-spacing:.5px}
   header .sub{font-size:12px;opacity:.8;font-weight:400;margin-top:5px}
-  .logochip{background:var(--cream);border-radius:12px;padding:6px 14px;display:inline-flex;align-items:center;min-height:40px}
-  .logochip img.logo{height:36px;display:block}
-  .logoText{font-weight:800;color:var(--brown);font-size:24px;line-height:1;letter-spacing:-.5px}
-  .logoText small{font-size:10px;letter-spacing:4px;font-weight:700;margin-left:3px;vertical-align:middle}
+  .logochip{background:var(--cream);border-radius:12px;padding:5px 16px;display:inline-flex;align-items:center;min-height:42px}
+  .logochip img.logo{height:38px;display:block}
+  .logoText{display:none;flex-direction:column;align-items:center;line-height:.85}
+  .lt-dees{font-family:"Arial Rounded MT Bold","Helvetica Rounded",Verdana,system-ui,Arial,sans-serif;font-weight:900;color:var(--brown);font-size:27px;letter-spacing:-1.5px}
+  .lt-treats{font-weight:800;color:var(--brown);font-size:9px;letter-spacing:5px;margin-top:2px}
   .toolbar{display:flex;gap:8px;flex-wrap:wrap}
   button{
     font:inherit;border:none;border-radius:8px;padding:9px 13px;cursor:pointer;font-weight:600;font-size:13px;
@@ -112,7 +113,7 @@
   <div>
     <span class="logochip">
       <img class="logo" src="dees-logo.png" alt="Dee's Treats" onerror="logoFallback(this)">
-      <span id="logoText" class="logoText" style="display:none">dee's<small>TREATS</small></span>
+      <span id="logoText" class="logoText"><span class="lt-dees">dee's</span><span class="lt-treats">TREATS</span></span>
     </span>
     <div class="sub">Orders Log · delivery is tracked separately, never deducted from Net Revenue.</div>
   </div>
@@ -216,7 +217,7 @@
 <script>
 /* ---------- Storage ---------- */
 const ORDERS_KEY='deestreats_orders_v1';
-const MENU_KEY='deestreats_menu_v2';
+const MENU_KEY='deestreats_menu_v3';
 
 const DEFAULT_MENU=[
   {name:"Pavlova — Mini",price:60},
@@ -230,7 +231,7 @@ const DEFAULT_MENU=[
   {name:"Carrot Balls — 6 pcs",price:40},
   {name:"Carrot Balls — 8 pcs",price:55},
   {name:"Carrot Balls — 12 pcs",price:75},
-  {name:"Crème Brûlée — Pack of 4",price:0},
+  {name:"Crème Brûlée — Pack of 4",price:80},
   {name:"Dee's Bundle (Tasting Box)",price:320},
 ];
 
@@ -264,7 +265,7 @@ const AED=n=>'AED '+(Math.round(n*100)/100).toLocaleString('en-US',{minimumFract
 function logoFallback(img){
   if(!img.dataset.tried){img.dataset.tried='1';img.src='dees-icon.png';return;}
   img.style.display='none';
-  document.getElementById('logoText').style.display='inline-block';
+  document.getElementById('logoText').style.display='inline-flex';
 }
 
 /* ---------- Order math ----------
