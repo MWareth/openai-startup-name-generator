@@ -129,6 +129,9 @@
   .drawer .tot{display:flex;justify-content:space-between;font-size:20px;font-weight:800;color:var(--brown);margin-bottom:12px}
   .drawer .foot .btn{width:100%;justify-content:center;margin-bottom:8px}
   .emptycart{text-align:center;color:var(--brown-soft);padding:50px 16px}
+  .checkout{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .checkout input{padding:9px 10px;border:1px solid var(--line);border-radius:9px;font:inherit;background:#fff;font-size:13px;width:100%}
+  .checkout input.full{grid-column:1/-1}
 </style>
 </head>
 <body id="top">
@@ -226,10 +229,16 @@
   <div class="dh"><h3>🛒 Your Order</h3><button class="x" onclick="closeCart()">×</button></div>
   <div class="body" id="cartBody"></div>
   <div class="foot">
+    <div class="checkout">
+      <input id="co_name" placeholder="Your name *">
+      <input id="co_phone" placeholder="Phone / WhatsApp *">
+      <input id="co_area" class="full" placeholder="Delivery area & address in Dubai *">
+      <input id="co_date" class="full" type="date" title="Preferred delivery date">
+    </div>
     <div class="tot"><span>Total</span><span id="cartTotal">AED 0</span></div>
-    <button class="btn btn-ig" onclick="sendOrder('ig')">📩 Send order on Instagram</button>
-    <button class="btn btn-wa" onclick="sendOrder('wa')">🟢 Send order on WhatsApp</button>
-    <div style="font-size:11px;color:var(--brown-soft);text-align:center;margin-top:4px">Your order is copied automatically — just paste it in the chat.</div>
+    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-bottom:8px" onclick="placeOrder()">💳 Pay &amp; Place Order</button>
+    <button class="btn btn-ig" style="width:100%;justify-content:center" onclick="sendOrder('ig')">📩 Order via Instagram instead</button>
+    <div style="font-size:11px;color:var(--brown-soft);text-align:center;margin-top:6px">Secure card payment via Ziina · please order 24h ahead.</div>
   </div>
 </div>
 
@@ -237,6 +246,8 @@
 /* ====== CONFIG ====== */
 const INSTAGRAM='deestreats.ae';
 const WHATSAPP=''; // put your number here, e.g. '9715XXXXXXXX' (country code, no + or spaces)
+const ZIINA_LINK='';      // <-- paste your Ziina payment link here to turn on card payment
+const ORDER_EMAIL_KEY='';  // <-- optional free Web3Forms key to get orders emailed to you
 
 /* ====== PRODUCTS ====== */
 const PRODUCTS=[
@@ -326,11 +337,30 @@ function renderCart(){
 function openCart(){renderCart();document.getElementById('drawer').classList.add('open');document.getElementById('drawerBg').classList.add('open');}
 function closeCart(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawerBg').classList.remove('open');}
 
+function val(id){return (document.getElementById(id).value||'').trim()}
+function lines(){return Object.values(cart).map(i=>`• ${i.qty}× ${i.name} (${i.label}) — ${AED(i.price*i.qty)}`)}
 function buildMessage(){
-  const items=Object.values(cart);
-  if(!items.length)return null;
-  const lines=items.map(i=>`• ${i.qty}× ${i.name} (${i.label}) — ${AED(i.price*i.qty)}`);
-  return `Hi Dee's Treats! 🤍 I'd like to order:\n${lines.join('\n')}\n\nTotal: ${AED(cartTotal())}\n\nName:\nDelivery date/time:\nArea in Dubai:`;
+  if(!Object.keys(cart).length)return null;
+  const name=val('co_name'),phone=val('co_phone'),area=val('co_area'),date=val('co_date');
+  const extra=(name||phone||area||date)?`\n\nName: ${name||'-'}\nPhone: ${phone||'-'}\nArea: ${area||'-'}\nDate: ${date||'-'}`:`\n\nName:\nPhone:\nArea in Dubai:`;
+  return `Hi Dee's Treats! 🤍 I'd like to order:\n${lines().join('\n')}\n\nTotal: ${AED(cartTotal())}${extra}`;
+}
+async function placeOrder(){
+  if(!Object.keys(cart).length){alert('Add at least one treat first 🙂');return;}
+  const name=val('co_name'),phone=val('co_phone'),area=val('co_area'),date=val('co_date');
+  if(!name){alert('Please enter your name.');document.getElementById('co_name').focus();return;}
+  if(!phone){alert('Please enter your phone number.');document.getElementById('co_phone').focus();return;}
+  if(!area){alert('Please enter your delivery area & address.');document.getElementById('co_area').focus();return;}
+  const summary=`New order from ${name}\nPhone: ${phone}\nDelivery: ${area}\nDate: ${date||'(not set)'}\n\n${lines().join('\n')}\n\nTotal: ${AED(cartTotal())}`;
+  if(ORDER_EMAIL_KEY){try{await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({access_key:ORDER_EMAIL_KEY,subject:"New Dee's Treats order — "+name,message:summary})});}catch(e){}}
+  if(navigator.clipboard)navigator.clipboard.writeText(summary).catch(()=>{});
+  if(ZIINA_LINK){
+    window.open(ZIINA_LINK,'_blank');
+    alert('Opening secure card payment for '+AED(cartTotal())+'. Thank you, '+name+'! 🤍 We\'ll confirm your delivery shortly.');
+  }else{
+    alert('Your order is ready & copied! Online card payment is being set up — please tap "Order via Instagram instead" to send it now.');
+    window.open('https://ig.me/m/'+INSTAGRAM,'_blank');
+  }
 }
 function sendOrder(channel){
   const msg=buildMessage();
