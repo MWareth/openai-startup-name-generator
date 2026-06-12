@@ -238,7 +238,7 @@
     <div class="tot"><span>Total</span><span id="cartTotal">AED 0</span></div>
     <button class="btn btn-gold" style="width:100%;justify-content:center;margin-bottom:8px" onclick="placeOrder()">💳 Pay &amp; Place Order</button>
     <button class="btn btn-ig" style="width:100%;justify-content:center" onclick="sendOrder('ig')">📩 Order via Instagram instead</button>
-    <div style="font-size:11px;color:var(--brown-soft);text-align:center;margin-top:6px">Secure card payment via Ziina · please order 24h ahead.</div>
+    <div style="font-size:11px;color:var(--brown-soft);text-align:center;margin-top:6px">Secure card payment via Ziina — you'll be shown the exact amount to enter · please order 24h ahead.</div>
   </div>
 </div>
 
@@ -246,7 +246,7 @@
 /* ====== CONFIG ====== */
 const INSTAGRAM='deestreats.ae';
 const WHATSAPP=''; // put your number here, e.g. '9715XXXXXXXX' (country code, no + or spaces)
-const ZIINA_LINK='';      // <-- paste your Ziina payment link here to turn on card payment
+const ZIINA_LINK='https://pay.ziina.com/Deestreats.ae?source=app';  // Ziina Page — customer enters the amount
 const ORDER_EMAIL_KEY='f0d2f2f0-e8dd-4337-94d0-3f7ffb6f940d';  // Web3Forms key — orders get emailed to you
 
 /* ====== PRODUCTS ====== */
@@ -356,7 +356,7 @@ async function placeOrder(){
   if(navigator.clipboard)navigator.clipboard.writeText(summary).catch(()=>{});
   if(ZIINA_LINK){
     window.open(ZIINA_LINK,'_blank');
-    alert('Opening secure card payment for '+AED(cartTotal())+'. Thank you, '+name+'! 🤍 We\'ll confirm your delivery shortly.');
+    alert('Thank you, '+name+'! 🤍\n\nOn the Ziina page, please enter this amount:\n\n    '+AED(cartTotal())+'\n\nYour order has been sent to us — we\'ll confirm your delivery on WhatsApp/Instagram shortly.');
   }else{
     alert('Your order is ready & copied! Online card payment is being set up — please tap "Order via Instagram instead" to send it now.');
     window.open('https://ig.me/m/'+INSTAGRAM,'_blank');
