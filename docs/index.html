@@ -58,7 +58,6 @@
   .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:13px 22px;border-radius:30px;cursor:pointer;border:none;font-size:15px;font-family:inherit}
   .btn-brown{background:var(--brown);color:var(--cream)} .btn-brown:hover{background:#5e3a2b}
   .btn-gold{background:var(--gold);color:var(--brown)} .btn-gold:hover{background:var(--gold-soft)}
-  .btn-wa{background:#25d366;color:#fff}
   .btn-ig{background:var(--brown);color:var(--cream)}
   @media(max-width:760px){.hero .wrap{grid-template-columns:1fr}.hero .heroimg{order:-1;font-size:90px}.hero h1{font-size:32px}}
 
@@ -118,6 +117,14 @@
   .drawer .dh h3{color:var(--cream)}
   .drawer .x{background:none;border:none;color:var(--cream);font-size:24px;cursor:pointer;line-height:1}
   .drawer .body{flex:1;overflow:auto;padding:14px 18px}
+  .step{flex:1;display:flex;flex-direction:column;min-height:0}
+  .btn-ghost{background:transparent;color:var(--brown);border:1px solid var(--line)}
+  .zif{width:100%;flex:1;min-height:300px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .payhead{font-size:15px;color:var(--brown);margin-bottom:12px}
+  .payhead b{font-size:22px;display:block;margin-top:2px}
+  .steps-dots{display:flex;gap:6px;justify-content:center;padding:10px 0 0}
+  .steps-dots span{width:7px;height:7px;border-radius:50%;background:var(--line)}
+  .steps-dots span.on{background:var(--gold)}
   .citem{display:flex;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
   .citem .emo{font-size:30px}
   .citem .ci-nm{font-weight:700;font-size:14px}
@@ -189,7 +196,7 @@
     <div class="it"><div class="ic">👩‍🍳</div><div class="t">100% Homemade</div><div class="s">Made by hand, never mass-produced</div></div>
     <div class="it"><div class="ic">⏱️</div><div class="t">Freshly Baked</div><div class="s">Baked the day it reaches you</div></div>
     <div class="it"><div class="ic">🚙</div><div class="t">Dubai Delivery</div><div class="s">Brought to your door</div></div>
-    <div class="it"><div class="ic">💬</div><div class="t">Easy Ordering</div><div class="s">Straight through Instagram DM</div></div>
+    <div class="it"><div class="ic">💳</div><div class="t">Easy Ordering</div><div class="s">Order & pay online by card</div></div>
   </div>
 </div>
 
@@ -210,9 +217,8 @@
     </div>
     <div>
       <h4>Order</h4>
-      <a href="https://ig.me/m/deestreats.ae" target="_blank" rel="noopener">📩 Instagram DM</a>
-      <a id="footWa" href="#" target="_blank" rel="noopener">🟢 WhatsApp</a>
-      <a href="#shop">🍰 Browse menu</a>
+      <a href="#shop">🍰 Browse menu & order</a>
+      <a href="https://ig.me/m/deestreats.ae" target="_blank" rel="noopener">📩 Questions? Message us</a>
     </div>
     <div>
       <h4>Follow</h4>
@@ -226,26 +232,65 @@
 <!-- CART DRAWER -->
 <div class="drawer-bg" id="drawerBg" onclick="closeCart()"></div>
 <div class="drawer" id="drawer">
-  <div class="dh"><h3>🛒 Your Order</h3><button class="x" onclick="closeCart()">×</button></div>
-  <div class="body" id="cartBody"></div>
-  <div class="foot">
-    <div class="checkout">
-      <input id="co_name" placeholder="Your name *">
-      <input id="co_phone" placeholder="Phone / WhatsApp *">
-      <input id="co_area" class="full" placeholder="Delivery area & address in Dubai *">
-      <input id="co_date" class="full" type="date" title="Preferred delivery date">
+  <div class="dh"><h3 id="drawerTitle">🛒 Your Order</h3><button class="x" onclick="closeCart()">×</button></div>
+  <div class="steps-dots"><span id="dot-cart"></span><span id="dot-details"></span><span id="dot-pay"></span><span id="dot-done"></span></div>
+
+  <!-- STEP 1: CART -->
+  <div class="step" id="step-cart">
+    <div class="body" id="cartBody"></div>
+    <div class="foot">
+      <div class="tot"><span>Total</span><span class="totval">AED 0</span></div>
+      <button class="btn btn-gold" onclick="goDetails()">Continue →</button>
     </div>
-    <div class="tot"><span>Total</span><span id="cartTotal">AED 0</span></div>
-    <button class="btn btn-gold" style="width:100%;justify-content:center;margin-bottom:8px" onclick="placeOrder()">💳 Pay &amp; Place Order</button>
-    <button class="btn btn-ig" style="width:100%;justify-content:center" onclick="sendOrder('ig')">📩 Order via Instagram instead</button>
-    <div style="font-size:11px;color:var(--brown-soft);text-align:center;margin-top:6px">Secure card payment via Ziina — you'll be shown the exact amount to enter · please order 24h ahead.</div>
+  </div>
+
+  <!-- STEP 2: YOUR DETAILS -->
+  <div class="step" id="step-details" style="display:none">
+    <div class="body">
+      <div class="checkout">
+        <input id="co_name" class="full" placeholder="Your name *">
+        <input id="co_phone" class="full" placeholder="Phone number *">
+        <input id="co_area" class="full" placeholder="Delivery area & address in Dubai *">
+        <input id="co_date" class="full" type="date" title="Preferred delivery date">
+      </div>
+      <div style="font-size:12px;color:var(--brown-soft);margin-top:4px">We'll use these to confirm your order and arrange delivery. Please order 24h ahead 🤍</div>
+    </div>
+    <div class="foot">
+      <div class="tot"><span>Total</span><span class="totval">AED 0</span></div>
+      <button class="btn btn-gold" onclick="goPay()">Continue to payment →</button>
+      <button class="btn btn-ghost" onclick="showStep('cart')">← Back to cart</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: PAYMENT -->
+  <div class="step" id="step-pay" style="display:none">
+    <div class="body">
+      <div class="payhead">Pay securely by card<b class="totval">AED 0</b></div>
+      <iframe id="ziframe" class="zif" title="Secure card payment"></iframe>
+      <a id="zopen" class="btn btn-ghost" style="margin-top:10px" href="#" target="_blank" rel="noopener">Payment box not showing? Open secure payment ↗</a>
+    </div>
+    <div class="foot">
+      <button class="btn btn-gold" onclick="showStep('done')">✓ I've completed my payment</button>
+      <button class="btn btn-ghost" onclick="showStep('details')">← Back</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: CONFIRMED -->
+  <div class="step" id="step-done" style="display:none">
+    <div class="body" style="text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+      <div style="font-size:56px">🤍</div>
+      <h3 style="margin:6px 0;color:var(--brown)">Order received!</h3>
+      <p style="color:var(--brown-soft);max-width:280px">Thank you<span id="doneName"></span>! Your treats will be prepared fresh. We'll message you shortly to arrange delivery.</p>
+    </div>
+    <div class="foot">
+      <button class="btn btn-gold" onclick="resetOrder()">Done</button>
+    </div>
   </div>
 </div>
 
 <script>
 /* ====== CONFIG ====== */
 const INSTAGRAM='deestreats.ae';
-const WHATSAPP=''; // put your number here, e.g. '9715XXXXXXXX' (country code, no + or spaces)
 const ZIINA_LINK='https://pay.ziina.com/Deestreats.ae?source=app';  // Ziina Page — customer enters the amount
 const ORDER_EMAIL_KEY='f0d2f2f0-e8dd-4337-94d0-3f7ffb6f940d';  // Web3Forms key — orders get emailed to you
 
@@ -316,12 +361,12 @@ function addToCart(key){
 function cartChange(id,d){if(!cart[id])return;cart[id].qty+=d;if(cart[id].qty<=0)delete cart[id];updateCart();renderCart();}
 function cartCount(){return Object.values(cart).reduce((s,i)=>s+i.qty,0);}
 function cartTotal(){return Object.values(cart).reduce((s,i)=>s+i.qty*i.price,0);}
-function updateCart(){document.getElementById('cartCount').textContent=cartCount();document.getElementById('cartTotal').textContent=AED(cartTotal());}
+function updateCart(){document.getElementById('cartCount').textContent=cartCount();document.querySelectorAll('.totval').forEach(e=>e.textContent=AED(cartTotal()));}
 function flashCart(){const b=document.querySelector('.cartbtn');b.style.transform='scale(1.08)';setTimeout(()=>b.style.transform='',150);}
 function renderCart(){
   const items=Object.entries(cart);
   const body=document.getElementById('cartBody');
-  if(!items.length){body.innerHTML='<div class="emptycart">Your order is empty.<br>Tap <b>＋ Add</b> on any treat 🍰</div>';document.getElementById('cartTotal').textContent=AED(0);return;}
+  if(!items.length){body.innerHTML='<div class="emptycart">Your order is empty.<br>Tap <b>＋ Add</b> on any treat 🍰</div>';updateCart();return;}
   body.innerHTML=items.map(([id,it])=>`
     <div class="citem">
       <div class="emo">${it.emoji}</div>
@@ -332,48 +377,57 @@ function renderCart(){
       </div>
       <div class="ci-pr">${AED(it.price*it.qty)}</div>
     </div>`).join('');
-  document.getElementById('cartTotal').textContent=AED(cartTotal());
+  updateCart();
 }
-function openCart(){renderCart();document.getElementById('drawer').classList.add('open');document.getElementById('drawerBg').classList.add('open');}
+function openCart(){showStep('cart');renderCart();document.getElementById('drawer').classList.add('open');document.getElementById('drawerBg').classList.add('open');}
 function closeCart(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawerBg').classList.remove('open');}
 
+/* ---- checkout steps ---- */
+const STEPS=['cart','details','pay','done'];
+let orderEmailed=false;
 function val(id){return (document.getElementById(id).value||'').trim()}
-function lines(){return Object.values(cart).map(i=>`• ${i.qty}× ${i.name} (${i.label}) — ${AED(i.price*i.qty)}`)}
-function buildMessage(){
-  if(!Object.keys(cart).length)return null;
-  const name=val('co_name'),phone=val('co_phone'),area=val('co_area'),date=val('co_date');
-  const extra=(name||phone||area||date)?`\n\nName: ${name||'-'}\nPhone: ${phone||'-'}\nArea: ${area||'-'}\nDate: ${date||'-'}`:`\n\nName:\nPhone:\nArea in Dubai:`;
-  return `Hi Dee's Treats! 🤍 I'd like to order:\n${lines().join('\n')}\n\nTotal: ${AED(cartTotal())}${extra}`;
+function showStep(step){
+  STEPS.forEach(s=>{
+    document.getElementById('step-'+s).style.display = s===step?'flex':'none';
+    document.getElementById('dot-'+s).classList.toggle('on', s===step);
+  });
+  const titles={cart:'🛒 Your Order',details:'📝 Your Details',pay:'💳 Payment',done:'✅ Confirmed'};
+  document.getElementById('drawerTitle').textContent=titles[step];
+  if(step==='done'){const n=val('co_name');document.getElementById('doneName').textContent=n?', '+n:'';}
+  document.getElementById('drawer').scrollTop=0;
 }
-async function placeOrder(){
+function goDetails(){
   if(!Object.keys(cart).length){alert('Add at least one treat first 🙂');return;}
+  showStep('details');
+}
+async function goPay(){
   const name=val('co_name'),phone=val('co_phone'),area=val('co_area'),date=val('co_date');
   if(!name){alert('Please enter your name.');document.getElementById('co_name').focus();return;}
   if(!phone){alert('Please enter your phone number.');document.getElementById('co_phone').focus();return;}
   if(!area){alert('Please enter your delivery area & address.');document.getElementById('co_area').focus();return;}
-  const summary=`New order from ${name}\nPhone: ${phone}\nDelivery: ${area}\nDate: ${date||'(not set)'}\n\n${lines().join('\n')}\n\nTotal: ${AED(cartTotal())}`;
-  if(ORDER_EMAIL_KEY){try{await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({access_key:ORDER_EMAIL_KEY,subject:"New Dee's Treats order — "+name,message:summary})});}catch(e){}}
-  if(navigator.clipboard)navigator.clipboard.writeText(summary).catch(()=>{});
-  if(ZIINA_LINK){
-    window.open(ZIINA_LINK,'_blank');
-    alert('Thank you, '+name+'! 🤍\n\nOn the Ziina page, please enter this amount:\n\n    '+AED(cartTotal())+'\n\nYour order has been sent to us — we\'ll confirm your delivery on WhatsApp/Instagram shortly.');
-  }else{
-    alert('Your order is ready & copied! Online card payment is being set up — please tap "Order via Instagram instead" to send it now.');
-    window.open('https://ig.me/m/'+INSTAGRAM,'_blank');
+  /* email the full order to the business now, so it's captured even before payment finishes */
+  if(!orderEmailed && ORDER_EMAIL_KEY){
+    orderEmailed=true;
+    const summary=`New order from ${name}\nPhone: ${phone}\nDelivery: ${area}\nDate: ${date||'(not set)'}\n\n`+
+      Object.values(cart).map(i=>`• ${i.qty}× ${i.name} (${i.label}) — ${AED(i.price*i.qty)}`).join('\n')+
+      `\n\nTotal: ${AED(cartTotal())}`;
+    try{await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({access_key:ORDER_EMAIL_KEY,subject:"New Dee's Treats order — "+name,message:summary})});}catch(e){}
   }
+  /* load the payment gateway inside the page */
+  document.getElementById('ziframe').src=ZIINA_LINK;
+  document.getElementById('zopen').href=ZIINA_LINK;
+  showStep('pay');
 }
-function sendOrder(channel){
-  const msg=buildMessage();
-  if(!msg){alert('Add at least one treat to your order first 🙂');return;}
-  if(navigator.clipboard)navigator.clipboard.writeText(msg).catch(()=>{});
-  if(channel==='wa'){
-    if(!WHATSAPP){alert('Your order is copied! Paste it into our Instagram DM (WhatsApp number coming soon).');window.open('https://ig.me/m/'+INSTAGRAM,'_blank');return;}
-    window.open('https://wa.me/'+WHATSAPP+'?text='+encodeURIComponent(msg),'_blank');
-  }else window.open('https://ig.me/m/'+INSTAGRAM,'_blank');
+function resetOrder(){
+  for(const k in cart)delete cart[k];
+  ['co_name','co_phone','co_area','co_date'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('ziframe').src='about:blank';
+  orderEmailed=false;
+  updateCart();renderCart();
+  closeCart();
 }
 
 /* init */
-document.getElementById('footWa').href=WHATSAPP?('https://wa.me/'+WHATSAPP):('https://ig.me/m/'+INSTAGRAM);
 document.getElementById('yr').textContent=new Date().getFullYear();
 renderProducts(); updateCart();
 </script>
