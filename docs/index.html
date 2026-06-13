@@ -264,15 +264,11 @@
 
   <!-- STEP 3: PAYMENT -->
   <div class="step" id="step-pay" style="display:none">
-    <div class="body">
-      <div class="payhead">Pay securely by card<b class="totval">AED 0</b></div>
-      <div id="payLoading" style="text-align:center;color:var(--brown-soft);padding:26px 0">Loading secure payment…</div>
-      <iframe id="ziframe" class="zif" title="Secure card payment" style="display:none"></iframe>
-      <div id="payFallback" style="display:none;text-align:center;padding:6px 0">
-        <div style="font-size:42px">💳</div>
-        <p style="color:var(--brown-soft);font-size:13px;max-width:280px;margin:8px auto 0">Tap below to pay by card or Apple Pay through Ziina's secure page. Your order is already saved with us 🤍</p>
-      </div>
-      <a id="zopen" class="btn btn-gold" style="margin-top:12px;display:none;justify-content:center" href="#" target="_blank" rel="noopener">Pay <span class="totval">&nbsp;AED 0&nbsp;</span> by card ↗</a>
+    <div class="body" style="display:flex;flex-direction:column;justify-content:center;text-align:center;gap:14px">
+      <div class="payhead" style="text-align:center">Pay securely by card<b class="totval">AED 0</b></div>
+      <div style="font-size:48px">💳</div>
+      <p style="color:var(--brown-soft);font-size:13px;max-width:290px;margin:0 auto">You'll pay by card or Apple Pay on Ziina's secure page. Enter the exact amount shown above. Your order is already saved with us 🤍</p>
+      <a id="zopen" class="btn btn-gold" style="justify-content:center" href="#" target="_blank" rel="noopener">Pay<span class="totval">&nbsp;AED 0&nbsp;</span>by card ↗</a>
     </div>
     <div class="foot">
       <button class="btn btn-gold" onclick="showStep('done')">✓ I've completed my payment</button>
@@ -418,26 +414,20 @@ async function goPay(){
       `\n\nTotal: ${AED(cartTotal())}`;
     try{await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({access_key:ORDER_EMAIL_KEY,subject:"New Dee's Treats order — "+name,message:summary})});}catch(e){}
   }
-  /* load the payment gateway inside the page; gracefully fall back to a button if Ziina blocks embedding */
-  const f=document.getElementById('ziframe'),load=document.getElementById('payLoading'),fb=document.getElementById('payFallback'),open=document.getElementById('zopen');
-  let framed=false;
-  open.href=ZIINA_LINK;
-  load.style.display='block'; f.style.display='none'; fb.style.display='none'; open.style.display='none';
-  f.onload=function(){ if(framed)return; framed=true; load.style.display='none'; f.style.display='block'; };
-  f.src=ZIINA_LINK;
-  setTimeout(function(){ if(!framed){ load.style.display='none'; fb.style.display='block'; open.style.display='inline-flex'; } },3500);
+  /* Ziina blocks embedding, so open its secure page in a new tab */
+  document.getElementById('zopen').href=ZIINA_LINK;
   showStep('pay');
 }
 function resetOrder(){
   for(const k in cart)delete cart[k];
   ['co_name','co_phone','co_area','co_date'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('ziframe').src='about:blank';
   orderEmailed=false;
   updateCart();renderCart();
   closeCart();
 }
 
 /* init */
+(function(){const t=new Date();t.setDate(t.getDate()+1);const mm=String(t.getMonth()+1).padStart(2,'0'),dd=String(t.getDate()).padStart(2,'0');document.getElementById('co_date').min=t.getFullYear()+'-'+mm+'-'+dd;})();
 document.getElementById('yr').textContent=new Date().getFullYear();
 renderProducts(); updateCart();
 </script>
