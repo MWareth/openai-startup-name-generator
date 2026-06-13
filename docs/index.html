@@ -412,7 +412,7 @@ async function goPay(){
     const summary=`New order from ${name}\nPhone: ${phone}\nDelivery: ${area}\nDate: ${date||'(not set)'}\n\n`+
       Object.values(cart).map(i=>`• ${i.qty}× ${i.name} (${i.label}) — ${AED(i.price*i.qty)}`).join('\n')+
       `\n\nTotal: ${AED(cartTotal())}`;
-    try{await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({access_key:ORDER_EMAIL_KEY,subject:"New Dee's Treats order — "+name,message:summary})});}catch(e){}
+    try{await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({access_key:ORDER_EMAIL_KEY,subject:"New Dee's Treats order — "+name,cc:['dinatabdou@hotmail.com'],message:summary})});}catch(e){}
   }
   /* Ziina blocks embedding, so open its secure page in a new tab */
   document.getElementById('zopen').href=ZIINA_LINK;
