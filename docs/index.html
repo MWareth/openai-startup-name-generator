@@ -289,7 +289,21 @@
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
+/* ====== FIREBASE (orders dashboard) ====== */
+try{
+  firebase.initializeApp({
+    apiKey:"AIzaSyAJa0Z9zUsAk_enT4CakOiygxF-ME8x4Ug",
+    authDomain:"dees-order-log.firebaseapp.com",
+    projectId:"dees-order-log",
+    storageBucket:"dees-order-log.firebasestorage.app",
+    messagingSenderId:"720907376845",
+    appId:"1:720907376845:web:eaa5f2e17efb98088c3184"
+  });
+}catch(e){}
+
 /* ====== CONFIG ====== */
 const INSTAGRAM='deestreats.ae';
 const ZIINA_LINK='https://pay.ziina.com/Deestreats.ae?source=app';  // Ziina Page — customer enters the amount
@@ -387,6 +401,20 @@ function closeCart(){document.getElementById('drawer').classList.remove('open');
 const STEPS=['cart','details','pay','done'];
 let orderEmailed=false;
 function val(id){return (document.getElementById(id).value||'').trim()}
+/* write the order into the Firebase dashboard (same shape the dashboard expects) */
+function saveOrderToCloud(name,phone,area,date){
+  try{
+    if(!window.firebase||!firebase.apps||!firebase.apps.length)return;
+    const items=Object.values(cart).map(i=>({name:i.name+' — '+i.label,price:i.price,qty:i.qty}));
+    const id='o'+Date.now()+Math.random().toString(36).slice(2,6);
+    firebase.firestore().collection('orders').doc(id).set({
+      id, date:date||new Date().toISOString().slice(0,10),
+      customer:name, phone:phone, address:area,
+      platform:'Website', payment:'Unpaid',
+      discount:0, comm:0, delivery:0, items
+    }).catch(()=>{});
+  }catch(e){}
+}
 function showStep(step){
   STEPS.forEach(s=>{
     document.getElementById('step-'+s).style.display = s===step?'flex':'none';
@@ -406,13 +434,16 @@ async function goPay(){
   if(!name){alert('Please enter your name.');document.getElementById('co_name').focus();return;}
   if(!phone){alert('Please enter your phone number.');document.getElementById('co_phone').focus();return;}
   if(!area){alert('Please enter your delivery area & address.');document.getElementById('co_area').focus();return;}
-  /* email the full order to the business now, so it's captured even before payment finishes */
-  if(!orderEmailed && ORDER_EMAIL_KEY){
+  /* capture the order now (cloud dashboard + email), so it's saved even before payment finishes */
+  if(!orderEmailed){
     orderEmailed=true;
-    const summary=`New order from ${name}\nPhone: ${phone}\nDelivery: ${area}\nDate: ${date||'(not set)'}\n\n`+
-      Object.values(cart).map(i=>`• ${i.qty}× ${i.name} (${i.label}) — ${AED(i.price*i.qty)}`).join('\n')+
-      `\n\nTotal: ${AED(cartTotal())}`;
-    try{await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({access_key:ORDER_EMAIL_KEY,subject:"New Dee's Treats order — "+name,cc:['dinatabdou@hotmail.com'],message:summary})});}catch(e){}
+    saveOrderToCloud(name,phone,area,date);
+    if(ORDER_EMAIL_KEY){
+      const summary=`New order from ${name}\nPhone: ${phone}\nDelivery: ${area}\nDate: ${date||'(not set)'}\n\n`+
+        Object.values(cart).map(i=>`• ${i.qty}× ${i.name} (${i.label}) — ${AED(i.price*i.qty)}`).join('\n')+
+        `\n\nTotal: ${AED(cartTotal())}`;
+      try{await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({access_key:ORDER_EMAIL_KEY,subject:"New Dee's Treats order — "+name,cc:['dinatabdou@hotmail.com'],message:summary})});}catch(e){}
+    }
   }
   /* Ziina blocks embedding, so open its secure page in a new tab */
   document.getElementById('zopen').href=ZIINA_LINK;

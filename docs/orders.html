@@ -115,9 +115,30 @@
     .grid2{grid-template-columns:1fr}
     header h1{font-size:16px}
   }
+  /* Login */
+  .loginbox{position:fixed;inset:0;background:var(--brown);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .logincard{background:var(--cream);border-radius:16px;padding:26px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center}
+  .logincard h2{margin:6px 0 16px;color:var(--brown);font-size:18px}
+  .logincard input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font:inherit;margin-bottom:10px;background:#fff}
+  .logincard button{width:100%;background:var(--brown);color:var(--cream);padding:12px;border-radius:9px;font-weight:700;font-size:15px}
+  .lb-logo{font-weight:900;color:var(--brown);font-size:26px;letter-spacing:-1px;line-height:1}
+  .lb-logo span{font-size:11px;letter-spacing:4px;display:block;margin-top:2px}
+  .lb-err{color:var(--red);font-size:13px;margin-top:8px;min-height:18px}
 </style>
 </head>
 <body>
+<!-- Login gate -->
+<div id="loginBox" class="loginbox">
+  <div class="logincard">
+    <div class="lb-logo">dee's <span>TREATS</span></div>
+    <h2>Orders Login</h2>
+    <input id="li_email" type="email" placeholder="Email" autocomplete="username">
+    <input id="li_pass" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Log in</button>
+    <div id="loginErr" class="lb-err"></div>
+  </div>
+</div>
+
 <header>
   <div>
     <span class="logochip">
@@ -132,6 +153,7 @@
     <button class="btn-ghost" onclick="document.getElementById('importFile').click()">Import CSV</button>
     <button class="btn-ghost" onclick="openContacts()">👤 Contacts</button>
     <button class="btn-ghost" onclick="openMenu()">Menu &amp; Prices</button>
+    <button class="btn-ghost" onclick="doLogout()">Log out</button>
     <input type="file" id="importFile" accept=".csv" style="display:none" onchange="importCSV(event)" />
   </div>
 </header>
@@ -253,10 +275,29 @@
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script>
-/* ---------- Storage ---------- */
+/* ---------- Firebase ---------- */
+const firebaseConfig={
+  apiKey:"AIzaSyAJa0Z9zUsAk_enT4CakOiygxF-ME8x4Ug",
+  authDomain:"dees-order-log.firebaseapp.com",
+  projectId:"dees-order-log",
+  storageBucket:"dees-order-log.firebasestorage.app",
+  messagingSenderId:"720907376845",
+  appId:"1:720907376845:web:eaa5f2e17efb98088c3184"
+};
+firebase.initializeApp(firebaseConfig);
+const auth=firebase.auth();
+const db=firebase.firestore();
+const ordersCol=db.collection('orders');
+const metaDoc=db.collection('meta').doc('data');
+
+/* ---------- Storage (legacy keys used only for one-time migration) ---------- */
 const ORDERS_KEY='deestreats_orders_v1';
 const MENU_KEY='deestreats_menu_v3';
+const CONTACTS_KEY='deestreats_contacts_v1';
 
 const DEFAULT_MENU=[
   {name:"Pavlova — Mini",price:60},
@@ -287,28 +328,61 @@ const DEFAULT_ORDERS=[
   {id:'seed10',date:'2026-06-11', customer:'Nofal',        platform:'Direct (WhatsApp/IG)', payment:'Paid', discount:0,   comm:0, delivery:0,  items:[{name:'Carrot Balls — 8 pcs',price:55}]},
 ];
 
-let orders;
-const _stored=localStorage.getItem(ORDERS_KEY);
-if(_stored===null){orders=DEFAULT_ORDERS.slice();localStorage.setItem(ORDERS_KEY,JSON.stringify(orders));}
-else{try{orders=JSON.parse(_stored)||[]}catch(e){orders=[]}}
-
-let menu=load(MENU_KEY,DEFAULT_MENU);
-const CONTACTS_KEY='deestreats_contacts_v1';
-let contacts=load(CONTACTS_KEY,[]);
+let orders=[];
+let menu=DEFAULT_MENU.slice();
+let contacts=[];
 let editingId=null;
 let monthFilter='all';
 
-/* one-time: mark the pre-loaded sample orders as Paid */
-if(!localStorage.getItem('deestreats_mig_paid_v1')){
-  orders.forEach(o=>{if(String(o.id).startsWith('seed'))o.payment='Paid';});
-  localStorage.setItem('deestreats_mig_paid_v1','1');
-}
-/* build the contacts book from existing orders */
-orders.forEach(o=>{if(o.customer)upsertContact(o.customer,o.phone,o.address);});
-save();
+function legacyLoad(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v||def}catch(e){return def}}
+/* menu + contacts live in one cloud doc; orders are written per-order */
+function save(){ metaDoc.set({menu,contacts},{merge:true}).catch(()=>{}); }
 
-function load(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v||def}catch(e){return def}}
-function save(){localStorage.setItem(ORDERS_KEY,JSON.stringify(orders));localStorage.setItem(MENU_KEY,JSON.stringify(menu));localStorage.setItem(CONTACTS_KEY,JSON.stringify(contacts));}
+/* ---------- Auth gate ---------- */
+function doLogin(){
+  const e=document.getElementById('li_email').value.trim(), p=document.getElementById('li_pass').value;
+  document.getElementById('loginErr').textContent='';
+  auth.signInWithEmailAndPassword(e,p).catch(()=>{document.getElementById('loginErr').textContent='Login failed — check your email & password.';});
+}
+function doLogout(){ auth.signOut(); }
+let started=false;
+auth.onAuthStateChanged(user=>{
+  if(user){
+    document.getElementById('loginBox').style.display='none';
+    if(!started){started=true; startApp();}
+  }else{
+    document.getElementById('loginBox').style.display='flex';
+  }
+});
+
+async function startApp(){
+  await migrateLocal();
+  metaDoc.onSnapshot(snap=>{ if(snap.exists){const d=snap.data(); if(d.menu&&d.menu.length)menu=d.menu; contacts=d.contacts||[];} });
+  ordersCol.onSnapshot(snap=>{ orders=snap.docs.map(d=>d.data()); render(); });
+}
+
+/* one-time: lift this device's old local data into the cloud so nothing is lost */
+async function migrateLocal(){
+  if(localStorage.getItem('deestreats_fb_migrated_v1'))return;
+  try{
+    const localOrders=legacyLoad(ORDERS_KEY,null);
+    const cloud=await ordersCol.limit(1).get();
+    const toUpload=(localOrders&&localOrders.length)?localOrders:(cloud.empty?DEFAULT_ORDERS:[]);
+    if(toUpload.length){
+      const batch=db.batch();
+      toUpload.forEach(o=>{const id=o.id||('o'+Date.now()+Math.random().toString(36).slice(2,6)); batch.set(ordersCol.doc(id),{...o,id},{merge:true});});
+      await batch.commit();
+    }
+    const metaSnap=await metaDoc.get();
+    if(!metaSnap.exists){
+      let cont=legacyLoad(CONTACTS_KEY,[])||[];
+      if(!cont.length){toUpload.forEach(o=>{if(o.customer && !cont.find(c=>c.name.toLowerCase()===(o.customer||'').toLowerCase()))cont.push({name:o.customer,phone:o.phone||'',address:o.address||''});});}
+      const lm=legacyLoad(MENU_KEY,null);
+      await metaDoc.set({menu:(lm&&lm.length)?lm:DEFAULT_MENU, contacts:cont});
+    }
+    localStorage.setItem('deestreats_fb_migrated_v1','1');
+  }catch(e){}
+}
 const AED=n=>'AED '+(Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:2});
 
 /* Header logo: try dees-logo.png, then dees-icon.png, then text */
@@ -508,13 +582,9 @@ function saveOrder(){
   if(!data.phone){alert('Please enter the phone number.');document.getElementById('f_phone').focus();return;}
   if(!data.items.length){alert('Please add at least Item 1.');document.getElementById('item0').focus();return;}
   upsertContact(data.customer,data.phone,data.address);
-  if(editingId){
-    const i=orders.findIndex(x=>x.id===editingId);
-    orders[i]={...orders[i],...data};
-  }else{
-    orders.push({id:'o'+Date.now()+Math.random().toString(36).slice(2,6),...data});
-  }
-  save();render();closeForm();
+  const id=editingId||('o'+Date.now()+Math.random().toString(36).slice(2,6));
+  ordersCol.doc(id).set({id,...data}).catch(e=>alert('Could not save order: '+e.message));
+  save();closeForm();
 }
 
 /* ---------- Contacts ---------- */
@@ -565,7 +635,7 @@ function addContactManual(){
 }
 function deleteCurrent(){
   if(!editingId)return;
-  if(confirm('Delete this order?')){orders=orders.filter(x=>x.id!==editingId);save();render();closeForm();}
+  if(confirm('Delete this order?')){ordersCol.doc(editingId).delete().catch(()=>{});closeForm();}
 }
 
 /* ---------- Menu ---------- */
@@ -625,7 +695,9 @@ function importCSV(e){
         };
       });
       if(confirm(`Import ${imported.length} orders? This adds them to your current list.`)){
-        orders=orders.concat(imported);save();render();
+        const batch=db.batch();
+        imported.forEach(o=>batch.set(ordersCol.doc(o.id),o));
+        batch.commit().catch(e=>alert('Import failed: '+e.message));
       }
     }catch(err){alert('Could not read that CSV. Make sure it was exported from this app.')}
     e.target.value='';
@@ -645,8 +717,7 @@ function parseCSV(text){
 
 /* close on overlay click */
 document.querySelectorAll('.overlay').forEach(ov=>ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open')}));
-
-render();
+/* the dashboard renders once the user logs in and live data arrives (see startApp) */
 </script>
 </body>
 </html>
