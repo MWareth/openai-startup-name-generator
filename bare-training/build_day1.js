@@ -37,14 +37,15 @@ const ICONSET = {
   const pptx = new pptxgen();
   pptx.defineLayout({ name:"W", width:13.333, height:7.5 });
   pptx.layout = "W";
-  pptx.author = "BARE"; pptx.company = "BARE";
+  pptx.author = "Bridges & Allies"; pptx.company = "Bridges & Allies";
 
   const M = 0.6, PW = 13.333, CW = PW - M*2;
 
   // ---------- helpers ----------
   const bg = (s,c)=> s.background = { color:c };
-  const logoTag = (s, color)=> s.addText("BARE", { x:PW-1.7, y:0.32, w:1.2, h:0.4, align:"right",
-    fontFace:F.head, fontSize:14, bold:true, color:color||C.gold, charSpacing:3 });
+  // interim wordmark; replaced by the real logo image once supplied as a file
+  const logoTag = (s, color)=> s.addText("bridges & allies", { x:PW-3.0, y:0.34, w:2.4, h:0.4, align:"right",
+    fontFace:F.head, fontSize:11, bold:true, color:color||C.gold, charSpacing:1 });
   function title(s, t, sub){
     s.addText(t, { x:M, y:0.45, w:CW-1.4, h:0.75, fontFace:F.head, fontSize:27, bold:true, color:C.navy, align:"left", valign:"middle" });
     if(sub) s.addText(sub, { x:M+0.02, y:1.18, w:CW-1.4, h:0.4, fontFace:F.body, fontSize:13.5, italic:true, color:C.slate, align:"left" });
@@ -68,11 +69,11 @@ const ICONSET = {
   s.addShape(pptx.ShapeType.ellipse,{x:10.3,y:-1.6,w:5,h:5,fill:{color:C.navyCard},line:{type:"none"}});
   s.addShape(pptx.ShapeType.ellipse,{x:11.0,y:4.6,w:3.6,h:3.6,fill:{color:"13284D"},line:{type:"none"}});
   circleIcon(s,M,1.0,1.0,I.building.w);
-  s.addText("BARE", { x:M, y:2.25, w:8, h:0.5, fontFace:F.head, fontSize:18, bold:true, color:C.gold, charSpacing:6 });
+  s.addText("BRIDGES & ALLIES", { x:M, y:2.25, w:9, h:0.5, fontFace:F.head, fontSize:16, bold:true, color:C.gold, charSpacing:4 });
   s.addText("Off-Plan Mastery", { x:M, y:2.7, w:11.5, h:1.1, fontFace:F.head, fontSize:52, bold:true, color:C.white });
   s.addText("A 4-Day Agent Training Programme", { x:M, y:3.85, w:11.5, h:0.6, fontFace:F.body, fontSize:22, color:C.goldLight });
   s.addText("From zero to running an off-plan deal — start to finish.", { x:M, y:4.5, w:11.5, h:0.5, fontFace:F.body, fontSize:14, color:"AEB8CC" });
-  s.addText("Presenter: ______________     ·     BARE — Off-Plan Team", { x:M, y:6.55, w:11.5, h:0.4, fontFace:F.body, fontSize:12, color:"8794AD" });
+  s.addText("Presenter: ______________     ·     Bridges & Allies — Off-Plan Team", { x:M, y:6.55, w:11.5, h:0.4, fontFace:F.body, fontSize:12, color:"8794AD" });
   notes(s,"Welcome the room warmly. This is a presenter-led, 4-day live programme. Goal: take a complete beginner to confidently running an off-plan deal end to end. Set the tone — professional, high-energy, 'we build a great team and rise together'. Swap BARE logo onto this slide when ready.");
 
   // ===================================================== SLIDE 2 — WELCOME & VISION
@@ -237,7 +238,7 @@ const ICONSET = {
   circleIcon(s,M+0.35,2.25,1.0,I.id.w);
   s.addText("No freelance / individual broker licence exists in Dubai.",{x:M+1.7,y:2.2,w:CW-2.0,h:0.5,fontFace:F.head,fontSize:18,bold:true,color:C.navy});
   s.addText("You must hold a valid UAE residency visa and be employed/sponsored by a RERA-licensed brokerage. That sponsorship is what makes you eligible to be carded.",{x:M+1.7,y:2.75,w:CW-2.0,h:1.0,fontFace:F.body,fontSize:13.5,color:C.ink,valign:"top",lineSpacingMultiple:1.08});
-  const sp=[["building","We sponsor you","As your licensed brokerage, BARE provides the sponsorship and visa pathway."],["check","Then you certify","With sponsorship in place, you move to the DREI course and RERA exam."]];
+  const sp=[["building","We sponsor you","As your licensed brokerage, Bridges & Allies provides the sponsorship and visa pathway."],["check","Then you certify","With sponsorship in place, you move to the DREI course and RERA exam."]];
   sp.forEach((p,i)=>{ const w=(CW-0.4)/2; const x=M+i*(w+0.4); const yy=4.25;
     card(s,x,yy,w,2.0);
     circleIcon(s,x+0.3,yy+0.35,0.8,I[p[0]].w);
