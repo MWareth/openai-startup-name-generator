@@ -43,13 +43,13 @@ const ICONSET = {
 
   // ---------- helpers ----------
   const bg = (s,c)=> s.background = { color:c };
-  // interim wordmark; replaced by the real logo image once supplied as a file
-  const logoTag = (s, color)=> s.addText("bridges & allies", { x:PW-3.0, y:0.34, w:2.4, h:0.4, align:"right",
-    fontFace:F.head, fontSize:11, bold:true, color:color||C.gold, charSpacing:1 });
+  // real Bridges & Allies logo: navy badge on light slides, white emblem on dark
+  const logoTag = (s, dark)=> s.addImage({ path: dark ? "assets/logo_white.png" : "assets/logo_circle.png",
+    x:PW-1.14, y:0.24, w:0.62, h:0.62 });
   function title(s, t, sub){
     s.addText(t, { x:M, y:0.45, w:CW-1.4, h:0.75, fontFace:F.head, fontSize:27, bold:true, color:C.navy, align:"left", valign:"middle" });
     if(sub) s.addText(sub, { x:M+0.02, y:1.18, w:CW-1.4, h:0.4, fontFace:F.body, fontSize:13.5, italic:true, color:C.slate, align:"left" });
-    logoTag(s, C.gold);
+    logoTag(s, false);
   }
   function card(s,x,y,w,h,fill){
     s.addShape(pptx.ShapeType.roundRect,{x,y,w,h,rectRadius:0.09,fill:{color:fill||C.cloud},line:{type:"none"},shadow:sh()});
@@ -68,8 +68,8 @@ const ICONSET = {
   let s = pptx.addSlide(); bg(s, C.navy);
   s.addShape(pptx.ShapeType.ellipse,{x:10.3,y:-1.6,w:5,h:5,fill:{color:C.navyCard},line:{type:"none"}});
   s.addShape(pptx.ShapeType.ellipse,{x:11.0,y:4.6,w:3.6,h:3.6,fill:{color:"13284D"},line:{type:"none"}});
-  circleIcon(s,M,1.0,1.0,I.building.w);
-  s.addText("BRIDGES & ALLIES", { x:M, y:2.25, w:9, h:0.5, fontFace:F.head, fontSize:16, bold:true, color:C.gold, charSpacing:4 });
+  s.addImage({ path:"assets/logo_white.png", x:M, y:0.7, w:1.45, h:1.45 });
+  s.addText("BRIDGES & ALLIES", { x:M, y:2.3, w:9, h:0.5, fontFace:F.head, fontSize:16, bold:true, color:C.gold, charSpacing:4 });
   s.addText("Off-Plan Mastery", { x:M, y:2.7, w:11.5, h:1.1, fontFace:F.head, fontSize:52, bold:true, color:C.white });
   s.addText("A 4-Day Agent Training Programme", { x:M, y:3.85, w:11.5, h:0.6, fontFace:F.body, fontSize:22, color:C.goldLight });
   s.addText("From zero to running an off-plan deal — start to finish.", { x:M, y:4.5, w:11.5, h:0.5, fontFace:F.body, fontSize:14, color:"AEB8CC" });
@@ -118,7 +118,7 @@ const ICONSET = {
   s.addText("DAY 1",{x:M,y:2.5,w:7,h:1.0,fontFace:F.head,fontSize:60,bold:true,color:C.gold});
   s.addText("Foundations & the rules of the game",{x:M,y:3.7,w:11,h:0.7,fontFace:F.head,fontSize:26,color:C.white});
   s.addText("The market · the authorities · becoming a legal broker · AML",{x:M,y:4.45,w:11,h:0.5,fontFace:F.body,fontSize:15,color:"AEB8CC"});
-  logoTag(s,C.gold);
+  logoTag(s,true);
   notes(s,"Day 1 sets the foundation every later day depends on. By the end they'll know who regulates what, the legal path to working as an agent, and the core vocabulary.");
 
   // ===================================================== SLIDE 5 — DAY 1 AGENDA
@@ -389,7 +389,7 @@ const ICONSET = {
     circleNum(s,M+0.22,yy+0.13,0.6,i+1);
     s.addText(q,{x:M+1.05,y:yy,w:CW-1.25,h:0.86,valign:"middle",fontFace:F.body,fontSize:13,color:C.white});
   });
-  logoTag(s,C.gold);
+  logoTag(s,true);
   notes(s,"Give them 3–4 minutes. Let people discuss in pairs — it cements learning. Then reveal the answer key.");
 
   // ===================================================== SLIDE 21 — ANSWER KEY
@@ -409,6 +409,6 @@ const ICONSET = {
   });
   notes(s,"Walk through each answer and expand with the rationale. If many missed one, re-teach that point briefly before moving to Day 2.");
 
-  await pptx.writeFile({ fileName: "BARE_OffPlan_Training_Day1.pptx" });
-  console.log("WROTE BARE_OffPlan_Training_Day1.pptx — slides:", 21);
+  await pptx.writeFile({ fileName: "BridgesAllies_OffPlan_Training_Day1.pptx" });
+  console.log("WROTE BridgesAllies_OffPlan_Training_Day1.pptx — slides:", 21);
 })().catch(e=>{ console.error("BUILD ERROR:", e); process.exit(1); });
