@@ -94,19 +94,22 @@ Help the user shape the day:
 
 ## Section 5 — Social Content: Reels & LinkedIn 🎬
 
-A daily nudge to post, plus ready-to-use ideas tied to **today's** market
+A daily nudge to post, plus ready-to-use content tied to **today's** market
 moves, the hot areas/projects from Section 1, or the news above — so content
 is timely and on-brand. Generate fresh ideas each day; don't repeat yesterday.
 
 - **Reminder line**: post today on Instagram Reels and LinkedIn.
 - **2 Reel ideas**: each with a hook (first 3 sec), rough shot/structure, and
   3-5 hashtags. Short, punchy, visual.
-- **2 LinkedIn ideas**: each with an angle/headline, a one-line opener, and a
-  format (text + image, carousel, poll, short take). Insight-driven — market
-  commentary, Dubai property insights, contrarian takes.
-- Where natural, recycle one idea across both platforms and say how to adapt.
-- Make ideas specific and producible today (e.g. "carousel on this week's top
-  area"), not generic.
+- **📝 LinkedIn Post of the Day (full, ready-to-post draft):** write ONE
+  complete LinkedIn post in the user's voice — hook → 2-3 short insight
+  paragraphs anchored in a real figure from today → soft CTA → 3-6 hashtags.
+  ~120-200 words, ready to copy-paste straight to LinkedIn. Add a one-line
+  **image prompt** (for Gemini/Nano Banana or Higgsfield). Ground every claim
+  in a source from above; never invent stats.
+- **1 extra LinkedIn angle**: a one-line alternative idea in case they want a
+  different take.
+- Where natural, recycle the post idea into a Reel and say how to adapt.
 
 ## Section 6 — Personal Habits ✅ (web app)
 
@@ -162,7 +165,11 @@ Default habits (kept in sync with the web app):
 
 ## 🎬 Post Today
 **Reels:** 1) <hook> 2) <hook>
-**LinkedIn:** 1) <angle> 2) <angle>
+
+**📝 LinkedIn Post of the Day** (copy-paste ready)
+> <full post text, line breaks, hashtags>
+🖼️ Image prompt: <one line>
+*Alt angle:* <one-line alternative>
 
 ## ✅ Habits  → track in habit-tracker/index.html
 - [ ] 💧 ... (etc.)
