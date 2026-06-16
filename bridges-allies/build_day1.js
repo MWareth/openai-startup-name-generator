@@ -1,5 +1,5 @@
-// BARE — Off-Plan Agent Training · DAY 1 sample build (slides 1-21)
-// Theme: "Dubai Premium" navy + gold (placeholder; BARE brand swaps in later)
+// Bridges & Allies — Off-Plan Agent Training · DAY 1 (soft / opportunity-led)
+// Theme: "Dubai Premium" navy + gold
 const pptxgen = require("pptxgenjs");
 const React = require("react");
 const ReactDOMServer = require("react-dom/server");
@@ -11,404 +11,233 @@ const C = {
   ink:"1E293B", slate:"64748B", cloud:"F4F6FA", ice:"EAF0F8", white:"FFFFFF", green:"2E7D5B"
 };
 const F = { head:"Cambria", body:"Calibri" };
-const sh = () => ({ type:"outer", color:"9AA3B2", opacity:0.45, blur:8, offset:3, angle:90 });
+const sh = () => ({ type:"outer", color:"9AA3B2", opacity:0.4, blur:9, offset:3, angle:90 });
 
-// ---- icon -> png data url (recolored, transparent bg) ----
 async function icon(name, hex, px=240){
-  const Ic = Fa[name];
-  if(!Ic) return null;
+  const Ic = Fa[name]; if(!Ic) return null;
   let svg = ReactDOMServer.renderToStaticMarkup(React.createElement(Ic, { size: px }));
   svg = svg.replace(/currentColor/g, "#"+hex);
   const buf = await sharp(Buffer.from(svg)).resize(px,px,{fit:"contain",background:{r:0,g:0,b:0,alpha:0}}).png().toBuffer();
   return "data:image/png;base64,"+buf.toString("base64");
 }
-const ICONSET = {
-  building:"FaBuilding", gavel:"FaGavel", grad:"FaGraduationCap", id:"FaIdCard",
-  shield:"FaShieldAlt", key:"FaKey", contract:"FaFileContract", coins:"FaCoins",
-  chart:"FaChartLine", check:"FaCheckCircle", book:"FaBook", users:"FaUsers",
-  passport:"FaPassport", mobile:"FaMobileAlt", map:"FaMapMarkedAlt", bolt:"FaBolt",
-  scroll:"FaScroll", balance:"FaBalanceScale"
-};
+const ICONSET = { building:"FaBuilding", grad:"FaGraduationCap", users:"FaUsers", chart:"FaChartLine",
+  coins:"FaCoins", key:"FaKey", passport:"FaPassport", map:"FaMapMarkedAlt", bolt:"FaBolt",
+  scroll:"FaScroll", check:"FaCheckCircle", sun:"FaSun", globe:"FaGlobe", shield:"FaShieldAlt",
+  heart:"FaRegSmile", home:"FaHome", handshake:"FaHandshake", rocket:"FaRocket" };
 
 (async () => {
   const I = {};
-  for(const [k,v] of Object.entries(ICONSET)){ I[k] = { w: await icon(v, C.white), g: await icon(v, C.gold), n: await icon(v, C.navy) }; }
+  for(const [k,v] of Object.entries(ICONSET)){ I[k] = { w: await icon(v, C.white), g: await icon(v, C.gold) }; }
 
   const pptx = new pptxgen();
   pptx.defineLayout({ name:"W", width:13.333, height:7.5 });
   pptx.layout = "W";
   pptx.author = "Bridges and Allies"; pptx.company = "Bridges and Allies";
 
-  const M = 0.6, PW = 13.333, CW = PW - M*2;
-
-  // ---------- helpers ----------
+  const M = 0.7, PW = 13.333, CW = PW - M*2;
   const bg = (s,c)=> s.background = { color:c };
-  // real Bridges & Allies logo: navy badge on light slides, white emblem on dark
-  const logoTag = (s, dark)=> s.addImage({ path: dark ? "assets/logo_white.png" : "assets/logo_circle.png",
-    x:PW-1.14, y:0.24, w:0.62, h:0.62 });
+  const logoTag = (s, dark)=> s.addImage({ path: dark ? "assets/logo_white.png" : "assets/logo_circle.png", x:PW-1.16, y:0.26, w:0.62, h:0.62 });
   function title(s, t, sub){
-    s.addText(t, { x:M, y:0.45, w:CW-1.4, h:0.75, fontFace:F.head, fontSize:27, bold:true, color:C.navy, align:"left", valign:"middle" });
-    if(sub) s.addText(sub, { x:M+0.02, y:1.18, w:CW-1.4, h:0.4, fontFace:F.body, fontSize:13.5, italic:true, color:C.slate, align:"left" });
+    s.addText(t, { x:M, y:0.5, w:CW-1.4, h:0.7, fontFace:F.head, fontSize:28, bold:true, color:C.navy, align:"left", valign:"middle" });
+    if(sub) s.addText(sub, { x:M+0.02, y:1.22, w:CW-1.4, h:0.4, fontFace:F.body, fontSize:14, italic:true, color:C.slate });
     logoTag(s, false);
   }
-  function card(s,x,y,w,h,fill){
-    s.addShape(pptx.ShapeType.roundRect,{x,y,w,h,rectRadius:0.09,fill:{color:fill||C.cloud},line:{type:"none"},shadow:sh()});
-  }
-  function circleNum(s,x,y,d,txt){
-    s.addShape(pptx.ShapeType.ellipse,{x,y,w:d,h:d,fill:{color:C.gold},line:{type:"none"},shadow:sh()});
-    s.addText(String(txt),{x,y,w:d,h:d,align:"center",valign:"middle",fontFace:F.head,fontSize:d>0.75?22:15,bold:true,color:C.navy});
-  }
-  function circleIcon(s,x,y,d,iconData){
-    s.addShape(pptx.ShapeType.ellipse,{x,y,w:d,h:d,fill:{color:C.gold},line:{type:"none"},shadow:sh()});
-    if(iconData) s.addImage({data:iconData,x:x+d*0.26,y:y+d*0.26,w:d*0.48,h:d*0.48});
-  }
-  const notes = (s,t)=> s.addNotes(t);
+  const card = (s,x,y,w,h,fill)=> s.addShape(pptx.ShapeType.roundRect,{x,y,w,h,rectRadius:0.1,fill:{color:fill||C.cloud},line:{type:"none"},shadow:sh()});
+  function circleIcon(s,x,y,d,ic){ s.addShape(pptx.ShapeType.ellipse,{x,y,w:d,h:d,fill:{color:C.gold},line:{type:"none"},shadow:sh()}); if(ic) s.addImage({data:ic,x:x+d*0.27,y:y+d*0.27,w:d*0.46,h:d*0.46}); }
+  function circleNum(s,x,y,d,t){ s.addShape(pptx.ShapeType.ellipse,{x,y,w:d,h:d,fill:{color:C.gold},line:{type:"none"},shadow:sh()}); s.addText(String(t),{x,y,w:d,h:d,align:"center",valign:"middle",fontFace:F.head,fontSize:d>0.75?22:15,bold:true,color:C.navy}); }
+  const notes=(s,t)=>s.addNotes(t);
 
-  // ===================================================== SLIDE 1 — TITLE
-  let s = pptx.addSlide(); bg(s, C.navy);
-  s.addShape(pptx.ShapeType.ellipse,{x:10.3,y:-1.6,w:5,h:5,fill:{color:C.navyCard},line:{type:"none"}});
-  s.addShape(pptx.ShapeType.ellipse,{x:11.0,y:4.6,w:3.6,h:3.6,fill:{color:"13284D"},line:{type:"none"}});
-  s.addImage({ path:"assets/logo_white.png", x:M, y:0.7, w:1.45, h:1.45 });
-  s.addText("BRIDGES & ALLIES", { x:M, y:2.3, w:9, h:0.5, fontFace:F.head, fontSize:16, bold:true, color:C.gold, charSpacing:4 });
-  s.addText("Off-Plan Mastery", { x:M, y:2.7, w:11.5, h:1.1, fontFace:F.head, fontSize:52, bold:true, color:C.white });
-  s.addText("A 4-Day Agent Training Programme", { x:M, y:3.85, w:11.5, h:0.6, fontFace:F.body, fontSize:22, color:C.goldLight });
-  s.addText("From zero to running an off-plan deal — start to finish.", { x:M, y:4.5, w:11.5, h:0.5, fontFace:F.body, fontSize:14, color:"AEB8CC" });
-  s.addText("Presenter: ______________     ·     Bridges & Allies — Off-Plan Team", { x:M, y:6.55, w:11.5, h:0.4, fontFace:F.body, fontSize:12, color:"8794AD" });
-  notes(s,"Welcome the room warmly. This is a presenter-led, 4-day live programme. Goal: take a complete beginner to confidently running an off-plan deal end to end. Set the tone — professional, high-energy, 'we build a great team and rise together'. Swap BARE logo onto this slide when ready.");
+  // ---- S1 TITLE ----
+  let s = pptx.addSlide(); bg(s,C.navy);
+  s.addShape(pptx.ShapeType.ellipse,{x:10.2,y:-1.7,w:5.2,h:5.2,fill:{color:C.navyCard},line:{type:"none"}});
+  s.addShape(pptx.ShapeType.ellipse,{x:11.1,y:4.7,w:3.4,h:3.4,fill:{color:"13284D"},line:{type:"none"}});
+  s.addImage({ path:"assets/logo_white.png", x:M, y:0.7, w:1.5, h:1.5 });
+  s.addText("BRIDGES & ALLIES", { x:M, y:2.35, w:9, h:0.5, fontFace:F.head, fontSize:16, bold:true, color:C.gold, charSpacing:4 });
+  s.addText("Welcome to Dubai\nReal Estate", { x:M, y:2.8, w:11.5, h:1.7, fontFace:F.head, fontSize:46, bold:true, color:C.white, lineSpacingMultiple:0.98 });
+  s.addText("Day 1 — The opportunity in front of you.", { x:M, y:4.7, w:11.5, h:0.5, fontFace:F.body, fontSize:20, color:C.goldLight });
+  s.addText("A 4-day journey · from your first day to your first deal.", { x:M, y:5.25, w:11.5, h:0.4, fontFace:F.body, fontSize:13, color:"AEB8CC" });
+  s.addText("Presenter: ______________     ·     Bridges & Allies — Off-Plan Team", { x:M, y:6.6, w:11.5, h:0.4, fontFace:F.body, fontSize:12, color:"8794AD" });
+  notes(s,"Open warm and high-energy. Today is NOT about rules or paperwork — it's about the opportunity: why Dubai, how big the market is, and the kind of numbers you can create for your clients (and yourself). The technical detail starts tomorrow. Goal of Day 1: they leave excited and proud to be here.");
 
-  // ===================================================== SLIDE 2 — WELCOME & VISION
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s, "Welcome — and why this programme exists");
-  const vis = [
-    ["grad","We train, we don't gatekeep","You don't need a real estate background. We take you from zero to closing — step by step."],
-    ["users","We rise together","One team, shared standards. Your growth is the team's growth. We win as a unit."],
-    ["chart","The timing is rare","Dubai is one of the world's most active property markets. Learn now, position before the next surge."],
-  ];
-  vis.forEach((v,i)=>{ const x=M+i*(CW/3)+ (i? 0.15:0); const w=CW/3-0.2; const yy=1.9;
-    card(s,M+i*(CW/3),yy,w+0.0,3.9);
-    circleIcon(s,M+i*(CW/3)+0.35,yy+0.4,0.95,I[v[0]].w);
-    s.addText(v[1],{x:M+i*(CW/3)+0.3,y:yy+1.55,w:w-0.6,h:0.8,fontFace:F.head,fontSize:17,bold:true,color:C.navy});
-    s.addText(v[2],{x:M+i*(CW/3)+0.3,y:yy+2.35,w:w-0.6,h:1.4,fontFace:F.body,fontSize:13,color:C.ink,valign:"top",lineSpacingMultiple:1.05});
+  // ---- S2 WELCOME & VISION ----
+  s = pptx.addSlide(); bg(s,C.white);
+  title(s,"You're in the right place, at the right time");
+  const vis=[["grad","No experience needed","We train you from zero. Every expert started exactly where you are today."],
+    ["users","We rise together","One team, one standard. Your success is the team's success — we win together."],
+    ["rocket","Timing is everything","Dubai is one of the world's most active markets. Learn now, and grow with it."]];
+  vis.forEach((v,i)=>{ const w=CW/3-0.25; const x=M+i*(CW/3); const yy=2.05;
+    card(s,x,yy,w,3.7);
+    circleIcon(s,x+0.35,yy+0.4,0.95,I[v[0]].w);
+    s.addText(v[1],{x:x+0.32,y:yy+1.55,w:w-0.6,h:0.7,fontFace:F.head,fontSize:17,bold:true,color:C.navy});
+    s.addText(v[2],{x:x+0.32,y:yy+2.25,w:w-0.6,h:1.2,fontFace:F.body,fontSize:13.5,color:C.ink,valign:"top",lineSpacingMultiple:1.1});
   });
-  s.addText("“Make a great team that becomes rich — and rises together.”",{x:M,y:6.15,w:CW,h:0.5,fontFace:F.head,italic:true,fontSize:16,color:C.gold});
-  notes(s,"Reassure career-changers and fresh grads: no prior experience needed. Emphasise the mentorship model and the team-first culture. The market timing point: Dubai's scale means learning now pays off when the cycle turns. Keep it motivating, not salesy.");
+  s.addText("“We build a great team — and we rise together.”",{x:M,y:6.2,w:CW,h:0.5,align:"center",fontFace:F.head,italic:true,fontSize:16,color:C.gold});
+  notes(s,"Reassure the room — especially career-changers and fresh grads. No background required. Lean into the team culture and the mentorship promise. Keep it personal and warm.");
 
-  // ===================================================== SLIDE 3 — HOW THE 4 DAYS WORK
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s, "How the 4 days work", "Each day builds on the last — and ends with a short quiz.");
-  const days = [
-    ["1","Foundations & the rules","The market, the authorities (DLD · RERA · DREI), and the path to becoming a legal broker."],
-    ["2","Off-plan & contracts","The off-plan lifecycle, escrow, Oqood, and the RERA forms — A, B, F, I."],
-    ["3","The money","Payment plans, mortgages & LTV, the fee stack, ROI, and the Golden Visa."],
-    ["4","Selling & closing","Lead handling, discovery, objections, closing techniques and follow-up discipline."],
-  ];
-  days.forEach((d,i)=>{ const w=(CW-0.45)/4; const x=M+i*(w+0.15); const yy=2.0;
-    card(s,x,yy,w,3.6);
-    circleNum(s,x+w/2-0.45,yy+0.35,0.9,d[0]);
-    s.addText("DAY "+d[0],{x,y:yy+1.35,w,h:0.3,align:"center",fontFace:F.body,fontSize:11,bold:true,color:C.gold,charSpacing:2});
-    s.addText(d[1],{x:x+0.18,y:yy+1.62,w:w-0.36,h:0.7,align:"center",fontFace:F.head,fontSize:15,bold:true,color:C.navy});
-    s.addText(d[2],{x:x+0.2,y:yy+2.35,w:w-0.4,h:1.1,align:"center",fontFace:F.body,fontSize:11.5,color:C.ink,valign:"top",lineSpacingMultiple:1.05});
+  // ---- S3 THE 4-DAY JOURNEY ----
+  s = pptx.addSlide(); bg(s,C.white);
+  title(s,"Your 4-day journey","Today we get inspired. Then we get practical.");
+  const days=[["1","The opportunity","Why Dubai, the numbers, and what they mean for your clients.","gold"],
+    ["2","How it all works","The market, the players, and the simple paperwork behind a deal."],
+    ["3","The money","Payment plans, returns, residency, and how clients fund a purchase."],
+    ["4","Selling & closing","Finding clients, guiding them, and confidently closing."]];
+  days.forEach((d,i)=>{ const w=(CW-0.45)/4; const x=M+i*(w+0.15); const yy=2.1;
+    card(s,x,yy,w,3.5, i===0?"FFF7E6":C.cloud);
+    circleNum(s,x+w/2-0.45,yy+0.4,0.9,d[0]);
+    s.addText("DAY "+d[0],{x,y:yy+1.4,w,h:0.3,align:"center",fontFace:F.body,fontSize:11,bold:true,color:C.gold,charSpacing:2});
+    s.addText(d[1],{x:x+0.15,y:yy+1.68,w:w-0.3,h:0.65,align:"center",fontFace:F.head,fontSize:15,bold:true,color:C.navy});
+    s.addText(d[2],{x:x+0.2,y:yy+2.35,w:w-0.4,h:1.0,align:"center",fontFace:F.body,fontSize:11,color:C.ink,valign:"top",lineSpacingMultiple:1.06});
   });
-  s.addText([{text:"Every day ends with a 5-question quiz",options:{bold:true,color:C.navy}},{text:"  — questions, then an answer key. Attendance and the quizzes track your readiness.",options:{color:C.ink}}],{x:M,y:6.0,w:CW,h:0.5,fontFace:F.body,fontSize:13});
-  notes(s,"Walk the room through the arc. Day 1 = rules of the game; Day 2 = the mechanics and paperwork; Day 3 = the numbers; Day 4 = how to actually sell. Quizzes are low-stakes confidence checks, not exams. Encourage questions throughout.");
+  s.addText("Today (Day 1) is the inspiring part — no jargon, no exams. Just the opportunity.",{x:M,y:6.05,w:CW,h:0.4,align:"center",fontFace:F.body,fontSize:13,italic:true,color:C.slate});
+  notes(s,"Signpost the week. Stress that today is light and motivational; the rules, contracts and finance come on Days 2–3, and selling on Day 4. This lowers anxiety for nervous beginners.");
 
-  // ===================================================== SLIDE 4 — DAY 1 DIVIDER
-  s = pptx.addSlide(); bg(s, C.navy);
-  s.addShape(pptx.ShapeType.ellipse,{x:-1.4,y:4.4,w:4.6,h:4.6,fill:{color:C.navyCard},line:{type:"none"}});
-  s.addText("DAY 1",{x:M,y:2.5,w:7,h:1.0,fontFace:F.head,fontSize:60,bold:true,color:C.gold});
-  s.addText("Foundations & the rules of the game",{x:M,y:3.7,w:11,h:0.7,fontFace:F.head,fontSize:26,color:C.white});
-  s.addText("The market · the authorities · becoming a legal broker · AML",{x:M,y:4.45,w:11,h:0.5,fontFace:F.body,fontSize:15,color:"AEB8CC"});
+  // ---- S4 DAY 1 DIVIDER ----
+  s = pptx.addSlide(); bg(s,C.navy);
+  s.addShape(pptx.ShapeType.ellipse,{x:-1.5,y:4.3,w:4.8,h:4.8,fill:{color:C.navyCard},line:{type:"none"}});
+  s.addText("DAY 1",{x:M,y:2.45,w:7,h:1.0,fontFace:F.head,fontSize:60,bold:true,color:C.gold});
+  s.addText("The opportunity",{x:M,y:3.65,w:11,h:0.7,fontFace:F.head,fontSize:28,color:C.white});
+  s.addText("Why Dubai · the numbers · what they mean for your clients",{x:M,y:4.45,w:11,h:0.5,fontFace:F.body,fontSize:15,color:"AEB8CC"});
   logoTag(s,true);
-  notes(s,"Day 1 sets the foundation every later day depends on. By the end they'll know who regulates what, the legal path to working as an agent, and the core vocabulary.");
+  notes(s,"Set the frame: today is about belief and opportunity. By the end they should feel 'this is real, and I can do this.'");
 
-  // ===================================================== SLIDE 5 — DAY 1 AGENDA
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Day 1 — agenda");
-  const ag = [
-    ["chart","Dubai market at a glance"],["building","Why off-plan?"],["balance","The players: DLD · RERA · DREI"],
-    ["map","Freehold vs leasehold"],["id","Becoming a legal broker (the path)"],["book","Core concepts & glossary"],
-    ["shield","AML — what every agent must know"],["check","Recap & Day 1 quiz"],
-  ];
-  ag.forEach((a,i)=>{ const col=i%2; const row=Math.floor(i/2); const w=(CW-0.4)/2; const x=M+col*(w+0.4); const yy=1.95+row*1.18;
-    card(s,x,yy,w,0.95,C.ice);
-    circleIcon(s,x+0.22,yy+0.17,0.6,I[a[0]].w);
-    s.addText(a[1],{x:x+1.0,y:yy,w:w-1.2,h:0.95,valign:"middle",fontFace:F.body,fontSize:15,bold:true,color:C.navy});
+  // ---- S5 WHY DUBAI ----
+  s = pptx.addSlide(); bg(s,C.white);
+  title(s,"Why the world buys in Dubai","Simple reasons your clients already love.");
+  const why=[["coins","Tax-free income","No personal income tax and no annual property tax on what they earn."],
+    ["shield","Safe & stable","One of the world's safest cities, with a trusted, regulated market."],
+    ["globe","A global hub","A few hours from most of the world — business, lifestyle, and travel."],
+    ["chart","Strong growth","Years of rising demand, world-class developments, and new communities."]];
+  why.forEach((w0,i)=>{ const col=i%2,row=Math.floor(i/2); const w=(CW-0.4)/2; const x=M+col*(w+0.4); const yy=2.05+row*1.95;
+    card(s,x,yy,w,1.7,col?C.ice:C.cloud);
+    circleIcon(s,x+0.3,yy+0.4,0.9,I[w0[0]].w);
+    s.addText(w0[1],{x:x+1.4,y:yy+0.32,w:w-1.65,h:0.5,fontFace:F.head,fontSize:17,bold:true,color:C.navy});
+    s.addText(w0[2],{x:x+1.4,y:yy+0.85,w:w-1.65,h:0.75,fontFace:F.body,fontSize:12.5,color:C.ink,valign:"top",lineSpacingMultiple:1.05});
   });
-  notes(s,"Preview the day. Keep it brisk — this is a signpost slide.");
+  notes(s,"Keep this conversational. These are the everyday reasons buyers from around the world choose Dubai — tax-free returns, safety, connectivity, and momentum. You'll repeat these to clients constantly.");
 
-  // ===================================================== SLIDE 6 — MARKET AT A GLANCE
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Dubai market at a glance","Sources: DLD / Dubai REST weekly reports — verify weekly (figures mid-June 2026).");
-  const stats=[["AED 11.3B","transactions last week","coins"],["AED 252B","Q1 2026 (+31% YoY)","chart"],["AED 682.5B","2025 sales (record year)","building"]];
-  stats.forEach((st,i)=>{ const w=(CW/3)-0.2; const x=M+i*(CW/3); const yy=1.95;
+  // ---- S6 THE MARKET IN NUMBERS ----
+  s = pptx.addSlide(); bg(s,C.white);
+  title(s,"The size of the opportunity","How much property changes hands in Dubai (verify weekly).");
+  const stats=[["AED 11.3B","in a single week","coins"],["AED 252B","in just 3 months (Q1 2026)","chart"],["AED 682.5B","in 2025 — a record year","building"]];
+  stats.forEach((st,i)=>{ const w=CW/3-0.2; const x=M+i*(CW/3); const yy=2.0;
     card(s,x,yy,w,1.9);
-    circleIcon(s,x+0.3,yy+0.5,0.85,I[st[2]].w);
-    s.addText(st[0],{x:x+1.3,y:yy+0.35,w:w-1.5,h:0.6,fontFace:F.head,fontSize:23,bold:true,color:C.gold});
-    s.addText(st[1],{x:x+1.3,y:yy+1.0,w:w-1.5,h:0.6,fontFace:F.body,fontSize:12.5,color:C.ink,valign:"top"});
+    circleIcon(s,x+0.3,yy+0.52,0.85,I[st[2]].w);
+    s.addText(st[0],{x:x+1.3,y:yy+0.4,w:w-1.5,h:0.55,fontFace:F.head,fontSize:22,bold:true,color:C.gold});
+    s.addText(st[1],{x:x+1.3,y:yy+1.0,w:w-1.5,h:0.6,fontFace:F.body,fontSize:12,color:C.ink,valign:"top"});
   });
-  s.addText("Recent weekly transaction value (AED bn)",{x:M,y:4.1,w:CW,h:0.35,fontFace:F.body,fontSize:13,bold:true,color:C.navy});
-  s.addChart(pptx.ChartType.bar, [{name:"AED bn", labels:["wk-4","wk-3","wk-2","wk-1","last wk"], values:[10.0,14.7,15.2,21.0,11.3]}],
-    { x:M, y:4.5, w:CW, h:2.4, barDir:"col", chartColors:[C.gold], showLegend:false, showTitle:false,
-      showValue:true, dataLabelColor:C.ink, dataLabelFontFace:F.body, dataLabelFontSize:10,
-      catAxisLabelColor:C.slate, catAxisLabelFontFace:F.body, catAxisLabelFontSize:11,
-      valAxisHidden:true, catGridLine:{style:"none"}, valGridLine:{style:"none"}, barGapWidthPct:60 });
-  notes(s,"Anchor them in scale. Weekly transaction values swing roughly AED 10B–21B; Q1 2026 hit AED 252B (+31% YoY); 2025 was a record AED 682.5B in sales. These figures move — re-check the weekly DLD report before quoting. The point: this is a deep, liquid market with constant deal flow.");
+  s.addText("Weekly sales (AED billions)",{x:M,y:4.15,w:CW,h:0.35,fontFace:F.body,fontSize:13,bold:true,color:C.navy});
+  s.addChart(pptx.ChartType.bar, [{name:"AED bn", labels:["wk-4","wk-3","wk-2","wk-1","this wk"], values:[10.0,14.7,15.2,21.0,11.3]}],
+    { x:M, y:4.5, w:CW, h:2.35, barDir:"col", chartColors:[C.gold], showLegend:false, showTitle:false, showValue:true,
+      dataLabelColor:C.ink, dataLabelFontFace:F.body, dataLabelFontSize:10, catAxisLabelColor:C.slate,
+      catAxisLabelFontFace:F.body, catAxisLabelFontSize:11, valAxisHidden:true, catGridLine:{style:"none"}, valGridLine:{style:"none"}, barGapWidthPct:55 });
+  notes(s,"Don't drown them in stats — just convey scale. Billions change hands every week; there is more than enough business for everyone. These figures move week to week, so re-check the latest before presenting.");
 
-  // ===================================================== SLIDE 7 — WHY OFF-PLAN
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Why off-plan?","How buying before completion differs from ready / secondary.");
-  const why=[
-    ["coins","Lower entry","Smaller upfront outlay — secure a unit with a booking deposit, not the full price."],
-    ["scroll","Payment plans","Pay in stages through construction, often with post-handover tails (1–5 yrs)."],
-    ["chart","Appreciation during build","Value can rise between launch and handover as the project completes."],
-    ["bolt","Developer incentives","Waived fees, DLD-fee deals, furnishing packages and launch pricing."],
-  ];
-  why.forEach((w0,i)=>{ const col=i%2; const row=Math.floor(i/2); const w=(CW-0.4)/2; const x=M+col*(w+0.4); const yy=1.95+row*1.85;
-    card(s,x,yy,w,1.65);
-    circleIcon(s,x+0.28,yy+0.35,0.85,I[w0[0]].w);
-    s.addText(w0[1],{x:x+1.35,y:yy+0.25,w:w-1.6,h:0.45,fontFace:F.head,fontSize:16,bold:true,color:C.navy});
-    s.addText(w0[2],{x:x+1.35,y:yy+0.72,w:w-1.6,h:0.8,fontFace:F.body,fontSize:12,color:C.ink,valign:"top",lineSpacingMultiple:1.03});
+  // ---- S7 WHAT IT MEANS FOR YOUR CLIENT ----
+  s = pptx.addSlide(); bg(s,C.white);
+  title(s,"The numbers you can create for a client","The promises behind every conversation.");
+  const cli=[["chart","Rental income","Well-chosen homes can earn roughly 6–8% a year in rent."],
+    ["bolt","Growth while they wait","Off-plan values can rise between launch and completion."],
+    ["scroll","Easy payment plans","Pay in comfortable stages during construction — not all at once."],
+    ["passport","A path to residency","A AED 2,000,000 property can open a 10-year Golden Visa."]];
+  cli.forEach((c,i)=>{ const col=i%2,row=Math.floor(i/2); const w=(CW-0.4)/2; const x=M+col*(w+0.4); const yy=2.05+row*1.95;
+    card(s,x,yy,w,1.7,"FFF9ED");
+    circleIcon(s,x+0.3,yy+0.4,0.9,I[c[0]].w);
+    s.addText(c[1],{x:x+1.4,y:yy+0.32,w:w-1.65,h:0.5,fontFace:F.head,fontSize:17,bold:true,color:C.navy});
+    s.addText(c[2],{x:x+1.4,y:yy+0.85,w:w-1.65,h:0.75,fontFace:F.body,fontSize:12.5,color:C.ink,valign:"top",lineSpacingMultiple:1.05});
   });
-  notes(s,"Frame off-plan as the engine of new-launch sales. The four advantages — entry, payment plans, appreciation, incentives — are also your selling points later in Day 4. Balance: note risks too (construction, market timing) which Day 2 escrow content addresses.");
+  s.addText("These are the four reasons clients say yes. We'll prove each one on Day 3.",{x:M,y:6.1,w:CW,h:0.4,align:"center",fontFace:F.body,fontSize:12.5,italic:true,color:C.slate});
+  notes(s,"This is the heart of Day 1. Every client buys for some mix of: income, growth, easy payments, and residency. Keep figures soft and honest — yields ~6–8%, Golden Visa at AED 2M. We back these with detail on Day 3; today it's about the story.");
 
-  // ===================================================== SLIDE 8 — THE PLAYERS
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"The players — who does what","Know the difference; clients will test you on it.");
-  const players=[
-    ["balance","DLD","Dubai Land Department — the overarching authority that registers and regulates all property and transactions."],
-    ["gavel","RERA","Real Estate Regulatory Agency — the regulatory arm of DLD: licenses brokers, sets conduct, oversees escrow."],
-    ["grad","DREI","Dubai Real Estate Institute — DLD's training arm; runs the broker certification course."],
-  ];
-  players.forEach((p,i)=>{ const w=(CW/3)-0.2; const x=M+i*(CW/3); const yy=1.95;
-    card(s,x,yy,w,3.0);
-    circleIcon(s,x+w/2-0.48,yy+0.35,0.95,I[p[0]].w);
-    s.addText(p[1],{x,y:yy+1.45,w,h:0.5,align:"center",fontFace:F.head,fontSize:22,bold:true,color:C.gold});
-    s.addText(p[2],{x:x+0.25,y:yy+2.0,w:w-0.5,h:0.9,align:"center",fontFace:F.body,fontSize:11.5,color:C.ink,valign:"top",lineSpacingMultiple:1.04});
+  // ---- S8 A SIMPLE EXAMPLE ----
+  s = pptx.addSlide(); bg(s,C.white);
+  title(s,"A simple example","How one deal can look — illustrative, not a guarantee.");
+  card(s,M,2.05,CW*0.62,4.3);
+  const rows=[["Off-plan apartment","AED 1,500,000"],["To get started (≈20%)","AED 300,000"],
+    ["Possible growth during build*","+ AED 225,000"],["Possible yearly rent at ~7%*","≈ AED 105,000 / yr"]];
+  rows.forEach((r,i)=>{ const yy=2.4+i*0.92;
+    s.addText(r[0],{x:M+0.35,y:yy,w:CW*0.62-2.7,h:0.7,valign:"middle",fontFace:F.body,fontSize:14,color:C.ink});
+    s.addText(r[1],{x:M+CW*0.62-2.5,y:yy,w:2.2,h:0.7,valign:"middle",align:"right",fontFace:F.head,fontSize:15,bold:true,color:i>=2?C.green:C.navy});
+    if(i<3) s.addShape(pptx.ShapeType.line,{x:M+0.35,y:yy+0.82,w:CW*0.62-0.7,h:0,line:{color:"E2E8F0",width:1}});
   });
-  card(s,M,5.25,CW,1.4,C.ice);
-  circleIcon(s,M+0.3,5.5,0.85,I.mobile.w);
-  s.addText([{text:"Trakheesi",options:{bold:true,color:C.navy}},{text:" — DLD's permit system: every advert carries a Trakheesi permit number.    ",options:{color:C.ink}},
-    {text:"Dubai REST / Dubai Brokers",options:{bold:true,color:C.navy}},{text:" — official DLD apps where brokers generate forms & access services.",options:{color:C.ink}}],
-    {x:M+1.35,y:5.5,w:CW-1.7,h:0.9,valign:"middle",fontFace:F.body,fontSize:12.5,lineSpacingMultiple:1.05});
-  notes(s,"Common confusion: DLD vs RERA. DLD is the parent authority; RERA is its regulatory arm. DREI trains. Trakheesi is the advertising-permit system — no permit, no advert (a hard compliance rule). Dubai REST is the app brokers actually use day to day.");
+  card(s,M+CW*0.62+0.3,2.05,CW*0.38-0.3,4.3,C.navy);
+  circleIcon(s,M+CW*0.62+0.6,2.4,0.9,I.handshake.w);
+  s.addText("This is the story you'll tell.",{x:M+CW*0.62+0.55,y:3.5,w:CW*0.38-0.9,h:0.9,fontFace:F.head,fontSize:18,bold:true,color:C.white});
+  s.addText("A small start, growth while it's built, and income after handover.",{x:M+CW*0.62+0.55,y:4.45,w:CW*0.38-0.9,h:1.2,fontFace:F.body,fontSize:13,color:"C7D0E0",valign:"top",lineSpacingMultiple:1.1});
+  s.addText("*Illustrative figures only — actual results vary and are never guaranteed.",{x:M,y:6.6,w:CW,h:0.35,fontFace:F.body,italic:true,fontSize:11,color:C.slate});
+  notes(s,"Walk through it slowly and warmly. The point isn't the exact numbers — it's the SHAPE of the deal: small to start, growth during construction, income after. Always label it illustrative; never promise returns. This builds their confidence to have the conversation.");
 
-  // ===================================================== SLIDE 9 — FREEHOLD VS LEASEHOLD
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Freehold vs leasehold","Where foreign buyers can own — and what they own.");
-  const fl=[["key","Freehold","FFF7E6",[
-      "Full ownership of the unit AND the land, in perpetuity.",
-      "Open to all nationalities in designated freehold zones.",
-      "Can sell, lease, or pass on freely; qualifies for residency visas.",
-      "Most off-plan you'll sell sits in freehold areas."]],
-    ["scroll","Leasehold","EEF3FB",[
-      "Right to use the property for a long term (commonly up to 99 years).",
-      "Land stays with the freeholder; reverts at lease end.",
-      "Found in select older / non-freehold districts.",
-      "Less common for new off-plan launches."]]];
-  fl.forEach((f,i)=>{ const w=(CW-0.4)/2; const x=M+i*(w+0.4); const yy=1.95;
-    card(s,x,yy,w,4.4,f[2]);
-    circleIcon(s,x+0.3,yy+0.35,0.9,I[f[0]].w);
-    s.addText(f[1],{x:x+1.35,y:yy+0.5,w:w-1.6,h:0.6,fontFace:F.head,fontSize:21,bold:true,color:C.navy});
-    s.addText(f[3].map(t=>({text:t,options:{bullet:{indent:14},breakLine:true}})),{x:x+0.35,y:yy+1.6,w:w-0.7,h:2.6,fontFace:F.body,fontSize:13,color:C.ink,valign:"top",lineSpacingMultiple:1.12});
+  // ---- S9 WHAT'S IN IT FOR YOU ----
+  s = pptx.addSlide(); bg(s,C.white);
+  title(s,"And what's in it for you","Your effort, your reward.");
+  const you=[["coins","Uncapped earning","Agencies earn about 2% — that's AED 30,000 on a 1.5M sale. No ceiling."],
+    ["grad","We train you","From your first day to your first deal — step by step, with support."],
+    ["rocket","A real career, fast","Build a name, a network, and a future in a market that's only growing."]];
+  you.forEach((y0,i)=>{ const w=CW/3-0.25; const x=M+i*(CW/3); const yy=2.1;
+    card(s,x,yy,w,3.6);
+    circleIcon(s,x+0.35,yy+0.4,0.95,I[y0[0]].w);
+    s.addText(y0[1],{x:x+0.32,y:yy+1.5,w:w-0.6,h:0.7,fontFace:F.head,fontSize:17,bold:true,color:C.navy});
+    s.addText(y0[2],{x:x+0.32,y:yy+2.2,w:w-0.6,h:1.2,fontFace:F.body,fontSize:13,color:C.ink,valign:"top",lineSpacingMultiple:1.08});
   });
-  notes(s,"Buyers care most about freehold — full ownership of unit and land, available to all nationalities in designated zones, and the basis for residency visas. Leasehold = long-term use right, land reverts. Almost all new off-plan you sell is freehold.");
+  s.addText("Earnings depend on your results — but the opportunity is real, and it's yours to take.",{x:M,y:6.15,w:CW,h:0.4,align:"center",fontFace:F.body,fontSize:12.5,italic:true,color:C.slate});
+  notes(s,"Motivate honestly. Commission is uncapped (~2% agency side; the agent's share depends on the plan). No income guarantees — but with training and effort the ceiling is high. Tie it back to 'we rise together.'");
 
-  // ===================================================== SLIDE 10 — BECOMING A BROKER (PATH)
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Becoming a legal broker — the path","Six steps. There is no individual/freelance broker licence in Dubai.");
-  const path=[
-    "Hold a UAE residency visa, sponsored by a licensed brokerage.",
-    "Complete the broker training course at DREI (~4 days / 32 hours).",
-    "Pass the RERA exam (~100 questions; pass mark ~75% — confirm).",
-    "Receive your Broker Card + BRN (Broker Registration Number).",
-    "Renew the licence annually via DLD.",
-    "Every advert must carry a valid Trakheesi permit number."
-  ];
-  path.forEach((p,i)=>{ const col=i%2; const row=Math.floor(i/2); const w=(CW-0.4)/2; const x=M+col*(w+0.4); const yy=1.95+row*1.45;
-    card(s,x,yy,w,1.22,C.cloud);
-    circleNum(s,x+0.22,yy+0.27,0.68,i+1);
-    s.addText(p,{x:x+1.05,y:yy,w:w-1.25,h:1.22,valign:"middle",fontFace:F.body,fontSize:12.5,color:C.ink,lineSpacingMultiple:1.03});
+  // ---- S10 WHY OFF-PLAN (SIMPLE) ----
+  s = pptx.addSlide(); bg(s,C.white);
+  title(s,"Why off-plan is the easiest place to start","Buying before completion — and why clients love it.");
+  const op=[["coins","Small to start","Secure a home with a deposit, not the full price."],
+    ["scroll","Pay in stages","Comfortable payment plans through construction."],
+    ["chart","Value can grow","Prices can rise between launch and handover."],
+    ["bolt","Great incentives","Launch pricing, fee deals, and developer offers."]];
+  op.forEach((o,i)=>{ const w=(CW-0.6)/4; const x=M+i*(w+0.2); const yy=2.15;
+    card(s,x,yy,w,3.4);
+    circleIcon(s,x+w/2-0.45,yy+0.4,0.9,I[o[0]].w);
+    s.addText(o[1],{x:x+0.1,y:yy+1.5,w:w-0.2,h:0.7,align:"center",fontFace:F.head,fontSize:15,bold:true,color:C.navy});
+    s.addText(o[2],{x:x+0.15,y:yy+2.2,w:w-0.3,h:1.0,align:"center",fontFace:F.body,fontSize:11.5,color:C.ink,valign:"top",lineSpacingMultiple:1.06});
   });
-  notes(s,"The single most important takeaway: you cannot freelance — you must be sponsored by a licensed brokerage (that's us). The next four slides detail steps 2–4. Pass mark is commonly cited 75% but has shifted; confirm at registration.");
+  notes(s,"Off-plan is the friendliest entry point for a new agent and a new buyer: low to start, staged payments, upside during build, and strong launch incentives. We go deep on the mechanics on Day 2 — today, just the appeal.");
 
-  // ===================================================== SLIDE 11 — STEP: SPONSORSHIP
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Step 1 — Residency + brokerage sponsorship");
-  card(s,M,1.95,CW,2.0,C.ice);
-  circleIcon(s,M+0.35,2.25,1.0,I.id.w);
-  s.addText("No freelance / individual broker licence exists in Dubai.",{x:M+1.7,y:2.2,w:CW-2.0,h:0.5,fontFace:F.head,fontSize:18,bold:true,color:C.navy});
-  s.addText("You must hold a valid UAE residency visa and be employed/sponsored by a RERA-licensed brokerage. That sponsorship is what makes you eligible to be carded.",{x:M+1.7,y:2.75,w:CW-2.0,h:1.0,fontFace:F.body,fontSize:13.5,color:C.ink,valign:"top",lineSpacingMultiple:1.08});
-  const sp=[["building","We sponsor you","As your licensed brokerage, Bridges & Allies provides the sponsorship and visa pathway."],["check","Then you certify","With sponsorship in place, you move to the DREI course and RERA exam."]];
-  sp.forEach((p,i)=>{ const w=(CW-0.4)/2; const x=M+i*(w+0.4); const yy=4.25;
-    card(s,x,yy,w,2.0);
-    circleIcon(s,x+0.3,yy+0.35,0.8,I[p[0]].w);
-    s.addText(p[1],{x:x+1.3,y:yy+0.35,w:w-1.5,h:0.5,fontFace:F.head,fontSize:16,bold:true,color:C.navy});
-    s.addText(p[2],{x:x+1.3,y:yy+0.9,w:w-1.5,h:0.9,fontFace:F.body,fontSize:12.5,color:C.ink,valign:"top",lineSpacingMultiple:1.05});
+  // ---- S11 RECAP ----
+  s = pptx.addSlide(); bg(s,C.white);
+  title(s,"Day 1 — what to remember");
+  const rc=[["You picked the right market.","Dubai is safe, tax-free, global, and growing."],
+    ["The opportunity is huge.","Billions change hands every single week."],
+    ["You create real value.","Income, growth, easy payments, and residency for clients."],
+    ["And it pays you well.","Uncapped earning — with training and a team behind you."]];
+  rc.forEach((r,i)=>{ const yy=2.05+i*1.05; card(s,M,yy,CW,0.9,i%2?C.ice:C.cloud);
+    circleNum(s,M+0.25,yy+0.18,0.55,i+1);
+    s.addText([{text:r[0]+"  ",options:{bold:true,color:C.navy}},{text:r[1],options:{color:C.ink}}],{x:M+1.1,y:yy,w:CW-1.3,h:0.9,valign:"middle",fontFace:F.body,fontSize:14});
   });
-  notes(s,"Reassure new joiners: the brokerage handles sponsorship. This removes the biggest barrier people worry about. Visa + sponsorship first, certification second.");
+  s.addText("Tomorrow: how a deal actually works — the simple way.",{x:M,y:6.5,w:CW,h:0.4,align:"center",fontFace:F.body,italic:true,fontSize:13,color:C.gold});
+  notes(s,"Close warm. Four feelings to leave with: right market, big opportunity, you create value, and it rewards you. Preview Day 2 lightly so they're curious, not anxious.");
 
-  // ===================================================== SLIDE 12 — STEP: DREI COURSE
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Step 2 — Broker training at DREI");
-  card(s,M,1.95,CW,2.3,C.cloud);
-  circleIcon(s,M+0.4,2.45,1.1,I.grad.w);
-  s.addText("Certified broker training course",{x:M+1.9,y:2.25,w:CW-2.2,h:0.55,fontFace:F.head,fontSize:20,bold:true,color:C.navy});
-  s.addText([
-    {text:"~4 days · 32 hours of instruction.",options:{breakLine:true,bullet:{indent:14}}},
-    {text:"Delivered in English or Arabic.",options:{breakLine:true,bullet:{indent:14}}},
-    {text:"Attendance is mandatory to be eligible to sit the RERA exam.",options:{breakLine:true,bullet:{indent:14}}},
-  ],{x:M+1.9,y:2.85,w:CW-2.2,h:1.3,fontFace:F.body,fontSize:13.5,color:C.ink,lineSpacingMultiple:1.12});
-  const cost=[["coins","Course fee","~AED 2,400 (typical)"],["scroll","Format","Classroom / instructor-led"],["check","Outcome","Eligibility to sit the exam"]];
-  cost.forEach((c,i)=>{ const w=(CW/3)-0.2; const x=M+i*(CW/3); const yy=4.55;
-    card(s,x,yy,w,1.8,C.ice);
-    circleIcon(s,x+w/2-0.4,yy+0.3,0.8,I[c[0]].w);
-    s.addText(c[1],{x,y:yy+1.15,w,h:0.3,align:"center",fontFace:F.body,fontSize:11.5,color:C.slate,bold:true});
-    s.addText(c[2],{x,y:yy+1.4,w,h:0.35,align:"center",fontFace:F.head,fontSize:13.5,bold:true,color:C.navy});
-  });
-  notes(s,"DREI is DLD's training arm. The course is ~32 hours over ~4 days, English or Arabic, attendance mandatory. Fee ~AED 2,400 (confirm current pricing). It's the prerequisite to the RERA exam.");
-
-  // ===================================================== SLIDE 13 — STEP: RERA EXAM
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Step 3 — The RERA exam","Figures shift — confirm current values when you register.");
-  const ex=[["scroll","Format","~100 multiple-choice questions"],["check","Pass mark","~75% (cited 70–75%) — confirm"],["coins","Exam fee","~AED 785 (incl. add-on fees)"],["id","Result","Eligible for your Broker Card"]];
-  ex.forEach((e,i)=>{ const w=(CW-0.45)/4; const x=M+i*(w+0.15); const yy=1.95;
-    card(s,x,yy,w,2.9);
-    circleIcon(s,x+w/2-0.45,yy+0.35,0.9,I[e[0]].w);
-    s.addText(e[1],{x,y:yy+1.45,w,h:0.3,align:"center",fontFace:F.body,fontSize:11.5,bold:true,color:C.slate});
-    s.addText(e[2],{x:x+0.12,y:yy+1.75,w:w-0.24,h:0.9,align:"center",fontFace:F.head,fontSize:14,bold:true,color:C.navy,valign:"top"});
-  });
-  card(s,M,5.2,CW,1.45,"FFF7E6");
-  circleIcon(s,M+0.3,5.45,0.85,I.bolt.g===null?I.bolt.w:I.bolt.w);
-  s.addText("Study tip: the exam leans on the regulatory content in this very programme — forms, escrow, fees, and the authorities. Know Days 1–3 cold and you're most of the way there.",{x:M+1.35,y:5.4,w:CW-1.7,h:1.0,valign:"middle",fontFace:F.body,fontSize:13,color:C.ink,lineSpacingMultiple:1.06});
-  notes(s,"Exam ~100 MCQs, pass mark commonly 75% (some sources 70%), fee ~AED 785 all-in. These move — verify at registration. Encourage them: this training maps directly onto the exam syllabus.");
-
-  // ===================================================== SLIDE 14 — STEP: CARD + BRN
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Step 4 — Broker Card, BRN & staying licensed");
-  const br=[["id","Broker Card","Your official licence to operate as an agent in Dubai."],
-    ["scroll","BRN","Broker Registration Number — your unique ID on every deal & form."],
-    ["mobile","Trakheesi on every ad","No advert goes live without a valid Trakheesi permit number."],
-    ["check","Renew annually","The licence is renewed each year via DLD to stay active."]];
-  br.forEach((b,i)=>{ const col=i%2; const row=Math.floor(i/2); const w=(CW-0.4)/2; const x=M+col*(w+0.4); const yy=1.95+row*1.85;
-    card(s,x,yy,w,1.65);
-    circleIcon(s,x+0.28,yy+0.35,0.85,I[b[0]].w);
-    s.addText(b[1],{x:x+1.35,y:yy+0.28,w:w-1.6,h:0.45,fontFace:F.head,fontSize:16,bold:true,color:C.navy});
-    s.addText(b[2],{x:x+1.35,y:yy+0.75,w:w-1.6,h:0.8,fontFace:F.body,fontSize:12,color:C.ink,valign:"top",lineSpacingMultiple:1.03});
-  });
-  notes(s,"Once you pass, you're issued a Broker Card and a BRN — quote the BRN on forms and adverts. Trakheesi permit on every single advertisement is non-negotiable. Renew annually. First-year all-in cost is often cited ~AED 10,000–13,000 depending on setup (confirm).");
-
-  // ===================================================== SLIDE 15 — CORE CONCEPTS
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Core concepts — quick primer","We go deep on these in Days 2–3; lock the meaning now.");
-  const cc=[["key","Freehold","Full ownership of unit + land, in designated zones."],
-    ["building","Off-plan","A property bought before/under construction, off the plans."],
-    ["scroll","Ready / secondary","A completed, already-titled property resold on the market."],
-    ["shield","Escrow","A ring-fenced bank account that protects buyer payments on off-plan."],
-    ["id","Oqood","The interim off-plan register that converts to a Title Deed at handover."],
-    ["balance","Title Deed","The final proof of ownership, issued by DLD."]];
-  cc.forEach((c,i)=>{ const col=i%3; const row=Math.floor(i/3); const w=(CW-0.4)/3; const x=M+col*(w+0.2); const yy=1.95+row*2.2;
-    card(s,x,yy,w,2.0,C.cloud);
-    circleIcon(s,x+0.25,yy+0.3,0.8,I[c[0]].w);
-    s.addText(c[1],{x:x+1.2,y:yy+0.45,w:w-1.4,h:0.5,fontFace:F.head,fontSize:15,bold:true,color:C.navy});
-    s.addText(c[2],{x:x+0.28,y:yy+1.2,w:w-0.56,h:0.7,fontFace:F.body,fontSize:11.5,color:C.ink,valign:"top",lineSpacingMultiple:1.04});
-  });
-  notes(s,"A vocabulary checkpoint so nobody is lost later. Don't over-explain — these each get a full slide in Day 2. Just make sure the words land now.");
-
-  // ===================================================== SLIDE 16 — GLOSSARY 1
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Glossary 1 — authorities & process");
-  const g1=[["DLD","Dubai Land Department"],["RERA","Real Estate Regulatory Agency"],["DREI","Dubai Real Estate Institute"],
-    ["BRN","Broker Registration Number"],["Trakheesi","DLD advertising-permit system"],["Ejari","Tenancy contract registration"],
-    ["NOC","No Objection Certificate"],["SPA","Sale & Purchase Agreement"],["MOU","Memorandum of Understanding (Form F)"],["Oqood","Interim off-plan property register"]];
-  g1.forEach((g,i)=>{ const col=i%2; const row=Math.floor(i/2); const w=(CW-0.4)/2; const x=M+col*(w+0.4); const yy=1.9+row*0.98;
-    card(s,x,yy,w,0.82,i%2?C.ice:C.cloud);
-    s.addText(g[0],{x:x+0.2,y:yy,w:2.1,h:0.82,valign:"middle",fontFace:F.head,fontSize:15,bold:true,color:C.gold});
-    s.addText(g[1],{x:x+2.3,y:yy,w:w-2.5,h:0.82,valign:"middle",fontFace:F.body,fontSize:12.5,color:C.ink});
-  });
-  notes(s,"Reference slide — don't read every line. Point out the ones people mix up: MOU = Form F; Oqood = the off-plan register; Ejari is for rentals. Full definitions live in the speaker notes.");
-
-  // ===================================================== SLIDE 17 — GLOSSARY 2
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Glossary 2 — finance & transaction");
-  const g2=[["LTV","Loan-to-Value ratio"],["DBR","Debt Burden Ratio (max ~50%)"],["EIBOR","Emirates Interbank Offered Rate"],
-    ["ROI","Return on Investment"],["DEWA","Dubai Electricity & Water Authority"],["DNFBP","Designated Non-Financial Business/Profession"],
-    ["KYC","Know Your Customer"],["AML","Anti-Money Laundering"],["CFT","Combating the Financing of Terrorism"],["FIU","Financial Intelligence Unit"]];
-  g2.forEach((g,i)=>{ const col=i%2; const row=Math.floor(i/2); const w=(CW-0.4)/2; const x=M+col*(w+0.4); const yy=1.9+row*0.98;
-    card(s,x,yy,w,0.82,i%2?C.ice:C.cloud);
-    s.addText(g[0],{x:x+0.2,y:yy,w:2.1,h:0.82,valign:"middle",fontFace:F.head,fontSize:15,bold:true,color:C.gold});
-    s.addText(g[1],{x:x+2.3,y:yy,w:w-2.5,h:0.82,valign:"middle",fontFace:F.body,fontSize:12.5,color:C.ink});
-  });
-  notes(s,"These come back in Day 3 (the money) and the AML slide. LTV, DBR, EIBOR drive mortgages; KYC/AML/CFT/FIU/DNFBP are the compliance cluster — preview the next slide.");
-
-  // ===================================================== SLIDE 18 — AML
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"AML — what every agent must know","Anti-Money Laundering. Brokers are a 'DNFBP' with real legal duties.");
-  card(s,M,1.9,CW,1.5,"FFF7E6");
-  circleIcon(s,M+0.35,2.15,1.0,I.shield.w);
-  s.addText("As a broker you are a Designated Non-Financial Business or Profession (DNFBP) with AML/CFT obligations under UAE law.",{x:M+1.75,y:2.05,w:CW-2.1,h:1.2,valign:"middle",fontFace:F.body,fontSize:14,color:C.ink,lineSpacingMultiple:1.08});
-  const aml=[["id","KYC","Verify client identity & source of funds."],["coins","Watch cash","Flag high-value & cash-heavy deals."],
-    ["mobile","goAML","Register on the goAML portal; appoint a compliance officer."],["gavel","Report","File suspicious-transaction reports to the FIU."]];
-  aml.forEach((a,i)=>{ const w=(CW-0.45)/4; const x=M+i*(w+0.15); const yy=3.7;
-    card(s,x,yy,w,2.5,C.cloud);
-    circleIcon(s,x+w/2-0.42,yy+0.3,0.84,I[a[0]].w);
-    s.addText(a[1],{x,y:yy+1.3,w,h:0.4,align:"center",fontFace:F.head,fontSize:15,bold:true,color:C.navy});
-    s.addText(a[2],{x:x+0.15,y:yy+1.75,w:w-0.3,h:0.65,align:"center",fontFace:F.body,fontSize:11,color:C.ink,valign:"top",lineSpacingMultiple:1.03});
-  });
-  s.addText("Non-compliance carries serious penalties. When in doubt, escalate to your compliance officer.",{x:M,y:6.4,w:CW,h:0.4,fontFace:F.body,italic:true,fontSize:12,color:C.slate});
-  notes(s,"Keep this serious but simple. Brokers are DNFBPs — legally obliged to do KYC, verify source of funds, monitor cash/high-value deals, register on goAML, and report suspicious transactions to the FIU. Penalties are severe. New agents: never handle a deal that feels off without escalating.");
-
-  // ===================================================== SLIDE 19 — RECAP
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Day 1 — recap");
-  const rc=[
-    "DLD regulates; RERA licenses & oversees conduct; DREI trains.",
-    "No freelance licence — you work under a sponsoring brokerage.",
-    "The path: sponsorship → DREI course → RERA exam → Broker Card + BRN → renew yearly.",
-    "Every advert needs a Trakheesi permit; brokers use Dubai REST.",
-    "You're a DNFBP — KYC, monitor, and report under AML law."
-  ];
-  rc.forEach((r,i)=>{ const yy=1.95+i*0.95; card(s,M,yy,CW,0.8,i%2?C.ice:C.cloud);
-    circleNum(s,M+0.2,yy+0.13,0.55,i+1);
-    s.addText(r,{x:M+1.0,y:yy,w:CW-1.2,h:0.8,valign:"middle",fontFace:F.body,fontSize:13.5,color:C.ink});
-  });
-  notes(s,"Recap the five anchors before the quiz. Ask the room to call them back to you rather than reading them out yourself.");
-
-  // ===================================================== SLIDE 20 — QUIZ QUESTIONS
-  s = pptx.addSlide(); bg(s, C.navy);
-  s.addText("Day 1 — Quiz",{x:M,y:0.5,w:CW,h:0.8,fontFace:F.head,fontSize:30,bold:true,color:C.gold});
-  s.addText("Five quick questions. Answers on the next slide.",{x:M,y:1.25,w:CW,h:0.4,fontFace:F.body,fontSize:14,color:"AEB8CC"});
-  const q1=[
-    "Which body is the regulatory arm that licenses brokers?  (DREI / RERA / Trakheesi / Ejari)",
-    "Can you legally work as an agent as an independent freelancer with no brokerage?",
-    "What permit number must appear on every property advertisement?",
-    "What does BRN stand for?",
-    "What does AML stand for — and name one obligation it places on you?"
-  ];
-  q1.forEach((q,i)=>{ const yy=1.85+i*1.02;
-    s.addShape(pptx.ShapeType.roundRect,{x:M,y:yy,w:CW,h:0.86,rectRadius:0.08,fill:{color:C.navyCard},line:{type:"none"},shadow:sh()});
-    circleNum(s,M+0.22,yy+0.13,0.6,i+1);
-    s.addText(q,{x:M+1.05,y:yy,w:CW-1.25,h:0.86,valign:"middle",fontFace:F.body,fontSize:13,color:C.white});
+  // ---- S12 LIGHT QUIZ ----
+  s = pptx.addSlide(); bg(s,C.navy);
+  s.addText("Quick warm-up",{x:M,y:0.55,w:CW,h:0.8,fontFace:F.head,fontSize:30,bold:true,color:C.gold});
+  s.addText("No pressure — just to lock in today's big ideas.",{x:M,y:1.3,w:CW,h:0.4,fontFace:F.body,fontSize:14,color:"AEB8CC"});
+  const q=["Name two reasons the world buys property in Dubai.",
+    "Roughly what yearly rental return can a well-chosen home earn?",
+    "What property value can open a 10-year Golden Visa for a client?"];
+  q.forEach((qq,i)=>{ const yy=2.2+i*1.25;
+    s.addShape(pptx.ShapeType.roundRect,{x:M,y:yy,w:CW,h:1.0,rectRadius:0.09,fill:{color:C.navyCard},line:{type:"none"},shadow:sh()});
+    circleNum(s,M+0.25,yy+0.2,0.6,i+1);
+    s.addText(qq,{x:M+1.1,y:yy,w:CW-1.3,h:1.0,valign:"middle",fontFace:F.body,fontSize:15,color:C.white});
   });
   logoTag(s,true);
-  notes(s,"Give them 3–4 minutes. Let people discuss in pairs — it cements learning. Then reveal the answer key.");
+  notes(s,"Keep it playful. Let people call out answers together. The goal is confidence, not testing.");
 
-  // ===================================================== SLIDE 21 — ANSWER KEY
-  s = pptx.addSlide(); bg(s, C.white);
-  title(s,"Day 1 — Quiz answer key");
-  const ans=[
-    ["RERA","RERA is the regulatory arm of DLD that licenses brokers."],
-    ["No","You must be sponsored/employed by a licensed brokerage — no freelance licence exists."],
-    ["Trakheesi permit number","Required on every single advertisement."],
-    ["Broker Registration Number","Your unique broker ID, quoted on deals & forms."],
-    ["Anti-Money Laundering","e.g. perform KYC / verify source of funds, or report suspicious deals via goAML to the FIU."]
-  ];
-  ans.forEach((a,i)=>{ const yy=1.9+i*0.98; card(s,M,yy,CW,0.84,C.cloud);
-    s.addImage({data:I.check.g,x:M+0.22,y:yy+0.22,w:0.4,h:0.4});
-    s.addText([{text:(i+1)+".  ",options:{bold:true,color:C.navy}},{text:a[0],options:{bold:true,color:C.green}},{text:"  —  "+a[1],options:{color:C.ink}}],
-      {x:M+0.85,y:yy,w:CW-1.05,h:0.84,valign:"middle",fontFace:F.body,fontSize:12.5,lineSpacingMultiple:1.02});
+  // ---- S13 ANSWER KEY ----
+  s = pptx.addSlide(); bg(s,C.white);
+  title(s,"Warm-up — answers");
+  const ans=[["Any two: tax-free income, safety & stability, a global hub, strong growth.",],
+    ["Roughly 6–8% a year (varies by property and area).",],
+    ["AED 2,000,000 in property value.",]];
+  ans.forEach((a,i)=>{ const yy=2.15+i*1.2; card(s,M,yy,CW,1.0,C.cloud);
+    s.addImage({data:I.check.g,x:M+0.25,y:yy+0.28,w:0.44,h:0.44});
+    s.addText([{text:"Q"+(i+1)+"   ",options:{bold:true,color:C.gold}},{text:a[0],options:{color:C.ink}}],{x:M+0.95,y:yy,w:CW-1.15,h:1.0,valign:"middle",fontFace:F.body,fontSize:14});
   });
-  notes(s,"Walk through each answer and expand with the rationale. If many missed one, re-teach that point briefly before moving to Day 2.");
+  s.addText("Nice work — that's Day 1. Tomorrow we make it real.",{x:M,y:6.4,w:CW,h:0.4,align:"center",fontFace:F.body,italic:true,fontSize:13,color:C.gold});
+  notes(s,"Celebrate. Everyone should get these — that's the point. End on energy and a look ahead to Day 2.");
 
   await pptx.writeFile({ fileName: "BridgesAllies_OffPlan_Training_Day1.pptx" });
-  console.log("WROTE BridgesAllies_OffPlan_Training_Day1.pptx — slides:", 21);
+  console.log("WROTE Day 1 (soft) — slides: 13");
 })().catch(e=>{ console.error("BUILD ERROR:", e); process.exit(1); });
