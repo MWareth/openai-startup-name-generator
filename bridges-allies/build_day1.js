@@ -37,7 +37,7 @@ const ICONSET = {
   const pptx = new pptxgen();
   pptx.defineLayout({ name:"W", width:13.333, height:7.5 });
   pptx.layout = "W";
-  pptx.author = "Bridges & Allies"; pptx.company = "Bridges & Allies";
+  pptx.author = "Bridges and Allies"; pptx.company = "Bridges and Allies";
 
   const M = 0.6, PW = 13.333, CW = PW - M*2;
 
