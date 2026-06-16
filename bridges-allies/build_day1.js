@@ -115,22 +115,20 @@ const ICONSET = { building:"FaBuilding", grad:"FaGraduationCap", users:"FaUsers"
   });
   notes(s,"Keep this conversational. These are the everyday reasons buyers from around the world choose Dubai — tax-free returns, safety, connectivity, and momentum. You'll repeat these to clients constantly.");
 
-  // ---- S6 THE MARKET IN NUMBERS ----
+  // ---- S6 THE SIZE OF THE OPPORTUNITY (evergreen) ----
   s = pptx.addSlide(); bg(s,C.white);
-  title(s,"The size of the opportunity","How much property changes hands in Dubai (verify weekly).");
-  const stats=[["AED 11.3B","in a single week","coins"],["AED 252B","in just 3 months (Q1 2026)","chart"],["AED 682.5B","in 2025 — a record year","building"]];
-  stats.forEach((st,i)=>{ const w=CW/3-0.2; const x=M+i*(CW/3); const yy=2.0;
-    card(s,x,yy,w,1.9);
-    circleIcon(s,x+0.3,yy+0.52,0.85,I[st[2]].w);
-    s.addText(st[0],{x:x+1.3,y:yy+0.4,w:w-1.5,h:0.55,fontFace:F.head,fontSize:22,bold:true,color:C.gold});
-    s.addText(st[1],{x:x+1.3,y:yy+1.0,w:w-1.5,h:0.6,fontFace:F.body,fontSize:12,color:C.ink,valign:"top"});
+  title(s,"The size of the opportunity","One of the busiest property markets on earth.");
+  const big=[["coins","Billions every week","Property worth billions of dirhams changes hands across Dubai — week after week."],
+    ["globe","A world of buyers","People from 200+ nationalities live here. Your clients can come from anywhere."],
+    ["building","Always building","New communities and landmark towers launch constantly — fresh homes to sell."],
+    ["chart","Long-term demand","Population and investment keep climbing, year after year."]];
+  big.forEach((b,i)=>{ const col=i%2,row=Math.floor(i/2); const w=(CW-0.4)/2; const x=M+col*(w+0.4); const yy=2.05+row*1.95;
+    card(s,x,yy,w,1.7,col?C.ice:C.cloud);
+    circleIcon(s,x+0.3,yy+0.4,0.9,I[b[0]].w);
+    s.addText(b[1],{x:x+1.4,y:yy+0.32,w:w-1.65,h:0.5,fontFace:F.head,fontSize:17,bold:true,color:C.navy});
+    s.addText(b[2],{x:x+1.4,y:yy+0.85,w:w-1.65,h:0.75,fontFace:F.body,fontSize:12.5,color:C.ink,valign:"top",lineSpacingMultiple:1.05});
   });
-  s.addText("Weekly sales (AED billions)",{x:M,y:4.15,w:CW,h:0.35,fontFace:F.body,fontSize:13,bold:true,color:C.navy});
-  s.addChart(pptx.ChartType.bar, [{name:"AED bn", labels:["wk-4","wk-3","wk-2","wk-1","this wk"], values:[10.0,14.7,15.2,21.0,11.3]}],
-    { x:M, y:4.5, w:CW, h:2.35, barDir:"col", chartColors:[C.gold], showLegend:false, showTitle:false, showValue:true,
-      dataLabelColor:C.ink, dataLabelFontFace:F.body, dataLabelFontSize:10, catAxisLabelColor:C.slate,
-      catAxisLabelFontFace:F.body, catAxisLabelFontSize:11, valAxisHidden:true, catGridLine:{style:"none"}, valGridLine:{style:"none"}, barGapWidthPct:55 });
-  notes(s,"Don't drown them in stats — just convey scale. Billions change hands every week; there is more than enough business for everyone. These figures move week to week, so re-check the latest before presenting.");
+  notes(s,"Convey scale without dated stats (this deck is reused for every new joiner). The message: the market is enormous, global, always producing new inventory, and growing long-term — there is more than enough business for everyone. If a trainer wants live figures, they can mention the latest weekly DLD number verbally, but keep the slides timeless.");
 
   // ---- S7 WHAT IT MEANS FOR YOUR CLIENT ----
   s = pptx.addSlide(); bg(s,C.white);
