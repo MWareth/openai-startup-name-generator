@@ -317,13 +317,14 @@ const DEFAULT_MENU=[
   {name:"Lazy Cake — Whole",price:175,cost:87},
   {name:"Carrot Cake — Mini",price:35,cost:0},
   {name:"Carrot Cake — Whole",price:180,cost:43},
-  {name:"Carrot Balls — 6 pcs",price:40,cost:4.20},
-  {name:"Carrot Balls — 8 pcs",price:55,cost:5.60},
-  {name:"Carrot Balls — 12 pcs",price:75,cost:8.40},
+  {name:"Carrot Balls — 6 pcs",price:40,cost:12.95},
+  {name:"Carrot Balls — 8 pcs",price:55,cost:17.25},
+  {name:"Carrot Balls — 12 pcs",price:75,cost:25.90},
   {name:"Crème Brûlée — Pack of 4",price:80,cost:25.40},
   {name:"Dee's Bundle (Tasting Box)",price:320,cost:33},
 ];
 const COST_BY_NAME=Object.fromEntries(DEFAULT_MENU.map(m=>[m.name,m.cost||0]));
+const COST_VERSION=2; // bump this whenever seeded costs change, to push them to the live menu
 
 const DEFAULT_ORDERS=[
   {id:'seed1', date:'2026-05-21', customer:'Wataryu Ito', platform:'Direct (WhatsApp/IG)', payment:'Paid',   discount:6.5, comm:0, delivery:0,  items:[{name:"Dee's Bundle (Tasting Box)",price:320}]},
@@ -373,13 +374,14 @@ async function startApp(){
       if(d.menu&&d.menu.length){
         menu=d.menu;
         let changed=false;
+        const bump=(d.costVersion||0)<COST_VERSION;
         menu.forEach(m=>{
-          if(m.cost===undefined||m.cost===null||m.cost===0){
+          if(bump||m.cost===undefined||m.cost===null||m.cost===0){
             const nc=COST_BY_NAME[m.name];
             if(nc!==undefined && nc!==m.cost){m.cost=nc;changed=true;}
           }
         });
-        if(changed)metaDoc.set({menu},{merge:true});
+        if(changed||bump)metaDoc.set({menu,costVersion:COST_VERSION},{merge:true});
       }
       contacts=d.contacts||[];
     }
