@@ -97,6 +97,13 @@
   .itemrow{border:1px dashed var(--line);border-radius:10px;padding:10px;margin-bottom:8px;background:#fffdf8}
   .itemgrid{display:grid;grid-template-columns:1fr 70px 96px;gap:8px;align-items:end}
   @media(max-width:520px){.itemgrid{grid-template-columns:1fr 60px 80px}}
+  .itemgrid4{display:grid;grid-template-columns:1fr 52px 78px 78px;gap:8px;align-items:end}
+  @media(max-width:520px){.itemgrid4{grid-template-columns:1fr 44px 1fr 1fr}}
+  .giftline{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:12px;color:var(--brown-soft);cursor:pointer}
+  .giftline input{width:auto}
+  .menurow{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:8px;margin-bottom:6px;align-items:center}
+  .menurow input{padding:8px 9px;border:1px solid var(--line);border-radius:8px;font:inherit;background:#fff;width:100%}
+  .menuhead{font-size:11px;font-weight:700;color:var(--brown-soft);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
   .calc{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;margin:6px 0 14px;font-size:13px}
   .calc .line{display:flex;justify-content:space-between;padding:3px 0}
   .calc .net{font-weight:700;color:var(--brown);border-top:1px solid var(--line);margin-top:5px;padding-top:7px;font-size:15px}
@@ -174,6 +181,7 @@
           <th>Item 3</th><th class="num">Price 3</th>
           <th class="num">Subtotal</th><th class="num">Disc %</th><th class="num">After Disc</th>
           <th class="num">Comm %</th><th class="num">Delivery</th><th class="num">Net Revenue</th>
+          <th class="num">Cost</th><th class="num">Net Profit</th>
           <th>Payment</th><th></th>
         </tr>
       </thead>
@@ -264,9 +272,10 @@
     <h2>Menu &amp; Prices</h2>
     <div class="hint" style="padding:0 0 10px">These feed the item dropdowns. Edit prices or add items.</div>
     <div id="menuList"></div>
-    <div class="grid3" style="margin-top:10px">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-top:10px;align-items:end">
       <div class="field" style="margin:0"><label>New item</label><input id="newItemName" placeholder="e.g. Brownies — 9 pcs"></div>
       <div class="field" style="margin:0"><label>Price</label><input type="number" id="newItemPrice" value="0"></div>
+      <div class="field" style="margin:0"><label>Cost</label><input type="number" id="newItemCost" value="0"></div>
     </div>
     <button class="btn-primary" style="background:var(--brown);color:var(--cream);margin-top:10px" onclick="addMenuItem()">Add to menu</button>
     <div class="modal-actions" style="margin-top:14px">
@@ -300,20 +309,21 @@ const MENU_KEY='deestreats_menu_v3';
 const CONTACTS_KEY='deestreats_contacts_v1';
 
 const DEFAULT_MENU=[
-  {name:"Pavlova — Mini",price:60},
-  {name:"Pavlova — Whole",price:260},
-  {name:"San Sebastian — Mini",price:35},
-  {name:"San Sebastian — Whole",price:280},
-  {name:"Lazy Cake — Mini",price:80},
-  {name:"Lazy Cake — Whole",price:175},
-  {name:"Carrot Cake — Mini",price:35},
-  {name:"Carrot Cake — Whole",price:180},
-  {name:"Carrot Balls — 6 pcs",price:40},
-  {name:"Carrot Balls — 8 pcs",price:55},
-  {name:"Carrot Balls — 12 pcs",price:75},
-  {name:"Crème Brûlée — Pack of 4",price:80},
-  {name:"Dee's Bundle (Tasting Box)",price:320},
+  {name:"Pavlova — Mini",price:60,cost:15.27},
+  {name:"Pavlova — Whole",price:260,cost:152.67},
+  {name:"San Sebastian — Mini",price:35,cost:5},
+  {name:"San Sebastian — Whole",price:280,cost:50},
+  {name:"Lazy Cake — Mini",price:80,cost:0},
+  {name:"Lazy Cake — Whole",price:175,cost:87},
+  {name:"Carrot Cake — Mini",price:35,cost:0},
+  {name:"Carrot Cake — Whole",price:180,cost:43},
+  {name:"Carrot Balls — 6 pcs",price:40,cost:0},
+  {name:"Carrot Balls — 8 pcs",price:55,cost:0},
+  {name:"Carrot Balls — 12 pcs",price:75,cost:0},
+  {name:"Crème Brûlée — Pack of 4",price:80,cost:25.40},
+  {name:"Dee's Bundle (Tasting Box)",price:320,cost:33},
 ];
+const COST_BY_NAME=Object.fromEntries(DEFAULT_MENU.map(m=>[m.name,m.cost||0]));
 
 const DEFAULT_ORDERS=[
   {id:'seed1', date:'2026-05-21', customer:'Wataryu Ito', platform:'Direct (WhatsApp/IG)', payment:'Paid',   discount:6.5, comm:0, delivery:0,  items:[{name:"Dee's Bundle (Tasting Box)",price:320}]},
@@ -357,7 +367,18 @@ auth.onAuthStateChanged(user=>{
 
 async function startApp(){
   await migrateLocal();
-  metaDoc.onSnapshot(snap=>{ if(snap.exists){const d=snap.data(); if(d.menu&&d.menu.length)menu=d.menu; contacts=d.contacts||[];} });
+  metaDoc.onSnapshot(snap=>{
+    if(snap.exists){
+      const d=snap.data();
+      if(d.menu&&d.menu.length){
+        menu=d.menu;
+        let changed=false;
+        menu.forEach(m=>{if(m.cost===undefined||m.cost===null){m.cost=COST_BY_NAME[m.name]||0;changed=true;}});
+        if(changed)metaDoc.set({menu},{merge:true});
+      }
+      contacts=d.contacts||[];
+    }
+  });
   ordersCol.onSnapshot(snap=>{ orders=snap.docs.map(d=>d.data()); render(); });
 }
 
@@ -400,11 +421,14 @@ function logoFallback(img){
    delivery      = its own column / total
 */
 function computed(o){
-  const subtotal=(o.items||[]).reduce((s,it)=>s+(+it.price||0)*(+it.qty||1),0);
+  const items=o.items||[];
+  const subtotal=items.reduce((s,it)=>s+(it.gift?0:(+it.price||0)*(+it.qty||1)),0);
+  const cost=items.reduce((s,it)=>s+(+it.cost||0)*(+it.qty||1),0);
   const afterDiscount=subtotal*(1-(+o.discount||0)/100);
   const commission=afterDiscount*((+o.comm||0)/100);
   const net=afterDiscount-commission;
-  return {subtotal,afterDiscount,commission,delivery:+o.delivery||0,net};
+  const profit=net-cost;
+  return {subtotal,afterDiscount,commission,delivery:+o.delivery||0,net,cost,profit};
 }
 
 /* ---------- Months ---------- */
@@ -429,7 +453,8 @@ function rowHtml(o,i,c){
     const x=it[n];
     if(!x)return `<td class="muted">—</td><td class="num muted">—</td>`;
     const q=+x.qty||1, line=(+x.price||0)*q;
-    return `<td class="item">${q>1?'<b>'+q+'×</b> ':''}${esc(x.name)}</td><td class="num price">${line?AED(line):'—'}</td>`;
+    const priceCell=x.gift?'<td class="num" style="color:var(--blue)">🎁 Gift</td>':`<td class="num price">${line?AED(line):'—'}</td>`;
+    return `<td class="item">${q>1?'<b>'+q+'×</b> ':''}${esc(x.name)}${x.gift?' 🎁':''}</td>${priceCell}`;
   };
   return `<tr ondblclick="openForm('${o.id}')">
     <td>${i}</td>
@@ -444,6 +469,8 @@ function rowHtml(o,i,c){
     <td class="num">${o.comm?o.comm+'%':'—'}</td>
     <td class="num delivery">${c.delivery?AED(c.delivery):'—'}</td>
     <td class="num">${AED(c.net)}</td>
+    <td class="num">${c.cost?'− '+AED(c.cost):'—'}</td>
+    <td class="num" style="font-weight:700;color:${c.profit>=0?'var(--green)':'var(--red)'}">${AED(c.profit)}</td>
     <td class="pay ${o.payment}">${o.payment||''}</td>
     <td class="rowact"><button onclick="event.stopPropagation();openForm('${o.id}')">✏️</button></td>
   </tr>`;
@@ -454,24 +481,24 @@ function render(){
   const all=sortedOrders();
   const list=monthFilter==='all'?all:all.filter(o=>monthKey(o.date)===monthFilter);
   if(!list.length){
-    tb.innerHTML=`<tr><td colspan="19" class="empty">No orders ${monthFilter==='all'?'yet. Click <b>+ Add Order</b> to log your first one.':'in this month.'}</td></tr>`;
+    tb.innerHTML=`<tr><td colspan="21" class="empty">No orders ${monthFilter==='all'?'yet. Click <b>+ Add Order</b> to log your first one.':'in this month.'}</td></tr>`;
     document.getElementById('foot').innerHTML='';
-    renderStats({subtotal:0,afterDiscount:0,delivery:0,net:0,count:0});
+    renderStats({subtotal:0,afterDiscount:0,delivery:0,net:0,cost:0,profit:0,count:0});
     return;
   }
-  const T={subtotal:0,afterDiscount:0,delivery:0,net:0};
+  const T={subtotal:0,afterDiscount:0,delivery:0,net:0,cost:0,profit:0};
   let html='',curMonth=null,m=null,i=0;
-  const flush=()=>{ if(m) html+=`<tr class="monthsub"><td colspan="19">↳ ${esc(m.label)} subtotal — ${m.count} orders · Net ${AED(m.net)} · Delivery (separate) ${AED(m.delivery)}</td></tr>`; };
+  const flush=()=>{ if(m) html+=`<tr class="monthsub"><td colspan="21">↳ ${esc(m.label)} subtotal — ${m.count} orders · Net ${AED(m.net)} · Profit ${AED(m.profit)} · Delivery (separate) ${AED(m.delivery)}</td></tr>`; };
   list.forEach(o=>{
     const mk=monthKey(o.date);
     if(monthFilter==='all' && mk!==curMonth){
       flush();
-      curMonth=mk; m={label:monthLabel(mk),net:0,delivery:0,count:0};
-      html+=`<tr class="monthhead"><td colspan="19">📅 ${esc(monthLabel(mk))}</td></tr>`;
+      curMonth=mk; m={label:monthLabel(mk),net:0,delivery:0,profit:0,count:0};
+      html+=`<tr class="monthhead"><td colspan="21">📅 ${esc(monthLabel(mk))}</td></tr>`;
     }
     const c=computed(o);
-    T.subtotal+=c.subtotal;T.afterDiscount+=c.afterDiscount;T.delivery+=c.delivery;T.net+=c.net;
-    if(m){m.net+=c.net;m.delivery+=c.delivery;m.count++;}
+    T.subtotal+=c.subtotal;T.afterDiscount+=c.afterDiscount;T.delivery+=c.delivery;T.net+=c.net;T.cost+=c.cost;T.profit+=c.profit;
+    if(m){m.net+=c.net;m.delivery+=c.delivery;m.profit+=c.profit;m.count++;}
     html+=rowHtml(o,++i,c);
   });
   if(monthFilter==='all') flush();
@@ -481,15 +508,19 @@ function render(){
     <td class="num">${AED(T.subtotal)}</td><td></td>
     <td class="num">${AED(T.afterDiscount)}</td><td></td>
     <td class="num">${AED(T.delivery)}</td>
-    <td class="num">${AED(T.net)}</td><td colspan="2"></td>
+    <td class="num">${AED(T.net)}</td>
+    <td class="num">− ${AED(T.cost)}</td>
+    <td class="num">${AED(T.profit)}</td><td colspan="2"></td>
   </tr>`;
   renderStats({...T,count:list.length});
 }
 function renderStats(T){
+  const profit=T.profit||0;
   document.getElementById('stats').innerHTML=`
+    <div class="stat"><div class="label">Net Profit</div><div class="value" style="color:${profit>=0?'var(--green)':'var(--red)'}">${AED(profit)}</div></div>
     <div class="stat"><div class="label">Net Revenue</div><div class="value">${AED(T.net)}</div></div>
+    <div class="stat"><div class="label">Total Cost</div><div class="value muted" style="color:var(--red)">${AED(T.cost||0)}</div></div>
     <div class="stat"><div class="label">Delivery (separate)</div><div class="value muted" style="color:var(--blue)">${AED(T.delivery)}</div></div>
-    <div class="stat"><div class="label">Net after delivery absorbed</div><div class="value muted">${AED(T.net-T.delivery)}</div></div>
     <div class="stat"><div class="label">Orders</div><div class="value">${T.count}</div></div>`;
 }
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -522,7 +553,7 @@ function buildItemRows(items){
   let html='';
   for(let i=0;i<3;i++){
     const cur=items[i];
-    html+=`<div class="itemrow"><div class="itemgrid">
+    html+=`<div class="itemrow"><div class="itemgrid4">
       <div class="field" style="margin:0"><label>Item ${i+1}${i===0?' <span style="color:var(--red)">*</span>':''}</label>
         <select id="item${i}" onchange="itemPicked(${i})">
           <option value="">— none —</option>
@@ -532,14 +563,18 @@ function buildItemRows(items){
         <input type="number" id="qty${i}" value="${cur?cur.qty||1:1}" min="1" step="1" oninput="recalc()"></div>
       <div class="field" style="margin:0"><label>Unit price</label>
         <input type="number" id="price${i}" value="${cur?cur.price:0}" min="0" oninput="recalc()"></div>
-    </div></div>`;
+      <div class="field" style="margin:0"><label>Unit cost</label>
+        <input type="number" id="cost${i}" value="${cur?(cur.cost||0):0}" min="0" step="0.01" oninput="recalc()"></div>
+    </div>
+      <label class="giftline"><input type="checkbox" id="gift${i}" ${cur&&cur.gift?'checked':''} onchange="recalc()"> 🎁 Gift — customer pays 0, cost still counts</label>
+    </div>`;
   }
   document.getElementById('itemRows').innerHTML=html;
 }
 function itemPicked(i){
   const name=document.getElementById('item'+i).value;
   const m=menu.find(x=>x.name===name);
-  if(m)document.getElementById('price'+i).value=m.price;
+  if(m){document.getElementById('price'+i).value=m.price;document.getElementById('cost'+i).value=(m.cost!=null?m.cost:0);}
   recalc();
 }
 function platformChanged(){
@@ -552,7 +587,7 @@ function collectForm(){
   const items=[];
   for(let i=0;i<3;i++){
     const name=document.getElementById('item'+i).value;
-    if(name)items.push({name,price:+document.getElementById('price'+i).value||0,qty:Math.max(1,+document.getElementById('qty'+i).value||1)});
+    if(name)items.push({name,price:+document.getElementById('price'+i).value||0,qty:Math.max(1,+document.getElementById('qty'+i).value||1),cost:+document.getElementById('cost'+i).value||0,gift:document.getElementById('gift'+i).checked});
   }
   return {
     date:document.getElementById('f_date').value,
@@ -573,7 +608,9 @@ function recalc(){
     <div class="line"><span>Subtotal</span><span>${AED(c.subtotal)}</span></div>
     <div class="line"><span>After discount</span><span>${AED(c.afterDiscount)}</span></div>
     <div class="line"><span>Platform commission</span><span>− ${AED(c.commission)}</span></div>
-    <div class="line net"><span>Net Revenue</span><span>${AED(c.net)}</span></div>
+    <div class="line"><span>Net Revenue</span><span>${AED(c.net)}</span></div>
+    <div class="line"><span>Ingredient cost (incl. gifts)</span><span>− ${AED(c.cost)}</span></div>
+    <div class="line net"><span>Net Profit</span><span>${AED(c.profit)}</span></div>
     <div class="line sep"><span>Delivery (separate, not deducted)</span><span>${AED(c.delivery)}</span></div>`;
 }
 function saveOrder(){
@@ -642,29 +679,32 @@ function deleteCurrent(){
 function openMenu(){renderMenu();document.getElementById('menuOverlay').classList.add('open')}
 function closeMenu(){document.getElementById('menuOverlay').classList.remove('open');render()}
 function renderMenu(){
-  document.getElementById('menuList').innerHTML=menu.map((m,i)=>`
-    <div class="grid3" style="margin-bottom:6px">
+  document.getElementById('menuList').innerHTML=
+    `<div class="menurow menuhead"><span>Item</span><span>Price</span><span>Cost</span><span></span></div>`+
+    menu.map((m,i)=>`
+    <div class="menurow">
       <input value="${esc(m.name)}" onchange="menu[${i}].name=this.value;save()">
       <input type="number" value="${m.price}" onchange="menu[${i}].price=+this.value||0;save()">
+      <input type="number" step="0.01" value="${m.cost!=null?m.cost:0}" onchange="menu[${i}].cost=+this.value||0;save()">
       <button class="btn-danger" style="padding:6px" onclick="menu.splice(${i},1);save();renderMenu()">✕</button>
     </div>`).join('');
 }
 function addMenuItem(){
   const n=document.getElementById('newItemName').value.trim();
   if(!n)return;
-  menu.push({name:n,price:+document.getElementById('newItemPrice').value||0});
-  document.getElementById('newItemName').value='';document.getElementById('newItemPrice').value=0;
+  menu.push({name:n,price:+document.getElementById('newItemPrice').value||0,cost:+document.getElementById('newItemCost').value||0});
+  document.getElementById('newItemName').value='';document.getElementById('newItemPrice').value=0;document.getElementById('newItemCost').value=0;
   save();renderMenu();
 }
 
 /* ---------- CSV ---------- */
 function exportCSV(){
-  const head=['Order #','Date','Customer','Phone','Address','Platform','Item 1','Qty 1','Price 1','Item 2','Qty 2','Price 2','Item 3','Qty 3','Price 3','Subtotal','Discount %','After Discount','Platform Comm %','Delivery Fee','Net Revenue','Payment'];
+  const head=['Order #','Date','Customer','Phone','Address','Platform','Item 1','Qty 1','Price 1','Item 2','Qty 2','Price 2','Item 3','Qty 3','Price 3','Subtotal','Discount %','After Discount','Platform Comm %','Delivery Fee','Net Revenue','Total Cost','Net Profit','Payment'];
   const rows=orders.map((o,i)=>{
     const c=computed(o);const it=o.items||[];
     const cell=n=>[it[n]?it[n].name:'',it[n]?(it[n].qty||1):'',it[n]?it[n].price:''];
     return [i+1,o.date,o.customer,o.phone||'',o.address||'',o.platform,...cell(0),...cell(1),...cell(2),
-      c.subtotal,o.discount,r2(c.afterDiscount),o.comm,c.delivery,r2(c.net),o.payment];
+      c.subtotal,o.discount,r2(c.afterDiscount),o.comm,c.delivery,r2(c.net),r2(c.cost),r2(c.profit),o.payment];
   });
   const csv=[head,...rows].map(r=>r.map(csvCell).join(',')).join('\n');
   const blob=new Blob([csv],{type:'text/csv'});
