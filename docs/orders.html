@@ -317,9 +317,9 @@ const DEFAULT_MENU=[
   {name:"Lazy Cake — Whole",price:175,cost:87},
   {name:"Carrot Cake — Mini",price:35,cost:0},
   {name:"Carrot Cake — Whole",price:180,cost:43},
-  {name:"Carrot Balls — 6 pcs",price:40,cost:0},
-  {name:"Carrot Balls — 8 pcs",price:55,cost:0},
-  {name:"Carrot Balls — 12 pcs",price:75,cost:0},
+  {name:"Carrot Balls — 6 pcs",price:40,cost:4.20},
+  {name:"Carrot Balls — 8 pcs",price:55,cost:5.60},
+  {name:"Carrot Balls — 12 pcs",price:75,cost:8.40},
   {name:"Crème Brûlée — Pack of 4",price:80,cost:25.40},
   {name:"Dee's Bundle (Tasting Box)",price:320,cost:33},
 ];
@@ -373,7 +373,12 @@ async function startApp(){
       if(d.menu&&d.menu.length){
         menu=d.menu;
         let changed=false;
-        menu.forEach(m=>{if(m.cost===undefined||m.cost===null){m.cost=COST_BY_NAME[m.name]||0;changed=true;}});
+        menu.forEach(m=>{
+          if(m.cost===undefined||m.cost===null||m.cost===0){
+            const nc=COST_BY_NAME[m.name];
+            if(nc!==undefined && nc!==m.cost){m.cost=nc;changed=true;}
+          }
+        });
         if(changed)metaDoc.set({menu},{merge:true});
       }
       contacts=d.contacts||[];
