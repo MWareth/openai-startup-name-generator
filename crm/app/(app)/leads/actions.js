@@ -177,42 +177,32 @@ export async function logDeal(formData) {
   revalidatePath('/dashboard');
 }
 
-// On-demand translation of a note to English (uses Claude — cheap + fast).
-// Returns { text } on success or { error } if not configured / failed.
+// On-demand translation of a note to English using Google Translate's free
+// endpoint (no API key, no cost). Auto-detects the source language.
+// Returns { text } on success or { error } on failure.
 export async function translateToEnglish(text) {
   await requireUser();
-  const key = process.env.ANTHROPIC_API_KEY;
-  if (!key) return { error: 'Translation isn’t set up yet (missing ANTHROPIC_API_KEY).' };
   const clean = String(text || '').trim();
   if (!clean) return { text: '' };
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 1000,
-        messages: [
-          {
-            role: 'user',
-            content:
-              'Translate this real-estate CRM note to English. If it is already English, return it unchanged. Reply with ONLY the translation — no preamble, no quotes.\n\n---\n' +
-              clean,
-          },
-        ],
-      }),
+    const url =
+      'https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=' +
+      encodeURIComponent(clean);
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      cache: 'no-store',
     });
-    if (!res.ok) return { error: `Translation failed (${res.status}).` };
+    if (!res.ok) return { error: `Translation unavailable (${res.status}). Try again.` };
     const data = await res.json();
-    const out = data?.content?.[0]?.text?.trim();
-    return { text: out || '(no translation returned)' };
+    // Response shape: [[[ "translated chunk", "source chunk", ... ], ...], ...]
+    if (Array.isArray(data) && Array.isArray(data[0])) {
+      const out = data[0].map((seg) => (seg && seg[0] ? seg[0] : '')).join('').trim();
+      if (out) return { text: out };
+    }
+    return { error: 'Could not translate this note.' };
   } catch (e) {
-    return { error: 'Translation request failed.' };
+    return { error: 'Translation request failed. Try again.' };
   }
 }
 
