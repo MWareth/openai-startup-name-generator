@@ -11,14 +11,36 @@ export async function createLead(formData) {
   const name = String(formData.get('name') || '').trim();
   if (!name) redirect('/leads/new?error=' + encodeURIComponent('Name is required'));
 
+  const phone = emptyToNull(formData.get('phone'));
+  const email = emptyToNull(formData.get('email'));
+
+  // Reject duplicates. Checks ALL leads (even those owned by other agents) via
+  // a security-definer function, and reports who the existing one belongs to.
+  if (phone || email) {
+    const { data: dupes } = await supabase.rpc('find_duplicate_lead', {
+      p_phone: phone,
+      p_email: email,
+    });
+    const dup = Array.isArray(dupes) ? dupes[0] : dupes;
+    if (dup) {
+      const who = dup.assigned_to || 'Unassigned';
+      redirect(
+        '/leads/new?error=' +
+          encodeURIComponent(
+            `Duplicate: this ${dup.match_on} already belongs to lead "${dup.lead_name}", assigned to ${who}. Lead not added.`
+          )
+      );
+    }
+  }
+
   const budgetRaw = String(formData.get('budget') || '').trim();
 
   const { data, error } = await supabase
     .from('leads')
     .insert({
       name,
-      phone: emptyToNull(formData.get('phone')),
-      email: emptyToNull(formData.get('email')),
+      phone,
+      email,
       source: emptyToNull(formData.get('source')),
       property_interest: emptyToNull(formData.get('property_interest')),
       budget: budgetRaw ? Number(budgetRaw) : null,
