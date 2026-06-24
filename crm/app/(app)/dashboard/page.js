@@ -120,10 +120,21 @@ export default async function Dashboard() {
 async function AdminDashboard({ supabase, name }) {
   const { count: leadCount } = await supabase.from('leads').select('id', { count: 'exact', head: true });
   const { count: agentCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'agent');
-  const { data: deals } = await supabase.from('deals').select('deal_value, company_commission, agent_commission');
+  const { data: deals } = await supabase.from('deals').select('deal_value, company_commission, agent_commission, closed_on');
 
   const totalValue = (deals || []).reduce((s, d) => s + Number(d.deal_value || 0), 0);
   const companyCommission = (deals || []).reduce((s, d) => s + Number(d.company_commission || 0), 0);
+
+  // Sales value by quarter for the current year.
+  const year = new Date().getFullYear();
+  const quarters = [0, 0, 0, 0];
+  for (const d of deals || []) {
+    if (!d.closed_on) continue;
+    const dt = new Date(d.closed_on);
+    if (dt.getFullYear() !== year) continue;
+    quarters[Math.floor(dt.getMonth() / 3)] += Number(d.deal_value || 0);
+  }
+  const yearTotal = quarters.reduce((s, v) => s + v, 0);
 
   const { data: suggested } = await supabase
     .from('leads')
@@ -138,8 +149,27 @@ async function AdminDashboard({ supabase, name }) {
         <div className="card stat"><span className="muted small">Agents</span><span className="value">{agentCount ?? 0}</span></div>
         <div className="card stat"><span className="muted small">Leads</span><span className="value">{leadCount ?? 0}</span></div>
         <div className="card stat"><span className="muted small">Deals closed</span><span className="value">{deals?.length ?? 0}</span></div>
-        <div className="card stat"><span className="muted small">Total sales value</span><span className="value">{aed(totalValue)}</span></div>
+        <div className="card stat"><span className="muted small">Total sales value (all-time)</span><span className="value">{aed(totalValue)}</span></div>
         <div className="card stat"><span className="muted small">Company commission</span><span className="value">{aed(companyCommission)}</span></div>
+      </div>
+
+      <div className="card">
+        <div className="spread">
+          <h3>Sales value by quarter — {year}</h3>
+          <span className="small muted">Year total: <strong style={{ color: 'var(--text)' }}>{aed(yearTotal)}</strong></span>
+        </div>
+        <div className="grid grid-3" style={{ marginTop: 8 }}>
+          {['Q1 (Jan–Mar)', 'Q2 (Apr–Jun)', 'Q3 (Jul–Sep)', 'Q4 (Oct–Dec)'].map((label, i) => (
+            <div key={label} className="card stat" style={{ background: 'var(--panel-2)', boxShadow: 'none' }}>
+              <span className="muted small">{label}</span>
+              <span className="value" style={{ fontSize: '1.25rem' }}>{aed(quarters[i])}</span>
+            </div>
+          ))}
+          <div className="card stat" style={{ background: 'var(--brand)' }}>
+            <span className="small" style={{ color: 'rgba(255,255,255,0.7)' }}>Total {year}</span>
+            <span className="value" style={{ fontSize: '1.25rem', color: '#fff' }}>{aed(yearTotal)}</span>
+          </div>
+        </div>
       </div>
 
       <div className="card">
