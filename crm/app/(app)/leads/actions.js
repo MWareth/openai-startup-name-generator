@@ -35,22 +35,24 @@ export async function createLead(formData) {
 
   const budgetRaw = String(formData.get('budget') || '').trim();
 
-  const { data, error } = await supabase
-    .from('leads')
-    .insert({
-      name,
-      phone,
-      email,
-      source: emptyToNull(formData.get('source')),
-      property_interest: emptyToNull(formData.get('property_interest')),
-      budget: budgetRaw ? Number(budgetRaw) : null,
-      qualification: String(formData.get('qualification') || 'warm'),
-      status: String(formData.get('status') || 'new'),
-      assigned_agent_id: user.id,
-      created_by: user.id,
-    })
-    .select('id')
-    .single();
+  const insert = {
+    name,
+    phone,
+    email,
+    source: emptyToNull(formData.get('source')),
+    property_interest: emptyToNull(formData.get('property_interest')),
+    budget: budgetRaw ? Number(budgetRaw) : null,
+    qualification: String(formData.get('qualification') || 'warm'),
+    status: String(formData.get('status') || 'new'),
+    assigned_agent_id: user.id,
+    created_by: user.id,
+  };
+  // Only include property_type when chosen, so lead creation still works even
+  // before the property_type column migration (0005) is applied.
+  const ptype = emptyToNull(formData.get('property_type'));
+  if (ptype) insert.property_type = ptype;
+
+  const { data, error } = await supabase.from('leads').insert(insert).select('id').single();
 
   if (error) redirect('/leads/new?error=' + encodeURIComponent(error.message));
 
@@ -101,6 +103,8 @@ export async function updateLead(formData) {
   const patch = {};
   if (formData.get('qualification')) patch.qualification = String(formData.get('qualification'));
   if (formData.get('status')) patch.status = String(formData.get('status'));
+  const pType = emptyToNull(formData.get('property_type'));
+  if (pType) patch.property_type = pType; // only when chosen (safe pre-migration 0005)
 
   const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));

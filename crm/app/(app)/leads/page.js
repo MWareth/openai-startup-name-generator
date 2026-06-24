@@ -1,19 +1,64 @@
 import Link from 'next/link';
 import { requireUser, hasAdminAccess } from '@/lib/auth';
 import { QUAL_LABELS, STATUS_LABELS, formatDate } from '@/lib/format';
+import LeadFilters from '@/components/LeadFilters';
 
 export const dynamic = 'force-dynamic';
 
-export default async function LeadsPage() {
+export default async function LeadsPage({ searchParams }) {
   const { profile, supabase } = await requireUser();
   const isAdmin = hasAdminAccess(profile);
 
-  const { data: leads } = await supabase
+  const values = {
+    agent: searchParams?.agent || '',
+    type: searchParams?.type || '',
+    qual: searchParams?.qual || '',
+    status: searchParams?.status || '',
+    budget: searchParams?.budget || '',
+    sort: searchParams?.sort || 'recent',
+  };
+
+  // Agents (and the selling owner) for the Agent filter dropdown.
+  const { data: agents } = await supabase
+    .from('profiles')
+    .select('id, full_name')
+    .in('role', ['agent', 'admin'])
+    .order('full_name');
+
+  let q = supabase
     .from('leads')
     .select(
       '*, assigned:profiles!leads_assigned_agent_id_fkey(full_name), suggested:profiles!leads_suggested_agent_id_fkey(full_name)'
-    )
-    .order('updated_at', { ascending: false });
+    );
+
+  if (values.agent) q = q.eq('assigned_agent_id', values.agent);
+  if (values.type) q = q.eq('property_type', values.type);
+  if (values.qual) q = q.eq('qualification', values.qual);
+  if (values.status) q = q.eq('status', values.status);
+
+  if (values.budget === 'lt1m') q = q.lt('budget', 1000000);
+  else if (values.budget === '1-2m') q = q.gte('budget', 1000000).lt('budget', 2000000);
+  else if (values.budget === '2-5m') q = q.gte('budget', 2000000).lt('budget', 5000000);
+  else if (values.budget === '5m+') q = q.gte('budget', 5000000);
+
+  switch (values.sort) {
+    case 'new':
+      q = q.order('created_at', { ascending: false });
+      break;
+    case 'old':
+      q = q.order('created_at', { ascending: true });
+      break;
+    case 'budget_high':
+      q = q.order('budget', { ascending: false, nullsFirst: false });
+      break;
+    case 'budget_low':
+      q = q.order('budget', { ascending: true, nullsFirst: false });
+      break;
+    default:
+      q = q.order('updated_at', { ascending: false });
+  }
+
+  const { data: leads } = await q;
 
   return (
     <div className="stack">
@@ -25,6 +70,8 @@ export default async function LeadsPage() {
         <Link className="btn" href="/leads/new">+ New lead</Link>
       </div>
 
+      <LeadFilters agents={agents || []} values={values} />
+
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         {leads && leads.length ? (
           <table>
@@ -33,9 +80,9 @@ export default async function LeadsPage() {
                 <th>Name</th>
                 <th>Qual</th>
                 <th>Status</th>
+                <th>Type</th>
                 <th>Property / Budget</th>
                 {isAdmin ? <th>Assigned</th> : null}
-                <th>Suggested</th>
                 <th>Updated</th>
               </tr>
             </thead>
@@ -48,12 +95,12 @@ export default async function LeadsPage() {
                   </td>
                   <td><span className={`badge ${l.qualification}`}>{QUAL_LABELS[l.qualification]}</span></td>
                   <td><span className={`badge ${l.status === 'won' ? 'won' : l.status === 'lost' ? 'lost' : 'status'}`}>{STATUS_LABELS[l.status]}</span></td>
+                  <td className="small">{l.property_type || <span className="muted">—</span>}</td>
                   <td className="small">
                     {l.property_interest || <span className="muted">—</span>}
                     {l.budget ? <div className="muted">AED {Number(l.budget).toLocaleString()}</div> : null}
                   </td>
                   {isAdmin ? <td className="small">{l.assigned?.full_name || <span className="muted">Unassigned</span>}</td> : null}
-                  <td className="small">{l.suggested?.full_name ? <span className="badge role">→ {l.suggested.full_name}</span> : <span className="muted">—</span>}</td>
                   <td className="small muted">{formatDate(l.updated_at)}</td>
                 </tr>
               ))}
@@ -61,7 +108,8 @@ export default async function LeadsPage() {
           </table>
         ) : (
           <div style={{ padding: 24 }} className="muted">
-            No leads yet. <Link href="/leads/new">Add your first lead</Link>.
+            No leads match these filters. <Link href="/leads">Clear filters</Link> or{' '}
+            <Link href="/leads/new">add a lead</Link>.
           </div>
         )}
       </div>

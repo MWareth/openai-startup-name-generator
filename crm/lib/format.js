@@ -41,6 +41,17 @@ export const ACTIVITY_LABELS = {
 
 export const QUAL_LABELS = { hot: 'Hot', warm: 'Warm', cold: 'Cold' };
 
+// Property types (used in the New Lead form and the leads filter bar).
+export const PROPERTY_TYPES = [
+  'Apartment',
+  'Villa',
+  'Townhouse',
+  'Penthouse',
+  'Plot / Land',
+  'Office / Commercial',
+  'Other',
+];
+
 export const SENIORITY_LABELS = {
   junior: 'Junior (50/50)',
   senior: 'Senior (55/45)',

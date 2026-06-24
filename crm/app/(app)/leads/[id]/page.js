@@ -8,6 +8,7 @@ import {
   formatDate,
   aed,
   waLink,
+  PROPERTY_TYPES,
 } from '@/lib/format';
 import { addActivity, updateLead, suggestReassign, logDeal, setFollowUp } from '../actions';
 import DictateField from '@/components/DictateField';
@@ -77,6 +78,7 @@ export default async function LeadDetail({ params, searchParams }) {
               <div><span className="muted">Email:</span> {lead.email || '—'}</div>
               <div><span className="muted">Source:</span> {lead.source || '—'}</div>
               <div><span className="muted">Interest:</span> {lead.property_interest || '—'}</div>
+              <div><span className="muted">Type:</span> {lead.property_type || '—'}</div>
               <div><span className="muted">Budget:</span> {lead.budget ? aed(lead.budget) : '—'}</div>
               <div><span className="muted">Assigned:</span> {lead.assigned?.full_name || 'Unassigned'}</div>
             </div>
@@ -131,6 +133,15 @@ export default async function LeadDetail({ params, searchParams }) {
                     ))}
                   </select>
                 </div>
+              </div>
+              <div className="field">
+                <label>Property type</label>
+                <select name="property_type" defaultValue={lead.property_type || ''}>
+                  <option value="">— Select —</option>
+                  {PROPERTY_TYPES.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
               </div>
               <button className="btn secondary small" type="submit">Update</button>
             </form>

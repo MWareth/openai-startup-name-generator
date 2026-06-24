@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { requireUser } from '@/lib/auth';
+import { PROPERTY_TYPES } from '@/lib/format';
 import { createLead } from '../actions';
 
 export const dynamic = 'force-dynamic';
@@ -41,9 +42,20 @@ export default async function NewLeadPage({ searchParams }) {
             <input id="budget" name="budget" type="number" min="0" step="1000" />
           </div>
         </div>
-        <div className="field">
-          <label htmlFor="property_interest">Property interest</label>
-          <input id="property_interest" name="property_interest" placeholder="2BR Marina, villa in Arabian Ranches…" />
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor="property_interest">Property interest</label>
+            <input id="property_interest" name="property_interest" placeholder="2BR Marina, South Square…" />
+          </div>
+          <div className="field">
+            <label htmlFor="property_type">Property type</label>
+            <select id="property_type" name="property_type" defaultValue="">
+              <option value="">— Select —</option>
+              {PROPERTY_TYPES.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="form-grid">
           <div className="field">
