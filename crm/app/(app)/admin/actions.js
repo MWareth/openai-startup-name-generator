@@ -152,6 +152,63 @@ export async function deleteLaunch(formData) {
   back('Launch removed', true);
 }
 
+export async function createProject(formData) {
+  const { user, supabase } = await requireAdmin();
+  const name = String(formData.get('name') || '').trim();
+  if (!name) back('Project name is required');
+  const priceRaw = String(formData.get('starting_price') || '').trim();
+  const { error } = await supabase.from('projects').insert({
+    name,
+    developer: emptyToNull(formData.get('developer')),
+    area: emptyToNull(formData.get('area')),
+    status: String(formData.get('status') || 'Off-plan'),
+    handover: emptyToNull(formData.get('handover')),
+    starting_price: priceRaw ? Number(priceRaw) : null,
+    payment_plan: emptyToNull(formData.get('payment_plan')),
+    description: emptyToNull(formData.get('description')),
+    brochure_url: emptyToNull(formData.get('brochure_url')),
+    image_url: emptyToNull(formData.get('image_url')),
+    created_by: user.id,
+  });
+  if (error) back(error.message);
+  revalidatePath(ADMIN);
+  revalidatePath('/projects');
+  back('Project added', true);
+}
+
+export async function deleteProject(formData) {
+  const { supabase } = await requireAdmin();
+  const { error } = await supabase.from('projects').delete().eq('id', String(formData.get('project_id')));
+  if (error) back(error.message);
+  revalidatePath(ADMIN);
+  revalidatePath('/projects');
+  back('Project removed', true);
+}
+
+export async function createDeveloper(formData) {
+  const { supabase } = await requireAdmin();
+  const name = String(formData.get('name') || '').trim();
+  if (!name) back('Developer name is required');
+  const { error } = await supabase.from('developers').insert({
+    name,
+    about: emptyToNull(formData.get('about')),
+    website: emptyToNull(formData.get('website')),
+  });
+  if (error) back(error.message);
+  revalidatePath(ADMIN);
+  revalidatePath('/projects');
+  back('Developer added', true);
+}
+
+export async function deleteDeveloper(formData) {
+  const { supabase } = await requireAdmin();
+  const { error } = await supabase.from('developers').delete().eq('id', String(formData.get('developer_id')));
+  if (error) back(error.message);
+  revalidatePath(ADMIN);
+  revalidatePath('/projects');
+  back('Developer removed', true);
+}
+
 export async function createEmbed(formData) {
   const { user, supabase } = await requireAdmin();
   let url = String(formData.get('embed_url') || '').trim();
