@@ -1,5 +1,6 @@
 import { requireUser } from '@/lib/auth';
 import { aed, SENIORITY_LABELS } from '@/lib/format';
+import Avatar from '@/components/Avatar';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,8 +41,11 @@ export default async function LeaderboardPage() {
                   <tr key={r.agent_id} style={isMe ? { background: 'var(--panel-2)' } : undefined}>
                     <td style={{ fontWeight: 700 }}>{MEDALS[i] || i + 1}</td>
                     <td>
-                      {r.full_name || '—'}
-                      {isMe ? <span className="badge role" style={{ marginLeft: 6 }}>You</span> : null}
+                      <span className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
+                        <Avatar url={r.avatar_url} name={r.full_name} size="sm" />
+                        <span>{r.full_name || '—'}</span>
+                        {isMe ? <span className="badge role">You</span> : null}
+                      </span>
                     </td>
                     <td className="small muted">{SENIORITY_LABELS[r.seniority] || r.seniority}</td>
                     <td className="right">{r.deals_count}</td>

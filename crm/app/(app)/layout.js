@@ -1,6 +1,7 @@
 import { requireUser, hasAdminAccess } from '@/lib/auth';
 import { ROLE_LABELS, SENIORITY_LABELS } from '@/lib/format';
 import NavLink from '@/components/NavLink';
+import Avatar from '@/components/Avatar';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,10 +24,15 @@ export default async function AppLayout({ children }) {
           {isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
         </nav>
         <div className="sidebar-foot">
-          <div className="small" style={{ fontWeight: 600 }}>{name}</div>
-          <div className="small muted">
-            {ROLE_LABELS[profile?.role] || profile?.role}
-            {profile?.role === 'agent' ? ` · ${SENIORITY_LABELS[profile?.seniority] || profile?.seniority}` : ''}
+          <div className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
+            <Avatar url={profile?.avatar_url} name={name} size="md" />
+            <div style={{ minWidth: 0 }}>
+              <div className="small" style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
+              <div className="small muted">
+                {ROLE_LABELS[profile?.role] || profile?.role}
+                {profile?.role === 'agent' ? ` · ${SENIORITY_LABELS[profile?.seniority] || profile?.seniority}` : ''}
+              </div>
+            </div>
           </div>
           <form action="/auth/signout" method="post" style={{ marginTop: 10 }}>
             <button className="btn ghost small" type="submit">Sign out</button>

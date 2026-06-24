@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth';
 import { aed, formatDate } from '@/lib/format';
 import AddMemberFields from '@/components/AddMemberFields';
+import Avatar from '@/components/Avatar';
 import {
   createAgent,
   updateAgent,
@@ -53,8 +54,10 @@ export default async function AdminPage({ searchParams }) {
                 <td colSpan={5} style={{ padding: 0 }}>
                   <form action={updateAgent} className="row" style={{ padding: '10px 12px', gap: 8 }}>
                     <input type="hidden" name="agent_id" value={p.id} />
-                    <input name="full_name" defaultValue={p.full_name} style={{ flex: '1 1 160px' }} />
-                    <span className="small muted" style={{ flex: '1 1 180px' }}>{p.email}</span>
+                    <Avatar url={p.avatar_url} name={p.full_name} size="sm" />
+                    <input name="full_name" defaultValue={p.full_name} style={{ flex: '1 1 120px' }} />
+                    <span className="small muted" style={{ flex: '1 1 160px' }}>{p.email}</span>
+                    <input name="avatar_url" defaultValue={p.avatar_url || ''} placeholder="Photo URL" style={{ flex: '1 1 150px' }} />
                     <select name="role" defaultValue={p.role} style={{ width: 130 }}>
                       <option value="agent">Agent</option>
                       <option value="director">Director</option>

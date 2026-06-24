@@ -48,6 +48,7 @@ export async function updateAgent(formData) {
       full_name: String(formData.get('full_name') || '').trim(),
       role: String(formData.get('role') || 'agent'),
       seniority: String(formData.get('seniority') || 'junior'),
+      avatar_url: emptyToNull(formData.get('avatar_url')),
     })
     .eq('id', id);
   if (error) back(error.message);
