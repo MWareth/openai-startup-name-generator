@@ -1,5 +1,5 @@
 import { requireUser } from '@/lib/auth';
-import { aed, SENIORITY_LABELS } from '@/lib/format';
+import { aed, SENIORITY_NAMES } from '@/lib/format';
 import Avatar from '@/components/Avatar';
 
 export const dynamic = 'force-dynamic';
@@ -47,7 +47,7 @@ export default async function LeaderboardPage() {
                         {isMe ? <span className="badge role">You</span> : null}
                       </span>
                     </td>
-                    <td className="small muted">{SENIORITY_LABELS[r.seniority] || r.seniority}</td>
+                    <td className="small muted">{SENIORITY_NAMES[r.seniority] || r.seniority}</td>
                     <td className="right">{r.deals_count}</td>
                     <td className="right" style={{ fontWeight: 600 }}>{aed(value)}</td>
                     <td>

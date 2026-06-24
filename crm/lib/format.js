@@ -68,6 +68,14 @@ export const SENIORITY_LABELS = {
   team_leader: 'Team Leader (60/40)',
 };
 
+// Plain level names without the commission split — for places visible to other
+// agents (e.g. the leaderboard), where split terms must stay private.
+export const SENIORITY_NAMES = {
+  junior: 'Junior',
+  senior: 'Senior',
+  team_leader: 'Team Leader',
+};
+
 export const ROLE_LABELS = {
   agent: 'Agent',
   director: 'Director',
