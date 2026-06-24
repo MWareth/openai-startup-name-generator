@@ -1,5 +1,5 @@
 import { requireUser, hasAdminAccess } from '@/lib/auth';
-import { ROLE_LABELS, SENIORITY_LABELS } from '@/lib/format';
+import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import NavLink from '@/components/NavLink';
 import Avatar from '@/components/Avatar';
 
@@ -32,7 +32,7 @@ export default async function AppLayout({ children }) {
               <div className="small" style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
               <div className="small muted">
                 {ROLE_LABELS[profile?.role] || profile?.role}
-                {profile?.role === 'agent' ? ` · ${SENIORITY_LABELS[profile?.seniority] || profile?.seniority}` : ''}
+                {profile?.role === 'agent' ? ` · ${SENIORITY_NAMES[profile?.seniority] || profile?.seniority}` : ''}
               </div>
             </div>
           </div>

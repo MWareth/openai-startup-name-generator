@@ -1,6 +1,6 @@
 import { requireUser } from '@/lib/auth';
 import Avatar from '@/components/Avatar';
-import { ROLE_LABELS, SENIORITY_LABELS } from '@/lib/format';
+import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import { updateMyAvatar } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -22,7 +22,7 @@ export default async function ProfilePage({ searchParams }) {
             <div className="small muted">{profile?.email || user.email}</div>
             <div className="small muted">
               {ROLE_LABELS[profile?.role] || profile?.role}
-              {profile?.role === 'agent' ? ` · ${SENIORITY_LABELS[profile?.seniority] || profile?.seniority}` : ''}
+              {profile?.role === 'agent' ? ` · ${SENIORITY_NAMES[profile?.seniority] || profile?.seniority}` : ''}
             </div>
           </div>
         </div>
