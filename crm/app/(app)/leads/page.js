@@ -98,6 +98,7 @@ export default async function LeadsPage({ searchParams }) {
                   <td>
                     <Link href={`/leads/${l.id}`}>{l.name}</Link>
                     {l.phone ? <div className="small muted">{l.phone}</div> : null}
+                    {l.email ? <div className="small muted">{l.email}</div> : null}
                   </td>
                   <td><span className={`badge ${l.qualification}`}>{QUAL_LABELS[l.qualification]}</span></td>
                   <td><span className={`badge ${l.status === 'won' ? 'won' : l.status === 'lost' ? 'lost' : 'status'}`}>{STATUS_LABELS[l.status]}</span></td>
