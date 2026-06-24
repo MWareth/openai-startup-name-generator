@@ -79,6 +79,7 @@ export default async function LeadsPage({ searchParams }) {
           <table>
             <thead>
               <tr>
+                <th>Added</th>
                 <th>Name</th>
                 <th>Qual</th>
                 <th>Status</th>
@@ -93,6 +94,7 @@ export default async function LeadsPage({ searchParams }) {
             <tbody>
               {leads.map((l) => (
                 <tr key={l.id}>
+                  <td className="small muted" style={{ whiteSpace: 'nowrap' }}>{formatDate(l.created_at)}</td>
                   <td>
                     <Link href={`/leads/${l.id}`}>{l.name}</Link>
                     {l.phone ? <div className="small muted">{l.phone}</div> : null}
