@@ -19,7 +19,8 @@ export default async function AdminPage({ searchParams }) {
   const error = searchParams?.error;
 
   const { data: profiles } = await supabase.from('profiles').select('*').order('full_name');
-  const agents = (profiles || []).filter((p) => p.role === 'agent');
+  // People who carry leads: agents (incl. team leaders) and the selling owner/admin.
+  const agents = (profiles || []).filter((p) => p.role === 'agent' || p.role === 'admin');
 
   const { data: leads } = await supabase
     .from('leads')

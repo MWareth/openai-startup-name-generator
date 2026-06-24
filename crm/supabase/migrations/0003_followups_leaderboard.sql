@@ -32,7 +32,7 @@ as $$
     coalesce(sum(d.agent_commission), 0) as total_commission
   from public.profiles p
   left join public.deals d on d.agent_id = p.id
-  where p.role = 'agent'
+  where p.role in ('agent', 'admin')
   group by p.id, p.full_name, p.seniority
   order by total_value desc, deals_count desc;
 $$;

@@ -46,7 +46,7 @@ export default async function LeadDetail({ params, searchParams }) {
   const { data: agents } = await supabase
     .from('profiles')
     .select('id, full_name')
-    .eq('role', 'agent')
+    .in('role', ['agent', 'admin'])
     .neq('id', user.id)
     .order('full_name');
 
