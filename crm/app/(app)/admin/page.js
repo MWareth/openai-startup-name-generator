@@ -136,7 +136,7 @@ export default async function AdminPage({ searchParams }) {
             <div className="field"><label>Target name</label><input name="name" placeholder="Q3 2026 sales target" required /></div>
           </div>
           <div className="form-grid">
-            <div className="field"><label>Target amount (AED sales value)</label><input name="target_amount" type="number" min="0" step="10000" required /></div>
+            <div className="field"><label>Target amount (AED gross commission)</label><input name="target_amount" type="number" min="0" step="10000" required /></div>
             <div className="field"><label>Period start</label><input name="period_start" type="date" /></div>
           </div>
           <div className="field" style={{ maxWidth: 240 }}><label>Period end</label><input name="period_end" type="date" /></div>

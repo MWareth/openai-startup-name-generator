@@ -42,6 +42,17 @@ export default async function Dashboard() {
     .filter((d) => (d.closed_on || '').startsWith(today.slice(0, 7)))
     .reduce((s, d) => s + Number(d.deal_value || 0), 0);
 
+  // My sales value by quarter (current year).
+  const year = new Date().getFullYear();
+  const myQuarters = [0, 0, 0, 0];
+  for (const d of myDeals || []) {
+    if (!d.closed_on) continue;
+    const dt = new Date(d.closed_on);
+    if (dt.getFullYear() !== year) continue;
+    myQuarters[Math.floor(dt.getMonth() / 3)] += Number(d.deal_value || 0);
+  }
+  const myYearTotal = myQuarters.reduce((s, v) => s + v, 0);
+
   const { data: board } = await supabase.rpc('agent_leaderboard');
   const rankIdx = (board || []).findIndex((r) => r.agent_id === user.id);
   const rank = rankIdx >= 0 ? rankIdx + 1 : null;
@@ -115,6 +126,26 @@ export default async function Dashboard() {
           <Link className="small" href="/targets">View targets &amp; incentives →</Link>
         </div>
       ) : null}
+
+      {/* My sales by quarter */}
+      <div className="card">
+        <div className="spread">
+          <h3>My sales by quarter — {year}</h3>
+          <span className="small muted">Year total: <strong style={{ color: 'var(--text)' }}>{aed(myYearTotal)}</strong></span>
+        </div>
+        <div className="grid grid-3" style={{ marginTop: 8 }}>
+          {['Q1 (Jan–Mar)', 'Q2 (Apr–Jun)', 'Q3 (Jul–Sep)', 'Q4 (Oct–Dec)'].map((label, i) => (
+            <div key={label} className="card stat" style={{ background: 'var(--panel-2)', boxShadow: 'none' }}>
+              <span className="muted small">{label}</span>
+              <span className="value" style={{ fontSize: '1.2rem' }}>{aed(myQuarters[i])}</span>
+            </div>
+          ))}
+          <div className="card stat" style={{ background: 'var(--brand)' }}>
+            <span className="small" style={{ color: 'rgba(255,255,255,0.7)' }}>Total {year}</span>
+            <span className="value" style={{ fontSize: '1.2rem', color: '#fff' }}>{aed(myYearTotal)}</span>
+          </div>
+        </div>
+      </div>
 
       {/* New launches */}
       <div className="card">
