@@ -10,6 +10,7 @@ import {
   waLink,
 } from '@/lib/format';
 import { addActivity, updateLead, suggestReassign, logDeal, setFollowUp } from '../actions';
+import DictateField from '@/components/DictateField';
 
 export const dynamic = 'force-dynamic';
 
@@ -177,7 +178,7 @@ export default async function LeadDetail({ params, searchParams }) {
               </div>
               <div className="field">
                 <label>Notes</label>
-                <textarea name="body" placeholder="What happened?" required />
+                <DictateField name="body" placeholder="What happened? (or tap Dictate and speak)" required />
               </div>
               <div className="field">
                 <label>Set next follow-up (optional)</label>
