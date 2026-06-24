@@ -12,6 +12,7 @@ export default async function LeadsPage({ searchParams }) {
   const values = {
     agent: searchParams?.agent || '',
     type: searchParams?.type || '',
+    beds: searchParams?.beds || '',
     qual: searchParams?.qual || '',
     status: searchParams?.status || '',
     budget: searchParams?.budget || '',
@@ -33,6 +34,7 @@ export default async function LeadsPage({ searchParams }) {
 
   if (values.agent) q = q.eq('assigned_agent_id', values.agent);
   if (values.type) q = q.eq('property_type', values.type);
+  if (values.beds) q = q.eq('bedrooms', values.beds);
   if (values.qual) q = q.eq('qualification', values.qual);
   if (values.status) q = q.eq('status', values.status);
 
@@ -81,7 +83,9 @@ export default async function LeadsPage({ searchParams }) {
                 <th>Qual</th>
                 <th>Status</th>
                 <th>Type</th>
-                <th>Property / Budget</th>
+                <th>Bedrooms</th>
+                <th>Project</th>
+                <th>Budget</th>
                 {isAdmin ? <th>Assigned</th> : null}
                 <th>Updated</th>
               </tr>
@@ -96,10 +100,9 @@ export default async function LeadsPage({ searchParams }) {
                   <td><span className={`badge ${l.qualification}`}>{QUAL_LABELS[l.qualification]}</span></td>
                   <td><span className={`badge ${l.status === 'won' ? 'won' : l.status === 'lost' ? 'lost' : 'status'}`}>{STATUS_LABELS[l.status]}</span></td>
                   <td className="small">{l.property_type || <span className="muted">—</span>}</td>
-                  <td className="small">
-                    {l.property_interest || <span className="muted">—</span>}
-                    {l.budget ? <div className="muted">AED {Number(l.budget).toLocaleString()}</div> : null}
-                  </td>
+                  <td className="small">{l.bedrooms || <span className="muted">—</span>}</td>
+                  <td className="small">{l.property_interest || <span className="muted">—</span>}</td>
+                  <td className="small">{l.budget ? `AED ${Number(l.budget).toLocaleString()}` : <span className="muted">—</span>}</td>
                   {isAdmin ? <td className="small">{l.assigned?.full_name || <span className="muted">Unassigned</span>}</td> : null}
                   <td className="small muted">{formatDate(l.updated_at)}</td>
                 </tr>

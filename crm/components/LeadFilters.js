@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { PROPERTY_TYPES, QUAL_LABELS, STATUS_LABELS } from '@/lib/format';
+import { PROPERTY_TYPES, BEDROOM_OPTIONS, QUAL_LABELS, STATUS_LABELS } from '@/lib/format';
 
 const BUDGETS = [
   { v: '', l: 'Any budget' },
@@ -57,6 +57,15 @@ export default function LeadFilters({ agents, values }) {
             <option value="">All types</option>
             {PROPERTY_TYPES.map((t) => (
               <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        </div>
+        <div style={cell}>
+          <label>Bedrooms</label>
+          <select {...bind('beds')}>
+            <option value="">All bedrooms</option>
+            {BEDROOM_OPTIONS.map((b) => (
+              <option key={b} value={b}>{b}</option>
             ))}
           </select>
         </div>

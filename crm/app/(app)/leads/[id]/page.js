@@ -9,6 +9,7 @@ import {
   aed,
   waLink,
   PROPERTY_TYPES,
+  BEDROOM_OPTIONS,
 } from '@/lib/format';
 import { addActivity, updateLead, suggestReassign, logDeal, setFollowUp } from '../actions';
 import DictateField from '@/components/DictateField';
@@ -77,8 +78,9 @@ export default async function LeadDetail({ params, searchParams }) {
               <div><span className="muted">Phone:</span> {lead.phone || '—'}</div>
               <div><span className="muted">Email:</span> {lead.email || '—'}</div>
               <div><span className="muted">Source:</span> {lead.source || '—'}</div>
-              <div><span className="muted">Interest:</span> {lead.property_interest || '—'}</div>
+              <div><span className="muted">Project:</span> {lead.property_interest || '—'}</div>
               <div><span className="muted">Type:</span> {lead.property_type || '—'}</div>
+              <div><span className="muted">Bedrooms:</span> {lead.bedrooms || '—'}</div>
               <div><span className="muted">Budget:</span> {lead.budget ? aed(lead.budget) : '—'}</div>
               <div><span className="muted">Assigned:</span> {lead.assigned?.full_name || 'Unassigned'}</div>
             </div>
@@ -134,14 +136,25 @@ export default async function LeadDetail({ params, searchParams }) {
                   </select>
                 </div>
               </div>
-              <div className="field">
-                <label>Property type</label>
-                <select name="property_type" defaultValue={lead.property_type || ''}>
-                  <option value="">— Select —</option>
-                  {PROPERTY_TYPES.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
+              <div className="form-grid">
+                <div className="field">
+                  <label>Property type</label>
+                  <select name="property_type" defaultValue={lead.property_type || ''}>
+                    <option value="">— Select —</option>
+                    {PROPERTY_TYPES.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="field">
+                  <label>Bedrooms</label>
+                  <select name="bedrooms" defaultValue={lead.bedrooms || ''}>
+                    <option value="">— Select —</option>
+                    {BEDROOM_OPTIONS.map((b) => (
+                      <option key={b} value={b}>{b}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <button className="btn secondary small" type="submit">Update</button>
             </form>

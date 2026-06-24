@@ -47,10 +47,12 @@ export async function createLead(formData) {
     assigned_agent_id: user.id,
     created_by: user.id,
   };
-  // Only include property_type when chosen, so lead creation still works even
-  // before the property_type column migration (0005) is applied.
+  // Only include these when chosen, so lead creation still works even before
+  // the property_type (0005) / bedrooms (0006) column migrations are applied.
   const ptype = emptyToNull(formData.get('property_type'));
   if (ptype) insert.property_type = ptype;
+  const beds = emptyToNull(formData.get('bedrooms'));
+  if (beds) insert.bedrooms = beds;
 
   const { data, error } = await supabase.from('leads').insert(insert).select('id').single();
 
@@ -105,6 +107,8 @@ export async function updateLead(formData) {
   if (formData.get('status')) patch.status = String(formData.get('status'));
   const pType = emptyToNull(formData.get('property_type'));
   if (pType) patch.property_type = pType; // only when chosen (safe pre-migration 0005)
+  const beds = emptyToNull(formData.get('bedrooms'));
+  if (beds) patch.bedrooms = beds; // only when chosen (safe pre-migration 0006)
 
   const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));

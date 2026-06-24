@@ -52,6 +52,16 @@ export const PROPERTY_TYPES = [
   'Other',
 ];
 
+// Bedroom options (structured, so they can be filtered).
+export const BEDROOM_OPTIONS = [
+  'Studio',
+  '1 Bedroom',
+  '2 Bedrooms',
+  '3 Bedrooms',
+  '4 Bedrooms',
+  '5+ Bedrooms',
+];
+
 export const SENIORITY_LABELS = {
   junior: 'Junior (50/50)',
   senior: 'Senior (55/45)',
