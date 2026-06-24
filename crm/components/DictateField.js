@@ -70,11 +70,18 @@ export default function DictateField({ name, placeholder, required, rows = 3, de
             <select
               value={lang}
               onChange={(e) => setLang(e.target.value)}
-              style={{ width: 130 }}
+              style={{ width: 150 }}
               aria-label="Dictation language"
             >
               <option value="en-US">English</option>
               <option value="ar-SA">Arabic</option>
+              <option value="ru-RU">Russian</option>
+              <option value="zh-CN">Chinese (Mandarin)</option>
+              <option value="ja-JP">Japanese</option>
+              <option value="uk-UA">Ukrainian</option>
+              <option value="hi-IN">Hindi</option>
+              <option value="ur-PK">Urdu</option>
+              <option value="fil-PH">Filipino (Tagalog)</option>
             </select>
             {listening ? (
               <span className="small" style={{ color: 'var(--red)' }}>● listening…</span>
