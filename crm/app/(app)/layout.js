@@ -18,6 +18,7 @@ export default async function AppLayout({ children }) {
         <nav className="nav">
           <NavLink href="/dashboard">Dashboard</NavLink>
           <NavLink href="/leads">Leads</NavLink>
+          <NavLink href="/leaderboard">Leaderboard</NavLink>
           <NavLink href="/targets">My Targets</NavLink>
           {isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
         </nav>

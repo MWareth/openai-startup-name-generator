@@ -20,6 +20,17 @@ export default async function Dashboard() {
 
   const openLeads = (leads || []).filter((l) => l.status !== 'won' && l.status !== 'lost').length;
 
+  // Follow-ups due today or overdue (open leads only).
+  const today = new Date().toISOString().slice(0, 10);
+  const { data: dueRaw } = await supabase
+    .from('leads')
+    .select('id, name, qualification, status, next_follow_up')
+    .not('next_follow_up', 'is', null)
+    .lte('next_follow_up', today)
+    .order('next_follow_up', { ascending: true })
+    .limit(15);
+  const dueLeads = (dueRaw || []).filter((l) => l.status !== 'won' && l.status !== 'lost');
+
   const { data: target } = await supabase
     .from('targets')
     .select('*')
@@ -39,6 +50,27 @@ export default async function Dashboard() {
         <div className="card stat"><span className="muted small">Open leads</span><span className="value">{openLeads}</span></div>
         <div className="card stat"><span className="muted small">Deals won</span><span className="value">{progress?.dealCount ?? 0}</span></div>
         <div className="card stat"><span className="muted small">Your commission</span><span className="value">{aed(progress?.commission ?? 0)}</span></div>
+      </div>
+
+      <div className="card">
+        <div className="spread">
+          <h3>📋 Follow-ups due {dueLeads.length ? <span className="badge hot">{dueLeads.length}</span> : null}</h3>
+        </div>
+        {dueLeads.length ? (
+          <div className="stack" style={{ gap: 8 }}>
+            {dueLeads.map((l) => (
+              <div key={l.id} className="spread" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+                <div>
+                  <Link href={`/leads/${l.id}`}>{l.name}</Link>{' '}
+                  <span className={`badge ${l.qualification}`}>{QUAL_LABELS[l.qualification]}</span>
+                </div>
+                <span className="small muted">due {formatDate(l.next_follow_up)}</span>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="muted small">You&apos;re all caught up — no follow-ups due. 🎉</p>
+        )}
       </div>
 
       {progress ? (

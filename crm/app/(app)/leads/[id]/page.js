@@ -7,8 +7,9 @@ import {
   ACTIVITY_LABELS,
   formatDate,
   aed,
+  waLink,
 } from '@/lib/format';
-import { addActivity, updateLead, suggestReassign, logDeal } from '../actions';
+import { addActivity, updateLead, suggestReassign, logDeal, setFollowUp } from '../actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,6 +78,34 @@ export default async function LeadDetail({ params, searchParams }) {
               <div><span className="muted">Budget:</span> {lead.budget ? aed(lead.budget) : '—'}</div>
               <div><span className="muted">Assigned:</span> {lead.assigned?.full_name || 'Unassigned'}</div>
             </div>
+            {waLink(lead.phone) ? (
+              <a
+                className="btn small"
+                href={waLink(lead.phone)}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ marginTop: 12, background: '#25D366' }}
+              >
+                WhatsApp message
+              </a>
+            ) : null}
+          </div>
+
+          <div className="card">
+            <h3>Next follow-up</h3>
+            {lead.next_follow_up ? (
+              <p className="small">
+                Scheduled for <strong>{formatDate(lead.next_follow_up)}</strong>
+                {lead.next_follow_up <= today ? <span className="badge hot" style={{ marginLeft: 8 }}>Due</span> : null}
+              </p>
+            ) : (
+              <p className="small muted">No follow-up set.</p>
+            )}
+            <form action={setFollowUp} className="row" style={{ gap: 8 }}>
+              <input type="hidden" name="lead_id" value={lead.id} />
+              <input type="date" name="next_follow_up" defaultValue={lead.next_follow_up || ''} style={{ maxWidth: 180 }} />
+              <button className="btn secondary small" type="submit">Save</button>
+            </form>
           </div>
 
           <div className="card">
@@ -149,6 +178,10 @@ export default async function LeadDetail({ params, searchParams }) {
               <div className="field">
                 <label>Notes</label>
                 <textarea name="body" placeholder="What happened?" required />
+              </div>
+              <div className="field">
+                <label>Set next follow-up (optional)</label>
+                <input type="date" name="next_follow_up" />
               </div>
               <button className="btn small" type="submit">Add activity</button>
             </form>

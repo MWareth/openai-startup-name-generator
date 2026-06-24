@@ -19,6 +19,18 @@ export function formatDate(value) {
   return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
+// Build a WhatsApp chat link from a phone number (strips +, spaces, etc.).
+export function waLink(phone) {
+  if (!phone) return null;
+  const digits = String(phone).replace(/[^0-9]/g, '');
+  return digits ? `https://wa.me/${digits}` : null;
+}
+
+// Today as YYYY-MM-DD (for date inputs and follow-up comparisons).
+export function todayISO() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export const ACTIVITY_LABELS = {
   meeting: 'Meeting',
   call: 'Call',

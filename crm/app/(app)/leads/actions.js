@@ -49,7 +49,27 @@ export async function addActivity(formData) {
   });
 
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+
+  // Optionally set the next follow-up date on the lead from the same form.
+  const nextFollowUp = emptyToNull(formData.get('next_follow_up'));
+  if (nextFollowUp) {
+    await supabase.from('leads').update({ next_follow_up: nextFollowUp }).eq('id', leadId);
+  }
+
   revalidatePath(`/leads/${leadId}`);
+  revalidatePath('/dashboard');
+}
+
+export async function setFollowUp(formData) {
+  const { supabase } = await requireUser();
+  const leadId = String(formData.get('lead_id'));
+  const { error } = await supabase
+    .from('leads')
+    .update({ next_follow_up: emptyToNull(formData.get('next_follow_up')) })
+    .eq('id', leadId);
+  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath('/dashboard');
 }
 
 export async function updateLead(formData) {
