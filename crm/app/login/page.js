@@ -20,8 +20,9 @@ export default function LoginPage({ searchParams }) {
   return (
     <div className="login-wrap">
       <div className="card login-card">
-        <div className="brand" style={{ padding: '0 0 18px' }}>
-          Estate<span>CRM</span>
+        <div className="brand" style={{ padding: '0 0 18px', textAlign: 'center' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Bullish Team — Bridges & Allies" style={{ width: '100%', maxWidth: 230, height: 'auto' }} />
         </div>
         <h2>Sign in</h2>
         {error ? <div className="alert error">{error}</div> : null}

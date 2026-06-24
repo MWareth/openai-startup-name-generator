@@ -13,8 +13,9 @@ export default async function AppLayout({ children }) {
   return (
     <div className="shell">
       <aside className="sidebar">
-        <div className="brand">
-          Estate<span>CRM</span>
+        <div className="brand" style={{ padding: '0 0 14px' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Bullish Team — Bridges & Allies" style={{ height: 44, width: 'auto', maxWidth: '100%' }} />
         </div>
         <nav className="nav">
           <NavLink href="/dashboard">Dashboard</NavLink>

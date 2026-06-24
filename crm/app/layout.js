@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Estate CRM',
-  description: 'Lead, deal and target management for real-estate agents',
+  title: 'Bullish Team CRM',
+  description: 'Bridges & Allies — lead, deal and target management',
 };
 
 export const viewport = {
