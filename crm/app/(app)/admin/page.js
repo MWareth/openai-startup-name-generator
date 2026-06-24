@@ -13,6 +13,8 @@ import {
   archiveTarget,
   createLaunch,
   deleteLaunch,
+  createEmbed,
+  deleteEmbed,
 } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -43,6 +45,12 @@ export default async function AdminPage({ searchParams }) {
     .from('launches')
     .select('*')
     .order('created_at', { ascending: false });
+
+  const { data: embeds } = await supabase
+    .from('data_embeds')
+    .select('*')
+    .order('sort_order', { ascending: true })
+    .order('created_at', { ascending: true });
 
   return (
     <div className="stack">
@@ -222,6 +230,43 @@ export default async function AdminPage({ searchParams }) {
                   </div>
                   <form action={deleteLaunch}>
                     <input type="hidden" name="launch_id" value={p.id} />
+                    <button className="btn ghost small" type="submit">Remove</button>
+                  </form>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
+      </div>
+
+      {/* ---- Projects data sources (Dubai open-data embeds) ---- */}
+      <div className="card">
+        <h2>Projects data sources</h2>
+        <p className="small muted">
+          Add Dubai open-data (data.dubai) embeds — they appear on the <strong>Projects</strong> page for everyone.
+          Paste the dataset&apos;s embed link or its full &lt;iframe&gt; code.
+        </p>
+        <form action={createEmbed}>
+          <div className="form-grid">
+            <div className="field"><label>Title</label><input name="title" placeholder="e.g. Real Estate Projects (DLD)" required /></div>
+            <div className="field"><label>Height (px)</label><input name="height" type="number" min="300" step="20" defaultValue="900" /></div>
+          </div>
+          <div className="field"><label>Embed link or &lt;iframe&gt; code</label><input name="embed_url" placeholder="https://data.dubai/e/dataset-details-embed/…  (or paste the full iframe)" required /></div>
+          <button className="btn" type="submit">Add data source</button>
+        </form>
+
+        {embeds && embeds.length ? (
+          <>
+            <hr className="divider" />
+            <div className="stack" style={{ gap: 8 }}>
+              {embeds.map((e) => (
+                <div key={e.id} className="spread" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 8 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <strong>{e.title}</strong>
+                    <div className="small muted" style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.embed_url}</div>
+                  </div>
+                  <form action={deleteEmbed}>
+                    <input type="hidden" name="embed_id" value={e.id} />
                     <button className="btn ghost small" type="submit">Remove</button>
                   </form>
                 </div>

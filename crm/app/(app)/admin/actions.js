@@ -152,6 +152,34 @@ export async function deleteLaunch(formData) {
   back('Launch removed', true);
 }
 
+export async function createEmbed(formData) {
+  const { user, supabase } = await requireAdmin();
+  let url = String(formData.get('embed_url') || '').trim();
+  // Accept either a raw URL or a full <iframe …src="…"> paste.
+  const m = url.match(/src=["']([^"']+)["']/i);
+  if (m) url = m[1];
+  if (!url) back('Embed link is required');
+  const { error } = await supabase.from('data_embeds').insert({
+    title: String(formData.get('title') || 'Dataset').trim() || 'Dataset',
+    embed_url: url,
+    height: Number(formData.get('height') || 900) || 900,
+    created_by: user.id,
+  });
+  if (error) back(error.message);
+  revalidatePath(ADMIN);
+  revalidatePath('/projects');
+  back('Data source added', true);
+}
+
+export async function deleteEmbed(formData) {
+  const { supabase } = await requireAdmin();
+  const { error } = await supabase.from('data_embeds').delete().eq('id', String(formData.get('embed_id')));
+  if (error) back(error.message);
+  revalidatePath(ADMIN);
+  revalidatePath('/projects');
+  back('Data source removed', true);
+}
+
 function emptyToNull(v) {
   const s = String(v ?? '').trim();
   return s === '' ? null : s;
