@@ -20,7 +20,6 @@ export default async function AppLayout({ children }) {
         <nav className="nav">
           <NavLink href="/dashboard">Dashboard</NavLink>
           <NavLink href="/leads">Leads</NavLink>
-          <NavLink href="/projects">Projects</NavLink>
           <NavLink href="/leaderboard">Leaderboard</NavLink>
           <NavLink href="/targets">My Targets</NavLink>
           <NavLink href="/profile">My Profile</NavLink>
