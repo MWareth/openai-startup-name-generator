@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth';
 import { aed, formatDate } from '@/lib/format';
+import AddMemberFields from '@/components/AddMemberFields';
 import {
   createAgent,
   updateAgent,
@@ -76,30 +77,7 @@ export default async function AdminPage({ searchParams }) {
         <hr className="divider" />
         <h3>Add team member</h3>
         <form action={createAgent}>
-          <div className="form-grid">
-            <div className="field"><label>Full name</label><input name="full_name" required /></div>
-            <div className="field"><label>Email</label><input name="email" type="email" required /></div>
-          </div>
-          <div className="form-grid">
-            <div className="field"><label>Temporary password</label><input name="password" minLength={6} required /></div>
-            <div className="field">
-              <label>Role</label>
-              <select name="role" defaultValue="agent">
-                <option value="agent">Agent</option>
-                <option value="director">Director (monitor + full access)</option>
-                <option value="c_suite">C-Suite (monitor + full access)</option>
-              </select>
-            </div>
-          </div>
-          <div className="field" style={{ maxWidth: 280 }}>
-            <label>Commission level (agents only)</label>
-            <select name="seniority" defaultValue="junior">
-              <option value="junior">Junior (50/50)</option>
-              <option value="senior">Senior (55/45)</option>
-              <option value="team_leader">Team Leader (60/40)</option>
-            </select>
-          </div>
-          <button className="btn" type="submit">Create user</button>
+          <AddMemberFields />
         </form>
       </div>
 
