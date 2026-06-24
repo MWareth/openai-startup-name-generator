@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#4A2C2A" />
+<title>Dee's Treats — Homemade Desserts Delivered in Dubai</title>
+<meta name="description" content="Dee's Treats — homemade, freshly baked desserts delivered across Dubai. San Sebastian cheesecake, pavlova, lazy cake, crème brûlée, carrot cake & more. Order on Instagram @deestreats.ae." />
+<link rel="apple-touch-icon" href="dees-icon.png" />
+<link rel="icon" type="image/png" href="dees-icon.png" />
+<style>
+  :root{
+    --brown:#4A2C2A; --brown-soft:#5C3A2E; --cream:#FAF3E7; --cream-2:#F5EBDC;
+    --gold:#c79a3a; --gold-soft:#e3c477; --sky:#dce7ec; --line:#e7d9c0; --line:#e3d4ba;
+    --ink:#3a2a20; --shadow:0 8px 26px rgba(74,44,32,.10);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:#fff;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3{margin:0;font-weight:800;color:var(--brown);letter-spacing:-.5px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 18px}
+  .rounded{font-family:"Arial Rounded MT Bold","Helvetica Rounded",Verdana,system-ui,Arial,sans-serif;font-weight:900}
+  button{font-family:inherit}
+
+  /* ANNOUNCE */
+  .announce{background:var(--brown);color:var(--cream);text-align:center;font-size:13px;padding:7px 12px;font-weight:600}
+  .announce b{color:var(--gold-soft)}
+
+  /* HEADER */
+  header{position:sticky;top:0;z-index:40;background:var(--cream);box-shadow:0 2px 10px rgba(74,44,32,.08)}
+  .hrow{display:flex;align-items:center;gap:14px;height:64px}
+  .brand{display:flex;align-items:center;gap:8px}
+  .brand img{height:42px;display:none}
+  .brand .mk{display:flex;flex-direction:column;align-items:center;line-height:.82}
+  .brand .mk .d{font-size:26px;letter-spacing:-1.5px;color:var(--brown)}
+  .brand .mk .t{font-size:8px;letter-spacing:4px;color:var(--gold);font-weight:800}
+  .search{flex:1;display:flex;align-items:center;background:#fff;border:1px solid var(--line);border-radius:30px;padding:0 14px;height:42px;max-width:480px}
+  .search input{border:none;outline:none;flex:1;font:inherit;background:transparent;font-size:14px}
+  .cartbtn{display:flex;align-items:center;gap:8px;background:var(--brown);color:var(--cream);border:none;border-radius:30px;padding:0 16px;height:42px;font-weight:700;cursor:pointer;font-size:14px;white-space:nowrap}
+  .cartbtn .count{background:var(--gold);color:var(--brown);border-radius:20px;padding:1px 8px;font-size:12px;font-weight:800}
+  /* category chips */
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--brown);border-radius:30px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer}
+  .chip.active{background:var(--brown);color:var(--cream);border-color:var(--brown)}
+  @media(max-width:640px){.search{max-width:none}.brand .mk .d{font-size:22px}}
+
+  /* HERO */
+  .hero{background:linear-gradient(115deg,var(--sky),var(--cream));}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:center;padding:42px 18px}
+  .hero .ey{color:var(--gold);font-weight:800;letter-spacing:3px;text-transform:uppercase;font-size:12px}
+  .hero h1{font-size:40px;margin:10px 0 12px;line-height:1.05}
+  .hero p{font-size:17px;color:var(--brown-soft);margin:0 0 22px;max-width:440px}
+  .hero .heroimg{aspect-ratio:1;border-radius:26px;background:linear-gradient(135deg,var(--gold-soft),var(--cream-2));display:flex;align-items:center;justify-content:center;font-size:120px;box-shadow:var(--shadow);overflow:hidden}
+  .hero .heroimg img{width:100%;height:100%;object-fit:cover}
+  .btnrow{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;padding:13px 22px;border-radius:30px;cursor:pointer;border:none;font-size:15px;font-family:inherit}
+  .btn-brown{background:var(--brown);color:var(--cream)} .btn-brown:hover{background:#5e3a2b}
+  .btn-gold{background:var(--gold);color:var(--brown)} .btn-gold:hover{background:var(--gold-soft)}
+  .btn-ig{background:var(--brown);color:var(--cream)}
+  @media(max-width:760px){.hero .wrap{grid-template-columns:1fr}.hero .heroimg{order:-1;font-size:90px}.hero h1{font-size:32px}}
+
+  /* SECTION */
+  section{padding:46px 0}
+  .sechead{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;gap:12px;flex-wrap:wrap}
+  .sechead .ey{color:var(--gold);font-weight:800;letter-spacing:3px;text-transform:uppercase;font-size:12px}
+  .sechead h2{font-size:28px;margin-top:4px}
+
+  /* PRODUCTS */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px}
+  .pcard{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;transition:transform .12s}
+  .pcard:hover{transform:translateY(-3px)}
+  .pcard .ph{aspect-ratio:1;background:linear-gradient(135deg,var(--cream-2),var(--gold-soft));display:flex;align-items:center;justify-content:center;font-size:60px;position:relative}
+  .pcard .ph img{width:100%;height:100%;object-fit:cover}
+  .pcard .tag{position:absolute;top:10px;left:10px;background:var(--gold);color:var(--brown);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;padding:4px 9px;border-radius:20px}
+  .pcard .pb{padding:14px;display:flex;flex-direction:column;flex:1}
+  .pcard h3{font-size:18px}
+  .pcard .ds{font-size:12.5px;color:var(--brown-soft);margin:5px 0 10px;flex:1}
+  .pcard .buy{display:flex;gap:8px;align-items:center;margin-top:auto}
+  .pcard select{flex:1;padding:9px;border:1px solid var(--line);border-radius:10px;font:inherit;background:var(--cream);font-size:13px;font-weight:600}
+  .addbtn{background:var(--gold);color:var(--brown);border:none;border-radius:10px;padding:9px 14px;font-weight:800;cursor:pointer;font-size:13px;white-space:nowrap}
+  .addbtn:hover{background:var(--gold-soft)}
+
+  /* INFO STRIP */
+  .info{background:var(--brown);color:var(--cream)}
+  .info .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;padding:34px 18px;text-align:center}
+  .info .it .ic{font-size:30px}
+  .info .it .t{font-weight:800;margin-top:6px;color:var(--gold-soft)}
+  .info .it .s{font-size:12.5px;color:#e8dcc8;margin-top:2px}
+  @media(max-width:640px){.info .wrap{grid-template-columns:1fr 1fr}}
+
+  /* REVIEWS */
+  .reviews{background:var(--sky)}
+  .revgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px}
+  .rev{background:#fff;border-radius:16px;padding:22px;box-shadow:var(--shadow)}
+  .rev .st{color:var(--gold);letter-spacing:2px}
+  .rev p{font-style:italic;margin:10px 0 12px}
+  .rev .wh{font-weight:800;color:var(--brown);font-size:14px}
+
+  /* FOOTER */
+  footer{background:var(--brown);color:#e8dcc8;padding:40px 18px 26px}
+  footer .cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:24px;max-width:1120px;margin:0 auto}
+  footer h4{color:var(--cream);margin:0 0 10px;font-size:15px}
+  footer a{color:#e8dcc8;display:block;padding:4px 0;font-size:14px}
+  footer a:hover{color:var(--gold-soft)}
+  footer .ft-mark{font-size:26px;color:var(--cream);letter-spacing:-1px}
+  footer .copy{text-align:center;opacity:.6;font-size:12px;margin-top:26px}
+  @media(max-width:640px){footer .cols{grid-template-columns:1fr 1fr}}
+
+  /* CART DRAWER */
+  .drawer-bg{position:fixed;inset:0;background:rgba(40,24,16,.5);z-index:60;display:none}
+  .drawer-bg.open{display:block}
+  .drawer{position:fixed;top:0;right:0;height:100%;width:380px;max-width:92vw;background:var(--cream);z-index:61;transform:translateX(100%);transition:transform .22s;display:flex;flex-direction:column;box-shadow:-10px 0 40px rgba(0,0,0,.25)}
+  .drawer.open{transform:translateX(0)}
+  .drawer .dh{display:flex;align-items:center;justify-content:space-between;padding:18px;background:var(--brown);color:var(--cream)}
+  .drawer .dh h3{color:var(--cream)}
+  .drawer .x{background:none;border:none;color:var(--cream);font-size:24px;cursor:pointer;line-height:1}
+  .drawer .body{flex:1;overflow:auto;padding:14px 18px}
+  .step{flex:1;display:flex;flex-direction:column;min-height:0}
+  .btn-ghost{background:transparent;color:var(--brown);border:1px solid var(--line)}
+  .zif{width:100%;flex:1;min-height:300px;border:1px solid var(--line);border-radius:12px;background:#fff}
+  .payhead{font-size:15px;color:var(--brown);margin-bottom:12px}
+  .payhead b{font-size:22px;display:block;margin-top:2px}
+  .steps-dots{display:flex;gap:6px;justify-content:center;padding:10px 0 0}
+  .steps-dots span{width:7px;height:7px;border-radius:50%;background:var(--line)}
+  .steps-dots span.on{background:var(--gold)}
+  .citem{display:flex;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+  .citem .emo{font-size:30px}
+  .citem .ci-nm{font-weight:700;font-size:14px}
+  .citem .ci-vr{font-size:12px;color:var(--brown-soft)}
+  .citem .ci-q{display:flex;align-items:center;gap:7px;margin-top:4px}
+  .qb{width:26px;height:26px;border-radius:7px;border:1px solid var(--line);background:#fff;font-weight:800;cursor:pointer;color:var(--brown)}
+  .citem .ci-pr{margin-left:auto;font-weight:800;color:var(--brown);white-space:nowrap}
+  .drawer .foot{padding:16px 18px;border-top:1px solid var(--line);background:var(--cream-2)}
+  .drawer .tot{display:flex;justify-content:space-between;font-size:20px;font-weight:800;color:var(--brown);margin-bottom:12px}
+  .drawer .foot .btn{width:100%;justify-content:center;margin-bottom:8px}
+  .emptycart{text-align:center;color:var(--brown-soft);padding:50px 16px}
+  .checkout{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .checkout input{padding:9px 10px;border:1px solid var(--line);border-radius:9px;font:inherit;background:#fff;font-size:13px;width:100%}
+  .checkout input.full{grid-column:1/-1}
+</style>
+</head>
+<body id="top">
+
+<div class="announce">🚚 Freshly baked & delivered across <b>Dubai</b> · please order <b>24h ahead</b></div>
+
+<header>
+  <div class="wrap">
+    <div class="hrow">
+      <a class="brand" href="#top">
+        <img src="dees-logo.png" alt="Dee's Treats" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <span class="mk rounded"><span class="d">dee's</span><span class="t">TREATS</span></span>
+      </a>
+      <label class="search">
+        🔍 <input id="search" placeholder="Search desserts…" oninput="renderProducts()">
+      </label>
+      <button class="cartbtn" onclick="openCart()">🛒 Order <span class="count" id="cartCount">0</span></button>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div>
+      <div class="ey">Homemade · Freshly Baked · 24h Ahead</div>
+      <h1>Dubai's homemade desserts, made to order 🤍</h1>
+      <p>San Sebastian cheesecake, pavlova, lazy cake, crème brûlée & more — baked fresh and delivered to your door.</p>
+      <div class="btnrow">
+        <a class="btn btn-gold" href="#shop">🍰 Order Now</a>
+        <a class="btn btn-ig" href="https://ig.me/m/deestreats.ae" target="_blank" rel="noopener">📩 Message us</a>
+      </div>
+    </div>
+    <div class="heroimg"><img src="hero.jpg" alt="" onerror="this.replaceWith(document.createTextNode('🍰'))"></div>
+  </div>
+</div>
+
+<!-- SHOP -->
+<section id="shop">
+  <div class="wrap">
+    <div class="sechead">
+      <div>
+        <div class="ey">Our Menu</div>
+        <h2 id="shopTitle">All Treats</h2>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</section>
+
+<!-- INFO -->
+<div class="info">
+  <div class="wrap">
+    <div class="it"><div class="ic">👩‍🍳</div><div class="t">100% Homemade</div><div class="s">Made by hand, never mass-produced</div></div>
+    <div class="it"><div class="ic">⏱️</div><div class="t">Freshly Baked</div><div class="s">Baked the day it reaches you</div></div>
+    <div class="it"><div class="ic">🚙</div><div class="t">Dubai Delivery</div><div class="s">Brought to your door</div></div>
+    <div class="it"><div class="ic">💳</div><div class="t">Easy Ordering</div><div class="s">Order & pay online by card</div></div>
+  </div>
+</div>
+
+<!-- REVIEWS -->
+<section class="reviews" id="reviews">
+  <div class="wrap">
+    <div class="sechead"><div><div class="ey">Reviews</div><h2>Loved across Dubai</h2></div></div>
+    <div class="revgrid" id="revgrid"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="cols">
+    <div>
+      <div class="ft-mark rounded">dee's TREATS</div>
+      <p style="max-width:300px">Homemade, freshly baked desserts made to order and delivered across Dubai. 🤍</p>
+    </div>
+    <div>
+      <h4>Order</h4>
+      <a href="#shop">🍰 Browse menu & order</a>
+      <a href="https://ig.me/m/deestreats.ae" target="_blank" rel="noopener">📩 Questions? Message us</a>
+    </div>
+    <div>
+      <h4>Follow</h4>
+      <a href="https://instagram.com/deestreats.ae" target="_blank" rel="noopener">📸 @deestreats.ae</a>
+      <a href="#reviews">⭐ Reviews</a>
+    </div>
+  </div>
+  <div class="copy">© <span id="yr"></span> Dee's Treats · Dubai, UAE</div>
+</footer>
+
+<!-- CART DRAWER -->
+<div class="drawer-bg" id="drawerBg" onclick="closeCart()"></div>
+<div class="drawer" id="drawer">
+  <div class="dh"><h3 id="drawerTitle">🛒 Your Order</h3><button class="x" onclick="closeCart()">×</button></div>
+  <div class="steps-dots"><span id="dot-cart"></span><span id="dot-details"></span><span id="dot-pay"></span><span id="dot-done"></span></div>
+
+  <!-- STEP 1: CART -->
+  <div class="step" id="step-cart">
+    <div class="body" id="cartBody"></div>
+    <div class="foot">
+      <div class="tot"><span>Total</span><span class="totval">AED 0</span></div>
+      <button class="btn btn-gold" onclick="goDetails()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: YOUR DETAILS -->
+  <div class="step" id="step-details" style="display:none">
+    <div class="body">
+      <div class="checkout">
+        <input id="co_name" class="full" placeholder="Your name *">
+        <input id="co_phone" class="full" placeholder="Phone number *">
+        <input id="co_area" class="full" placeholder="Delivery area & address in Dubai *">
+        <input id="co_date" class="full" type="date" title="Preferred delivery date">
+      </div>
+      <div style="font-size:12px;color:var(--brown-soft);margin-top:4px">We'll use these to confirm your order and arrange delivery. Please order 24h ahead 🤍</div>
+    </div>
+    <div class="foot">
+      <div class="tot"><span>Total</span><span class="totval">AED 0</span></div>
+      <button class="btn btn-gold" onclick="goPay()">Continue to payment →</button>
+      <button class="btn btn-ghost" onclick="showStep('cart')">← Back to cart</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: PAYMENT -->
+  <div class="step" id="step-pay" style="display:none">
+    <div class="body" style="display:flex;flex-direction:column;justify-content:center;text-align:center;gap:14px">
+      <div class="payhead" style="text-align:center">Pay securely by card<b class="totval">AED 0</b></div>
+      <div style="font-size:48px">💳</div>
+      <p style="color:var(--brown-soft);font-size:13px;max-width:290px;margin:0 auto">You'll pay by card or Apple Pay on Ziina's secure page. Enter the exact amount shown above. Your order is already saved with us 🤍</p>
+      <a id="zopen" class="btn btn-gold" style="justify-content:center" href="#" target="_blank" rel="noopener">Pay<span class="totval">&nbsp;AED 0&nbsp;</span>by card ↗</a>
+    </div>
+    <div class="foot">
+      <button class="btn btn-gold" onclick="showStep('done')">✓ I've completed my payment</button>
+      <button class="btn btn-ghost" onclick="showStep('details')">← Back</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: CONFIRMED -->
+  <div class="step" id="step-done" style="display:none">
+    <div class="body" style="text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px">
+      <div style="font-size:56px">🤍</div>
+      <h3 style="margin:6px 0;color:var(--brown)">Order received!</h3>
+      <p style="color:var(--brown-soft);max-width:280px">Thank you<span id="doneName"></span>! Your treats will be prepared fresh. We'll message you shortly to arrange delivery.</p>
+    </div>
+    <div class="foot">
+      <button class="btn btn-gold" onclick="resetOrder()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* ====== FIREBASE (orders dashboard) ====== */
+try{
+  firebase.initializeApp({
+    apiKey:"AIzaSyAJa0Z9zUsAk_enT4CakOiygxF-ME8x4Ug",
+    authDomain:"dees-order-log.firebaseapp.com",
+    projectId:"dees-order-log",
+    storageBucket:"dees-order-log.firebasestorage.app",
+    messagingSenderId:"720907376845",
+    appId:"1:720907376845:web:eaa5f2e17efb98088c3184"
+  });
+}catch(e){}
+
+/* ====== CONFIG ====== */
+const INSTAGRAM='deestreats.ae';
+const ZIINA_LINK='https://pay.ziina.com/Deestreats.ae?source=app';  // Ziina Page — customer enters the amount
+const ORDER_EMAIL_KEY='f0d2f2f0-e8dd-4337-94d0-3f7ffb6f940d';  // Web3Forms key — orders get emailed to you
+
+/* ====== PRODUCTS ====== */
+const PRODUCTS=[
+  {key:'sansebastian',name:'San Sebastian',cat:'Cheesecakes',emoji:'🧀',tag:'Bestseller',desc:'Burnt Basque cheesecake — caramelised top, creamy inside.',
+    variants:[{label:'Mini',price:35},{label:'Whole (6–8)',price:280}]},
+  {key:'pavlova',name:'Pavlova',cat:'Pastries',emoji:'🍓',tag:'',desc:'Crisp meringue, soft centre, fresh berries.',
+    variants:[{label:'Mini',price:60},{label:'Whole (6–8)',price:260}]},
+  {key:'lazycake',name:'Lazy Cake',cat:'Cakes',emoji:'🍫',tag:'',desc:'No-bake chocolate biscuit cake with nuts.',
+    variants:[{label:'Mini',price:80},{label:'Whole (6–8)',price:175}]},
+  {key:'carrotcake',name:'Carrot Cake',cat:'Cakes',emoji:'🥕',tag:'',desc:'Spiced, soft, cream cheese finish.',
+    variants:[{label:'Mini',price:35},{label:'Whole (6–8)',price:180}]},
+  {key:'carrotballs',name:'Healthy Carrot Balls',cat:'Healthy',emoji:'🟤',tag:'Healthy',desc:'Wholesome, naturally sweet energy bites.',
+    variants:[{label:'6 pcs',price:40},{label:'8 pcs',price:55},{label:'12 pcs',price:75}]},
+  {key:'cremebrulee',name:'Crème Brûlée',cat:'Pastries',emoji:'🍮',tag:'',desc:'Silky custard under a crackly caramel top.',
+    variants:[{label:'Pack of 4',price:80}]},
+  {key:'bundle',name:"Dee's Bundle",cat:'Bundles',emoji:'🎁',tag:'Best value',desc:'1 San Sebastian · 2 crème brûlée · 1 mini pavlova · 4 carrot balls · 4 mini lazy cakes.',
+    variants:[{label:'Tasting Box',price:320}]},
+];
+const CATS=['All','Cakes','Cheesecakes','Pastries','Healthy','Bundles'];
+const REVIEWS=[
+  {st:5,text:'The San Sebastian was unreal — caramelised on top and so creamy. Gone in minutes!',wh:'— Sara, Dubai Marina'},
+  {st:5,text:'Ordered the bundle for a family gathering. Everything tasted fresh and homemade.',wh:'— Omar, JVC'},
+  {st:5,text:'Best lazy cake I\'ve had in Dubai. Brought back childhood memories!',wh:'— Layla, Downtown'},
+];
+
+let activeCat='All';
+const cart={}; // id -> {key,name,emoji,label,price,qty}
+const AED=n=>'AED '+(+n).toLocaleString('en-US');
+
+/* ---- chips ---- */
+document.getElementById('chips').innerHTML=CATS.map(c=>`<button class="chip${c===activeCat?' active':''}" onclick="setCat('${c}')">${c}</button>`).join('');
+function setCat(c){activeCat=c;document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('active',b.textContent===c));document.getElementById('shopTitle').textContent=c==='All'?'All Treats':c;renderProducts();document.getElementById('shop').scrollIntoView({behavior:'smooth'});}
+
+/* ---- products ---- */
+function renderProducts(){
+  const q=(document.getElementById('search').value||'').toLowerCase();
+  const list=PRODUCTS.filter(p=>(activeCat==='All'||p.cat===activeCat)&&(p.name.toLowerCase().includes(q)||p.desc.toLowerCase().includes(q)));
+  const el=document.getElementById('grid');
+  if(!list.length){el.innerHTML='<p style="color:var(--brown-soft);padding:20px">No treats match that. Try another search or category.</p>';return;}
+  el.innerHTML=list.map(p=>`
+    <div class="pcard">
+      <div class="ph">${p.tag?`<span class="tag">${p.tag}</span>`:''}<img src="${p.key}.jpg" alt="${p.name}" onerror="this.replaceWith(document.createTextNode('${p.emoji}'))"></div>
+      <div class="pb">
+        <h3>${p.name}</h3>
+        <div class="ds">${p.desc}</div>
+        <div class="buy">
+          <select id="v-${p.key}">${p.variants.map((v,i)=>`<option value="${i}">${v.label} · ${AED(v.price)}</option>`).join('')}</select>
+          <button class="addbtn" onclick="addToCart('${p.key}')">＋ Add</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ---- reviews ---- */
+document.getElementById('revgrid').innerHTML=REVIEWS.map(r=>`<div class="rev"><div class="st">${'★'.repeat(r.st)}</div><p>"${r.text}"</p><div class="wh">${r.wh}</div></div>`).join('');
+
+/* ---- cart ---- */
+function addToCart(key){
+  const p=PRODUCTS.find(x=>x.key===key);
+  const vi=+document.getElementById('v-'+key).value;
+  const v=p.variants[vi];
+  const id=key+'|'+v.label;
+  if(cart[id])cart[id].qty++; else cart[id]={key,name:p.name,emoji:p.emoji,label:v.label,price:v.price,qty:1};
+  updateCart(); flashCart();
+}
+function cartChange(id,d){if(!cart[id])return;cart[id].qty+=d;if(cart[id].qty<=0)delete cart[id];updateCart();renderCart();}
+function cartCount(){return Object.values(cart).reduce((s,i)=>s+i.qty,0);}
+function cartTotal(){return Object.values(cart).reduce((s,i)=>s+i.qty*i.price,0);}
+function updateCart(){document.getElementById('cartCount').textContent=cartCount();document.querySelectorAll('.totval').forEach(e=>e.textContent=AED(cartTotal()));}
+function flashCart(){const b=document.querySelector('.cartbtn');b.style.transform='scale(1.08)';setTimeout(()=>b.style.transform='',150);}
+function renderCart(){
+  const items=Object.entries(cart);
+  const body=document.getElementById('cartBody');
+  if(!items.length){body.innerHTML='<div class="emptycart">Your order is empty.<br>Tap <b>＋ Add</b> on any treat 🍰</div>';updateCart();return;}
+  body.innerHTML=items.map(([id,it])=>`
+    <div class="citem">
+      <div class="emo">${it.emoji}</div>
+      <div>
+        <div class="ci-nm">${it.name}</div>
+        <div class="ci-vr">${it.label} · ${AED(it.price)}</div>
+        <div class="ci-q"><button class="qb" onclick="cartChange('${id}',-1)">−</button><b>${it.qty}</b><button class="qb" onclick="cartChange('${id}',1)">＋</button></div>
+      </div>
+      <div class="ci-pr">${AED(it.price*it.qty)}</div>
+    </div>`).join('');
+  updateCart();
+}
+function openCart(){showStep('cart');renderCart();document.getElementById('drawer').classList.add('open');document.getElementById('drawerBg').classList.add('open');}
+function closeCart(){document.getElementById('drawer').classList.remove('open');document.getElementById('drawerBg').classList.remove('open');}
+
+/* ---- checkout steps ---- */
+const STEPS=['cart','details','pay','done'];
+let orderEmailed=false;
+function val(id){return (document.getElementById(id).value||'').trim()}
+/* write the order into the Firebase dashboard (same shape the dashboard expects) */
+function saveOrderToCloud(name,phone,area,date){
+  try{
+    if(!window.firebase||!firebase.apps||!firebase.apps.length)return;
+    const items=Object.values(cart).map(i=>({name:i.name+' — '+i.label,price:i.price,qty:i.qty}));
+    const id='o'+Date.now()+Math.random().toString(36).slice(2,6);
+    firebase.firestore().collection('orders').doc(id).set({
+      id, date:date||new Date().toISOString().slice(0,10),
+      customer:name, phone:phone, address:area,
+      platform:'Website', payment:'Unpaid',
+      discount:0, comm:0, delivery:0, items
+    }).catch(()=>{});
+  }catch(e){}
+}
+function showStep(step){
+  STEPS.forEach(s=>{
+    document.getElementById('step-'+s).style.display = s===step?'flex':'none';
+    document.getElementById('dot-'+s).classList.toggle('on', s===step);
+  });
+  const titles={cart:'🛒 Your Order',details:'📝 Your Details',pay:'💳 Payment',done:'✅ Confirmed'};
+  document.getElementById('drawerTitle').textContent=titles[step];
+  if(step==='done'){const n=val('co_name');document.getElementById('doneName').textContent=n?', '+n:'';}
+  document.getElementById('drawer').scrollTop=0;
+}
+function goDetails(){
+  if(!Object.keys(cart).length){alert('Add at least one treat first 🙂');return;}
+  showStep('details');
+}
+async function goPay(){
+  const name=val('co_name'),phone=val('co_phone'),area=val('co_area'),date=val('co_date');
+  if(!name){alert('Please enter your name.');document.getElementById('co_name').focus();return;}
+  if(!phone){alert('Please enter your phone number.');document.getElementById('co_phone').focus();return;}
+  if(!area){alert('Please enter your delivery area & address.');document.getElementById('co_area').focus();return;}
+  /* capture the order now (cloud dashboard + email), so it's saved even before payment finishes */
+  if(!orderEmailed){
+    orderEmailed=true;
+    saveOrderToCloud(name,phone,area,date);
+    if(ORDER_EMAIL_KEY){
+      const summary=`New order from ${name}\nPhone: ${phone}\nDelivery: ${area}\nDate: ${date||'(not set)'}\n\n`+
+        Object.values(cart).map(i=>`• ${i.qty}× ${i.name} (${i.label}) — ${AED(i.price*i.qty)}`).join('\n')+
+        `\n\nTotal: ${AED(cartTotal())}`;
+      try{await fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({access_key:ORDER_EMAIL_KEY,subject:"New Dee's Treats order — "+name,cc:['dinatabdou@hotmail.com'],message:summary})});}catch(e){}
+    }
+  }
+  /* Ziina blocks embedding, so open its secure page in a new tab */
+  document.getElementById('zopen').href=ZIINA_LINK;
+  showStep('pay');
+}
+function resetOrder(){
+  for(const k in cart)delete cart[k];
+  ['co_name','co_phone','co_area','co_date'].forEach(id=>document.getElementById(id).value='');
+  orderEmailed=false;
+  updateCart();renderCart();
+  closeCart();
+}
+
+/* init */
+(function(){const t=new Date();t.setDate(t.getDate()+1);const mm=String(t.getMonth()+1).padStart(2,'0'),dd=String(t.getDate()).padStart(2,'0');document.getElementById('co_date').min=t.getFullYear()+'-'+mm+'-'+dd;})();
+document.getElementById('yr').textContent=new Date().getFullYear();
+renderProducts(); updateCart();
+</script>
+</body>
+</html>
