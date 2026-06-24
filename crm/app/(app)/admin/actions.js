@@ -126,6 +126,32 @@ export async function archiveTarget(formData) {
   back('Target archived', true);
 }
 
+export async function createLaunch(formData) {
+  const { user, supabase } = await requireAdmin();
+  const title = String(formData.get('title') || '').trim();
+  if (!title) back('Launch title is required');
+  const { error } = await supabase.from('launches').insert({
+    title,
+    developer: emptyToNull(formData.get('developer')),
+    note: emptyToNull(formData.get('note')),
+    image_url: emptyToNull(formData.get('image_url')),
+    created_by: user.id,
+  });
+  if (error) back(error.message);
+  revalidatePath(ADMIN);
+  revalidatePath('/dashboard');
+  back('Launch posted', true);
+}
+
+export async function deleteLaunch(formData) {
+  const { supabase } = await requireAdmin();
+  const { error } = await supabase.from('launches').delete().eq('id', String(formData.get('launch_id')));
+  if (error) back(error.message);
+  revalidatePath(ADMIN);
+  revalidatePath('/dashboard');
+  back('Launch removed', true);
+}
+
 function emptyToNull(v) {
   const s = String(v ?? '').trim();
   return s === '' ? null : s;

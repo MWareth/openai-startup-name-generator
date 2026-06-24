@@ -11,6 +11,8 @@ import {
   addTier,
   deleteTier,
   archiveTarget,
+  createLaunch,
+  deleteLaunch,
 } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -35,6 +37,11 @@ export default async function AdminPage({ searchParams }) {
   const { data: targets } = await supabase
     .from('targets')
     .select('*, agent:profiles(full_name), incentive_tiers(*)')
+    .order('created_at', { ascending: false });
+
+  const { data: launches } = await supabase
+    .from('launches')
+    .select('*')
     .order('created_at', { ascending: false });
 
   return (
@@ -186,6 +193,42 @@ export default async function AdminPage({ searchParams }) {
         ) : (
           <p className="muted small">No targets yet.</p>
         )}
+      </div>
+
+      {/* ---- New launches ---- */}
+      <div className="card">
+        <h2>New launches</h2>
+        <p className="small muted">Post a new project/development — it appears on every agent&apos;s home feed.</p>
+        <form action={createLaunch}>
+          <div className="form-grid">
+            <div className="field"><label>Project title</label><input name="title" placeholder="e.g. South Square — Tower B" required /></div>
+            <div className="field"><label>Developer</label><input name="developer" placeholder="e.g. Dubai South" /></div>
+          </div>
+          <div className="field"><label>Note (optional)</label><textarea name="note" placeholder="Launch price, handover, commission, key selling points…" /></div>
+          <div className="field"><label>Image URL (optional)</label><input name="image_url" placeholder="https://…/render.jpg" /></div>
+          <button className="btn" type="submit">Post launch</button>
+        </form>
+
+        {launches && launches.length ? (
+          <>
+            <hr className="divider" />
+            <div className="stack" style={{ gap: 10 }}>
+              {launches.map((p) => (
+                <div key={p.id} className="spread" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 10 }}>
+                  <div>
+                    <strong>{p.title}</strong>{p.developer ? <span className="small muted"> · {p.developer}</span> : null}
+                    {p.note ? <div className="small muted">{p.note}</div> : null}
+                    <div className="small muted">{formatDate(p.created_at)}</div>
+                  </div>
+                  <form action={deleteLaunch}>
+                    <input type="hidden" name="launch_id" value={p.id} />
+                    <button className="btn ghost small" type="submit">Remove</button>
+                  </form>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : null}
       </div>
     </div>
   );
