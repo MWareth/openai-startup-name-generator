@@ -29,6 +29,26 @@ export const ACTIVITY_LABELS = {
 
 export const QUAL_LABELS = { hot: 'Hot', warm: 'Warm', cold: 'Cold' };
 
+export const SENIORITY_LABELS = {
+  junior: 'Junior (50/50)',
+  senior: 'Senior (55/45)',
+  team_leader: 'Team Leader (60/40)',
+};
+
+export const ROLE_LABELS = {
+  agent: 'Agent',
+  director: 'Director',
+  c_suite: 'C-Suite',
+  admin: 'Admin (Owner)',
+};
+
+// Agent commission split as a "you/company" string, by seniority.
+export const SPLIT_LABELS = {
+  junior: '50/50',
+  senior: '55/45',
+  team_leader: '60/40',
+};
+
 export const STATUS_LABELS = {
   new: 'New',
   active: 'Active',

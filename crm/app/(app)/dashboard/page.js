@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireUser } from '@/lib/auth';
+import { requireUser, hasAdminAccess } from '@/lib/auth';
 import { getTargetProgress } from '@/lib/targets';
 import { aed, pct, QUAL_LABELS, formatDate } from '@/lib/format';
 
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Dashboard() {
   const { user, profile, supabase } = await requireUser();
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = hasAdminAccess(profile);
 
   if (isAdmin) return <AdminDashboard supabase={supabase} name={profile.full_name} />;
 

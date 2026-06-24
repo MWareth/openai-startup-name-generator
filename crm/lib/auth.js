@@ -19,8 +19,16 @@ export async function requireUser() {
   return { user, profile, supabase };
 }
 
+// Roles with full owner-level access (monitor everything + edit). The owner is
+// 'admin'; Director and C-Suite are oversight roles granted the same powers.
+export const ADMIN_ROLES = ['admin', 'director', 'c_suite'];
+
+export function hasAdminAccess(profile) {
+  return !!profile && ADMIN_ROLES.includes(profile.role);
+}
+
 export async function requireAdmin() {
   const ctx = await requireUser();
-  if (!ctx.profile || ctx.profile.role !== 'admin') redirect('/dashboard');
+  if (!hasAdminAccess(ctx.profile)) redirect('/dashboard');
   return ctx;
 }

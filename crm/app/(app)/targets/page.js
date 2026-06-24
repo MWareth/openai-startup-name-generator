@@ -1,6 +1,6 @@
 import { requireUser } from '@/lib/auth';
 import { getTargetProgress } from '@/lib/targets';
-import { aed, pct, formatDate } from '@/lib/format';
+import { aed, pct, formatDate, SPLIT_LABELS, SENIORITY_LABELS } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,10 +23,14 @@ export default async function TargetsPage() {
     <div className="stack">
       <div>
         <h1>My targets &amp; incentives</h1>
-        <p className="muted">
-          Your split as a <strong style={{ textTransform: 'capitalize' }}>{profile?.seniority}</strong> agent is{' '}
-          {profile?.seniority === 'senior' ? '55/45' : '50/50'} (you/company), after any referral cut.
-        </p>
+        {profile?.role === 'agent' ? (
+          <p className="muted">
+            Your level is <strong>{SENIORITY_LABELS[profile?.seniority] || profile?.seniority}</strong> — a{' '}
+            {SPLIT_LABELS[profile?.seniority] || '50/50'} split (you/company), after any referral cut.
+          </p>
+        ) : (
+          <p className="muted">Oversight role — you can monitor the whole team from the dashboard.</p>
+        )}
       </div>
 
       {withProgress.length ? (

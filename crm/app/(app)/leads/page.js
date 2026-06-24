@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { requireUser } from '@/lib/auth';
+import { requireUser, hasAdminAccess } from '@/lib/auth';
 import { QUAL_LABELS, STATUS_LABELS, formatDate } from '@/lib/format';
 
 export const dynamic = 'force-dynamic';
 
 export default async function LeadsPage() {
   const { profile, supabase } = await requireUser();
-  const isAdmin = profile?.role === 'admin';
+  const isAdmin = hasAdminAccess(profile);
 
   const { data: leads } = await supabase
     .from('leads')

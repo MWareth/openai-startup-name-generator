@@ -53,13 +53,16 @@ export default async function AdminPage({ searchParams }) {
                     <input type="hidden" name="agent_id" value={p.id} />
                     <input name="full_name" defaultValue={p.full_name} style={{ flex: '1 1 160px' }} />
                     <span className="small muted" style={{ flex: '1 1 180px' }}>{p.email}</span>
-                    <select name="role" defaultValue={p.role} style={{ width: 110 }}>
+                    <select name="role" defaultValue={p.role} style={{ width: 130 }}>
                       <option value="agent">Agent</option>
-                      <option value="admin">Admin</option>
+                      <option value="director">Director</option>
+                      <option value="c_suite">C-Suite</option>
+                      <option value="admin">Admin (Owner)</option>
                     </select>
-                    <select name="seniority" defaultValue={p.seniority} style={{ width: 110 }}>
-                      <option value="junior">Junior</option>
-                      <option value="senior">Senior</option>
+                    <select name="seniority" defaultValue={p.seniority} style={{ width: 140 }}>
+                      <option value="junior">Junior 50/50</option>
+                      <option value="senior">Senior 55/45</option>
+                      <option value="team_leader">Team Leader 60/40</option>
                     </select>
                     <button className="btn secondary small" type="submit">Save</button>
                   </form>
@@ -70,7 +73,7 @@ export default async function AdminPage({ searchParams }) {
         </table>
 
         <hr className="divider" />
-        <h3>Add agent</h3>
+        <h3>Add team member</h3>
         <form action={createAgent}>
           <div className="form-grid">
             <div className="field"><label>Full name</label><input name="full_name" required /></div>
@@ -79,15 +82,23 @@ export default async function AdminPage({ searchParams }) {
           <div className="form-grid">
             <div className="field"><label>Temporary password</label><input name="password" minLength={6} required /></div>
             <div className="field">
-              <label>Seniority</label>
-              <select name="seniority" defaultValue="junior">
-                <option value="junior">Junior (50/50)</option>
-                <option value="senior">Senior (55/45)</option>
+              <label>Role</label>
+              <select name="role" defaultValue="agent">
+                <option value="agent">Agent</option>
+                <option value="director">Director (monitor + full access)</option>
+                <option value="c_suite">C-Suite (monitor + full access)</option>
               </select>
             </div>
           </div>
-          <input type="hidden" name="role" value="agent" />
-          <button className="btn" type="submit">Create agent</button>
+          <div className="field" style={{ maxWidth: 280 }}>
+            <label>Commission level (agents only)</label>
+            <select name="seniority" defaultValue="junior">
+              <option value="junior">Junior (50/50)</option>
+              <option value="senior">Senior (55/45)</option>
+              <option value="team_leader">Team Leader (60/40)</option>
+            </select>
+          </div>
+          <button className="btn" type="submit">Create user</button>
         </form>
       </div>
 
