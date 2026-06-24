@@ -11,6 +11,7 @@ import {
 } from '@/lib/format';
 import { addActivity, updateLead, suggestReassign, logDeal, setFollowUp } from '../actions';
 import DictateField from '@/components/DictateField';
+import TranslateButton from '@/components/TranslateButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -199,6 +200,7 @@ export default async function LeadDetail({ params, searchParams }) {
                       <span className="small muted">{formatDate(a.occurred_on)}</span>
                     </div>
                     <div className="small" style={{ marginTop: 4, whiteSpace: 'pre-wrap' }}>{a.body}</div>
+                    {a.body ? <TranslateButton text={a.body} /> : null}
                     <div className="small muted">{a.agent?.full_name}</div>
                   </div>
                 ))}

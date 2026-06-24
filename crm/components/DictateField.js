@@ -91,6 +91,9 @@ export default function DictateField({ name, placeholder, required, rows = 3, de
           <span className="small muted">Tip: tap your phone keyboard&apos;s 🎤 to dictate.</span>
         )}
       </div>
+      <p className="small muted" style={{ marginTop: 6 }}>
+        ✍️ Voice-to-text isn&apos;t perfect — read it back and edit any words before saving.
+      </p>
     </div>
   );
 }

@@ -177,6 +177,45 @@ export async function logDeal(formData) {
   revalidatePath('/dashboard');
 }
 
+// On-demand translation of a note to English (uses Claude — cheap + fast).
+// Returns { text } on success or { error } if not configured / failed.
+export async function translateToEnglish(text) {
+  await requireUser();
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) return { error: 'Translation isn’t set up yet (missing ANTHROPIC_API_KEY).' };
+  const clean = String(text || '').trim();
+  if (!clean) return { text: '' };
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1000,
+        messages: [
+          {
+            role: 'user',
+            content:
+              'Translate this real-estate CRM note to English. If it is already English, return it unchanged. Reply with ONLY the translation — no preamble, no quotes.\n\n---\n' +
+              clean,
+          },
+        ],
+      }),
+    });
+    if (!res.ok) return { error: `Translation failed (${res.status}).` };
+    const data = await res.json();
+    const out = data?.content?.[0]?.text?.trim();
+    return { text: out || '(no translation returned)' };
+  } catch (e) {
+    return { error: 'Translation request failed.' };
+  }
+}
+
 function emptyToNull(v) {
   const s = String(v ?? '').trim();
   return s === '' ? null : s;
