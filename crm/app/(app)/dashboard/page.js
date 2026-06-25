@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { requireUser, hasAdminAccess } from '@/lib/auth';
 import { getTargetProgress } from '@/lib/targets';
 import { aed, pct, QUAL_LABELS, formatDate } from '@/lib/format';
@@ -8,6 +9,9 @@ export const dynamic = 'force-dynamic';
 export default async function Dashboard() {
   const { user, profile, supabase } = await requireUser();
   const isAdmin = hasAdminAccess(profile);
+
+  // Support staff work from the commission queue, not a sales dashboard.
+  if (profile?.role === 'support') redirect('/commission');
 
   if (isAdmin) return <AdminDashboard supabase={supabase} name={profile.full_name} />;
 

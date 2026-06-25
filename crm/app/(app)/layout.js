@@ -1,4 +1,4 @@
-import { requireUser, hasAdminAccess } from '@/lib/auth';
+import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
 import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import NavLink from '@/components/NavLink';
 import Avatar from '@/components/Avatar';
@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 export default async function AppLayout({ children }) {
   const { user, profile } = await requireUser();
   const isAdmin = hasAdminAccess(profile);
+  const isStaff = hasStaffAccess(profile);
   const name = profile?.full_name || user.email;
 
   return (
@@ -24,6 +25,7 @@ export default async function AppLayout({ children }) {
           <NavLink href="/leaderboard">Leaderboard</NavLink>
           <NavLink href="/targets">My Targets</NavLink>
           <NavLink href="/profile">My Profile</NavLink>
+          {isStaff ? <NavLink href="/commission">Commission</NavLink> : null}
           {isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
         </nav>
         <div className="sidebar-foot">

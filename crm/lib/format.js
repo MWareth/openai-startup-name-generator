@@ -104,8 +104,16 @@ export const ROLE_LABELS = {
   agent: 'Agent',
   director: 'Director',
   c_suite: 'C-Suite',
+  support: 'Support',
   admin: 'Admin (Owner)',
 };
+
+// Commission-collection workflow statuses.
+export const COMMISSION_STATUSES = [
+  { v: 'pending', l: 'Pending' },
+  { v: 'requested', l: 'Requested from developer' },
+  { v: 'received', l: 'Received' },
+];
 
 // Agent commission split as a "you/company" string, by seniority.
 export const SPLIT_LABELS = {

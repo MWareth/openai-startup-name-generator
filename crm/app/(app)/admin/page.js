@@ -74,6 +74,7 @@ export default async function AdminPage({ searchParams }) {
                     <input name="avatar_url" defaultValue={p.avatar_url || ''} placeholder="Photo URL" style={{ flex: '1 1 150px' }} />
                     <select name="role" defaultValue={p.role} style={{ width: 130 }}>
                       <option value="agent">Agent</option>
+                      <option value="support">Support</option>
                       <option value="director">Director</option>
                       <option value="c_suite">C-Suite</option>
                       <option value="admin">Admin (Owner)</option>
