@@ -230,3 +230,13 @@ tbody tr:hover { background: var(--panel-2); }
 
 .divider { height: 1px; background: var(--border); margin: 16px 0; border: none; }
 hr.divider { background: var(--border); }
+
+/* Print — used by the client proposal PDF (Save as PDF) */
+@media print {
+  .sidebar, .no-print { display: none !important; }
+  .shell { display: block; }
+  .content { padding: 0; max-width: none; }
+  .card { box-shadow: none; border: none; padding: 0; }
+  body { background: #fff; }
+  a { color: var(--text); text-decoration: none; }
+}

@@ -22,6 +22,7 @@ export default async function AppLayout({ children }) {
           <NavLink href="/dashboard">Dashboard</NavLink>
           <NavLink href="/leads">Leads</NavLink>
           <NavLink href="/projects">Projects</NavLink>
+          <NavLink href="/proposal">Proposal</NavLink>
           <NavLink href="/leaderboard">Leaderboard</NavLink>
           <NavLink href="/targets">My Targets</NavLink>
           <NavLink href="/profile">My Profile</NavLink>
