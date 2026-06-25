@@ -77,6 +77,15 @@ export const DEAL_PROPERTY_TYPES = [
   '7 Bedroom Villa',
 ];
 
+// Document types attached to a deal.
+export const DOC_KINDS = [
+  { v: 'proof_of_payment', l: 'Proof of payment' },
+  { v: 'spa', l: 'Sales & Purchase Agreement (SPA)' },
+  { v: 'passport', l: 'Passport' },
+  { v: 'emirates_id', l: 'Emirates ID' },
+  { v: 'other', l: 'Other' },
+];
+
 export const SENIORITY_LABELS = {
   junior: 'Junior (50/50)',
   senior: 'Senior (55/45)',

@@ -1,16 +1,18 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
-import { aed, DEAL_PROPERTY_TYPES } from '@/lib/format';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { aed, DEAL_PROPERTY_TYPES, DOC_KINDS } from '@/lib/format';
 import SubmitButton from '@/components/SubmitButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
-import { updateDeal, deleteDeal } from '../../actions';
+import { updateDeal, deleteDeal, uploadDealDoc, deleteDealDoc } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 
 export default async function EditDealPage({ params, searchParams }) {
   const { supabase } = await requireUser();
   const error = searchParams?.error;
+  const ok = searchParams?.ok;
 
   const { data: deal } = await supabase
     .from('deals')
@@ -21,6 +23,20 @@ export default async function EditDealPage({ params, searchParams }) {
   if (!deal) notFound();
 
   const backHref = deal.lead?.id ? `/leads/${deal.lead.id}` : '/leads';
+
+  // Documents (private storage) — fetch + sign view URLs via the admin client.
+  const adminCli = createAdminClient();
+  const { data: docsRaw } = await adminCli
+    .from('deal_documents')
+    .select('*')
+    .eq('deal_id', deal.id)
+    .order('created_at', { ascending: false });
+  const docs = [];
+  for (const d of docsRaw || []) {
+    const { data: signed } = await adminCli.storage.from('deal-docs').createSignedUrl(d.file_path, 3600);
+    docs.push({ ...d, url: signed?.signedUrl });
+  }
+  const docLabel = Object.fromEntries(DOC_KINDS.map((k) => [k.v, k.l]));
 
   return (
     <div className="stack" style={{ maxWidth: 640 }}>
@@ -33,6 +49,7 @@ export default async function EditDealPage({ params, searchParams }) {
         </p>
       </div>
       {error ? <div className="alert error">{error}</div> : null}
+      {ok ? <div className="alert ok">{ok}</div> : null}
 
       <form action={updateDeal} className="card">
         <input type="hidden" name="deal_id" value={deal.id} />
@@ -72,6 +89,49 @@ export default async function EditDealPage({ params, searchParams }) {
 
         <SubmitButton className="btn" pendingLabel="Saving…">Save changes</SubmitButton>
       </form>
+
+      <div className="card">
+        <h3>Documents</h3>
+        <p className="small muted">Proof of payment, SPA, passport, Emirates ID. PDF or image, up to ~4 MB each.</p>
+        <form action={uploadDealDoc}>
+          <input type="hidden" name="deal_id" value={deal.id} />
+          <div className="form-grid">
+            <div className="field">
+              <label>Document type</label>
+              <select name="kind" defaultValue="proof_of_payment">
+                {DOC_KINDS.map((k) => (
+                  <option key={k.v} value={k.v}>{k.l}</option>
+                ))}
+              </select>
+            </div>
+            <div className="field">
+              <label>File (PDF or image)</label>
+              <input type="file" name="file" accept="image/*,application/pdf" required />
+            </div>
+          </div>
+          <SubmitButton className="btn small" pendingLabel="Uploading…">Upload document</SubmitButton>
+        </form>
+
+        {docs.length ? (
+          <div className="stack" style={{ gap: 6, marginTop: 12 }}>
+            {docs.map((d) => (
+              <div key={d.id} className="spread" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
+                <div className="small">
+                  <span className="badge status">{docLabel[d.kind] || d.kind}</span>{' '}
+                  {d.url ? <a href={d.url} target="_blank" rel="noopener noreferrer">{d.file_name || 'View file'}</a> : (d.file_name || 'file')}
+                </div>
+                <form action={deleteDealDoc}>
+                  <input type="hidden" name="deal_id" value={deal.id} />
+                  <input type="hidden" name="doc_id" value={d.id} />
+                  <button className="btn ghost small" type="submit">Remove</button>
+                </form>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="small muted" style={{ marginTop: 8 }}>No documents uploaded yet.</p>
+        )}
+      </div>
 
       <form action={deleteDeal} className="card" style={{ borderColor: 'rgba(239,68,68,0.4)' }}>
         <input type="hidden" name="deal_id" value={deal.id} />
