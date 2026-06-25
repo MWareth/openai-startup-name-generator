@@ -302,7 +302,7 @@ export default async function LeadDetail({ params, searchParams }) {
                     <td className="right small">{d.referral_amount ? aed(d.referral_amount) : '—'}</td>
                     <td className="right small">{aed(d.agent_commission)}</td>
                     <td className="right small muted">{aed(d.company_commission)}</td>
-                    <td className="right"><Link className="small" href={`/deals/${d.id}/edit`}>Edit</Link></td>
+                    <td className="right"><Link className="small" href={`/deals/${d.id}/edit`}>Open · docs &amp; notes →</Link></td>
                   </tr>
                 ))}
               </tbody>

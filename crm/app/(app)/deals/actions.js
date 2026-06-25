@@ -140,6 +140,19 @@ export async function deleteDealDoc(formData) {
   redirect(`/deals/${dealId}/edit?ok=` + encodeURIComponent('Document removed.'));
 }
 
+// Add a note specific to this deal (separate from the lead's activity timeline).
+export async function addDealNote(formData) {
+  const { user, supabase } = await requireUser();
+  const dealId = String(formData.get('deal_id'));
+  const body = String(formData.get('body') || '').trim();
+  const back = `/deals/${dealId}/edit`;
+  if (!body) redirect(`${back}?error=` + encodeURIComponent('Write a note first.'));
+  const { error } = await supabase.from('deal_notes').insert({ deal_id: dealId, author_id: user.id, body });
+  if (error) redirect(`${back}?error=` + encodeURIComponent(error.message));
+  revalidatePath(back);
+  redirect(`${back}?ok=` + encodeURIComponent('Note added.'));
+}
+
 function emptyToNull(v) {
   const s = String(v ?? '').trim();
   return s === '' ? null : s;

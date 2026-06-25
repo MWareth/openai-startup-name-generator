@@ -2,10 +2,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { aed, DEAL_PROPERTY_TYPES, DOC_KINDS } from '@/lib/format';
+import { aed, formatDate, DEAL_PROPERTY_TYPES, DOC_KINDS } from '@/lib/format';
 import SubmitButton from '@/components/SubmitButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
-import { updateDeal, deleteDeal, uploadDealDoc, deleteDealDoc } from '../../actions';
+import { updateDeal, deleteDeal, uploadDealDoc, deleteDealDoc, addDealNote } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,11 +38,18 @@ export default async function EditDealPage({ params, searchParams }) {
   }
   const docLabel = Object.fromEntries(DOC_KINDS.map((k) => [k.v, k.l]));
 
+  // Notes specific to this deal/unit.
+  const { data: notes } = await supabase
+    .from('deal_notes')
+    .select('*, author:profiles(full_name)')
+    .eq('deal_id', deal.id)
+    .order('created_at', { ascending: false });
+
   return (
     <div className="stack" style={{ maxWidth: 640 }}>
       <div>
         <Link className="small muted" href={backHref}>← Back to lead</Link>
-        <h1>Edit deal</h1>
+        <h1>Deal — {deal.lead?.name || 'Lead'}{deal.property ? ` · ${deal.property}` : ''}</h1>
         <p className="muted small">
           {deal.agent?.full_name ? `Credited to ${deal.agent.full_name} (${deal.agent.seniority}). ` : ''}
           Commission is recalculated automatically when you save.
@@ -130,6 +137,30 @@ export default async function EditDealPage({ params, searchParams }) {
           </div>
         ) : (
           <p className="small muted" style={{ marginTop: 8 }}>No documents uploaded yet.</p>
+        )}
+      </div>
+
+      <div className="card">
+        <h3>Notes for this deal</h3>
+        <p className="small muted">Notes specific to this unit (separate from the lead&apos;s timeline).</p>
+        <form action={addDealNote}>
+          <input type="hidden" name="deal_id" value={deal.id} />
+          <div className="field">
+            <textarea name="body" placeholder="e.g. Developer confirmed booking, awaiting OQOOD…" required />
+          </div>
+          <SubmitButton className="btn small" pendingLabel="Adding…">Add note</SubmitButton>
+        </form>
+        {notes && notes.length ? (
+          <div className="stack" style={{ gap: 8, marginTop: 12 }}>
+            {notes.map((n) => (
+              <div key={n.id} style={{ borderLeft: '2px solid var(--border)', paddingLeft: 10 }}>
+                <div className="small" style={{ whiteSpace: 'pre-wrap' }}>{n.body}</div>
+                <div className="small muted">{n.author?.full_name || '—'} · {formatDate(n.created_at)}</div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="small muted" style={{ marginTop: 8 }}>No notes yet for this deal.</p>
         )}
       </div>
 
