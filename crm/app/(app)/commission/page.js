@@ -88,7 +88,8 @@ export default async function CommissionPage({ searchParams }) {
                 </select>
               </div>
               <button className="btn secondary small" type="submit">Update</button>
-              {d.lead?.id ? <Link className="small" href={`/leads/${d.lead.id}`}>Open lead →</Link> : null}
+              <Link className="small" href={`/deals/${d.id}/edit`}>Open deal · docs →</Link>
+              {d.lead?.id ? <Link className="small" href={`/leads/${d.lead.id}`}>Lead →</Link> : null}
               <span className={`badge ${d.commission_status === 'received' ? 'won' : 'status'}`}>{STATUS_LABEL[d.commission_status] || 'Pending'}</span>
             </form>
           </div>
