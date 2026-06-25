@@ -13,7 +13,7 @@ export default async function EditDealPage({ params, searchParams }) {
 
   const { data: deal } = await supabase
     .from('deals')
-    .select('*, lead:leads(id, name), agent:profiles(full_name, seniority)')
+    .select('*, lead:leads(id, name), agent:profiles!deals_agent_id_fkey(full_name, seniority)')
     .eq('id', params.id)
     .single();
 
