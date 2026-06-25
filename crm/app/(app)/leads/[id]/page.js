@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireUser, hasAdminAccess } from '@/lib/auth';
+import { requireUser, hasStaffAccess } from '@/lib/auth';
 import SubmitButton from '@/components/SubmitButton';
 import {
   QUAL_LABELS,
@@ -22,7 +22,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function LeadDetail({ params, searchParams }) {
   const { user, profile, supabase } = await requireUser();
-  const isAdmin = hasAdminAccess(profile);
+  const isAdmin = hasStaffAccess(profile); // admin + support can reassign directly
   const error = searchParams?.error;
   const ok = searchParams?.ok;
   const today = new Date().toISOString().slice(0, 10);

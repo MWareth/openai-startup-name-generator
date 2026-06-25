@@ -2,14 +2,21 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { requireUser, hasAdminAccess } from '@/lib/auth';
+import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
 import { computeCommission } from '@/lib/commission';
 
 export async function createLead(formData) {
-  const { user, supabase } = await requireUser();
+  const { user, profile, supabase } = await requireUser();
 
   const name = String(formData.get('name') || '').trim();
   if (!name) redirect('/leads/new?error=' + encodeURIComponent('Name is required'));
+
+  // Admin/support may assign to any agent; everyone else keeps it themselves.
+  let assignedTo = user.id;
+  if (hasStaffAccess(profile)) {
+    const picked = emptyToNull(formData.get('assigned_agent_id'));
+    if (picked) assignedTo = picked;
+  }
 
   const phone = emptyToNull(formData.get('phone'));
   const email = emptyToNull(formData.get('email'));
@@ -44,7 +51,7 @@ export async function createLead(formData) {
     budget: budgetRaw ? Number(budgetRaw) : null,
     qualification: String(formData.get('qualification') || 'warm'),
     status: String(formData.get('status') || 'new'),
-    assigned_agent_id: user.id,
+    assigned_agent_id: assignedTo,
     created_by: user.id,
   };
   // Only include these when chosen, so lead creation still works even before
@@ -122,7 +129,7 @@ export async function suggestReassign(formData) {
   const { profile, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
   const selected = emptyToNull(formData.get('suggested_agent_id'));
-  const admin = hasAdminAccess(profile);
+  const admin = hasStaffAccess(profile); // admin + support reassign directly
 
   // Admin/owner reassigns the lead directly; agents can only propose (the DB
   // trigger blocks them from changing assigned_agent_id).
