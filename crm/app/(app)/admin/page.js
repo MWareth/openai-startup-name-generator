@@ -245,11 +245,11 @@ export default async function AdminPage({ searchParams }) {
         <div className="spread">
           <h2>Projects directory</h2>
           <form action={syncProjects}>
-            <button className="btn secondary small" type="submit">⟳ Sync from Google Sheet</button>
+            <button className="btn secondary small" type="submit">⟳ Refresh from Google Sheet</button>
           </form>
         </div>
         <p className="small muted">
-          Projects are mirrored from your Google Sheet (auto-synced daily; click Sync to pull now).
+          Projects are mirrored from your Google Sheet (auto-refreshed daily; click Refresh to pull now).
           Adding below also works for one-offs, but the sheet is the master list.
         </p>
         <form action={createProject}>
