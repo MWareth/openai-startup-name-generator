@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireUser } from '@/lib/auth';
+import { requireUser, hasAdminAccess } from '@/lib/auth';
 import SubmitButton from '@/components/SubmitButton';
 import {
   QUAL_LABELS,
@@ -22,6 +22,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function LeadDetail({ params, searchParams }) {
   const { user, profile, supabase } = await requireUser();
+  const isAdmin = hasAdminAccess(profile);
   const error = searchParams?.error;
   const ok = searchParams?.ok;
   const today = new Date().toISOString().slice(0, 10);
@@ -166,22 +167,26 @@ export default async function LeadDetail({ params, searchParams }) {
           </div>
 
           <div className="card">
-            <h3>Suggest reassignment</h3>
-            <p className="small muted">Propose another agent. An admin makes the final reassignment.</p>
-            {lead.suggested?.full_name ? (
+            <h3>{isAdmin ? 'Reassign lead' : 'Suggest reassignment'}</h3>
+            <p className="small muted">
+              {isAdmin
+                ? 'Assign this lead to another agent. Takes effect immediately.'
+                : 'Propose another agent. An admin makes the final reassignment.'}
+            </p>
+            {!isAdmin && lead.suggested?.full_name ? (
               <p className="small">Currently suggested: <span className="badge role">{lead.suggested.full_name}</span></p>
             ) : null}
             <form action={suggestReassign}>
               <input type="hidden" name="lead_id" value={lead.id} />
               <div className="field">
-                <select name="suggested_agent_id" defaultValue={lead.suggested?.id || ''}>
-                  <option value="">— No suggestion —</option>
+                <select name="suggested_agent_id" defaultValue={isAdmin ? (lead.assigned?.id || '') : (lead.suggested?.id || '')}>
+                  <option value="">{isAdmin ? '— Unassigned —' : '— No suggestion —'}</option>
                   {(agents || []).map((a) => (
                     <option key={a.id} value={a.id}>{a.full_name}</option>
                   ))}
                 </select>
               </div>
-              <button className="btn secondary small" type="submit">Save suggestion</button>
+              <button className="btn secondary small" type="submit">{isAdmin ? 'Reassign' : 'Save suggestion'}</button>
             </form>
           </div>
         </div>
