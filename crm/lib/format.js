@@ -62,6 +62,21 @@ export const BEDROOM_OPTIONS = [
   '5+ Bedrooms',
 ];
 
+// The unit type actually sold, recorded on a closed deal. Combines
+// type + size into one list, matching how stock is described.
+export const DEAL_PROPERTY_TYPES = [
+  'Studio',
+  '1 Bedroom Apartment',
+  '2 Bedroom Apartment',
+  '3 Bedroom Apartment',
+  '4 Bedroom Apartment',
+  '3 Bedroom Villa',
+  '4 Bedroom Villa',
+  '5 Bedroom Villa',
+  '6 Bedroom Villa',
+  '7 Bedroom Villa',
+];
+
 export const SENIORITY_LABELS = {
   junior: 'Junior (50/50)',
   senior: 'Senior (55/45)',

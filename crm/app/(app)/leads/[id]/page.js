@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
+import SubmitButton from '@/components/SubmitButton';
 import {
   QUAL_LABELS,
   STATUS_LABELS,
@@ -10,6 +11,7 @@ import {
   waLink,
   PROPERTY_TYPES,
   BEDROOM_OPTIONS,
+  DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
 import { addActivity, updateLead, suggestReassign, logDeal, setFollowUp } from '../actions';
 import DictateField from '@/components/DictateField';
@@ -20,6 +22,7 @@ export const dynamic = 'force-dynamic';
 export default async function LeadDetail({ params, searchParams }) {
   const { user, profile, supabase } = await requireUser();
   const error = searchParams?.error;
+  const ok = searchParams?.ok;
   const today = new Date().toISOString().slice(0, 10);
 
   const { data: lead } = await supabase
@@ -67,6 +70,7 @@ export default async function LeadDetail({ params, searchParams }) {
           </div>
         </div>
       </div>
+      {ok ? <div className="alert ok">{ok}</div> : null}
       {error ? <div className="alert error">{error}</div> : null}
 
       <div className="grid grid-2">
@@ -209,7 +213,7 @@ export default async function LeadDetail({ params, searchParams }) {
                 <label>Set next follow-up (optional)</label>
                 <input type="date" name="next_follow_up" />
               </div>
-              <button className="btn small" type="submit">Add activity</button>
+              <SubmitButton className="btn small" pendingLabel="Saving…">Add activity</SubmitButton>
             </form>
           </div>
 
@@ -247,23 +251,32 @@ export default async function LeadDetail({ params, searchParams }) {
           <input type="hidden" name="lead_id" value={lead.id} />
           <div className="form-grid">
             <div className="field">
-              <label>Property</label>
-              <input name="property" defaultValue={lead.property_interest || ''} />
+              <label>Property type (sold)</label>
+              <select name="property_type" defaultValue="">
+                <option value="">— Select —</option>
+                {DEAL_PROPERTY_TYPES.map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
             </div>
             <div className="field">
-              <label>Deal value (AED) *</label>
-              <input name="deal_value" type="number" min="0" step="1000" required />
+              <label>Property / reference</label>
+              <input name="property" defaultValue={lead.property_interest || ''} />
             </div>
           </div>
           <div className="form-grid">
             <div className="field">
+              <label>Deal value (AED) *</label>
+              <input name="deal_value" type="number" min="0" step="1000" required />
+            </div>
+            <div className="field">
               <label>Gross commission (AED)</label>
               <input name="gross_commission" type="number" min="0" step="100" />
             </div>
-            <div className="field">
-              <label>Closed on</label>
-              <input name="closed_on" type="date" defaultValue={today} />
-            </div>
+          </div>
+          <div className="field" style={{ maxWidth: 240 }}>
+            <label>Closed on</label>
+            <input name="closed_on" type="date" defaultValue={today} />
           </div>
           <div className="form-grid">
             <div className="field">
@@ -275,7 +288,7 @@ export default async function LeadDetail({ params, searchParams }) {
               <input name="referral_amount" type="number" min="0" step="100" defaultValue="0" />
             </div>
           </div>
-          <button className="btn" type="submit">Log deal &amp; mark won</button>
+          <SubmitButton className="btn" pendingLabel="Logging…">Log deal &amp; mark won</SubmitButton>
         </form>
 
         {deals && deals.length ? (
@@ -283,18 +296,20 @@ export default async function LeadDetail({ params, searchParams }) {
             <hr className="divider" />
             <table>
               <thead>
-                <tr><th>Closed</th><th>Property</th><th className="right">Value</th><th className="right">Gross</th><th className="right">Referral</th><th className="right">Agent</th><th className="right">Company</th></tr>
+                <tr><th>Closed</th><th>Type</th><th>Property</th><th className="right">Value</th><th className="right">Gross</th><th className="right">Referral</th><th className="right">Agent</th><th className="right">Company</th><th></th></tr>
               </thead>
               <tbody>
                 {deals.map((d) => (
                   <tr key={d.id}>
                     <td className="small">{formatDate(d.closed_on)}</td>
+                    <td className="small">{d.property_type || '—'}</td>
                     <td className="small">{d.property || '—'}</td>
                     <td className="right">{aed(d.deal_value)}</td>
                     <td className="right small">{aed(d.gross_commission)}</td>
                     <td className="right small">{d.referral_amount ? aed(d.referral_amount) : '—'}</td>
                     <td className="right small">{aed(d.agent_commission)}</td>
                     <td className="right small muted">{aed(d.company_commission)}</td>
+                    <td className="right"><Link className="small" href={`/deals/${d.id}/edit`}>Edit</Link></td>
                   </tr>
                 ))}
               </tbody>

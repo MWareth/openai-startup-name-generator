@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { requireUser } from '@/lib/auth';
 import { PROPERTY_TYPES, BEDROOM_OPTIONS } from '@/lib/format';
+import SubmitButton from '@/components/SubmitButton';
 import { createLead } from '../actions';
 
 export const dynamic = 'force-dynamic';
@@ -85,7 +86,7 @@ export default async function NewLeadPage({ searchParams }) {
             </select>
           </div>
         </div>
-        <button className="btn" type="submit">Create lead</button>
+        <SubmitButton className="btn" pendingLabel="Creating…">Create lead</SubmitButton>
       </form>
     </div>
   );

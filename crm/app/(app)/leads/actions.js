@@ -59,7 +59,7 @@ export async function createLead(formData) {
   if (error) redirect('/leads/new?error=' + encodeURIComponent(error.message));
 
   revalidatePath('/leads');
-  redirect('/leads/' + data.id);
+  redirect('/leads/' + data.id + '?ok=' + encodeURIComponent('Lead created.'));
 }
 
 export async function addActivity(formData) {
@@ -84,6 +84,7 @@ export async function addActivity(formData) {
 
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/dashboard');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Activity logged.'));
 }
 
 export async function setFollowUp(formData) {
@@ -96,6 +97,7 @@ export async function setFollowUp(formData) {
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/dashboard');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Follow-up date updated.'));
 }
 
 export async function updateLead(formData) {
@@ -113,6 +115,7 @@ export async function updateLead(formData) {
   const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   revalidatePath(`/leads/${leadId}`);
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Lead updated.'));
 }
 
 export async function suggestReassign(formData) {
@@ -129,6 +132,10 @@ export async function suggestReassign(formData) {
 
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   revalidatePath(`/leads/${leadId}`);
+  redirect(
+    `/leads/${leadId}?ok=` +
+      encodeURIComponent(suggested ? 'Reassignment suggestion saved.' : 'Suggestion cleared.')
+  );
 }
 
 export async function logDeal(formData) {
@@ -164,6 +171,7 @@ export async function logDeal(formData) {
     lead_id: leadId,
     agent_id: agentId,
     property: emptyToNull(formData.get('property')),
+    property_type: emptyToNull(formData.get('property_type')),
     deal_value: dealValue,
     gross_commission: gross,
     referral_party: emptyToNull(formData.get('referral_party')),
@@ -183,6 +191,8 @@ export async function logDeal(formData) {
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/targets');
   revalidatePath('/dashboard');
+  revalidatePath('/leaderboard');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Deal logged and lead marked won.'));
 }
 
 // On-demand translation of a note to English using Google Translate's free

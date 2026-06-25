@@ -8,6 +8,8 @@ export const dynamic = 'force-dynamic';
 export default async function LeadsPage({ searchParams }) {
   const { profile, supabase } = await requireUser();
   const isAdmin = hasAdminAccess(profile);
+  const ok = searchParams?.ok;
+  const error = searchParams?.error;
 
   const values = {
     agent: searchParams?.agent || '',
@@ -64,6 +66,8 @@ export default async function LeadsPage({ searchParams }) {
 
   return (
     <div className="stack">
+      {ok ? <div className="alert ok">{ok}</div> : null}
+      {error ? <div className="alert error">{error}</div> : null}
       <div className="spread">
         <div>
           <h1>Leads</h1>

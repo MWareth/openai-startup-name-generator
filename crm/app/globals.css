@@ -162,6 +162,7 @@ p { margin: 0 0 10px; }
   cursor: pointer;
 }
 .btn:hover { background: var(--brand-2); text-decoration: none; }
+.btn:disabled { opacity: 0.6; cursor: progress; }
 .btn.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
 .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
 .btn.gold { background: var(--gold); color: #1a1407; }

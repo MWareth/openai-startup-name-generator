@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import SubmitButton from '@/components/SubmitButton';
 
 // Fields for the "Add team member" form. Lives inside a <form action={createAgent}>.
 // The commission scheme only applies to agents, so it hides when an oversight
@@ -36,7 +37,7 @@ export default function AddMemberFields() {
           </select>
         </div>
       ) : null}
-      <button className="btn" type="submit">Create user</button>
+      <SubmitButton className="btn" pendingLabel="Creating…">Create user</SubmitButton>
     </>
   );
 }
