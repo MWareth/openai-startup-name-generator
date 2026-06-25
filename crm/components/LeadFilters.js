@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { PROPERTY_TYPES, BEDROOM_OPTIONS, QUAL_LABELS, STATUS_LABELS } from '@/lib/format';
 
@@ -15,21 +16,55 @@ const SORTS = [
   { v: 'recent', l: 'Recently updated' },
   { v: 'new', l: 'Newest first' },
   { v: 'old', l: 'Oldest first' },
+  { v: 'name', l: 'Name: A → Z' },
+  { v: 'name_desc', l: 'Name: Z → A' },
   { v: 'budget_high', l: 'Budget: high → low' },
   { v: 'budget_low', l: 'Budget: low → high' },
 ];
 
-export default function LeadFilters({ agents, values }) {
+export default function LeadFilters({ agents, values, names = [] }) {
   const router = useRouter();
+  const [name, setName] = useState(values.name || '');
+  const timer = useRef(null);
 
-  function update(key, val) {
-    const next = { ...values, [key]: val };
+  // Keep the local box in sync when the URL changes elsewhere (e.g. Clear).
+  useEffect(() => {
+    setName(values.name || '');
+  }, [values.name]);
+
+  function buildAndPush(nextValues, replace = false) {
     const params = new URLSearchParams();
-    Object.entries(next).forEach(([k, v]) => {
+    Object.entries(nextValues).forEach(([k, v]) => {
       if (v) params.set(k, v);
     });
     const qs = params.toString();
-    router.push(qs ? `/leads?${qs}` : '/leads');
+    const url = qs ? `/leads?${qs}` : '/leads';
+    if (replace) router.replace(url);
+    else router.push(url);
+  }
+
+  function update(key, val) {
+    buildAndPush({ ...values, name, [key]: val });
+  }
+
+  // Debounce the name search so we don't navigate on every keystroke.
+  function onNameChange(val) {
+    setName(val);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => buildAndPush({ ...values, name: val }, true), 350);
+  }
+
+  function onNameEnter(e) {
+    if (e.key === 'Enter') {
+      if (timer.current) clearTimeout(timer.current);
+      buildAndPush({ ...values, name });
+    }
+  }
+
+  function clearAll() {
+    if (timer.current) clearTimeout(timer.current);
+    setName('');
+    router.push('/leads');
   }
 
   const bind = (key) => ({
@@ -42,6 +77,23 @@ export default function LeadFilters({ agents, values }) {
   return (
     <div className="card">
       <div className="row" style={{ gap: 10, alignItems: 'flex-end' }}>
+        <div style={{ minWidth: 190, flex: '2 1 190px' }}>
+          <label>Client name</label>
+          <input
+            type="search"
+            placeholder="Type a name to search…"
+            value={name}
+            list="lead-name-options"
+            autoComplete="off"
+            onChange={(e) => onNameChange(e.target.value)}
+            onKeyDown={onNameEnter}
+          />
+          <datalist id="lead-name-options">
+            {names.map((n) => (
+              <option key={n} value={n} />
+            ))}
+          </datalist>
+        </div>
         <div style={cell}>
           <label>Agent</label>
           <select {...bind('agent')}>
@@ -103,7 +155,7 @@ export default function LeadFilters({ agents, values }) {
             ))}
           </select>
         </div>
-        <button type="button" className="btn ghost small" onClick={() => router.push('/leads')}>
+        <button type="button" className="btn ghost small" onClick={clearAll}>
           Clear
         </button>
       </div>

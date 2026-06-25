@@ -12,6 +12,7 @@ export default async function LeadsPage({ searchParams }) {
   const error = searchParams?.error;
 
   const values = {
+    name: searchParams?.name || '',
     agent: searchParams?.agent || '',
     type: searchParams?.type || '',
     beds: searchParams?.beds || '',
@@ -34,6 +35,7 @@ export default async function LeadsPage({ searchParams }) {
       '*, assigned:profiles!leads_assigned_agent_id_fkey(full_name), suggested:profiles!leads_suggested_agent_id_fkey(full_name)'
     );
 
+  if (values.name) q = q.ilike('name', `%${values.name}%`);
   if (values.agent) q = q.eq('assigned_agent_id', values.agent);
   if (values.type) q = q.eq('property_type', values.type);
   if (values.beds) q = q.eq('bedrooms', values.beds);
@@ -52,6 +54,12 @@ export default async function LeadsPage({ searchParams }) {
     case 'old':
       q = q.order('created_at', { ascending: true });
       break;
+    case 'name':
+      q = q.order('name', { ascending: true });
+      break;
+    case 'name_desc':
+      q = q.order('name', { ascending: false });
+      break;
     case 'budget_high':
       q = q.order('budget', { ascending: false, nullsFirst: false });
       break;
@@ -63,6 +71,13 @@ export default async function LeadsPage({ searchParams }) {
   }
 
   const { data: leads } = await q;
+
+  // Distinct client names (visible to this user) for the search autocomplete.
+  const { data: nameRows } = await supabase
+    .from('leads')
+    .select('name')
+    .order('name', { ascending: true });
+  const names = [...new Set((nameRows || []).map((r) => r.name).filter(Boolean))];
 
   return (
     <div className="stack">
@@ -76,7 +91,7 @@ export default async function LeadsPage({ searchParams }) {
         <Link className="btn" href="/leads/new">+ New lead</Link>
       </div>
 
-      <LeadFilters agents={agents || []} values={values} />
+      <LeadFilters agents={agents || []} values={values} names={names} />
 
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         {leads && leads.length ? (
