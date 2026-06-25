@@ -16,10 +16,23 @@ export default async function Dashboard() {
   const now = Date.now();
   const daysSince = (ts) => (ts ? (now - new Date(ts).getTime()) / 86400000 : 9999);
 
-  const { data: myLeads } = await supabase
-    .from('leads')
-    .select('id, name, qualification, status, next_follow_up, updated_at, created_at')
-    .order('updated_at', { ascending: false });
+  // Run all independent queries in parallel (one round-trip wave, not six).
+  const [
+    { data: myLeads },
+    { data: target },
+    { data: myDeals },
+    { data: board },
+    { data: launches },
+  ] = await Promise.all([
+    supabase.from('leads')
+      .select('id, name, qualification, status, next_follow_up, updated_at, created_at')
+      .order('updated_at', { ascending: false }),
+    supabase.from('targets').select('*').eq('agent_id', user.id).eq('is_active', true)
+      .order('created_at', { ascending: false }).limit(1).maybeSingle(),
+    supabase.from('deals').select('deal_value, closed_on').eq('agent_id', user.id),
+    supabase.rpc('agent_leaderboard'),
+    supabase.from('launches').select('*').order('created_at', { ascending: false }).limit(5),
+  ]);
 
   const open = (myLeads || []).filter((l) => l.status !== 'won' && l.status !== 'lost');
   const dueLeads = open
@@ -31,13 +44,8 @@ export default async function Dashboard() {
     .filter((l) => daysSince(l.updated_at) >= 8)
     .sort((a, b) => daysSince(b.updated_at) - daysSince(a.updated_at));
 
-  const { data: target } = await supabase
-    .from('targets').select('*').eq('agent_id', user.id).eq('is_active', true)
-    .order('created_at', { ascending: false }).limit(1).maybeSingle();
   const progress = target ? await getTargetProgress(supabase, target) : null;
 
-  const { data: myDeals } = await supabase
-    .from('deals').select('deal_value, closed_on').eq('agent_id', user.id);
   const monthValue = (myDeals || [])
     .filter((d) => (d.closed_on || '').startsWith(today.slice(0, 7)))
     .reduce((s, d) => s + Number(d.deal_value || 0), 0);
@@ -53,13 +61,9 @@ export default async function Dashboard() {
   }
   const myYearTotal = myQuarters.reduce((s, v) => s + v, 0);
 
-  const { data: board } = await supabase.rpc('agent_leaderboard');
   const rankIdx = (board || []).findIndex((r) => r.agent_id === user.id);
   const rank = rankIdx >= 0 ? rankIdx + 1 : null;
   const teamCount = (board || []).length;
-
-  const { data: launches } = await supabase
-    .from('launches').select('*').order('created_at', { ascending: false }).limit(5);
 
   const firstName = profile.full_name?.split(' ')[0] || 'there';
 
@@ -172,9 +176,21 @@ export default async function Dashboard() {
 }
 
 async function AdminDashboard({ supabase, name }) {
-  const { count: leadCount } = await supabase.from('leads').select('id', { count: 'exact', head: true });
-  const { count: agentCount } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'agent');
-  const { data: deals } = await supabase.from('deals').select('deal_value, company_commission, agent_commission, closed_on');
+  const [
+    { count: leadCount },
+    { count: agentCount },
+    { data: deals },
+    { data: suggested },
+  ] = await Promise.all([
+    supabase.from('leads').select('id', { count: 'exact', head: true }),
+    supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'agent'),
+    supabase.from('deals').select('deal_value, company_commission, agent_commission, closed_on'),
+    supabase
+      .from('leads')
+      .select('id, name, suggested:profiles!leads_suggested_agent_id_fkey(full_name), assigned:profiles!leads_assigned_agent_id_fkey(full_name)')
+      .not('suggested_agent_id', 'is', null)
+      .limit(10),
+  ]);
 
   const totalValue = (deals || []).reduce((s, d) => s + Number(d.deal_value || 0), 0);
   const companyCommission = (deals || []).reduce((s, d) => s + Number(d.company_commission || 0), 0);
@@ -189,12 +205,6 @@ async function AdminDashboard({ supabase, name }) {
     quarters[Math.floor(dt.getMonth() / 3)] += Number(d.deal_value || 0);
   }
   const yearTotal = quarters.reduce((s, v) => s + v, 0);
-
-  const { data: suggested } = await supabase
-    .from('leads')
-    .select('id, name, suggested:profiles!leads_suggested_agent_id_fkey(full_name), assigned:profiles!leads_assigned_agent_id_fkey(full_name)')
-    .not('suggested_agent_id', 'is', null)
-    .limit(10);
 
   return (
     <div className="stack">
