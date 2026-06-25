@@ -33,7 +33,7 @@ export default async function Dashboard() {
       .order('updated_at', { ascending: false }),
     supabase.from('targets').select('*').eq('agent_id', user.id).eq('is_active', true)
       .order('created_at', { ascending: false }).limit(1).maybeSingle(),
-    supabase.from('deals').select('deal_value, closed_on').eq('agent_id', user.id),
+    supabase.from('deals').select('deal_value, gross_commission, agent_commission, closed_on').eq('agent_id', user.id),
     supabase.rpc('agent_leaderboard'),
     supabase.from('launches').select('*').order('created_at', { ascending: false }).limit(5),
   ]);
@@ -50,9 +50,10 @@ export default async function Dashboard() {
 
   const progress = target ? await getTargetProgress(supabase, target) : null;
 
-  const monthValue = (myDeals || [])
-    .filter((d) => (d.closed_on || '').startsWith(today.slice(0, 7)))
-    .reduce((s, d) => s + Number(d.deal_value || 0), 0);
+  const monthDeals = (myDeals || []).filter((d) => (d.closed_on || '').startsWith(today.slice(0, 7)));
+  const monthValue = monthDeals.reduce((s, d) => s + Number(d.deal_value || 0), 0);
+  const monthGross = monthDeals.reduce((s, d) => s + Number(d.gross_commission || 0), 0);
+  const monthNet = monthDeals.reduce((s, d) => s + Number(d.agent_commission || 0), 0);
 
   // My sales value by quarter (current year).
   const year = new Date().getFullYear();
@@ -80,6 +81,11 @@ export default async function Dashboard() {
         <div className="card stat"><span className="muted small">Open leads</span><span className="value">{open.length}</span></div>
         <div className="card stat"><span className="muted small">Sales this month</span><span className="value" style={{ fontSize: '1.4rem' }}>{aed(monthValue)}</span></div>
         <div className="card stat"><span className="muted small">Leaderboard rank</span><span className="value">{rank ? `#${rank}` : '—'}{teamCount ? <span className="small muted"> / {teamCount}</span> : null}</span></div>
+      </div>
+
+      <div className="grid grid-2">
+        <div className="card stat"><span className="muted small">Gross commission (this month)</span><span className="value" style={{ fontSize: '1.4rem' }}>{aed(monthGross)}</span></div>
+        <div className="card stat"><span className="muted small">Net commission — your share (this month)</span><span className="value" style={{ fontSize: '1.4rem', color: 'var(--gold-2)' }}>{aed(monthNet)}</span></div>
       </div>
 
       {/* Today's to-do */}
