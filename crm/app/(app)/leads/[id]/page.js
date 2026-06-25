@@ -16,6 +16,7 @@ import {
 import { addActivity, updateLead, suggestReassign, logDeal, setFollowUp } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
+import DealMoneyFields from '@/components/DealMoneyFields';
 
 export const dynamic = 'force-dynamic';
 
@@ -264,28 +265,15 @@ export default async function LeadDetail({ params, searchParams }) {
               <input name="property" defaultValue={lead.property_interest || ''} />
             </div>
           </div>
-          <div className="form-grid">
-            <div className="field">
-              <label>Deal value (AED) *</label>
-              <input name="deal_value" type="number" min="0" step="1000" required />
-            </div>
-            <div className="field">
-              <label>Gross commission (AED)</label>
-              <input name="gross_commission" type="number" min="0" step="100" />
-            </div>
-          </div>
-          <div className="field" style={{ maxWidth: 240 }}>
-            <label>Closed on</label>
-            <input name="closed_on" type="date" defaultValue={today} />
-          </div>
+          <DealMoneyFields />
           <div className="form-grid">
             <div className="field">
               <label>Referral party (optional)</label>
               <input name="referral_party" placeholder="Who referred it?" />
             </div>
             <div className="field">
-              <label>Referral amount (AED, off the top)</label>
-              <input name="referral_amount" type="number" min="0" step="100" defaultValue="0" />
+              <label>Closed on</label>
+              <input name="closed_on" type="date" defaultValue={today} />
             </div>
           </div>
           <SubmitButton className="btn" pendingLabel="Logging…">Log deal &amp; mark won</SubmitButton>

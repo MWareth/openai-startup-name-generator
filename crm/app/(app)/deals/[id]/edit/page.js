@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { aed, DEAL_PROPERTY_TYPES } from '@/lib/format';
 import SubmitButton from '@/components/SubmitButton';
+import DealMoneyFields from '@/components/DealMoneyFields';
 import { updateDeal, deleteDeal } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -50,25 +51,15 @@ export default async function EditDealPage({ params, searchParams }) {
             <input name="property" defaultValue={deal.property || ''} />
           </div>
         </div>
-        <div className="form-grid">
-          <div className="field">
-            <label>Deal value (AED) *</label>
-            <input name="deal_value" type="number" min="0" step="1000" defaultValue={deal.deal_value} required />
-          </div>
-          <div className="field">
-            <label>Gross commission (AED)</label>
-            <input name="gross_commission" type="number" min="0" step="100" defaultValue={deal.gross_commission} />
-          </div>
-        </div>
-        <div className="form-grid">
-          <div className="field">
-            <label>Referral party</label>
-            <input name="referral_party" defaultValue={deal.referral_party || ''} />
-          </div>
-          <div className="field">
-            <label>Referral amount (AED, off the top)</label>
-            <input name="referral_amount" type="number" min="0" step="100" defaultValue={deal.referral_amount} />
-          </div>
+        <DealMoneyFields
+          dealValue={deal.deal_value}
+          commissionRate={deal.commission_rate}
+          grossCommission={deal.gross_commission}
+          referralAmount={deal.referral_amount}
+        />
+        <div className="field">
+          <label>Referral party</label>
+          <input name="referral_party" defaultValue={deal.referral_party || ''} />
         </div>
         <div className="field" style={{ maxWidth: 240 }}>
           <label>Closed on</label>

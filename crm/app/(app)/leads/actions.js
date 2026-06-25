@@ -173,6 +173,7 @@ export async function logDeal(formData) {
     property: emptyToNull(formData.get('property')),
     property_type: emptyToNull(formData.get('property_type')),
     deal_value: dealValue,
+    commission_rate: formData.get('commission_rate') ? Number(formData.get('commission_rate')) : null,
     gross_commission: gross,
     referral_party: emptyToNull(formData.get('referral_party')),
     referral_amount: referral,
