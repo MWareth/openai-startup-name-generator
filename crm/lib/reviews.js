@@ -22,3 +22,15 @@ export function starString(avg) {
   const full = Math.max(0, Math.min(5, Math.round(Number(avg) || 0)));
   return '★★★★★'.slice(0, full) + '☆☆☆☆☆'.slice(0, 5 - full);
 }
+
+// Suggested star rating from an agent's target progress (0–1 fraction).
+// 90%+ = 5★, 75%+ = 4★, 50%+ = 3★, 25%+ = 2★, >0 = 1★, none = no suggestion.
+export function starsFromTargetFraction(frac) {
+  const f = Number(frac);
+  if (!(f > 0)) return null;
+  if (f >= 0.9) return 5;
+  if (f >= 0.75) return 4;
+  if (f >= 0.5) return 3;
+  if (f >= 0.25) return 2;
+  return 1;
+}

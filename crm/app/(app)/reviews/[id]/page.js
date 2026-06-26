@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
-import { formatDate, SENIORITY_NAMES } from '@/lib/format';
-import { REVIEW_CRITERIA, CRITERION_LABEL, starString, averageStars } from '@/lib/reviews';
+import { formatDate, pct, SENIORITY_NAMES } from '@/lib/format';
+import { starString, averageStars, starsFromTargetFraction } from '@/lib/reviews';
+import { getTargetProgress } from '@/lib/targets';
 import SubmitButton from '@/components/SubmitButton';
 import { createReview, deleteReview } from '../actions';
 
@@ -20,6 +21,24 @@ export default async function AgentReviewPage({ params, searchParams }) {
     .eq('id', params.id)
     .single();
   if (!agent) notFound();
+
+  const { data: criteria } = await supabase
+    .from('review_criteria')
+    .select('*')
+    .eq('active', true)
+    .order('sort_order', { ascending: true });
+
+  // Auto-suggest the "goal achievement" star from the agent's active target %.
+  const { data: target } = await supabase
+    .from('targets')
+    .select('*')
+    .eq('agent_id', agent.id)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const progress = target ? await getTargetProgress(supabase, target) : null;
+  const goalStars = progress ? starsFromTargetFraction(progress.progress) : null;
 
   const { data: reviews } = await supabase
     .from('agent_reviews')
@@ -55,7 +74,16 @@ export default async function AgentReviewPage({ params, searchParams }) {
       <div className="grid grid-2">
         {/* New review */}
         <div className="card">
-          <h3>New review</h3>
+          <div className="spread">
+            <h3>New review</h3>
+            <Link className="small" href="/reviews/criteria">Manage criteria →</Link>
+          </div>
+          {progress ? (
+            <p className="small muted">
+              Target progress: <strong>{pct(progress.progress)}</strong>
+              {goalStars ? <> → goal star pre-filled to {goalStars}★ (you can change it)</> : null}
+            </p>
+          ) : null}
           <form action={createReview}>
             <input type="hidden" name="agent_id" value={agent.id} />
             <div className="form-grid">
@@ -68,17 +96,23 @@ export default async function AgentReviewPage({ params, searchParams }) {
                 <input name="reviewed_on" type="date" defaultValue={today} />
               </div>
             </div>
-            {REVIEW_CRITERIA.map((c) => (
-              <div className="field" key={c.key}>
-                <label>{c.label}</label>
-                <select name={`stars_${c.key}`} defaultValue="">
-                  <option value="">— No rating —</option>
-                  {[5, 4, 3, 2, 1].map((n) => (
-                    <option key={n} value={n}>{'★'.repeat(n)} ({n})</option>
-                  ))}
-                </select>
-              </div>
-            ))}
+            {(criteria || []).map((c) => {
+              const preset = c.auto_from_target && goalStars ? String(goalStars) : '';
+              return (
+                <div className="field" key={c.id}>
+                  <label>
+                    {c.label}
+                    {c.auto_from_target ? <span className="small muted"> · auto from target</span> : null}
+                  </label>
+                  <select name={`crit_${c.id}`} defaultValue={preset}>
+                    <option value="">— No rating —</option>
+                    {[5, 4, 3, 2, 1].map((n) => (
+                      <option key={n} value={n}>{'★'.repeat(n)} ({n})</option>
+                    ))}
+                  </select>
+                </div>
+              );
+            })}
             <div className="field">
               <label>Comment (optional)</label>
               <textarea name="comment" placeholder="Strengths, areas to improve, notes for the review meeting…" />
@@ -92,29 +126,29 @@ export default async function AgentReviewPage({ params, searchParams }) {
           <h3>Review history</h3>
           {reviews && reviews.length ? (
             <div className="stack" style={{ gap: 12 }}>
-              {reviews.map((r) => {
-                const scoreMap = Object.fromEntries((r.agent_review_scores || []).map((s) => [s.criterion, s.stars]));
-                return (
-                  <div key={r.id} style={{ borderBottom: '1px solid var(--border)', paddingBottom: 10 }}>
-                    <div className="spread">
-                      <div>
-                        <strong>{r.period_label || 'Review'}</strong>{' '}
-                        <span style={{ color: 'var(--gold)' }}>{starString(r.overall)}</span>{' '}
-                        <span className="small muted">{Number(r.overall).toFixed(1)}</span>
+              {reviews.map((r) => (
+                <div key={r.id} style={{ borderBottom: '1px solid var(--border)', paddingBottom: 10 }}>
+                  <div className="spread">
+                    <div>
+                      <strong>{r.period_label || 'Review'}</strong>{' '}
+                      <span style={{ color: 'var(--gold)' }}>{starString(r.overall)}</span>{' '}
+                      <span className="small muted">{Number(r.overall).toFixed(1)}</span>
+                    </div>
+                    <span className="small muted">{formatDate(r.reviewed_on)}</span>
+                  </div>
+                  <div className="small" style={{ marginTop: 4 }}>
+                    {(r.agent_review_scores || []).map((s, i) => (
+                      <div key={i} className="spread" style={{ maxWidth: 360 }}>
+                        <span className="muted">{s.criterion}</span>
+                        <span style={{ color: 'var(--gold)' }}>{starString(s.stars)}</span>
                       </div>
-                      <span className="small muted">{formatDate(r.reviewed_on)}</span>
-                    </div>
-                    <div className="small" style={{ marginTop: 4 }}>
-                      {REVIEW_CRITERIA.filter((c) => scoreMap[c.key]).map((c) => (
-                        <div key={c.key} className="spread" style={{ maxWidth: 360 }}>
-                          <span className="muted">{CRITERION_LABEL[c.key]}</span>
-                          <span style={{ color: 'var(--gold)' }}>{starString(scoreMap[c.key])}</span>
-                        </div>
-                      ))}
-                    </div>
-                    {r.comment ? <div className="small" style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}>{r.comment}</div> : null}
-                    <div className="spread" style={{ marginTop: 6 }}>
-                      <span className="small muted">by {r.reviewer?.full_name || '—'}</span>
+                    ))}
+                  </div>
+                  {r.comment ? <div className="small" style={{ marginTop: 6, whiteSpace: 'pre-wrap' }}>{r.comment}</div> : null}
+                  <div className="spread" style={{ marginTop: 6 }}>
+                    <span className="small muted">by {r.reviewer?.full_name || '—'}</span>
+                    <div className="row" style={{ gap: 8 }}>
+                      <Link className="btn ghost small" href={`/reviews/edit/${r.id}`}>Edit</Link>
                       <form action={deleteReview}>
                         <input type="hidden" name="review_id" value={r.id} />
                         <input type="hidden" name="agent_id" value={agent.id} />
@@ -122,8 +156,8 @@ export default async function AgentReviewPage({ params, searchParams }) {
                       </form>
                     </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           ) : (
             <p className="muted small">No reviews yet. Add the first one.</p>
