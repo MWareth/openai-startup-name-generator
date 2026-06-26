@@ -82,7 +82,8 @@ export default async function LeadDetail({ params, searchParams }) {
               <div><span className="muted">Phone:</span> {lead.phone || '—'}</div>
               <div><span className="muted">Email:</span> {lead.email || '—'}</div>
               <div><span className="muted">Source:</span> {lead.source || '—'}</div>
-              <div><span className="muted">Project:</span> {lead.property_interest || '—'}</div>
+              <div><span className="muted">Community:</span> {lead.community || '—'}</div>
+              <div><span className="muted">Building / project:</span> {lead.property_interest || '—'}</div>
               <div><span className="muted">Type:</span> {lead.property_type || '—'}</div>
               <div><span className="muted">Bedrooms:</span> {lead.bedrooms || '—'}</div>
               <div><span className="muted">Budget:</span> {lead.budget ? aed(lead.budget) : '—'}</div>

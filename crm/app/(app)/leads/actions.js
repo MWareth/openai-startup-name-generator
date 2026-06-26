@@ -53,6 +53,8 @@ export async function createLead(formData) {
   if (ptype) insert.property_type = ptype;
   const beds = emptyToNull(formData.get('bedrooms'));
   if (beds) insert.bedrooms = beds;
+  const community = emptyToNull(formData.get('community'));
+  if (community) insert.community = community; // only when set (safe pre-migration 0008)
 
   const { data, error } = await supabase.from('leads').insert(insert).select('id').single();
 

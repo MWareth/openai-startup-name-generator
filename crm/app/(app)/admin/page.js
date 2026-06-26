@@ -53,7 +53,10 @@ export default async function AdminPage({ searchParams }) {
 
   return (
     <div className="stack">
-      <h1>Admin</h1>
+      <div className="spread">
+        <h1>Admin</h1>
+        <Link className="btn secondary small" href="/admin/areas">Manage areas &amp; buildings</Link>
+      </div>
       {ok ? <div className="alert ok">{ok}</div> : null}
       {error ? <div className="alert error">{error}</div> : null}
 

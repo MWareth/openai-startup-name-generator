@@ -7,8 +7,13 @@ import { createLead } from '../actions';
 export const dynamic = 'force-dynamic';
 
 export default async function NewLeadPage({ searchParams }) {
-  await requireUser();
+  const { supabase } = await requireUser();
   const error = searchParams?.error;
+
+  const { data: areaRows } = await supabase.from('areas').select('name').order('name');
+  const { data: buildingRows } = await supabase.from('buildings').select('name').order('name');
+  const areaNames = [...new Set((areaRows || []).map((r) => r.name).filter(Boolean))];
+  const buildingNames = [...new Set((buildingRows || []).map((r) => r.name).filter(Boolean))];
 
   return (
     <div className="stack" style={{ maxWidth: 640 }}>
@@ -43,9 +48,37 @@ export default async function NewLeadPage({ searchParams }) {
             <input id="budget" name="budget" type="number" min="0" step="1000" />
           </div>
         </div>
-        <div className="field">
-          <label htmlFor="property_interest">Project / development</label>
-          <input id="property_interest" name="property_interest" placeholder="South Square, The Heights…" />
+        <div className="form-grid">
+          <div className="field">
+            <label htmlFor="community">Community / area</label>
+            <input
+              id="community"
+              name="community"
+              list="area-options"
+              autoComplete="off"
+              placeholder="Start typing… e.g. Dubai Marina"
+            />
+            <datalist id="area-options">
+              {areaNames.map((n) => (
+                <option key={n} value={n} />
+              ))}
+            </datalist>
+          </div>
+          <div className="field">
+            <label htmlFor="property_interest">Building / project</label>
+            <input
+              id="property_interest"
+              name="property_interest"
+              list="building-options"
+              autoComplete="off"
+              placeholder="Tower or development name"
+            />
+            <datalist id="building-options">
+              {buildingNames.map((n) => (
+                <option key={n} value={n} />
+              ))}
+            </datalist>
+          </div>
         </div>
         <div className="form-grid">
           <div className="field">
