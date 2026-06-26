@@ -102,6 +102,12 @@ export default async function NewLeadPage({ searchParams }) {
             </datalist>
           </div>
         </div>
+        <div className="field">
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input type="checkbox" name="self_sourced" value="true" style={{ width: 'auto' }} />
+            Own referral — I brought this lead myself (60/40 split in the agent&apos;s favour)
+          </label>
+        </div>
         <div className="form-grid">
           <div className="field">
             <label htmlFor="property_type">Property type</label>

@@ -30,10 +30,12 @@ export async function updateDeal(formData) {
   const dealValue = Number(formData.get('deal_value') || 0);
   const gross = Number(formData.get('gross_commission') || 0);
   const referral = Number(formData.get('referral_amount') || 0);
+  const selfSourced = !!formData.get('self_sourced'); // own referral -> 60/40
   const split = computeCommission({
     grossCommission: gross,
     referralAmount: referral,
     seniority: agent?.seniority || 'junior',
+    selfSourced,
   });
 
   const errorTo = `/deals/${dealId}/edit?error=`;
@@ -47,6 +49,7 @@ export async function updateDeal(formData) {
       gross_commission: gross,
       referral_party: emptyToNull(formData.get('referral_party')),
       referral_amount: referral,
+      self_sourced: selfSourced,
       agent_split_pct: split.agentSplitPct,
       agent_commission: split.agentCommission,
       company_commission: split.companyCommission,
