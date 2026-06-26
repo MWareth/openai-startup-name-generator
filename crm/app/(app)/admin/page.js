@@ -17,6 +17,7 @@ import {
   deleteProject,
   createDeveloper,
   deleteDeveloper,
+  syncProjects,
 } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -77,6 +78,7 @@ export default async function AdminPage({ searchParams }) {
                     <input name="avatar_url" defaultValue={p.avatar_url || ''} placeholder="Photo URL" style={{ flex: '1 1 150px' }} />
                     <select name="role" defaultValue={p.role} style={{ width: 130 }}>
                       <option value="agent">Agent</option>
+                      <option value="support">Support</option>
                       <option value="director">Director</option>
                       <option value="c_suite">C-Suite</option>
                       <option value="admin">Admin (Owner)</option>
@@ -243,8 +245,16 @@ export default async function AdminPage({ searchParams }) {
 
       {/* ---- Projects directory ---- */}
       <div className="card">
-        <h2>Projects directory</h2>
-        <p className="small muted">Add off-plan projects — they appear on the <strong>Projects</strong> page for everyone.</p>
+        <div className="spread">
+          <h2>Projects directory</h2>
+          <form action={syncProjects}>
+            <button className="btn secondary small" type="submit">⟳ Refresh from Google Sheet</button>
+          </form>
+        </div>
+        <p className="small muted">
+          Projects are mirrored from your Google Sheet (auto-refreshed daily; click Refresh to pull now).
+          Adding below also works for one-offs, but the sheet is the master list.
+        </p>
         <form action={createProject}>
           <div className="form-grid">
             <div className="field"><label>Project name</label><input name="name" required /></div>

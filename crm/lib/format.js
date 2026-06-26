@@ -77,6 +77,15 @@ export const DEAL_PROPERTY_TYPES = [
   '7 Bedroom Villa',
 ];
 
+// Document types attached to a deal.
+export const DOC_KINDS = [
+  { v: 'proof_of_payment', l: 'Proof of payment' },
+  { v: 'spa', l: 'Sales & Purchase Agreement (SPA)' },
+  { v: 'passport', l: 'Passport' },
+  { v: 'emirates_id', l: 'Emirates ID' },
+  { v: 'other', l: 'Other' },
+];
+
 export const SENIORITY_LABELS = {
   junior: 'Junior (50/50)',
   senior: 'Senior (55/45)',
@@ -95,8 +104,16 @@ export const ROLE_LABELS = {
   agent: 'Agent',
   director: 'Director',
   c_suite: 'C-Suite',
+  support: 'Support',
   admin: 'Admin (Owner)',
 };
+
+// Commission-collection workflow statuses.
+export const COMMISSION_STATUSES = [
+  { v: 'pending', l: 'Pending' },
+  { v: 'requested', l: 'Requested from developer' },
+  { v: 'received', l: 'Received' },
+];
 
 // Agent commission split as a "you/company" string, by seniority.
 export const SPLIT_LABELS = {

@@ -29,7 +29,8 @@ export async function updateSession(request) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
-  const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/auth');
+  const isAuthRoute =
+    pathname.startsWith('/login') || pathname.startsWith('/auth') || pathname.startsWith('/api');
 
   // Not signed in and trying to reach the app -> send to login.
   if (!user && !isAuthRoute) {

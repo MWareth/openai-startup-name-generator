@@ -32,3 +32,16 @@ export async function requireAdmin() {
   if (!hasAdminAccess(ctx.profile)) redirect('/dashboard');
   return ctx;
 }
+
+// Roles allowed to see the commission-collection queue: owner-admins + support.
+export const STAFF_ROLES = ['admin', 'director', 'c_suite', 'support'];
+
+export function hasStaffAccess(profile) {
+  return !!profile && STAFF_ROLES.includes(profile.role);
+}
+
+export async function requireStaff() {
+  const ctx = await requireUser();
+  if (!hasStaffAccess(ctx.profile)) redirect('/dashboard');
+  return ctx;
+}

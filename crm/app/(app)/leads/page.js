@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireUser, hasAdminAccess } from '@/lib/auth';
+import { requireUser, hasStaffAccess } from '@/lib/auth';
 import { QUAL_LABELS, STATUS_LABELS, formatDate } from '@/lib/format';
 import LeadFilters from '@/components/LeadFilters';
 
@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function LeadsPage({ searchParams }) {
   const { profile, supabase } = await requireUser();
-  const isAdmin = hasAdminAccess(profile);
+  const isAdmin = hasStaffAccess(profile); // admin + support see all leads + assigned column
   const ok = searchParams?.ok;
   const error = searchParams?.error;
 

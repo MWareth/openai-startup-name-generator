@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireUser } from '@/lib/auth';
+import { requireUser, hasStaffAccess } from '@/lib/auth';
 import { PROPERTY_TYPES, BEDROOM_OPTIONS } from '@/lib/format';
 import SubmitButton from '@/components/SubmitButton';
 import { createLead } from '../actions';
@@ -7,8 +7,20 @@ import { createLead } from '../actions';
 export const dynamic = 'force-dynamic';
 
 export default async function NewLeadPage({ searchParams }) {
-  const { supabase } = await requireUser();
+  const { user, profile, supabase } = await requireUser();
   const error = searchParams?.error;
+  const isStaff = hasStaffAccess(profile);
+
+  // Admin/support can assign the new lead to any agent or admin.
+  let assignees = [];
+  if (isStaff) {
+    const { data } = await supabase
+      .from('profiles')
+      .select('id, full_name')
+      .in('role', ['agent', 'admin'])
+      .order('full_name');
+    assignees = data || [];
+  }
 
   const { data: areaRows } = await supabase.from('areas').select('name').order('name');
   const { data: buildingRows } = await supabase.from('buildings').select('name').order('name');
@@ -24,6 +36,16 @@ export default async function NewLeadPage({ searchParams }) {
       {error ? <div className="alert error">{error}</div> : null}
 
       <form action={createLead} className="card">
+        {isStaff ? (
+          <div className="field">
+            <label htmlFor="assigned_agent_id">Assign to</label>
+            <select id="assigned_agent_id" name="assigned_agent_id" defaultValue={user.id}>
+              {assignees.map((a) => (
+                <option key={a.id} value={a.id}>{a.full_name}{a.id === user.id ? ' (me)' : ''}</option>
+              ))}
+            </select>
+          </div>
+        ) : null}
         <div className="field">
           <label htmlFor="name">Full name *</label>
           <input id="name" name="name" required />

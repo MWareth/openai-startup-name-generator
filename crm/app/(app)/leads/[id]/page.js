@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireUser } from '@/lib/auth';
+import { requireUser, hasStaffAccess } from '@/lib/auth';
 import SubmitButton from '@/components/SubmitButton';
 import {
   QUAL_LABELS,
@@ -16,11 +16,13 @@ import {
 import { addActivity, updateLead, suggestReassign, logDeal, setFollowUp } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
+import DealMoneyFields from '@/components/DealMoneyFields';
 
 export const dynamic = 'force-dynamic';
 
 export default async function LeadDetail({ params, searchParams }) {
   const { user, profile, supabase } = await requireUser();
+  const isAdmin = hasStaffAccess(profile); // admin + support can reassign directly
   const error = searchParams?.error;
   const ok = searchParams?.ok;
   const today = new Date().toISOString().slice(0, 10);
@@ -166,22 +168,26 @@ export default async function LeadDetail({ params, searchParams }) {
           </div>
 
           <div className="card">
-            <h3>Suggest reassignment</h3>
-            <p className="small muted">Propose another agent. An admin makes the final reassignment.</p>
-            {lead.suggested?.full_name ? (
+            <h3>{isAdmin ? 'Reassign lead' : 'Suggest reassignment'}</h3>
+            <p className="small muted">
+              {isAdmin
+                ? 'Assign this lead to another agent. Takes effect immediately.'
+                : 'Propose another agent. An admin makes the final reassignment.'}
+            </p>
+            {!isAdmin && lead.suggested?.full_name ? (
               <p className="small">Currently suggested: <span className="badge role">{lead.suggested.full_name}</span></p>
             ) : null}
             <form action={suggestReassign}>
               <input type="hidden" name="lead_id" value={lead.id} />
               <div className="field">
-                <select name="suggested_agent_id" defaultValue={lead.suggested?.id || ''}>
-                  <option value="">— No suggestion —</option>
+                <select name="suggested_agent_id" defaultValue={isAdmin ? (lead.assigned?.id || '') : (lead.suggested?.id || '')}>
+                  <option value="">{isAdmin ? '— Unassigned —' : '— No suggestion —'}</option>
                   {(agents || []).map((a) => (
                     <option key={a.id} value={a.id}>{a.full_name}</option>
                   ))}
                 </select>
               </div>
-              <button className="btn secondary small" type="submit">Save suggestion</button>
+              <button className="btn secondary small" type="submit">{isAdmin ? 'Reassign' : 'Save suggestion'}</button>
             </form>
           </div>
         </div>
@@ -265,28 +271,15 @@ export default async function LeadDetail({ params, searchParams }) {
               <input name="property" defaultValue={lead.property_interest || ''} />
             </div>
           </div>
-          <div className="form-grid">
-            <div className="field">
-              <label>Deal value (AED) *</label>
-              <input name="deal_value" type="number" min="0" step="1000" required />
-            </div>
-            <div className="field">
-              <label>Gross commission (AED)</label>
-              <input name="gross_commission" type="number" min="0" step="100" />
-            </div>
-          </div>
-          <div className="field" style={{ maxWidth: 240 }}>
-            <label>Closed on</label>
-            <input name="closed_on" type="date" defaultValue={today} />
-          </div>
+          <DealMoneyFields />
           <div className="form-grid">
             <div className="field">
               <label>Referral party (optional)</label>
               <input name="referral_party" placeholder="Who referred it?" />
             </div>
             <div className="field">
-              <label>Referral amount (AED, off the top)</label>
-              <input name="referral_amount" type="number" min="0" step="100" defaultValue="0" />
+              <label>Closed on</label>
+              <input name="closed_on" type="date" defaultValue={today} />
             </div>
           </div>
           <SubmitButton className="btn" pendingLabel="Logging…">Log deal &amp; mark won</SubmitButton>
@@ -310,7 +303,7 @@ export default async function LeadDetail({ params, searchParams }) {
                     <td className="right small">{d.referral_amount ? aed(d.referral_amount) : '—'}</td>
                     <td className="right small">{aed(d.agent_commission)}</td>
                     <td className="right small muted">{aed(d.company_commission)}</td>
-                    <td className="right"><Link className="small" href={`/deals/${d.id}/edit`}>Edit</Link></td>
+                    <td className="right"><Link className="small" href={`/deals/${d.id}/edit`}>Open · docs &amp; notes →</Link></td>
                   </tr>
                 ))}
               </tbody>

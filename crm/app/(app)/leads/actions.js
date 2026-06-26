@@ -2,14 +2,21 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { requireUser } from '@/lib/auth';
+import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
 import { computeCommission } from '@/lib/commission';
 
 export async function createLead(formData) {
-  const { user, supabase } = await requireUser();
+  const { user, profile, supabase } = await requireUser();
 
   const name = String(formData.get('name') || '').trim();
   if (!name) redirect('/leads/new?error=' + encodeURIComponent('Name is required'));
+
+  // Admin/support may assign to any agent; everyone else keeps it themselves.
+  let assignedTo = user.id;
+  if (hasStaffAccess(profile)) {
+    const picked = emptyToNull(formData.get('assigned_agent_id'));
+    if (picked) assignedTo = picked;
+  }
 
   const phone = emptyToNull(formData.get('phone'));
   const email = emptyToNull(formData.get('email'));
@@ -44,7 +51,7 @@ export async function createLead(formData) {
     budget: budgetRaw ? Number(budgetRaw) : null,
     qualification: String(formData.get('qualification') || 'warm'),
     status: String(formData.get('status') || 'new'),
-    assigned_agent_id: user.id,
+    assigned_agent_id: assignedTo,
     created_by: user.id,
   };
   // Only include these when chosen, so lead creation still works even before
@@ -121,23 +128,26 @@ export async function updateLead(formData) {
 }
 
 export async function suggestReassign(formData) {
-  const { supabase } = await requireUser();
+  const { profile, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
-  const suggested = emptyToNull(formData.get('suggested_agent_id'));
+  const selected = emptyToNull(formData.get('suggested_agent_id'));
+  const admin = hasStaffAccess(profile); // admin + support reassign directly
 
-  // Agents can only set the *suggestion*; the DB trigger blocks them from
-  // changing assigned_agent_id. Admin reassigns from the Admin page.
-  const { error } = await supabase
-    .from('leads')
-    .update({ suggested_agent_id: suggested })
-    .eq('id', leadId);
+  // Admin/owner reassigns the lead directly; agents can only propose (the DB
+  // trigger blocks them from changing assigned_agent_id).
+  const patch = admin
+    ? { assigned_agent_id: selected, suggested_agent_id: null }
+    : { suggested_agent_id: selected };
 
+  const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+
   revalidatePath(`/leads/${leadId}`);
-  redirect(
-    `/leads/${leadId}?ok=` +
-      encodeURIComponent(suggested ? 'Reassignment suggestion saved.' : 'Suggestion cleared.')
-  );
+  revalidatePath('/leads');
+  const msg = admin
+    ? (selected ? 'Lead reassigned.' : 'Lead set to unassigned.')
+    : (selected ? 'Reassignment suggestion saved.' : 'Suggestion cleared.');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent(msg));
 }
 
 export async function logDeal(formData) {
@@ -175,6 +185,7 @@ export async function logDeal(formData) {
     property: emptyToNull(formData.get('property')),
     property_type: emptyToNull(formData.get('property_type')),
     deal_value: dealValue,
+    commission_rate: formData.get('commission_rate') ? Number(formData.get('commission_rate')) : null,
     gross_commission: gross,
     referral_party: emptyToNull(formData.get('referral_party')),
     referral_amount: referral,

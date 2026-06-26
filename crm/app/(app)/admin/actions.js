@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { syncProjectsFromSheet } from '@/lib/projectsSync';
 
 const ADMIN = '/admin';
 const back = (msg, ok) => redirect(`${ADMIN}?${ok ? 'ok' : 'error'}=` + encodeURIComponent(msg));
@@ -150,6 +151,22 @@ export async function deleteLaunch(formData) {
   revalidatePath(ADMIN);
   revalidatePath('/dashboard');
   back('Launch removed', true);
+}
+
+export async function syncProjects() {
+  await requireAdmin();
+  const admin = createAdminClient();
+  let result;
+  try {
+    const n = await syncProjectsFromSheet(admin);
+    result = { ok: true, msg: `Synced ${n} projects from the Google Sheet.` };
+  } catch (e) {
+    result = { ok: false, msg: 'Sync failed: ' + e.message };
+  }
+  revalidatePath(ADMIN);
+  revalidatePath('/projects');
+  revalidatePath('/proposal');
+  back(result.msg, result.ok);
 }
 
 export async function createProject(formData) {
