@@ -27,6 +27,7 @@ export default async function AppLayout({ children }) {
           <NavLink href="/targets">My Targets</NavLink>
           <NavLink href="/profile">My Profile</NavLink>
           {isStaff ? <NavLink href="/commission">Commission</NavLink> : null}
+          {isAdmin ? <NavLink href="/reviews">Reviews</NavLink> : null}
           {isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
         </nav>
         <div className="sidebar-foot">
