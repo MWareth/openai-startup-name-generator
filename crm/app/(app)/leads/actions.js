@@ -62,6 +62,7 @@ export async function createLead(formData) {
   if (beds) insert.bedrooms = beds;
   const community = emptyToNull(formData.get('community'));
   if (community) insert.community = community; // only when set (safe pre-migration 0008)
+  if (formData.get('self_sourced')) insert.self_sourced = true; // own referral (safe pre-migration 0009)
 
   const { data, error } = await supabase.from('leads').insert(insert).select('id').single();
 
@@ -177,9 +178,10 @@ export async function logDeal(formData) {
   const dealValue = Number(formData.get('deal_value') || 0);
   const gross = Number(formData.get('gross_commission') || 0);
   const referral = Number(formData.get('referral_amount') || 0);
-  const split = computeCommission({ grossCommission: gross, referralAmount: referral, seniority });
+  const selfSourced = !!formData.get('self_sourced'); // own referral -> 60/40
+  const split = computeCommission({ grossCommission: gross, referralAmount: referral, seniority, selfSourced });
 
-  const { error } = await supabase.from('deals').insert({
+  const dealRow = {
     lead_id: leadId,
     agent_id: agentId,
     property: emptyToNull(formData.get('property')),
@@ -194,7 +196,9 @@ export async function logDeal(formData) {
     company_commission: split.companyCommission,
     closed_on: String(formData.get('closed_on') || new Date().toISOString().slice(0, 10)),
     created_by: user.id,
-  });
+  };
+  if (selfSourced) dealRow.self_sourced = true; // safe pre-migration 0009
+  const { error } = await supabase.from('deals').insert(dealRow);
 
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
 

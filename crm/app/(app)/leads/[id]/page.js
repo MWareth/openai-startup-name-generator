@@ -252,7 +252,8 @@ export default async function LeadDetail({ params, searchParams }) {
         <h3>Close a deal</h3>
         <p className="small muted">
           The deal value counts toward the assigned agent&apos;s target. Commission is split after the
-          referral cut: <strong>junior 50/50</strong>, <strong>senior 55/45</strong> (agent/company).
+          referral cut: <strong>junior 50/50</strong>, <strong>senior 55/45</strong>, <strong>team leader 60/40</strong>.
+          An <strong>own-referral</strong> lead pays the agent <strong>60/40</strong> regardless of seniority.
         </p>
         <form action={logDeal}>
           <input type="hidden" name="lead_id" value={lead.id} />
@@ -281,6 +282,12 @@ export default async function LeadDetail({ params, searchParams }) {
               <label>Closed on</label>
               <input name="closed_on" type="date" defaultValue={today} />
             </div>
+          </div>
+          <div className="field">
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+              <input type="checkbox" name="self_sourced" value="true" defaultChecked={!!lead.self_sourced} style={{ width: 'auto' }} />
+              Own referral — agent brought this lead (60/40 split)
+            </label>
           </div>
           <SubmitButton className="btn" pendingLabel="Logging…">Log deal &amp; mark won</SubmitButton>
         </form>

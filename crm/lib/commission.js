@@ -6,6 +6,13 @@
 //   senior      -> 55% agent / 45% company
 //   team_leader -> 60% agent / 40% company
 // Director and C-Suite are oversight roles and do not earn commission.
+//
+// Exception — SELF-SOURCED leads: when an agent brings their own lead (their
+// own referral), they earn a higher 60% agent / 40% company split regardless of
+// their seniority. (A team leader is already at 60%, so this only lifts junior
+// and senior agents.)
+
+export const SELF_SOURCED_AGENT_SPLIT = 0.6;
 
 export function agentSplitFor(seniority) {
   switch (seniority) {
@@ -18,11 +25,14 @@ export function agentSplitFor(seniority) {
   }
 }
 
-export function computeCommission({ grossCommission, referralAmount = 0, seniority }) {
+export function computeCommission({ grossCommission, referralAmount = 0, seniority, selfSourced = false }) {
   const gross = Number(grossCommission) || 0;
   const referral = Math.max(Number(referralAmount) || 0, 0);
   const afterReferral = Math.max(gross - referral, 0);
-  const split = agentSplitFor(seniority);
+  // Self-sourced leads earn the agent 60% no matter their seniority.
+  const split = selfSourced
+    ? Math.max(SELF_SOURCED_AGENT_SPLIT, agentSplitFor(seniority))
+    : agentSplitFor(seniority);
   const agentCommission = afterReferral * split;
   const companyCommission = afterReferral - agentCommission;
   return {

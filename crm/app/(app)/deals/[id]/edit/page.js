@@ -90,6 +90,13 @@ export default async function EditDealPage({ params, searchParams }) {
           <input name="closed_on" type="date" defaultValue={deal.closed_on} />
         </div>
 
+        <div className="field">
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+            <input type="checkbox" name="self_sourced" value="true" defaultChecked={!!deal.self_sourced} style={{ width: 'auto' }} />
+            Own referral — agent brought this lead (60/40 split)
+          </label>
+        </div>
+
         <div className="row small muted" style={{ marginBottom: 12 }}>
           Current split — agent {aed(deal.agent_commission)} · company {aed(deal.company_commission)}
         </div>
