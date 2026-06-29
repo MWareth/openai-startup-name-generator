@@ -146,7 +146,7 @@ export async function suggestReassign(formData) {
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/leads');
   const msg = admin
-    ? (selected ? 'Lead reassigned.' : 'Lead set to unassigned.')
+    ? (selected ? 'Lead reassigned.' : 'Lead moved to the lead pool.')
     : (selected ? 'Reassignment suggestion saved.' : 'Suggestion cleared.');
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent(msg));
 }

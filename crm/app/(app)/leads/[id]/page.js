@@ -171,7 +171,7 @@ export default async function LeadDetail({ params, searchParams }) {
             <h3>{isAdmin ? 'Reassign lead' : 'Suggest reassignment'}</h3>
             <p className="small muted">
               {isAdmin
-                ? 'Assign this lead to another agent. Takes effect immediately.'
+                ? 'Assign this lead to another agent, or send it to the Lead Pool. Takes effect immediately.'
                 : 'Propose another agent. An admin makes the final reassignment.'}
             </p>
             {!isAdmin && lead.suggested?.full_name ? (
@@ -181,7 +181,7 @@ export default async function LeadDetail({ params, searchParams }) {
               <input type="hidden" name="lead_id" value={lead.id} />
               <div className="field">
                 <select name="suggested_agent_id" defaultValue={isAdmin ? (lead.assigned?.id || '') : (lead.suggested?.id || '')}>
-                  <option value="">{isAdmin ? '— Unassigned —' : '— No suggestion —'}</option>
+                  <option value="">{isAdmin ? '📥 Lead Pool (unassign)' : '— No suggestion —'}</option>
                   {(agents || []).map((a) => (
                     <option key={a.id} value={a.id}>{a.full_name}</option>
                   ))}
