@@ -27,10 +27,10 @@ export async function updateMyAvatar(formData) {
 // and seniority are never touched here, so they stay admin-controlled.
 export async function updateMyProfile(formData) {
   const { user } = await requireUser();
+  // Note: team is intentionally NOT here — only admin/support set a user's team.
   const patch = {
     avatar_url: String(formData.get('avatar_url') || '').trim() || null,
     phone: String(formData.get('phone') || '').trim() || null,
-    team: String(formData.get('team') || '').trim() || 'Offplan team',
     dream_week: String(formData.get('dream_week') || '').trim() || null,
     dream_car: String(formData.get('dream_car') || '').trim() || null,
   };

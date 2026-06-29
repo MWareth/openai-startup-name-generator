@@ -16,6 +16,7 @@ export async function createAgent(formData) {
   const full_name = String(formData.get('full_name') || '').trim();
   const role = String(formData.get('role') || 'agent');
   const seniority = String(formData.get('seniority') || 'junior');
+  const team = String(formData.get('team') || 'Offplan').trim() || 'Offplan';
 
   if (!email || !password) back('Email and password are required');
 
@@ -28,10 +29,11 @@ export async function createAgent(formData) {
   });
   if (error) back(error.message);
 
-  // The signup trigger creates the profile; set its role/seniority/name.
+  // The signup trigger creates the profile; set its role/seniority/name/team.
+  // must_change_password forces the user to replace the temp password at first login.
   const { error: pErr } = await admin
     .from('profiles')
-    .update({ full_name, role, seniority })
+    .update({ full_name, role, seniority, team, must_change_password: true })
     .eq('id', data.user.id);
   if (pErr) back(pErr.message);
 
@@ -93,6 +95,23 @@ export async function deactivateAgent(formData) {
   revalidatePath(ADMIN);
   revalidatePath('/leads');
   back('Agent deactivated — their open leads moved to the pool', true);
+}
+
+// Set a new temporary password for a user. They must change it at next login.
+export async function resetAgentPassword(formData) {
+  await requireAdmin();
+  const id = String(formData.get('agent_id'));
+  const password = String(formData.get('password') || '');
+  if (password.length < 6) back('Password must be at least 6 characters');
+
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.updateUserById(id, { password });
+  if (error) back(error.message);
+
+  await admin.from('profiles').update({ must_change_password: true }).eq('id', id);
+
+  revalidatePath(ADMIN);
+  back('Temporary password set — the user must change it at next login', true);
 }
 
 export async function reactivateAgent(formData) {

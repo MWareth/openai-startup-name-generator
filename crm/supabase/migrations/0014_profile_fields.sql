@@ -8,6 +8,6 @@
 -- ============================================================================
 alter table public.profiles
   add column if not exists phone      text,
-  add column if not exists team       text not null default 'Offplan team',
+  add column if not exists team       text not null default 'Offplan',
   add column if not exists dream_week text,
   add column if not exists dream_car  text;

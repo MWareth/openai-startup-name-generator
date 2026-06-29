@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
 import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import NavLink from '@/components/NavLink';
@@ -7,6 +8,9 @@ export const dynamic = 'force-dynamic';
 
 export default async function AppLayout({ children }) {
   const { user, profile } = await requireUser();
+
+  // First login with a temporary password → force them to set their own first.
+  if (profile?.must_change_password) redirect('/set-password');
   const isAdmin = hasAdminAccess(profile);
   const isStaff = hasStaffAccess(profile);
   const name = profile?.full_name || user.email;
@@ -27,6 +31,7 @@ export default async function AppLayout({ children }) {
           <NavLink href="/targets">My Targets</NavLink>
           <NavLink href="/profile">My Profile</NavLink>
           {isStaff ? <NavLink href="/commission">Commission</NavLink> : null}
+          {isStaff ? <NavLink href="/teams">Teams</NavLink> : null}
           {isAdmin ? <NavLink href="/reviews">Reviews</NavLink> : null}
           {isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
         </nav>

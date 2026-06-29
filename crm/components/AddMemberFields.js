@@ -28,6 +28,19 @@ export default function AddMemberFields() {
           </select>
         </div>
       </div>
+      <div className="form-grid">
+        <div className="field">
+          <label>Team</label>
+          <select name="team" defaultValue="Offplan">
+            <option value="Offplan">Offplan</option>
+            <option value="Secondary">Secondary</option>
+            <option value="Rental">Rental</option>
+          </select>
+        </div>
+        <div className="field">
+          <label className="small muted">The temporary password must be changed by the user on first login.</label>
+        </div>
+      </div>
       {showCommission ? (
         <div className="field" style={{ maxWidth: 280 }}>
           <label>Commission scheme</label>

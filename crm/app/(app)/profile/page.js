@@ -2,10 +2,9 @@ import { requireUser } from '@/lib/auth';
 import Avatar from '@/components/Avatar';
 import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import { updateMyProfile } from './actions';
+import { changeMyPassword } from '../../set-password/actions';
 
 export const dynamic = 'force-dynamic';
-
-const TEAMS = ['Offplan team', 'Secondary team', 'Commercial team', 'Rentals team', 'Property management'];
 
 export default async function ProfilePage({ searchParams }) {
   const { user, profile } = await requireUser();
@@ -26,7 +25,7 @@ export default async function ProfilePage({ searchParams }) {
               {profile?.role === 'agent' ? ` · ${SENIORITY_NAMES[profile?.seniority] || profile?.seniority}` : ''}
             </div>
             <div style={{ marginTop: 8 }}>
-              <span className="badge" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff' }}>🏢 {profile?.team || 'Offplan team'}</span>
+              <span className="badge" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff' }}>🏢 {profile?.team || 'Offplan'}</span>
             </div>
           </div>
         </div>
@@ -35,11 +34,11 @@ export default async function ProfilePage({ searchParams }) {
       {/* Dream goals — the fun bit */}
       <div className="grid grid-2">
         <div className="card stat">
-          <span className="muted small">🎯 My dream this week</span>
+          <span className="muted small" style={{ fontWeight: 700 }}>🎯 My dream this week</span>
           <span style={{ fontWeight: 600, marginTop: 4 }}>{profile?.dream_week || <span className="muted small">Set it below…</span>}</span>
         </div>
         <div className="card stat">
-          <span className="muted small">🏎️ Dream car by year-end</span>
+          <span className="muted small" style={{ fontWeight: 700 }}>🏎️ Dream car by year-end</span>
           <span style={{ fontWeight: 600, marginTop: 4 }}>{profile?.dream_car || <span className="muted small">Set it below…</span>}</span>
         </div>
       </div>
@@ -59,10 +58,8 @@ export default async function ProfilePage({ searchParams }) {
           </div>
 
           <div className="field">
-            <label>🏢 Team</label>
-            <select name="team" defaultValue={profile?.team || 'Offplan team'}>
-              {TEAMS.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
+            <label>🏢 Team <span className="small muted">— set by your admin (view only)</span></label>
+            <input value={profile?.team || 'Offplan'} disabled readOnly style={{ opacity: 0.65, cursor: 'not-allowed' }} />
           </div>
 
           <div className="field">
@@ -82,6 +79,21 @@ export default async function ProfilePage({ searchParams }) {
           </div>
 
           <button className="btn" type="submit">Save my profile</button>
+        </form>
+      </div>
+
+      {/* Change password */}
+      <div className="card">
+        <h3>🔒 Change password</h3>
+        <p className="small muted">Set a new password for your account. You&apos;ll keep using it to log in.</p>
+        <form action={changeMyPassword} className="stack" style={{ gap: 10 }}>
+          <input type="hidden" name="back" value="/profile" />
+          <input type="hidden" name="next" value="/profile?ok=1" />
+          <div className="field">
+            <label>New password</label>
+            <input name="password" type="password" minLength={6} required placeholder="At least 6 characters" />
+          </div>
+          <button className="btn secondary" type="submit">Update password</button>
         </form>
       </div>
     </div>
