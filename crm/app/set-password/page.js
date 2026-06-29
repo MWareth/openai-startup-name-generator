@@ -25,6 +25,10 @@ export default async function SetPasswordPage({ searchParams }) {
           </div>
           <button className="btn" type="submit">Save password &amp; continue</button>
         </form>
+
+        <form action="/auth/signout" method="post" style={{ marginTop: 14, textAlign: 'center' }}>
+          <button className="btn ghost small" type="submit">← Back to login</button>
+        </form>
       </div>
     </div>
   );
