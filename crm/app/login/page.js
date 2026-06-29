@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +13,19 @@ async function signIn(formData) {
   if (error) {
     redirect('/login?error=' + encodeURIComponent(error.message));
   }
+
+  // Count the login (for the management Presence view).
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    const admin = createAdminClient();
+    const { data: prof } = await admin.from('profiles').select('login_count').eq('id', user.id).single();
+    const now = new Date().toISOString();
+    await admin
+      .from('profiles')
+      .update({ login_count: (prof?.login_count || 0) + 1, last_login_at: now, last_seen_at: now })
+      .eq('id', user.id);
+  }
+
   redirect('/dashboard');
 }
 

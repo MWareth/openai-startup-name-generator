@@ -3,6 +3,7 @@ import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
 import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import NavLink from '@/components/NavLink';
 import Avatar from '@/components/Avatar';
+import PresenceTracker from '@/components/PresenceTracker';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,6 +34,7 @@ export default async function AppLayout({ children }) {
           <NavLink href="/profile">My Profile</NavLink>
           {isStaff ? <NavLink href="/commission">Commission</NavLink> : null}
           {isStaff ? <NavLink href="/teams">Teams</NavLink> : null}
+          {isStaff ? <NavLink href="/presence">Presence</NavLink> : null}
           {isAdmin ? <NavLink href="/reviews">Reviews</NavLink> : null}
           {isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
         </nav>
@@ -53,6 +55,7 @@ export default async function AppLayout({ children }) {
         </div>
       </aside>
       <main className="content">{children}</main>
+      <PresenceTracker />
     </div>
   );
 }
