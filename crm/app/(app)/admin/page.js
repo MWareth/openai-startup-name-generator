@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { aed, formatDate, QUAL_LABELS } from '@/lib/format';
 import AddMemberFields from '@/components/AddMemberFields';
 import Avatar from '@/components/Avatar';
+import DateField from '@/components/DateField';
 import {
   createAgent,
   updateAgent,
@@ -219,9 +220,9 @@ export default async function AdminPage({ searchParams }) {
           </div>
           <div className="form-grid">
             <div className="field"><label>Target amount (AED gross commission)</label><input name="target_amount" type="number" min="0" step="10000" required /></div>
-            <div className="field"><label>Period start</label><input name="period_start" type="date" /></div>
+            <div className="field"><label>Period start</label><DateField name="period_start" /></div>
           </div>
-          <div className="field" style={{ maxWidth: 240 }}><label>Period end</label><input name="period_end" type="date" /></div>
+          <div className="field" style={{ maxWidth: 240 }}><label>Period end</label><DateField name="period_end" /></div>
           <button className="btn" type="submit">Create target</button>
         </form>
 

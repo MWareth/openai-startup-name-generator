@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { aed, formatDate, DEAL_PROPERTY_TYPES, DOC_KINDS } from '@/lib/format';
 import SubmitButton from '@/components/SubmitButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
+import DateField from '@/components/DateField';
 import { updateDeal, deleteDeal, uploadDealDoc, deleteDealDoc, addDealNote } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -87,7 +88,7 @@ export default async function EditDealPage({ params, searchParams }) {
         </div>
         <div className="field" style={{ maxWidth: 240 }}>
           <label>Closed on</label>
-          <input name="closed_on" type="date" defaultValue={deal.closed_on} />
+          <DateField name="closed_on" defaultValue={deal.closed_on} />
         </div>
 
         <div className="field">

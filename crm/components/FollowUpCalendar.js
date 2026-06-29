@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { formatDate } from '@/lib/format';
 
 // Month calendar of lead follow-ups. Green = today/upcoming, red = overdue.
 // Tap a highlighted day to see the leads due then. Admins get an agent filter.
@@ -129,7 +130,7 @@ export default function FollowUpCalendar({ leads = [], agents = [], showAgentFil
           <>
             <div className="small muted" style={{ marginBottom: 6 }}>
               {selected < todayStr ? 'Overdue · ' : selected === todayStr ? 'Today · ' : ''}
-              Follow-ups on {selected}
+              Follow-ups on {formatDate(selected)}
             </div>
             <div className="stack" style={{ gap: 6 }}>
               {selectedLeads.map((l, i) => (

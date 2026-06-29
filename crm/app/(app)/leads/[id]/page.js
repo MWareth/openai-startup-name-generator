@@ -17,6 +17,7 @@ import { addActivity, updateLead, suggestReassign, logDeal, addFollowUp, complet
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
+import DateField from '@/components/DateField';
 
 export const dynamic = 'force-dynamic';
 
@@ -168,7 +169,7 @@ export default async function LeadDetail({ params, searchParams }) {
             <form action={addFollowUp} className="stack" style={{ gap: 8 }}>
               <input type="hidden" name="lead_id" value={lead.id} />
               <div className="row" style={{ gap: 8 }}>
-                <input type="date" name="due_on" defaultValue={today} style={{ maxWidth: 180 }} required />
+                <DateField name="due_on" defaultValue={today} style={{ maxWidth: 180 }} />
                 <button className="btn secondary small" type="submit">+ Add follow-up</button>
               </div>
               <input name="note" placeholder="Note (optional) — e.g. call after he sees the brochure" />
@@ -269,7 +270,7 @@ export default async function LeadDetail({ params, searchParams }) {
                 </div>
                 <div className="field">
                   <label>Date</label>
-                  <input type="date" name="occurred_on" defaultValue={today} />
+                  <DateField name="occurred_on" defaultValue={today} />
                 </div>
               </div>
               <div className="field">
@@ -278,7 +279,7 @@ export default async function LeadDetail({ params, searchParams }) {
               </div>
               <div className="field">
                 <label>Set next follow-up (optional)</label>
-                <input type="date" name="next_follow_up" />
+                <DateField name="next_follow_up" />
               </div>
               <SubmitButton className="btn small" pendingLabel="Saving…">Add activity</SubmitButton>
             </form>
@@ -372,7 +373,7 @@ export default async function LeadDetail({ params, searchParams }) {
             </div>
             <div className="field">
               <label>Closed on</label>
-              <input name="closed_on" type="date" defaultValue={today} />
+              <DateField name="closed_on" defaultValue={today} />
             </div>
           </div>
           <div className="field">

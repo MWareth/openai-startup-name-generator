@@ -5,6 +5,7 @@ import { formatDate, pct, SENIORITY_NAMES } from '@/lib/format';
 import { starString, averageStars, starsFromTargetFraction } from '@/lib/reviews';
 import { getTargetProgress } from '@/lib/targets';
 import SubmitButton from '@/components/SubmitButton';
+import DateField from '@/components/DateField';
 import { createReview, deleteReview } from '../actions';
 
 export const dynamic = 'force-dynamic';
@@ -93,7 +94,7 @@ export default async function AgentReviewPage({ params, searchParams }) {
               </div>
               <div className="field">
                 <label>Date</label>
-                <input name="reviewed_on" type="date" defaultValue={today} />
+                <DateField name="reviewed_on" defaultValue={today} />
               </div>
             </div>
             {(criteria || []).map((c) => {

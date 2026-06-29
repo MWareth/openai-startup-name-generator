@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import SubmitButton from '@/components/SubmitButton';
+import DateField from '@/components/DateField';
 import { updateReview } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -49,7 +50,7 @@ export default async function EditReviewPage({ params, searchParams }) {
           </div>
           <div className="field">
             <label>Date</label>
-            <input name="reviewed_on" type="date" defaultValue={review.reviewed_on} />
+            <DateField name="reviewed_on" defaultValue={review.reviewed_on} />
           </div>
         </div>
         {(criteria || []).map((c) => {
