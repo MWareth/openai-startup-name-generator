@@ -132,9 +132,9 @@ export default function FollowUpCalendar({ leads = [], agents = [], showAgentFil
               Follow-ups on {selected}
             </div>
             <div className="stack" style={{ gap: 6 }}>
-              {selectedLeads.map((l) => (
-                <div key={l.id + l.date} className="spread" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
-                  <Link href={`/leads/${l.id}`}>{l.name}</Link>
+              {selectedLeads.map((l, i) => (
+                <div key={l.fu || `${l.lead_id || l.id}-${i}`} className="spread" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
+                  <Link href={`/leads/${l.lead_id || l.id}`}>{l.name}</Link>
                   {l.agent_name ? <span className="small muted">{l.agent_name}</span> : null}
                 </div>
               ))}

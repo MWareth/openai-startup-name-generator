@@ -13,7 +13,7 @@ import {
   BEDROOM_OPTIONS,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
-import { addActivity, updateLead, suggestReassign, logDeal, setFollowUp } from '../actions';
+import { addActivity, updateLead, suggestReassign, logDeal, addFollowUp, completeFollowUp, deleteFollowUp } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
@@ -49,6 +49,37 @@ export default async function LeadDetail({ params, searchParams }) {
     .select('*')
     .eq('lead_id', lead.id)
     .order('closed_on', { ascending: false });
+
+  const { data: followups } = await supabase
+    .from('lead_followups')
+    .select('*')
+    .eq('lead_id', lead.id)
+    .order('due_on', { ascending: true });
+
+  const pendingFollowups = (followups || []).filter((f) => !f.done);
+  const doneFollowups = (followups || []).filter((f) => f.done);
+
+  // Merge activities + follow-up events into one timeline, newest first.
+  const timeline = [
+    ...(activities || []).map((a) => ({
+      key: `a-${a.id}`,
+      when: new Date(a.occurred_on).getTime(),
+      kind: 'activity',
+      data: a,
+    })),
+    ...(followups || []).map((f) => ({
+      key: `fs-${f.id}`,
+      when: new Date(f.created_at).getTime(),
+      kind: 'fu_scheduled',
+      data: f,
+    })),
+    ...(followups || []).filter((f) => f.done && f.done_at).map((f) => ({
+      key: `fd-${f.id}`,
+      when: new Date(f.done_at).getTime(),
+      kind: 'fu_done',
+      data: f,
+    })),
+  ].sort((a, b) => b.when - a.when);
 
   // Other agents to suggest the lead to.
   const { data: agents } = await supabase
@@ -105,20 +136,49 @@ export default async function LeadDetail({ params, searchParams }) {
           </div>
 
           <div className="card">
-            <h3>Next follow-up</h3>
-            {lead.next_follow_up ? (
-              <p className="small">
-                Scheduled for <strong>{formatDate(lead.next_follow_up)}</strong>
-                {lead.next_follow_up <= today ? <span className="badge hot" style={{ marginLeft: 8 }}>Due</span> : null}
-              </p>
+            <h3>Follow-ups</h3>
+            {pendingFollowups.length ? (
+              <div className="stack" style={{ gap: 8, marginBottom: 12 }}>
+                {pendingFollowups.map((f) => (
+                  <div key={f.id} className="spread" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 8, gap: 8 }}>
+                    <div>
+                      <span className="small"><strong>{formatDate(f.due_on)}</strong></span>
+                      {f.due_on <= today ? <span className="badge hot" style={{ marginLeft: 8 }}>{f.due_on < today ? 'Overdue' : 'Due'}</span> : null}
+                      {f.note ? <div className="small muted" style={{ whiteSpace: 'pre-wrap' }}>{f.note}</div> : null}
+                    </div>
+                    <div className="row" style={{ gap: 6 }}>
+                      <form action={completeFollowUp}>
+                        <input type="hidden" name="lead_id" value={lead.id} />
+                        <input type="hidden" name="followup_id" value={f.id} />
+                        <button className="btn secondary small" type="submit">Done</button>
+                      </form>
+                      <form action={deleteFollowUp}>
+                        <input type="hidden" name="lead_id" value={lead.id} />
+                        <input type="hidden" name="followup_id" value={f.id} />
+                        <button className="btn ghost small" type="submit">✕</button>
+                      </form>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : (
-              <p className="small muted">No follow-up set.</p>
+              <p className="small muted">No follow-ups scheduled.</p>
             )}
-            <form action={setFollowUp} className="row" style={{ gap: 8 }}>
+
+            <form action={addFollowUp} className="stack" style={{ gap: 8 }}>
               <input type="hidden" name="lead_id" value={lead.id} />
-              <input type="date" name="next_follow_up" defaultValue={lead.next_follow_up || ''} style={{ maxWidth: 180 }} />
-              <button className="btn secondary small" type="submit">Save</button>
+              <div className="row" style={{ gap: 8 }}>
+                <input type="date" name="due_on" defaultValue={today} style={{ maxWidth: 180 }} required />
+                <button className="btn secondary small" type="submit">+ Add follow-up</button>
+              </div>
+              <input name="note" placeholder="Note (optional) — e.g. call after he sees the brochure" />
             </form>
+
+            {doneFollowups.length ? (
+              <p className="small muted" style={{ marginTop: 10 }}>
+                ✅ {doneFollowups.length} completed — see the timeline for details.
+              </p>
+            ) : null}
           </div>
 
           <div className="card">
@@ -226,19 +286,51 @@ export default async function LeadDetail({ params, searchParams }) {
 
           <div className="card">
             <h3>Timeline</h3>
-            {activities && activities.length ? (
+            {timeline.length ? (
               <div className="stack" style={{ gap: 10 }}>
-                {activities.map((a) => (
-                  <div key={a.id} style={{ borderLeft: '2px solid var(--border)', paddingLeft: 12 }}>
-                    <div className="spread">
-                      <span className="badge status">{ACTIVITY_LABELS[a.type]}</span>
-                      <span className="small muted">{formatDate(a.occurred_on)}</span>
+                {timeline.map((item) => {
+                  if (item.kind === 'activity') {
+                    const a = item.data;
+                    return (
+                      <div key={item.key} style={{ borderLeft: '2px solid var(--border)', paddingLeft: 12 }}>
+                        <div className="spread">
+                          <span className="badge status">{ACTIVITY_LABELS[a.type]}</span>
+                          <span className="small muted">{formatDate(a.occurred_on)}</span>
+                        </div>
+                        <div className="small" style={{ marginTop: 4, whiteSpace: 'pre-wrap' }}>{a.body}</div>
+                        {a.body ? <TranslateButton text={a.body} /> : null}
+                        <div className="small muted">{a.agent?.full_name}</div>
+                      </div>
+                    );
+                  }
+                  if (item.kind === 'fu_scheduled') {
+                    const f = item.data;
+                    return (
+                      <div key={item.key} style={{ borderLeft: '2px solid var(--brand)', paddingLeft: 12 }}>
+                        <div className="spread">
+                          <span className="badge role">📅 Follow-up</span>
+                          <span className="small muted">{formatDate(f.created_at)}</span>
+                        </div>
+                        <div className="small" style={{ marginTop: 4 }}>
+                          Scheduled for <strong>{formatDate(f.due_on)}</strong>
+                          {!f.done ? null : <span className="small muted"> · completed</span>}
+                        </div>
+                        {f.note ? <div className="small muted" style={{ whiteSpace: 'pre-wrap' }}>{f.note}</div> : null}
+                      </div>
+                    );
+                  }
+                  // fu_done
+                  const f = item.data;
+                  return (
+                    <div key={item.key} style={{ borderLeft: '2px solid var(--won, #16a34a)', paddingLeft: 12 }}>
+                      <div className="spread">
+                        <span className="badge won">✅ Follow-up done</span>
+                        <span className="small muted">{formatDate(f.done_at)}</span>
+                      </div>
+                      <div className="small" style={{ marginTop: 4 }}>Completed (was due {formatDate(f.due_on)})</div>
                     </div>
-                    <div className="small" style={{ marginTop: 4, whiteSpace: 'pre-wrap' }}>{a.body}</div>
-                    {a.body ? <TranslateButton text={a.body} /> : null}
-                    <div className="small muted">{a.agent?.full_name}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <p className="muted small">No activity logged yet.</p>

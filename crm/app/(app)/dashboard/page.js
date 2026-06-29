@@ -28,6 +28,7 @@ export default async function Dashboard() {
     { data: myDeals },
     { data: board },
     { data: launches },
+    { data: myFollowups },
   ] = await Promise.all([
     supabase.from('leads')
       .select('id, name, qualification, status, next_follow_up, updated_at, created_at')
@@ -37,6 +38,9 @@ export default async function Dashboard() {
     supabase.from('deals').select('deal_value, gross_commission, agent_commission, closed_on').eq('agent_id', user.id),
     supabase.rpc('agent_leaderboard'),
     supabase.from('launches').select('*').order('created_at', { ascending: false }).limit(5),
+    supabase.from('lead_followups')
+      .select('id, due_on, lead_id, lead:leads(name, status)')
+      .eq('done', false),
   ]);
 
   const open = (myLeads || []).filter((l) => l.status !== 'won' && l.status !== 'lost');
@@ -45,10 +49,10 @@ export default async function Dashboard() {
     .sort((a, b) => (a.next_follow_up < b.next_follow_up ? -1 : 1));
   const newLeads = open.filter((l) => l.status === 'new');
 
-  // Follow-ups for the calendar (open leads with a scheduled date).
-  const followupLeads = open
-    .filter((l) => l.next_follow_up)
-    .map((l) => ({ id: l.id, name: l.name, date: l.next_follow_up }));
+  // Follow-ups for the calendar — every pending follow-up (a lead can have several).
+  const followupLeads = (myFollowups || [])
+    .filter((f) => f.lead && f.lead.status !== 'won' && f.lead.status !== 'lost')
+    .map((f) => ({ fu: f.id, lead_id: f.lead_id, name: f.lead?.name || 'Lead', date: f.due_on }));
   const hotQuiet = open.filter((l) => l.qualification === 'hot' && daysSince(l.updated_at) >= 3);
   const aboutToReturn = open
     .filter((l) => daysSince(l.updated_at) >= 8)
@@ -212,21 +216,22 @@ async function AdminDashboard({ supabase, name }) {
       .not('suggested_agent_id', 'is', null)
       .limit(10),
     supabase
-      .from('leads')
-      .select('id, name, next_follow_up, status, assigned_agent_id, assigned:profiles!leads_assigned_agent_id_fkey(full_name)')
-      .not('next_follow_up', 'is', null),
+      .from('lead_followups')
+      .select('id, due_on, lead_id, lead:leads(name, status, assigned_agent_id, assigned:profiles!leads_assigned_agent_id_fkey(full_name))')
+      .eq('done', false),
     supabase.from('profiles').select('id, full_name').in('role', ['agent', 'admin']).order('full_name'),
   ]);
 
-  // All agents' follow-ups (open leads) for the team calendar.
+  // All agents' pending follow-ups for the team calendar (a lead can have several).
   const followupLeads = (followups || [])
-    .filter((l) => l.status !== 'won' && l.status !== 'lost')
-    .map((l) => ({
-      id: l.id,
-      name: l.name,
-      date: l.next_follow_up,
-      agent_id: l.assigned_agent_id,
-      agent_name: l.assigned?.full_name || 'Unassigned',
+    .filter((f) => f.lead && f.lead.status !== 'won' && f.lead.status !== 'lost')
+    .map((f) => ({
+      fu: f.id,
+      lead_id: f.lead_id,
+      name: f.lead?.name || 'Lead',
+      date: f.due_on,
+      agent_id: f.lead?.assigned_agent_id,
+      agent_name: f.lead?.assigned?.full_name || 'Unassigned',
     }));
 
   const totalValue = (deals || []).reduce((s, d) => s + Number(d.deal_value || 0), 0);

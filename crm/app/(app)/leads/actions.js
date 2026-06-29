@@ -86,10 +86,16 @@ export async function addActivity(formData) {
 
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
 
-  // Optionally set the next follow-up date on the lead from the same form.
+  // Optionally schedule a follow-up from the same form.
   const nextFollowUp = emptyToNull(formData.get('next_follow_up'));
   if (nextFollowUp) {
-    await supabase.from('leads').update({ next_follow_up: nextFollowUp }).eq('id', leadId);
+    await supabase.from('lead_followups').insert({
+      lead_id: leadId,
+      due_on: nextFollowUp,
+      note: '',
+      created_by: user.id,
+    });
+    await syncNextFollowUp(supabase, leadId);
   }
 
   revalidatePath(`/leads/${leadId}`);
@@ -97,17 +103,64 @@ export async function addActivity(formData) {
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Activity logged.'));
 }
 
-export async function setFollowUp(formData) {
-  const { supabase } = await requireUser();
+// Keep leads.next_follow_up pointing at the earliest pending follow-up (or null)
+// so the dashboard "Today's to-do" and "Due" badge keep working unchanged.
+async function syncNextFollowUp(supabase, leadId) {
+  const { data } = await supabase
+    .from('lead_followups')
+    .select('due_on')
+    .eq('lead_id', leadId)
+    .eq('done', false)
+    .order('due_on', { ascending: true })
+    .limit(1);
+  const next = data && data.length ? data[0].due_on : null;
+  await supabase.from('leads').update({ next_follow_up: next }).eq('id', leadId);
+}
+
+export async function addFollowUp(formData) {
+  const { user, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
-  const { error } = await supabase
-    .from('leads')
-    .update({ next_follow_up: emptyToNull(formData.get('next_follow_up')) })
-    .eq('id', leadId);
+  const due_on = emptyToNull(formData.get('due_on'));
+  if (!due_on) redirect(`/leads/${leadId}?error=` + encodeURIComponent('Pick a follow-up date.'));
+  const note = String(formData.get('note') || '').trim();
+  const { error } = await supabase.from('lead_followups').insert({
+    lead_id: leadId,
+    due_on,
+    note,
+    created_by: user.id,
+  });
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  await syncNextFollowUp(supabase, leadId);
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/dashboard');
-  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Follow-up date updated.'));
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Follow-up added.'));
+}
+
+export async function completeFollowUp(formData) {
+  const { supabase } = await requireUser();
+  const leadId = String(formData.get('lead_id'));
+  const id = String(formData.get('followup_id'));
+  const { error } = await supabase
+    .from('lead_followups')
+    .update({ done: true, done_at: new Date().toISOString() })
+    .eq('id', id);
+  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  await syncNextFollowUp(supabase, leadId);
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath('/dashboard');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Follow-up marked done.'));
+}
+
+export async function deleteFollowUp(formData) {
+  const { supabase } = await requireUser();
+  const leadId = String(formData.get('lead_id'));
+  const id = String(formData.get('followup_id'));
+  const { error } = await supabase.from('lead_followups').delete().eq('id', id);
+  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  await syncNextFollowUp(supabase, leadId);
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath('/dashboard');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Follow-up removed.'));
 }
 
 export async function updateLead(formData) {
