@@ -26,7 +26,10 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 15px;
   line-height: 1.5;
+  max-width: 100%;
+  overflow-x: hidden; /* never let the page render wider than the screen (no pinch-to-fit) */
 }
+img { max-width: 100%; height: auto; }
 
 a { color: var(--gold-2); text-decoration: none; }
 a:hover { text-decoration: underline; }
@@ -46,6 +49,13 @@ p { margin: 0 0 10px; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
 .grid-3 { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 800px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+/* On phones, wide content (esp. tables) scrolls inside its card instead of
+   widening the whole page and forcing a pinch-to-fit zoom. */
+@media (max-width: 760px) {
+  .spread { flex-wrap: wrap; }
+  .card { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { font-size: 0.9rem; }
+}
 
 /* Layout shell */
 .shell { display: flex; min-height: 100vh; }
