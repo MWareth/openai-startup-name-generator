@@ -10,6 +10,7 @@ import {
   updateAgent,
   deactivateAgent,
   reactivateAgent,
+  resetAgentPassword,
   reassignLead,
   createTarget,
   addTier,
@@ -125,6 +126,11 @@ export default async function AdminPage({ searchParams }) {
                         </button>
                       </form>
                     ) : null}
+                    <form action={resetAgentPassword} className="row" style={{ gap: 6, margin: 0 }}>
+                      <input type="hidden" name="agent_id" value={p.id} />
+                      <input name="password" type="text" placeholder="New temp password" minLength={6} style={{ width: 150 }} />
+                      <button className="btn ghost small" type="submit">Reset PW</button>
+                    </form>
                   </div>
                 </td>
               </tr>
