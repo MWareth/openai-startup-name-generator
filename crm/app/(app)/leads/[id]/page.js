@@ -13,7 +13,7 @@ import {
   BEDROOM_OPTIONS,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
-import { addActivity, updateLead, suggestReassign, logDeal, addFollowUp, completeFollowUp, deleteFollowUp } from '../actions';
+import { addActivity, updateLead, updateLeadDetails, deleteLead, suggestReassign, logDeal, addFollowUp, completeFollowUp, deleteFollowUp } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
@@ -111,25 +111,40 @@ export default async function LeadDetail({ params, searchParams }) {
         {/* Left column */}
         <div className="stack">
           <div className="card">
-            <h3>Contact</h3>
-            <div className="small stack" style={{ gap: 4 }}>
-              <div><span className="muted">Phone:</span> {lead.phone || '—'}</div>
-              <div><span className="muted">Email:</span> {lead.email || '—'}</div>
-              <div><span className="muted">Source:</span> {lead.source || '—'}</div>
-              <div><span className="muted">Community:</span> {lead.community || '—'}</div>
-              <div><span className="muted">Building / project:</span> {lead.property_interest || '—'}</div>
-              <div><span className="muted">Type:</span> {lead.property_type || '—'}</div>
-              <div><span className="muted">Bedrooms:</span> {lead.bedrooms || '—'}</div>
-              <div><span className="muted">Budget:</span> {lead.budget ? aed(lead.budget) : '—'}</div>
-              <div><span className="muted">Assigned:</span> {lead.assigned?.full_name || 'Unassigned'}</div>
-            </div>
+            <h3>Contact details</h3>
+            <form action={updateLeadDetails} className="stack" style={{ gap: 10 }}>
+              <input type="hidden" name="lead_id" value={lead.id} />
+              <div className="field"><label>Full name</label><input name="name" defaultValue={lead.name} required /></div>
+              <div className="form-grid">
+                <div className="field"><label>Phone</label><input name="phone" defaultValue={lead.phone || ''} /></div>
+                <div className="field"><label>Email</label><input name="email" type="email" defaultValue={lead.email || ''} /></div>
+              </div>
+              <div className="form-grid">
+                <div className="field">
+                  <label>Source</label>
+                  <input name="source" defaultValue={lead.source || ''} list="lead-source-options" autoComplete="off" />
+                  <datalist id="lead-source-options">
+                    <option value="Cold Call" /><option value="Instagram" /><option value="Referral" />
+                    <option value="Bayut" /><option value="Property Finder" /><option value="Website" />
+                    <option value="WhatsApp" /><option value="Walk-in" />
+                  </datalist>
+                </div>
+                <div className="field"><label>Budget (AED)</label><input name="budget" type="number" min="0" step="1000" defaultValue={lead.budget || ''} /></div>
+              </div>
+              <div className="form-grid">
+                <div className="field"><label>Community / area</label><input name="community" defaultValue={lead.community || ''} /></div>
+                <div className="field"><label>Building / project</label><input name="property_interest" defaultValue={lead.property_interest || ''} /></div>
+              </div>
+              <button className="btn secondary small" type="submit">Save details</button>
+            </form>
+            <div className="small muted" style={{ marginTop: 10 }}>Assigned: {lead.assigned?.full_name || 'Unassigned'}</div>
             {waLink(lead.phone) ? (
               <a
                 className="btn small"
                 href={waLink(lead.phone)}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ marginTop: 12, background: '#25D366' }}
+                style={{ marginTop: 10, background: '#25D366' }}
               >
                 WhatsApp message
               </a>
@@ -411,6 +426,22 @@ export default async function LeadDetail({ params, searchParams }) {
           </>
         ) : null}
       </div>
+
+      {isAdmin ? (
+        <div className="card" style={{ borderColor: 'var(--red)' }}>
+          <h3 style={{ color: 'var(--red)' }}>Danger zone</h3>
+          <details>
+            <summary className="small" style={{ cursor: 'pointer' }}>Delete this lead</summary>
+            <p className="small muted" style={{ marginTop: 8 }}>
+              Permanently removes this lead and its activities &amp; follow-ups. Any closed deals are kept (just unlinked). This can&apos;t be undone.
+            </p>
+            <form action={deleteLead}>
+              <input type="hidden" name="lead_id" value={lead.id} />
+              <button className="btn" type="submit" style={{ background: 'var(--red)' }}>Delete lead permanently</button>
+            </form>
+          </details>
+        </div>
+      ) : null}
     </div>
   );
 }

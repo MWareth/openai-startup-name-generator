@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { computeCommission } from '@/lib/commission';
 import { sendPushToUser } from '@/lib/push';
 
@@ -193,6 +194,50 @@ export async function updateLead(formData) {
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   revalidatePath(`/leads/${leadId}`);
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Lead updated.'));
+}
+
+// Edit the core contact details. The lead owner, creator, or admin can do this
+// (enforced by RLS via the user's session client).
+export async function updateLeadDetails(formData) {
+  const { supabase } = await requireUser();
+  const leadId = String(formData.get('lead_id'));
+  const name = String(formData.get('name') || '').trim();
+  if (!name) redirect(`/leads/${leadId}?error=` + encodeURIComponent('Name is required.'));
+
+  let source = emptyToNull(formData.get('source'));
+  if (source && source.trim().toLowerCase() === 'cold call') source = 'Cold Call';
+  const budgetRaw = String(formData.get('budget') || '').trim();
+
+  const patch = {
+    name,
+    phone: emptyToNull(formData.get('phone')),
+    email: emptyToNull(formData.get('email')),
+    source,
+    budget: budgetRaw ? Number(budgetRaw) : null,
+    community: emptyToNull(formData.get('community')),
+    property_interest: emptyToNull(formData.get('property_interest')),
+  };
+
+  const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
+  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath('/leads');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Details updated.'));
+}
+
+// Permanently delete a lead (and its activities/follow-ups via cascade). Closed
+// deals are kept but unlinked. Staff only (admin/support/oversight).
+export async function deleteLead(formData) {
+  const { profile } = await requireUser();
+  if (!hasStaffAccess(profile)) {
+    redirect('/leads?error=' + encodeURIComponent('Only admin/support can delete leads.'));
+  }
+  const leadId = String(formData.get('lead_id'));
+  const admin = createAdminClient();
+  const { error } = await admin.from('leads').delete().eq('id', leadId);
+  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  revalidatePath('/leads');
+  redirect('/leads?ok=' + encodeURIComponent('Lead deleted.'));
 }
 
 export async function suggestReassign(formData) {
