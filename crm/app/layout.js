@@ -5,7 +5,7 @@ export const metadata = {
   description: 'Bridges & Allies — lead, deal and target management',
   manifest: '/manifest.json',
   appleWebApp: { capable: true, title: 'Bullish CRM', statusBarStyle: 'black-translucent' },
-  icons: { icon: '/app-icon.png', apple: '/app-icon.png' },
+  icons: { icon: '/app-icon.jpg', apple: '/app-icon.jpg' },
 };
 
 export const viewport = {
