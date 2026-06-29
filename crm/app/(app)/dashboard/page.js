@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { requireUser, hasAdminAccess } from '@/lib/auth';
 import { getTargetProgress } from '@/lib/targets';
 import { aed, pct, QUAL_LABELS, formatDate } from '@/lib/format';
+import FollowUpCalendar from '@/components/FollowUpCalendar';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +44,11 @@ export default async function Dashboard() {
     .filter((l) => l.next_follow_up && l.next_follow_up <= today)
     .sort((a, b) => (a.next_follow_up < b.next_follow_up ? -1 : 1));
   const newLeads = open.filter((l) => l.status === 'new');
+
+  // Follow-ups for the calendar (open leads with a scheduled date).
+  const followupLeads = open
+    .filter((l) => l.next_follow_up)
+    .map((l) => ({ id: l.id, name: l.name, date: l.next_follow_up }));
   const hotQuiet = open.filter((l) => l.qualification === 'hot' && daysSince(l.updated_at) >= 3);
   const aboutToReturn = open
     .filter((l) => daysSince(l.updated_at) >= 8)
@@ -87,6 +93,9 @@ export default async function Dashboard() {
         <div className="card stat"><span className="muted small">Gross commission (this month)</span><span className="value" style={{ fontSize: '1.4rem' }}>{aed(monthGross)}</span></div>
         <div className="card stat"><span className="muted small">Net commission — your share (this month)</span><span className="value" style={{ fontSize: '1.4rem', color: 'var(--gold-2)' }}>{aed(monthNet)}</span></div>
       </div>
+
+      {/* Follow-up calendar */}
+      <FollowUpCalendar leads={followupLeads} />
 
       {/* Today's to-do */}
       <div className="card">
@@ -191,6 +200,8 @@ async function AdminDashboard({ supabase, name }) {
     { count: agentCount },
     { data: deals },
     { data: suggested },
+    { data: followups },
+    { data: agentList },
   ] = await Promise.all([
     supabase.from('leads').select('id', { count: 'exact', head: true }),
     supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'agent'),
@@ -200,7 +211,23 @@ async function AdminDashboard({ supabase, name }) {
       .select('id, name, suggested:profiles!leads_suggested_agent_id_fkey(full_name), assigned:profiles!leads_assigned_agent_id_fkey(full_name)')
       .not('suggested_agent_id', 'is', null)
       .limit(10),
+    supabase
+      .from('leads')
+      .select('id, name, next_follow_up, status, assigned_agent_id, assigned:profiles!leads_assigned_agent_id_fkey(full_name)')
+      .not('next_follow_up', 'is', null),
+    supabase.from('profiles').select('id, full_name').in('role', ['agent', 'admin']).order('full_name'),
   ]);
+
+  // All agents' follow-ups (open leads) for the team calendar.
+  const followupLeads = (followups || [])
+    .filter((l) => l.status !== 'won' && l.status !== 'lost')
+    .map((l) => ({
+      id: l.id,
+      name: l.name,
+      date: l.next_follow_up,
+      agent_id: l.assigned_agent_id,
+      agent_name: l.assigned?.full_name || 'Unassigned',
+    }));
 
   const totalValue = (deals || []).reduce((s, d) => s + Number(d.deal_value || 0), 0);
   const companyCommission = (deals || []).reduce((s, d) => s + Number(d.company_commission || 0), 0);
@@ -226,6 +253,9 @@ async function AdminDashboard({ supabase, name }) {
         <div className="card stat"><span className="muted small">Total sales value (all-time)</span><span className="value">{aed(totalValue)}</span></div>
         <div className="card stat"><span className="muted small">Company commission</span><span className="value">{aed(companyCommission)}</span></div>
       </div>
+
+      {/* Team follow-up calendar */}
+      <FollowUpCalendar leads={followupLeads} agents={agentList || []} showAgentFilter />
 
       <div className="card">
         <div className="spread">
