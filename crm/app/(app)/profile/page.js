@@ -3,6 +3,7 @@ import Avatar from '@/components/Avatar';
 import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import { updateMyProfile } from './actions';
 import { changeMyPassword } from '../../set-password/actions';
+import EnableNotifications from '@/components/EnableNotifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -80,6 +81,12 @@ export default async function ProfilePage({ searchParams }) {
 
           <button className="btn" type="submit">Save my profile</button>
         </form>
+      </div>
+
+      {/* Notifications */}
+      <div className="card">
+        <h3>🔔 Notifications</h3>
+        <EnableNotifications vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''} />
       </div>
 
       {/* Change password */}

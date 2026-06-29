@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
 import { computeCommission } from '@/lib/commission';
+import { sendPushToUser } from '@/lib/push';
 
 export async function createLead(formData) {
   const { user, profile, supabase } = await requireUser();
@@ -71,6 +72,15 @@ export async function createLead(formData) {
   const { data, error } = await supabase.from('leads').insert(insert).select('id').single();
 
   if (error) redirect('/leads/new?error=' + encodeURIComponent(error.message));
+
+  // Notify the assigned agent if someone else (e.g. admin/support) created it.
+  if (assignedTo && assignedTo !== user.id) {
+    await sendPushToUser(assignedTo, {
+      title: '🆕 New lead assigned',
+      body: `${name} was assigned to you.`,
+      url: '/leads/' + data.id,
+    });
+  }
 
   revalidatePath('/leads');
   redirect('/leads/' + data.id + '?ok=' + encodeURIComponent('Lead created.'));
@@ -199,6 +209,15 @@ export async function suggestReassign(formData) {
 
   const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+
+  // Tell the new owner when an admin reassigns a lead to someone else.
+  if (admin && selected && selected !== profile.id) {
+    await sendPushToUser(selected, {
+      title: '🔄 Lead assigned to you',
+      body: 'A lead was just reassigned to you.',
+      url: `/leads/${leadId}`,
+    });
+  }
 
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/leads');

@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { syncProjectsFromSheet } from '@/lib/projectsSync';
+import { sendPushToUser } from '@/lib/push';
 
 const ADMIN = '/admin';
 const back = (msg, ok) => redirect(`${ADMIN}?${ok ? 'ok' : 'error'}=` + encodeURIComponent(msg));
@@ -125,8 +126,7 @@ export async function reactivateAgent(formData) {
 }
 
 export async function reassignLead(formData) {
-  await requireAdmin();
-  const { supabase } = await requireAdmin();
+  const { user, supabase } = await requireAdmin();
   const leadId = String(formData.get('lead_id'));
   const agentId = String(formData.get('assigned_agent_id') || '') || null;
 
@@ -135,6 +135,16 @@ export async function reassignLead(formData) {
     .update({ assigned_agent_id: agentId, suggested_agent_id: null })
     .eq('id', leadId);
   if (error) back(error.message);
+
+  // Notify the newly assigned agent (unless you assigned it to yourself).
+  if (agentId && agentId !== user.id) {
+    await sendPushToUser(agentId, {
+      title: '🔄 Lead assigned to you',
+      body: 'A lead was just assigned to you.',
+      url: `/leads/${leadId}`,
+    });
+  }
+
   revalidatePath(ADMIN);
   revalidatePath('/leads');
   back('Lead reassigned', true);
