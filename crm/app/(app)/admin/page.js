@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth';
-import { aed, formatDate } from '@/lib/format';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { aed, formatDate, QUAL_LABELS } from '@/lib/format';
 import AddMemberFields from '@/components/AddMemberFields';
 import Avatar from '@/components/Avatar';
 import {
   createAgent,
   updateAgent,
+  deactivateAgent,
+  reactivateAgent,
   reassignLead,
   createTarget,
   addTier,
@@ -28,16 +31,36 @@ export default async function AdminPage({ searchParams }) {
   const error = searchParams?.error;
 
   const { data: profiles } = await supabase.from('profiles').select('*').order('full_name');
-  // People who carry leads: agents (incl. team leaders) and the selling owner/admin.
-  const agents = (profiles || []).filter((p) => p.role === 'agent' || p.role === 'admin');
+
+  // Deactivated agents are simply those whose login is banned in Auth — no DB
+  // column needed. A user is inactive while their ban is still in the future.
+  const admin = createAdminClient();
+  const { data: authList } = await admin.auth.admin.listUsers({ perPage: 200 });
+  const now = Date.now();
+  const bannedIds = new Set(
+    (authList?.users || [])
+      .filter((u) => u.banned_until && new Date(u.banned_until).getTime() > now)
+      .map((u) => u.id)
+  );
+
+  // People who can carry leads: active agents (incl. team leaders) and the
+  // selling owner/admin. Deactivated (departed) agents are excluded.
+  const agents = (profiles || []).filter(
+    (p) => (p.role === 'agent' || p.role === 'admin') && !bannedIds.has(p.id)
+  );
 
   const { data: leads } = await supabase
     .from('leads')
-    .select('id, name, suggested_agent_id, assigned:profiles!leads_assigned_agent_id_fkey(full_name), suggested:profiles!leads_suggested_agent_id_fkey(full_name)')
+    .select('id, name, qualification, budget, status, assigned_agent_id, suggested_agent_id, assigned:profiles!leads_assigned_agent_id_fkey(full_name), suggested:profiles!leads_suggested_agent_id_fkey(full_name)')
     .order('updated_at', { ascending: false });
 
   // Pending suggestions first.
   const sortedLeads = (leads || []).sort((a, b) => (b.suggested_agent_id ? 1 : 0) - (a.suggested_agent_id ? 1 : 0));
+
+  // The lead pool: unassigned leads still in play (won/lost are closed history).
+  const poolLeads = (leads || []).filter(
+    (l) => !l.assigned_agent_id && l.status !== 'won' && l.status !== 'lost'
+  );
 
   const { data: targets } = await supabase
     .from('targets')
@@ -70,26 +93,38 @@ export default async function AdminPage({ searchParams }) {
             {(profiles || []).map((p) => (
               <tr key={p.id}>
                 <td colSpan={5} style={{ padding: 0 }}>
-                  <form action={updateAgent} className="row" style={{ padding: '10px 12px', gap: 8 }}>
-                    <input type="hidden" name="agent_id" value={p.id} />
-                    <Avatar url={p.avatar_url} name={p.full_name} size="sm" />
-                    <input name="full_name" defaultValue={p.full_name} style={{ flex: '1 1 120px' }} />
-                    <span className="small muted" style={{ flex: '1 1 160px' }}>{p.email}</span>
-                    <input name="avatar_url" defaultValue={p.avatar_url || ''} placeholder="Photo URL" style={{ flex: '1 1 150px' }} />
-                    <select name="role" defaultValue={p.role} style={{ width: 130 }}>
-                      <option value="agent">Agent</option>
-                      <option value="support">Support</option>
-                      <option value="director">Director</option>
-                      <option value="c_suite">C-Suite</option>
-                      <option value="admin">Admin (Owner)</option>
-                    </select>
-                    <select name="seniority" defaultValue={p.seniority} style={{ width: 140 }}>
-                      <option value="junior">Junior 50/50</option>
-                      <option value="senior">Senior 55/45</option>
-                      <option value="team_leader">Team Leader 60/40</option>
-                    </select>
-                    <button className="btn secondary small" type="submit">Save</button>
-                  </form>
+                  <div className="row" style={{ padding: '10px 12px', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <form action={updateAgent} className="row" style={{ gap: 8, flex: '1 1 auto', flexWrap: 'wrap', margin: 0 }}>
+                      <input type="hidden" name="agent_id" value={p.id} />
+                      <input type="hidden" name="current_email" value={p.email || ''} />
+                      <Avatar url={p.avatar_url} name={p.full_name} size="sm" />
+                      <input name="full_name" defaultValue={p.full_name} placeholder="Full name" style={{ flex: '1 1 120px' }} />
+                      <input name="email" type="email" defaultValue={p.email || ''} placeholder="Email" style={{ flex: '1 1 170px' }} />
+                      <input name="avatar_url" defaultValue={p.avatar_url || ''} placeholder="Photo URL" style={{ flex: '1 1 150px' }} />
+                      <select name="role" defaultValue={p.role} style={{ width: 130 }}>
+                        <option value="agent">Agent</option>
+                        <option value="support">Support</option>
+                        <option value="director">Director</option>
+                        <option value="c_suite">C-Suite</option>
+                        <option value="admin">Admin (Owner)</option>
+                      </select>
+                      <select name="seniority" defaultValue={p.seniority} style={{ width: 140 }}>
+                        <option value="junior">Junior 50/50</option>
+                        <option value="senior">Senior 55/45</option>
+                        <option value="team_leader">Team Leader 60/40</option>
+                      </select>
+                      <button className="btn secondary small" type="submit">Save</button>
+                    </form>
+                    {bannedIds.has(p.id) ? <span className="badge lost">Inactive</span> : null}
+                    {p.role !== 'admin' ? (
+                      <form action={bannedIds.has(p.id) ? reactivateAgent : deactivateAgent} style={{ margin: 0 }}>
+                        <input type="hidden" name="agent_id" value={p.id} />
+                        <button className="btn ghost small" type="submit">
+                          {bannedIds.has(p.id) ? 'Reactivate' : 'Deactivate'}
+                        </button>
+                      </form>
+                    ) : null}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -101,6 +136,41 @@ export default async function AdminPage({ searchParams }) {
         <form action={createAgent}>
           <AddMemberFields />
         </form>
+      </div>
+
+      {/* ---- Lead pool ---- */}
+      <div className="card">
+        <div className="spread">
+          <h2>Lead pool</h2>
+          <span className="badge role">{poolLeads.length} available</span>
+        </div>
+        <p className="small muted">
+          Unassigned leads waiting for an owner — including leads freed up when an agent is deactivated
+          or taken back from an agent. Assign each one to an active team member.
+        </p>
+        <table>
+          <thead><tr><th>Lead</th><th>Qual</th><th>Budget</th><th>Assign to</th></tr></thead>
+          <tbody>
+            {poolLeads.map((l) => (
+              <tr key={l.id}>
+                <td><Link href={`/leads/${l.id}`}>{l.name}</Link></td>
+                <td><span className={`badge ${l.qualification}`}>{QUAL_LABELS[l.qualification]}</span></td>
+                <td className="small">{l.budget ? aed(l.budget) : <span className="muted">—</span>}</td>
+                <td style={{ padding: 0 }}>
+                  <form action={reassignLead} className="row" style={{ padding: '8px 12px', gap: 8 }}>
+                    <input type="hidden" name="lead_id" value={l.id} />
+                    <select name="assigned_agent_id" defaultValue="" style={{ width: 160 }}>
+                      <option value="" disabled>Choose agent…</option>
+                      {agents.map((a) => <option key={a.id} value={a.id}>{a.full_name}</option>)}
+                    </select>
+                    <button className="btn secondary small" type="submit">Assign</button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+            {poolLeads.length === 0 ? <tr><td colSpan={4} className="muted">Pool is empty — every lead has an owner.</td></tr> : null}
+          </tbody>
+        </table>
       </div>
 
       {/* ---- Reassign ---- */}

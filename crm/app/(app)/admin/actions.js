@@ -42,11 +42,23 @@ export async function createAgent(formData) {
 export async function updateAgent(formData) {
   await requireAdmin();
   const id = String(formData.get('agent_id'));
+  const email = String(formData.get('email') || '').trim();
+  const currentEmail = String(formData.get('current_email') || '').trim();
   const admin = createAdminClient();
+
+  // Email lives in auth.users — update it there only when it actually changed.
+  // An admin change is auto-confirmed, so the agent can sign in with the new
+  // address immediately.
+  if (email && email.toLowerCase() !== currentEmail.toLowerCase()) {
+    const { error: eErr } = await admin.auth.admin.updateUserById(id, { email, email_confirm: true });
+    if (eErr) back(eErr.message);
+  }
+
   const { error } = await admin
     .from('profiles')
     .update({
       full_name: String(formData.get('full_name') || '').trim(),
+      email: email || null,
       role: String(formData.get('role') || 'agent'),
       seniority: String(formData.get('seniority') || 'junior'),
       avatar_url: emptyToNull(formData.get('avatar_url')),
@@ -55,6 +67,42 @@ export async function updateAgent(formData) {
   if (error) back(error.message);
   revalidatePath(ADMIN);
   back('Agent updated', true);
+}
+
+// An agent who left the company: block their login and send their open leads
+// to the pool. Won/lost leads stay put to preserve sales history. Reversible.
+export async function deactivateAgent(formData) {
+  const { supabase } = await requireAdmin();
+  const id = String(formData.get('agent_id'));
+  const admin = createAdminClient();
+
+  // 1. Move their active-pipeline leads into the pool (assigned_agent_id = null).
+  //    Use the admin's session client so the "only an admin reassigns" trigger passes.
+  const { error: lErr } = await supabase
+    .from('leads')
+    .update({ assigned_agent_id: null, suggested_agent_id: null })
+    .eq('assigned_agent_id', id)
+    .not('status', 'in', '(won,lost)');
+  if (lErr) back(lErr.message);
+
+  // 2. Block their login (~100 years). The ban itself IS the deactivation, so
+  //    no database column / migration is needed. Reactivate lifts it.
+  const { error: bErr } = await admin.auth.admin.updateUserById(id, { ban_duration: '876000h' });
+  if (bErr) back(bErr.message);
+
+  revalidatePath(ADMIN);
+  revalidatePath('/leads');
+  back('Agent deactivated — their open leads moved to the pool', true);
+}
+
+export async function reactivateAgent(formData) {
+  await requireAdmin();
+  const id = String(formData.get('agent_id'));
+  const admin = createAdminClient();
+  const { error } = await admin.auth.admin.updateUserById(id, { ban_duration: 'none' });
+  if (error) back(error.message);
+  revalidatePath(ADMIN);
+  back('Agent reactivated — they can log in again', true);
 }
 
 export async function reassignLead(formData) {
