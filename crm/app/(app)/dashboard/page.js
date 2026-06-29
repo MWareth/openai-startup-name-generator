@@ -4,6 +4,17 @@ import { requireUser, hasAdminAccess } from '@/lib/auth';
 import { getTargetProgress } from '@/lib/targets';
 import { aed, pct, QUAL_LABELS, formatDate } from '@/lib/format';
 import FollowUpCalendar from '@/components/FollowUpCalendar';
+import MotivationCard from '@/components/MotivationCard';
+
+// Time-of-day greeting, based on Dubai local time (the whole team is Dubai-based).
+function greetingNow() {
+  const hour = Number(
+    new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Dubai', hour: 'numeric', hour12: false }).format(new Date())
+  ) % 24;
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -84,7 +95,10 @@ export default async function Dashboard() {
 
   return (
     <div className="stack">
-      <h1>Welcome back, {firstName} 👋</h1>
+      <h1>{greetingNow()}, {firstName} 👋</h1>
+
+      {/* Daily mood-boost */}
+      <MotivationCard />
 
       {/* Performance */}
       <div className="grid grid-3">
@@ -250,7 +264,8 @@ async function AdminDashboard({ supabase, name }) {
 
   return (
     <div className="stack">
-      <h1>Admin overview</h1>
+      <h1>{greetingNow()}, {name?.split(' ')[0] || 'there'} 👋</h1>
+      <MotivationCard />
       <div className="grid grid-3">
         <div className="card stat"><span className="muted small">Agents</span><span className="value">{agentCount ?? 0}</span></div>
         <div className="card stat"><span className="muted small">Leads</span><span className="value">{leadCount ?? 0}</span></div>
