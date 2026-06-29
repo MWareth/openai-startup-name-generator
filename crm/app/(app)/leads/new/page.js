@@ -63,7 +63,17 @@ export default async function NewLeadPage({ searchParams }) {
         <div className="form-grid">
           <div className="field">
             <label htmlFor="source">Source</label>
-            <input id="source" name="source" placeholder="Instagram, referral, portal…" />
+            <input id="source" name="source" list="source-options" autoComplete="off" placeholder="Cold Call, Instagram, referral…" />
+            <datalist id="source-options">
+              <option value="Cold Call" />
+              <option value="Instagram" />
+              <option value="Referral" />
+              <option value="Bayut" />
+              <option value="Property Finder" />
+              <option value="Website" />
+              <option value="WhatsApp" />
+              <option value="Walk-in" />
+            </datalist>
           </div>
           <div className="field">
             <label htmlFor="budget">Budget (AED)</label>

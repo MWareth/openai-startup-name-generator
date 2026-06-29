@@ -42,11 +42,15 @@ export async function createLead(formData) {
 
   const budgetRaw = String(formData.get('budget') || '').trim();
 
+  // Normalise the cold-call source so the contest counter is reliable.
+  let source = emptyToNull(formData.get('source'));
+  if (source && source.trim().toLowerCase() === 'cold call') source = 'Cold Call';
+
   const insert = {
     name,
     phone,
     email,
-    source: emptyToNull(formData.get('source')),
+    source,
     property_interest: emptyToNull(formData.get('property_interest')),
     budget: budgetRaw ? Number(budgetRaw) : null,
     qualification: String(formData.get('qualification') || 'warm'),

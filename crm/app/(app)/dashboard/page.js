@@ -42,7 +42,7 @@ export default async function Dashboard() {
     { data: myFollowups },
   ] = await Promise.all([
     supabase.from('leads')
-      .select('id, name, qualification, status, next_follow_up, updated_at, created_at')
+      .select('id, name, qualification, status, source, next_follow_up, updated_at, created_at')
       .order('updated_at', { ascending: false }),
     supabase.from('targets').select('*').eq('agent_id', user.id).eq('is_active', true)
       .order('created_at', { ascending: false }).limit(1).maybeSingle(),
@@ -59,6 +59,12 @@ export default async function Dashboard() {
     .filter((l) => l.next_follow_up && l.next_follow_up <= today)
     .sort((a, b) => (a.next_follow_up < b.next_follow_up ? -1 : 1));
   const newLeads = open.filter((l) => l.status === 'new');
+
+  // Cold-call contest counter — leads I added this month with source "Cold Call".
+  const monthPrefix = today.slice(0, 7);
+  const myColdThisMonth = (myLeads || []).filter(
+    (l) => l.source === 'Cold Call' && (l.created_at || '').slice(0, 7) === monthPrefix
+  ).length;
 
   // Follow-ups for the calendar — every pending follow-up (a lead can have several).
   const followupLeads = (myFollowups || [])
@@ -99,6 +105,25 @@ export default async function Dashboard() {
 
       {/* Daily mood-boost */}
       <MotivationCard />
+
+      {/* Cold-call contest */}
+      <div className="card" style={{ borderColor: 'var(--brand)' }}>
+        <div className="spread" style={{ flexWrap: 'wrap', gap: 8 }}>
+          <div>
+            <h3 style={{ margin: 0 }}>📞 Cold-call contest</h3>
+            <p className="small muted" style={{ margin: '4px 0 0' }}>
+              Cold leads you&apos;ve added this month — add every new conversation as source “Cold Call”.
+            </p>
+          </div>
+          <div className="row" style={{ gap: 14, alignItems: 'center' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div className="value" style={{ fontSize: '1.8rem', lineHeight: 1 }}>{myColdThisMonth}</div>
+              <div className="small muted">this month</div>
+            </div>
+            <Link className="btn secondary small" href="/cold-calls">Leaderboard →</Link>
+          </div>
+        </div>
+      </div>
 
       {/* Performance */}
       <div className="grid grid-3">
