@@ -21,3 +21,26 @@ export async function updateMyAvatar(formData) {
   revalidatePath('/leaderboard');
   redirect('/profile?ok=1');
 }
+
+// Lets a signed-in user edit ONLY their own profile fields (photo, phone, team,
+// and the two "dream" goals). Hard-scoped to the current user's id; email, role
+// and seniority are never touched here, so they stay admin-controlled.
+export async function updateMyProfile(formData) {
+  const { user } = await requireUser();
+  const patch = {
+    avatar_url: String(formData.get('avatar_url') || '').trim() || null,
+    phone: String(formData.get('phone') || '').trim() || null,
+    team: String(formData.get('team') || '').trim() || 'Offplan team',
+    dream_week: String(formData.get('dream_week') || '').trim() || null,
+    dream_car: String(formData.get('dream_car') || '').trim() || null,
+  };
+
+  const admin = createAdminClient();
+  const { error } = await admin.from('profiles').update(patch).eq('id', user.id);
+  if (error) redirect('/profile?error=' + encodeURIComponent(error.message));
+
+  revalidatePath('/profile');
+  revalidatePath('/dashboard');
+  revalidatePath('/leaderboard');
+  redirect('/profile?ok=1');
+}
