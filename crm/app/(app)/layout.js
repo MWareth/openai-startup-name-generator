@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
 import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
@@ -66,7 +67,15 @@ export default async function AppLayout({ children }) {
           </form>
         </div>
       </aside>
-      <main className="content">{children}</main>
+      <main className="content">
+        <div className="topbar">
+          <Link href="/notifications" className="bell" aria-label="Notifications" title="Notifications">
+            <span className="bell-icon">🔔</span>
+            {unread ? <span className="bell-count">{unread > 99 ? '99+' : unread}</span> : null}
+          </Link>
+        </div>
+        {children}
+      </main>
       <PresenceTracker />
     </div>
   );
