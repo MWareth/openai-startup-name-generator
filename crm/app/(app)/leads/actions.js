@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
 import { computeCommission } from '@/lib/commission';
+import { notify, notifyManagement } from '@/lib/notify';
 
 export async function createLead(formData) {
   const { user, profile, supabase } = await requireUser();
@@ -68,6 +69,18 @@ export async function createLead(formData) {
 
   if (error) redirect('/leads/new?error=' + encodeURIComponent(error.message));
 
+  // Notify the assignee if the lead was handed to someone other than the creator.
+  if (assignedTo && assignedTo !== user.id) {
+    await notify({
+      userId: assignedTo,
+      type: 'lead_assigned',
+      title: `New lead assigned: ${name}`,
+      body: `${profile?.full_name || 'A manager'} assigned you this lead.`,
+      link: `/leads/${data.id}`,
+      leadId: data.id,
+    });
+  }
+
   revalidatePath('/leads');
   redirect('/leads/' + data.id + '?ok=' + encodeURIComponent('Lead created.'));
 }
@@ -129,7 +142,7 @@ export async function updateLead(formData) {
 }
 
 export async function suggestReassign(formData) {
-  const { profile, supabase } = await requireUser();
+  const { user, profile, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
   const selected = emptyToNull(formData.get('suggested_agent_id'));
   const admin = hasStaffAccess(profile); // admin + support reassign directly
@@ -142,6 +155,31 @@ export async function suggestReassign(formData) {
 
   const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+
+  // Notifications.
+  const { data: lead } = await supabase.from('leads').select('name').eq('id', leadId).single();
+  const leadName = lead?.name || 'a lead';
+  if (admin && selected) {
+    // Direct reassignment → tell the new assignee.
+    await notify({
+      userId: selected,
+      type: 'lead_assigned',
+      title: `Lead assigned to you: ${leadName}`,
+      body: `${profile?.full_name || 'A manager'} assigned you this lead.`,
+      link: `/leads/${leadId}`,
+      leadId,
+    });
+  } else if (!admin && selected) {
+    // Agent proposed a reassignment → tell management.
+    await notifyManagement({
+      exceptUserId: user.id,
+      type: 'reassign_suggested',
+      title: `Reassignment suggested: ${leadName}`,
+      body: `${profile?.full_name || 'An agent'} suggested reassigning this lead.`,
+      link: `/leads/${leadId}`,
+      leadId,
+    });
+  }
 
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/leads');

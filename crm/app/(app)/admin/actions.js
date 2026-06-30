@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { syncProjectsFromSheet } from '@/lib/projectsSync';
+import { notify } from '@/lib/notify';
 
 const ADMIN = '/admin';
 const back = (msg, ok) => redirect(`${ADMIN}?${ok ? 'ok' : 'error'}=` + encodeURIComponent(msg));
@@ -68,6 +69,19 @@ export async function reassignLead(formData) {
     .update({ assigned_agent_id: agentId, suggested_agent_id: null })
     .eq('id', leadId);
   if (error) back(error.message);
+
+  if (agentId) {
+    const { data: lead } = await supabase.from('leads').select('name').eq('id', leadId).single();
+    await notify({
+      userId: agentId,
+      type: 'lead_assigned',
+      title: `Lead assigned to you: ${lead?.name || 'a lead'}`,
+      body: 'A manager assigned you this lead.',
+      link: `/leads/${leadId}`,
+      leadId,
+    });
+  }
+
   revalidatePath(ADMIN);
   revalidatePath('/leads');
   back('Lead reassigned', true);
