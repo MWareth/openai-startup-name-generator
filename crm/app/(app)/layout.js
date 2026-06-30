@@ -8,13 +8,19 @@ import PresenceTracker from '@/components/PresenceTracker';
 export const dynamic = 'force-dynamic';
 
 export default async function AppLayout({ children }) {
-  const { user, profile } = await requireUser();
+  const { user, profile, supabase } = await requireUser();
 
   // First login with a temporary password → force them to set their own first.
   if (profile?.must_change_password) redirect('/set-password');
   const isAdmin = hasAdminAccess(profile);
   const isStaff = hasStaffAccess(profile);
   const name = profile?.full_name || user.email;
+
+  const { count: unread } = await supabase
+    .from('notifications')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .is('read_at', null);
 
   return (
     <div className="shell">
@@ -25,6 +31,12 @@ export default async function AppLayout({ children }) {
         </div>
         <nav className="nav">
           <NavLink href="/dashboard">Dashboard</NavLink>
+          <NavLink href="/notifications">
+            🔔 Notifications
+            {unread ? (
+              <span className="badge" style={{ background: 'var(--gold)', color: '#1a1407', marginLeft: 6 }}>{unread}</span>
+            ) : null}
+          </NavLink>
           <NavLink href="/leads">Leads</NavLink>
           <NavLink href="/projects">Projects</NavLink>
           <NavLink href="/proposal">Proposal</NavLink>

@@ -6,6 +6,7 @@ import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { syncProjectsFromSheet } from '@/lib/projectsSync';
 import { sendPushToUser } from '@/lib/push';
+import { notify } from '@/lib/notify';
 
 const ADMIN = '/admin';
 const back = (msg, ok) => redirect(`${ADMIN}?${ok ? 'ok' : 'error'}=` + encodeURIComponent(msg));
@@ -136,12 +137,23 @@ export async function reassignLead(formData) {
     .eq('id', leadId);
   if (error) back(error.message);
 
-  // Notify the newly assigned agent (unless you assigned it to yourself).
-  if (agentId && agentId !== user.id) {
-    await sendPushToUser(agentId, {
-      title: '🔄 Lead assigned to you',
-      body: 'A lead was just assigned to you.',
-      url: `/leads/${leadId}`,
+  if (agentId) {
+    const { data: lead } = await supabase.from('leads').select('name').eq('id', leadId).single();
+    // Web push (unless you assigned it to yourself) + an in-app notification.
+    if (agentId !== user.id) {
+      await sendPushToUser(agentId, {
+        title: '🔄 Lead assigned to you',
+        body: `${lead?.name || 'A lead'} was just assigned to you.`,
+        url: `/leads/${leadId}`,
+      });
+    }
+    await notify({
+      userId: agentId,
+      type: 'lead_assigned',
+      title: `Lead assigned to you: ${lead?.name || 'a lead'}`,
+      body: 'A manager assigned you this lead.',
+      link: `/leads/${leadId}`,
+      leadId,
     });
   }
 
