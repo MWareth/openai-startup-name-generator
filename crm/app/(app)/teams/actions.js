@@ -39,6 +39,42 @@ export async function assignTest(formData) {
   redirect('/teams?ok=' + encodeURIComponent('Test assigned — the member was notified.'));
 }
 
+// Clear a member's test attempt so they can take it again (e.g. after a fail).
+// Deletes their attempt for the active quiz and notifies them to retake.
+export async function resetTest(formData) {
+  await requireStaff();
+  const memberId = String(formData.get('member_id'));
+  const admin = createAdminClient();
+
+  const { data: quiz } = await admin
+    .from('quizzes')
+    .select('id, title')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (!quiz) redirect('/teams?error=' + encodeURIComponent('No active test found.'));
+
+  const { error } = await admin
+    .from('quiz_attempts')
+    .delete()
+    .eq('quiz_id', quiz.id)
+    .eq('user_id', memberId);
+  if (error) redirect('/teams?error=' + encodeURIComponent(error.message));
+
+  await notify({
+    userId: memberId,
+    type: 'test_assigned',
+    title: `Your test was reset: ${quiz.title}`,
+    body: 'You can take the training test again. Open the Training tab.',
+    link: '/training',
+  });
+
+  revalidatePath('/teams');
+  revalidatePath('/training');
+  redirect('/teams?ok=' + encodeURIComponent('Test reset — the member can retake it and was notified.'));
+}
+
 // Assign a user to a team. Allowed for staff only (admin + support + oversight);
 // regular agents cannot reach this action or the Teams page.
 export async function setUserTeam(formData) {

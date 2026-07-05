@@ -2,7 +2,7 @@ import { requireStaff } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import Avatar from '@/components/Avatar';
 import { ROLE_LABELS, pct, formatDate } from '@/lib/format';
-import { setUserTeam, assignTest } from './actions';
+import { setUserTeam, assignTest, resetTest } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -103,6 +103,11 @@ export default async function TeamsPage({ searchParams }) {
                         <button className="btn small" type="submit">
                           {assignedTo.has(p.id) ? 'Re-notify' : 'Assign test'}
                         </button>
+                      </form>
+                    ) : quiz && at ? (
+                      <form action={resetTest}>
+                        <input type="hidden" name="member_id" value={p.id} />
+                        <button className="btn secondary small" type="submit">Reset test</button>
                       </form>
                     ) : null}
                   </td>
