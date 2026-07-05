@@ -77,6 +77,18 @@ export default async function AdminPage({ searchParams }) {
   const { data: projects } = await supabase.from('projects').select('*').order('name', { ascending: true });
   const { data: developers } = await supabase.from('developers').select('*').order('name', { ascending: true });
 
+  // Quarter presets for the target-name dropdown (this year + next year).
+  const yr = new Date().getFullYear();
+  const quarterOptions = [];
+  for (const y of [yr, yr + 1]) {
+    quarterOptions.push(
+      `Q1 ${y} · Jan–Mar`,
+      `Q2 ${y} · Apr–Jun`,
+      `Q3 ${y} · Jul–Sep`,
+      `Q4 ${y} · Oct–Dec`,
+    );
+  }
+
   return (
     <div className="stack">
       <div className="spread">
@@ -264,7 +276,13 @@ export default async function AdminPage({ searchParams }) {
                   {agents.map((a) => <option key={a.id} value={a.id}>{a.full_name} ({a.seniority})</option>)}
                 </select>
               </div>
-              <div className="field"><label>Target name</label><input name="name" placeholder="Q3 2026 sales target" required /></div>
+              <div className="field">
+                <label>Target name (quarter)</label>
+                <select name="name" required defaultValue="">
+                  <option value="" disabled>Choose quarter…</option>
+                  {quarterOptions.map((q) => <option key={q} value={q}>{q}</option>)}
+                </select>
+              </div>
             </div>
             <div className="form-grid">
               <div className="field"><label>Target amount (AED gross commission)</label><input name="target_amount" type="number" min="0" step="10000" required /></div>
