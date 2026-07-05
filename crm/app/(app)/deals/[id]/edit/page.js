@@ -1,17 +1,18 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireUser } from '@/lib/auth';
+import { requireUser, hasStaffAccess } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { aed, formatDate, DEAL_PROPERTY_TYPES, DOC_KINDS } from '@/lib/format';
 import SubmitButton from '@/components/SubmitButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
 import DateField from '@/components/DateField';
-import { updateDeal, deleteDeal, uploadDealDoc, deleteDealDoc, addDealNote } from '../../actions';
+import { updateDeal, deleteDeal, uploadDealDoc, deleteDealDoc, addDealNote, requestDealDocs } from '../../actions';
 
 export const dynamic = 'force-dynamic';
 
 export default async function EditDealPage({ params, searchParams }) {
-  const { supabase } = await requireUser();
+  const { supabase, profile } = await requireUser();
+  const isStaff = hasStaffAccess(profile);
   const error = searchParams?.error;
   const ok = searchParams?.ok;
 
@@ -106,7 +107,15 @@ export default async function EditDealPage({ params, searchParams }) {
       </form>
 
       <div className="card">
-        <h3>Documents</h3>
+        <div className="spread">
+          <h3 style={{ margin: 0 }}>Documents</h3>
+          {isStaff && deal.agent_id ? (
+            <form action={requestDealDocs}>
+              <input type="hidden" name="deal_id" value={deal.id} />
+              <button className="btn secondary small" type="submit">Request from agent</button>
+            </form>
+          ) : null}
+        </div>
         <p className="small muted">Proof of payment, SPA, passport, Emirates ID. PDF or image, up to ~4 MB each.</p>
         <form action={uploadDealDoc}>
           <input type="hidden" name="deal_id" value={deal.id} />

@@ -2,9 +2,10 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { requireUser } from '@/lib/auth';
+import { requireUser, requireStaff } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { computeCommission } from '@/lib/commission';
+import { notify } from '@/lib/notify';
 
 // Edit an existing deal. Admin can edit any deal; an agent can edit their own
 // (matching the row-level security policy). The commission split is recomputed
@@ -154,6 +155,32 @@ export async function addDealNote(formData) {
   if (error) redirect(`${back}?error=` + encodeURIComponent(error.message));
   revalidatePath(back);
   redirect(`${back}?ok=` + encodeURIComponent('Note added.'));
+}
+
+// Ask the deal's agent to upload the required documents (bell + email). Staff only.
+export async function requestDealDocs(formData) {
+  await requireStaff();
+  const dealId = String(formData.get('deal_id'));
+  const admin = createAdminClient();
+  const { data: deal } = await admin
+    .from('deals')
+    .select('id, agent_id, property, lead:leads(name)')
+    .eq('id', dealId)
+    .single();
+  if (!deal?.agent_id) redirect(`/deals/${dealId}/edit?error=` + encodeURIComponent('This deal has no agent assigned.'));
+
+  const label = `${deal.lead?.name || 'a deal'}${deal.property ? ` · ${deal.property}` : ''}`;
+  await notify({
+    userId: deal.agent_id,
+    type: 'deal_docs',
+    title: 'Documents needed for your deal',
+    body: `Please upload the documents for ${label} — proof of payment, SPA, passport and Emirates ID.`,
+    link: `/deals/${dealId}/edit`,
+    cta: 'Upload documents',
+  });
+
+  revalidatePath(`/deals/${dealId}/edit`);
+  redirect(`/deals/${dealId}/edit?ok=` + encodeURIComponent('Reminder sent — the agent was notified by app and email.'));
 }
 
 function emptyToNull(v) {

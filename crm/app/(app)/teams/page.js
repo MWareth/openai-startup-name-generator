@@ -2,7 +2,7 @@ import { requireStaff } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import Avatar from '@/components/Avatar';
 import { ROLE_LABELS, pct, formatDate } from '@/lib/format';
-import { setUserTeam, assignTest, resetTest } from './actions';
+import { setUserTeam, assignTest, resetTest, remindUpdateLeads } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -97,19 +97,27 @@ export default async function TeamsPage({ searchParams }) {
                     )}
                   </td>
                   <td className="right">
-                    {quiz && !at ? (
-                      <form action={assignTest}>
-                        <input type="hidden" name="member_id" value={p.id} />
-                        <button className="btn small" type="submit">
-                          {assignedTo.has(p.id) ? 'Re-notify' : 'Assign test'}
-                        </button>
-                      </form>
-                    ) : quiz && at ? (
-                      <form action={resetTest}>
-                        <input type="hidden" name="member_id" value={p.id} />
-                        <button className="btn secondary small" type="submit">Reset test</button>
-                      </form>
-                    ) : null}
+                    <div className="row" style={{ gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                      {quiz && !at ? (
+                        <form action={assignTest}>
+                          <input type="hidden" name="member_id" value={p.id} />
+                          <button className="btn small" type="submit">
+                            {assignedTo.has(p.id) ? 'Re-notify' : 'Assign test'}
+                          </button>
+                        </form>
+                      ) : quiz && at ? (
+                        <form action={resetTest}>
+                          <input type="hidden" name="member_id" value={p.id} />
+                          <button className="btn secondary small" type="submit">Reset test</button>
+                        </form>
+                      ) : null}
+                      {p.role === 'agent' ? (
+                        <form action={remindUpdateLeads}>
+                          <input type="hidden" name="member_id" value={p.id} />
+                          <button className="btn ghost small" type="submit">Remind: update leads</button>
+                        </form>
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               );

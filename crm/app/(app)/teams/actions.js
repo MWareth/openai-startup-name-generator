@@ -75,6 +75,22 @@ export async function resetTest(formData) {
   redirect('/teams?ok=' + encodeURIComponent('Test reset — the member can retake it and was notified.'));
 }
 
+// Nudge a member to update their leads (notes, status, next step). Bell + email.
+export async function remindUpdateLeads(formData) {
+  await requireStaff();
+  const memberId = String(formData.get('member_id'));
+  await notify({
+    userId: memberId,
+    type: 'update_leads',
+    title: 'Please update your leads',
+    body: 'A manager is asking you to update your leads — add the latest notes, status and next step for each.',
+    link: '/leads',
+    cta: 'Update my leads',
+  });
+  revalidatePath('/teams');
+  redirect('/teams?ok=' + encodeURIComponent('Reminder sent — the member was notified by app and email.'));
+}
+
 // Assign a user to a team. Allowed for staff only (admin + support + oversight);
 // regular agents cannot reach this action or the Teams page.
 export async function setUserTeam(formData) {
