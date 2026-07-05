@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { gradeAttempt } from '@/lib/quiz';
+import { notify } from '@/lib/notify';
 
 // Submit a quiz attempt. Grading uses the service-role client so answers stay
 // secret and the score can't be forged from the browser. One attempt per user.
@@ -52,7 +53,17 @@ export async function submitAttempt(formData) {
   });
   if (error) redirect('/training?error=' + encodeURIComponent(error.message));
 
+  // Notify the member of their result.
+  await notify({
+    userId: user.id,
+    type: 'test_result',
+    title: `Your test result: ${correct}/${total} (${Math.round(pct * 100)}%)`,
+    body: passed ? 'You passed — well done! 🎉' : 'Not passed this time — review the material and try again with your manager.',
+    link: '/training',
+  });
+
   revalidatePath('/training');
   revalidatePath('/admin/training');
+  revalidatePath('/teams');
   redirect('/training?ok=' + encodeURIComponent(`Submitted — you scored ${correct}/${total}.`));
 }
