@@ -30,11 +30,21 @@ export default async function TakeQuizPage({ params }) {
   // Questions (with answers) are admin-only under RLS — read them with the
   // service-role client on the server, then strip answers before rendering.
   const admin = createAdminClient();
-  const { data: questions } = await admin
+  const { data: allQuestions } = await admin
     .from('quiz_questions')
     .select('*')
     .eq('quiz_id', quiz.id)
     .order('position');
+
+  // Draw a random subset (default 25) and shuffle it, so every attempt is
+  // different. Fisher–Yates on a copy; falls back to the whole bank if fewer.
+  const pool = [...(allQuestions || [])];
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const count = Math.min(quiz.question_count || 25, pool.length);
+  const questions = pool.slice(0, count);
 
   const safe = stripForClient(questions);
 

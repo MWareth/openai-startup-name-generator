@@ -30,9 +30,23 @@ export default function QuizRunner({ quizId, questions, timeLimitMinutes = 15 })
   const ss = String(Math.max(0, left % 60)).padStart(2, '0');
   const low = left <= 60;
 
+  // Money/number fields: show digits grouped with commas as the person types,
+  // keeping any decimal part intact. Grading strips the commas server-side.
+  function formatWithCommas(raw) {
+    let v = String(raw).replace(/[^0-9.]/g, '');
+    const firstDot = v.indexOf('.');
+    if (firstDot !== -1) {
+      v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, '');
+    }
+    const [intPart, decPart] = v.split('.');
+    const grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return decPart !== undefined ? `${grouped}.${decPart}` : grouped;
+  }
+
   return (
     <form action={submitAttempt} ref={formRef} onSubmit={() => setSubmitting(true)}>
       <input type="hidden" name="quiz_id" value={quizId} />
+      <input type="hidden" name="qids" value={questions.map((q) => q.id).join(',')} />
 
       <div
         style={{
@@ -60,8 +74,9 @@ export default function QuizRunner({ quizId, questions, timeLimitMinutes = 15 })
                 name={`q_${q.id}`}
                 inputMode="decimal"
                 autoComplete="off"
-                placeholder="Type your answer (number only)"
+                placeholder="Type your answer (e.g. 2,000,000)"
                 style={{ maxWidth: 320 }}
+                onInput={(e) => { e.target.value = formatWithCommas(e.target.value); }}
               />
             ) : (
               <div className="stack" style={{ gap: 6 }}>

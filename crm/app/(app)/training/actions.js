@@ -26,11 +26,21 @@ export async function submitAttempt(formData) {
   if (existing) redirect('/training?ok=' + encodeURIComponent('You have already taken this test.'));
 
   const { data: quiz } = await admin.from('quizzes').select('pass_mark').eq('id', quizId).single();
-  const { data: questions } = await admin
+  const { data: allQuestions } = await admin
     .from('quiz_questions')
     .select('*')
     .eq('quiz_id', quizId)
     .order('position');
+
+  // Grade only the questions that were actually shown this attempt (the random
+  // subset). qids is set by the runner; fall back to the whole set if missing.
+  const shown = String(formData.get('qids') || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const questions = shown.length
+    ? (allQuestions || []).filter((q) => shown.includes(q.id))
+    : (allQuestions || []);
 
   const answers = {};
   for (const q of questions || []) {
