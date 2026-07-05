@@ -1,8 +1,9 @@
-// Transactional email via Resend's REST API (no npm dependency — plain fetch,
-// which is safe on Vercel). If RESEND_API_KEY isn't set the send is skipped, so
-// the app keeps working before email is configured. Never throws.
+// Transactional email sent through a normal mailbox over SMTP (e.g. the owner's
+// Google Workspace account with an app password) — no domain/DNS setup needed.
+// If SMTP_USER / SMTP_PASS aren't set the send is skipped, so the app keeps
+// working before email is configured. Never throws.
 
-const RESEND_ENDPOINT = 'https://api.resend.com/emails';
+import nodemailer from 'nodemailer';
 
 // Base URL for building absolute links in emails (buttons must not be relative).
 export function appUrl(path = '') {
@@ -11,18 +12,34 @@ export function appUrl(path = '') {
   return base + (path.startsWith('/') ? path : '/' + path);
 }
 
+// Reused SMTP transport (cached across invocations). Null until creds are set.
+let transporter = null;
+function getTransporter() {
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  if (!user || !pass) return null;
+  if (!transporter) {
+    const port = Number(process.env.SMTP_PORT || 465);
+    transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST || 'smtp.gmail.com',
+      port,
+      secure: port === 465, // 465 = SSL, 587 = STARTTLS
+      auth: { user, pass },
+    });
+  }
+  return transporter;
+}
+
 // Low-level send. to: string | string[]. Returns true on success.
 export async function sendEmail({ to, subject, html, text }) {
-  const key = process.env.RESEND_API_KEY;
-  if (!key || !to || !subject) return false;
-  const from = process.env.EMAIL_FROM || 'Bridges & Allies <alerts@bridgesandalliesre.com>';
+  const t = getTransporter();
+  if (!t || !to || !subject) return false;
+  // Gmail/Workspace requires From to match the authenticated user (or an alias),
+  // so default the From address to the SMTP account.
+  const from = process.env.EMAIL_FROM || `Bridges & Allies <${process.env.SMTP_USER}>`;
   try {
-    const res = await fetch(RESEND_ENDPOINT, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from, to: Array.isArray(to) ? to : [to], subject, html, text }),
-    });
-    return res.ok;
+    await t.sendMail({ from, to: Array.isArray(to) ? to.join(', ') : to, subject, html, text });
+    return true;
   } catch (e) {
     return false;
   }
