@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { formatDate, pct, SENIORITY_NAMES } from '@/lib/format';
-import { starString, averageStars, starsFromTargetFraction } from '@/lib/reviews';
+import { starString, starsFromTargetFraction, scoreOutOf100, scoreColor, groupByCategory } from '@/lib/reviews';
 import { getTargetProgress } from '@/lib/targets';
 import SubmitButton from '@/components/SubmitButton';
 import DateField from '@/components/DateField';
@@ -48,19 +48,23 @@ export default async function AgentReviewPage({ params, searchParams }) {
     .order('reviewed_on', { ascending: false })
     .order('created_at', { ascending: false });
 
-  const avg = averageStars((reviews || []).map((r) => r.overall));
+  const overalls = (reviews || []).map((r) => Number(r.overall) || 0);
+  const avg = overalls.length ? Math.round(overalls.reduce((a, b) => a + b, 0) / overalls.length) : 0;
+  const grouped = groupByCategory(criteria);
 
   return (
     <div className="stack">
       <div>
-        <Link className="small muted" href="/reviews">← All reviews</Link>
+        <Link className="small muted" href="/reviews">← All KPIs</Link>
         <div className="spread">
           <h1>{agent.full_name}</h1>
           <div className="right">
             {reviews && reviews.length ? (
               <>
-                <div style={{ color: 'var(--gold)', fontSize: '1.3rem', letterSpacing: 1 }}>{starString(avg)}</div>
-                <div className="small muted">{avg.toFixed(2)} / 5 · {reviews.length} review(s)</div>
+                <div style={{ color: scoreColor(avg), fontSize: '1.8rem', fontWeight: 800, lineHeight: 1 }}>
+                  {avg}<span className="muted" style={{ fontSize: '1rem', fontWeight: 500 }}> / 100</span>
+                </div>
+                <div className="small muted">{reviews.length} scorecard(s)</div>
               </>
             ) : (
               <span className="muted small">Not rated yet</span>
@@ -73,16 +77,20 @@ export default async function AgentReviewPage({ params, searchParams }) {
       {error ? <div className="alert error">{error}</div> : null}
 
       <div className="grid grid-2">
-        {/* New review */}
+        {/* New scorecard */}
         <div className="card">
           <div className="spread">
-            <h3>New review</h3>
-            <Link className="small" href="/reviews/criteria">Manage criteria →</Link>
+            <h3>New scorecard</h3>
+            <Link className="small" href="/reviews/criteria">Manage KPIs →</Link>
           </div>
+          <p className="small muted" style={{ marginTop: 0 }}>
+            Rate each KPI 1–5 stars, or leave it <strong>N/A</strong> if it doesn&apos;t apply yet.
+            Score is out of 100, each category weighted equally.
+          </p>
           {progress ? (
             <p className="small muted">
               Target progress: <strong>{pct(progress.progress)}</strong>
-              {goalStars ? <> → goal star pre-filled to {goalStars}★ (you can change it)</> : null}
+              {goalStars ? <> → “Bookings / units sold” pre-filled to {goalStars}★ (you can change it)</> : null}
             </p>
           ) : null}
           <form action={createReview}>
@@ -97,43 +105,50 @@ export default async function AgentReviewPage({ params, searchParams }) {
                 <DateField name="reviewed_on" defaultValue={today} />
               </div>
             </div>
-            {(criteria || []).map((c) => {
-              const preset = c.auto_from_target && goalStars ? String(goalStars) : '';
-              return (
-                <div className="field" key={c.id}>
-                  <label>
-                    {c.label}
-                    {c.auto_from_target ? <span className="small muted"> · auto from target</span> : null}
-                  </label>
-                  <select name={`crit_${c.id}`} defaultValue={preset}>
-                    <option value="">— No rating —</option>
-                    {[5, 4, 3, 2, 1].map((n) => (
-                      <option key={n} value={n}>{'★'.repeat(n)} ({n})</option>
-                    ))}
-                  </select>
+            {grouped.map(({ category, items }) => (
+              <div key={category} style={{ marginTop: 14 }}>
+                <div className="small" style={{ fontWeight: 700, color: 'var(--gold-2)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 6 }}>
+                  {category}
                 </div>
-              );
-            })}
-            <div className="field">
+                {items.map((c) => {
+                  const preset = c.auto_from_target && goalStars ? String(goalStars) : '';
+                  return (
+                    <div className="field" key={c.id}>
+                      <label>
+                        {c.label}
+                        {c.hint ? <span className="small muted"> — {c.hint}</span> : null}
+                      </label>
+                      <select name={`crit_${c.id}`} defaultValue={preset}>
+                        <option value="">N/A — not applicable</option>
+                        {[5, 4, 3, 2, 1].map((n) => (
+                          <option key={n} value={n}>{'★'.repeat(n)} ({n})</option>
+                        ))}
+                      </select>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+            <div className="field" style={{ marginTop: 14 }}>
               <label>Comment (optional)</label>
               <textarea name="comment" placeholder="Strengths, areas to improve, notes for the review meeting…" />
             </div>
-            <SubmitButton className="btn" pendingLabel="Saving…">Save review</SubmitButton>
+            <SubmitButton className="btn" pendingLabel="Saving…">Save scorecard</SubmitButton>
           </form>
         </div>
 
         {/* History */}
         <div className="card">
-          <h3>Review history</h3>
+          <h3>Scorecard history</h3>
           {reviews && reviews.length ? (
             <div className="stack" style={{ gap: 12 }}>
               {reviews.map((r) => (
                 <div key={r.id} style={{ borderBottom: '1px solid var(--border)', paddingBottom: 10 }}>
                   <div className="spread">
                     <div>
-                      <strong>{r.period_label || 'Review'}</strong>{' '}
-                      <span style={{ color: 'var(--gold)' }}>{starString(r.overall)}</span>{' '}
-                      <span className="small muted">{Number(r.overall).toFixed(1)}</span>
+                      <strong>{r.period_label || 'Scorecard'}</strong>{' '}
+                      <span style={{ color: scoreColor(r.overall), fontWeight: 700 }}>{Math.round(Number(r.overall) || 0)}</span>
+                      <span className="small muted"> / 100</span>
                     </div>
                     <span className="small muted">{formatDate(r.reviewed_on)}</span>
                   </div>
@@ -161,7 +176,7 @@ export default async function AgentReviewPage({ params, searchParams }) {
               ))}
             </div>
           ) : (
-            <p className="muted small">No reviews yet. Add the first one.</p>
+            <p className="muted small">No scorecards yet. Add the first one.</p>
           )}
         </div>
       </div>

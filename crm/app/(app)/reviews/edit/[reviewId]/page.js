@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
+import { groupByCategory } from '@/lib/reviews';
 import SubmitButton from '@/components/SubmitButton';
 import DateField from '@/components/DateField';
 import { updateReview } from '../../actions';
@@ -36,7 +37,7 @@ export default async function EditReviewPage({ params, searchParams }) {
     <div className="stack" style={{ maxWidth: 560 }}>
       <div>
         <Link className="small muted" href={`/reviews/${review.agent_id}`}>← Back to {review.agent?.full_name || 'agent'}</Link>
-        <h1>Edit review</h1>
+        <h1>Edit scorecard</h1>
       </div>
       {error ? <div className="alert error">{error}</div> : null}
 
@@ -53,21 +54,31 @@ export default async function EditReviewPage({ params, searchParams }) {
             <DateField name="reviewed_on" defaultValue={review.reviewed_on} />
           </div>
         </div>
-        {(criteria || []).map((c) => {
-          const current = byId[c.id] ?? byLabel[c.label] ?? '';
-          return (
-            <div className="field" key={c.id}>
-              <label>{c.label}</label>
-              <select name={`crit_${c.id}`} defaultValue={current ? String(current) : ''}>
-                <option value="">— No rating —</option>
-                {[5, 4, 3, 2, 1].map((n) => (
-                  <option key={n} value={n}>{'★'.repeat(n)} ({n})</option>
-                ))}
-              </select>
+        {groupByCategory(criteria).map(({ category, items }) => (
+          <div key={category} style={{ marginTop: 14 }}>
+            <div className="small" style={{ fontWeight: 700, color: 'var(--gold-2)', textTransform: 'uppercase', letterSpacing: '.04em', marginBottom: 6 }}>
+              {category}
             </div>
-          );
-        })}
-        <div className="field">
+            {items.map((c) => {
+              const current = byId[c.id] ?? byLabel[c.label] ?? '';
+              return (
+                <div className="field" key={c.id}>
+                  <label>
+                    {c.label}
+                    {c.hint ? <span className="small muted"> — {c.hint}</span> : null}
+                  </label>
+                  <select name={`crit_${c.id}`} defaultValue={current ? String(current) : ''}>
+                    <option value="">N/A — not applicable</option>
+                    {[5, 4, 3, 2, 1].map((n) => (
+                      <option key={n} value={n}>{'★'.repeat(n)} ({n})</option>
+                    ))}
+                  </select>
+                </div>
+              );
+            })}
+          </div>
+        ))}
+        <div className="field" style={{ marginTop: 14 }}>
           <label>Comment (optional)</label>
           <textarea name="comment" defaultValue={review.comment || ''} />
         </div>

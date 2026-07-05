@@ -3,21 +3,28 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
-import { averageStars } from '@/lib/reviews';
+import { scoreOutOf100 } from '@/lib/reviews';
 
 // Read a star value per active criterion from the form (fields named crit_<id>).
+// Blank / "na" means Not Applicable — no row is stored and it's left out of the
+// score. Each stored score also carries its category, used for the /100 weight.
 async function collectScores(supabase, formData) {
   const { data: criteria } = await supabase
     .from('review_criteria')
-    .select('id, label')
+    .select('id, label, category')
     .eq('active', true);
   const scores = [];
   for (const c of criteria || []) {
     const n = Number(formData.get(`crit_${c.id}`));
-    if (n >= 1 && n <= 5) scores.push({ criterion_id: c.id, criterion: c.label, stars: Math.round(n) });
+    if (n >= 1 && n <= 5) {
+      scores.push({ criterion_id: c.id, criterion: c.label, category: c.category, stars: Math.round(n) });
+    }
   }
   return scores;
 }
+
+// Only the columns agent_review_scores has (category is used for scoring only).
+const scoreRow = (s, review_id) => ({ review_id, criterion_id: s.criterion_id, criterion: s.criterion, stars: s.stars });
 
 export async function createReview(formData) {
   const { user, supabase } = await requireAdmin();
@@ -26,9 +33,9 @@ export async function createReview(formData) {
 
   const scores = await collectScores(supabase, formData);
   const errorTo = `/reviews/${agentId}?error=`;
-  if (!scores.length) redirect(errorTo + encodeURIComponent('Give at least one star rating.'));
+  if (!scores.length) redirect(errorTo + encodeURIComponent('Rate at least one KPI.'));
 
-  const overall = averageStars(scores.map((s) => s.stars));
+  const overall = scoreOutOf100(scores);
 
   const { data: review, error } = await supabase
     .from('agent_reviews')
@@ -46,12 +53,12 @@ export async function createReview(formData) {
 
   const { error: sErr } = await supabase
     .from('agent_review_scores')
-    .insert(scores.map((s) => ({ ...s, review_id: review.id })));
+    .insert(scores.map((s) => scoreRow(s, review.id)));
   if (sErr) redirect(errorTo + encodeURIComponent(sErr.message));
 
   revalidatePath('/reviews');
   revalidatePath(`/reviews/${agentId}`);
-  redirect(`/reviews/${agentId}?ok=` + encodeURIComponent('Review saved.'));
+  redirect(`/reviews/${agentId}?ok=` + encodeURIComponent('Scorecard saved.'));
 }
 
 export async function updateReview(formData) {
@@ -61,8 +68,8 @@ export async function updateReview(formData) {
   const errorTo = `/reviews/edit/${reviewId}?error=`;
 
   const scores = await collectScores(supabase, formData);
-  if (!scores.length) redirect(errorTo + encodeURIComponent('Give at least one star rating.'));
-  const overall = averageStars(scores.map((s) => s.stars));
+  if (!scores.length) redirect(errorTo + encodeURIComponent('Rate at least one KPI.'));
+  const overall = scoreOutOf100(scores);
 
   const { error } = await supabase
     .from('agent_reviews')
@@ -79,12 +86,12 @@ export async function updateReview(formData) {
   await supabase.from('agent_review_scores').delete().eq('review_id', reviewId);
   const { error: sErr } = await supabase
     .from('agent_review_scores')
-    .insert(scores.map((s) => ({ ...s, review_id: reviewId })));
+    .insert(scores.map((s) => scoreRow(s, reviewId)));
   if (sErr) redirect(errorTo + encodeURIComponent(sErr.message));
 
   revalidatePath('/reviews');
   revalidatePath(`/reviews/${agentId}`);
-  redirect(`/reviews/${agentId}?ok=` + encodeURIComponent('Review updated.'));
+  redirect(`/reviews/${agentId}?ok=` + encodeURIComponent('Scorecard updated.'));
 }
 
 export async function deleteReview(formData) {
@@ -108,6 +115,8 @@ export async function createCriterion(formData) {
   if (!label) cback('Criterion name is required');
   const { error } = await supabase.from('review_criteria').insert({
     label,
+    hint: emptyToNull(formData.get('hint')),
+    category: emptyToNull(formData.get('category')),
     sort_order: Number(formData.get('sort_order') || 0),
     auto_from_target: !!formData.get('auto_from_target'),
   });
@@ -122,6 +131,8 @@ export async function updateCriterion(formData) {
     .from('review_criteria')
     .update({
       label: String(formData.get('label') || '').trim(),
+      hint: emptyToNull(formData.get('hint')),
+      category: emptyToNull(formData.get('category')),
       sort_order: Number(formData.get('sort_order') || 0),
       auto_from_target: !!formData.get('auto_from_target'),
       active: !!formData.get('active'),

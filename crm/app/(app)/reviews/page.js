@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth';
 import { SENIORITY_NAMES } from '@/lib/format';
-import { starString } from '@/lib/reviews';
+import { scoreColor } from '@/lib/reviews';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +30,7 @@ export default async function ReviewsPage() {
   const rows = (agents || [])
     .map((a) => {
       const e = byAgent.get(a.id);
-      const avg = e && e.n ? e.sum / e.n : 0;
+      const avg = e && e.n ? Math.round(e.sum / e.n) : 0;
       return { ...a, avg, count: e?.n || 0 };
     })
     .sort((a, b) => b.avg - a.avg);
@@ -38,17 +38,17 @@ export default async function ReviewsPage() {
   return (
     <div className="stack">
       <div>
-        <h1>Agent reviews</h1>
+        <h1>Agent KPIs</h1>
         <p className="muted">
-          Private to management. Rate each agent across criteria; the score is the average of all
-          their reviews. Agents cannot see these.
+          Private to management. Rate each agent across the KPI scorecard; the score is out of 100,
+          each category weighted equally, averaged over their scorecards. Agents cannot see these.
         </p>
       </div>
 
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         <table>
           <thead>
-            <tr><th>Agent</th><th>Level</th><th>Average</th><th>Reviews</th><th></th></tr>
+            <tr><th>Agent</th><th>Level</th><th>Score</th><th>Scorecards</th><th></th></tr>
           </thead>
           <tbody>
             {rows.map((a) => (
@@ -57,9 +57,8 @@ export default async function ReviewsPage() {
                 <td className="small muted">{SENIORITY_NAMES[a.seniority] || a.seniority}</td>
                 <td>
                   {a.count ? (
-                    <span title={`${a.avg.toFixed(2)} / 5`}>
-                      <span style={{ color: 'var(--gold)', letterSpacing: 1 }}>{starString(a.avg)}</span>{' '}
-                      <span className="small muted">{a.avg.toFixed(1)}</span>
+                    <span style={{ color: scoreColor(a.avg), fontWeight: 700, fontSize: '1.05rem' }}>
+                      {a.avg}<span className="muted small" style={{ fontWeight: 500 }}> / 100</span>
                     </span>
                   ) : (
                     <span className="muted small">Not rated yet</span>
@@ -69,7 +68,7 @@ export default async function ReviewsPage() {
                 <td className="right"><Link className="small" href={`/reviews/${a.id}`}>Rate / history →</Link></td>
               </tr>
             ))}
-            {rows.length === 0 ? <tr><td colSpan={5} className="muted">No agents to review yet.</td></tr> : null}
+            {rows.length === 0 ? <tr><td colSpan={5} className="muted">No agents to score yet.</td></tr> : null}
           </tbody>
         </table>
       </div>
