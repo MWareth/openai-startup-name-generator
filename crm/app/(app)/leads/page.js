@@ -88,7 +88,10 @@ export default async function LeadsPage({ searchParams }) {
           <h1>Leads</h1>
           <p className="muted">{isAdmin ? 'All leads across the team.' : 'Leads assigned to you.'}</p>
         </div>
-        <Link className="btn" href="/leads/new">+ New lead</Link>
+        <div className="row" style={{ gap: 8 }}>
+          <Link className="btn secondary" href="/leads/paste">📋 Paste lead</Link>
+          <Link className="btn" href="/leads/new">+ New lead</Link>
+        </div>
       </div>
 
       <LeadFilters agents={agents || []} values={values} names={names} />

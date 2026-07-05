@@ -75,6 +75,18 @@ export async function createLead(formData) {
 
   if (error) redirect('/leads/new?error=' + encodeURIComponent(error.message));
 
+  // Optional opening note (used by the paste-to-create flow) → lead timeline.
+  const initialNote = emptyToNull(formData.get('initial_note'));
+  if (initialNote) {
+    await supabase.from('lead_activities').insert({
+      lead_id: data.id,
+      agent_id: user.id,
+      type: 'note',
+      occurred_on: new Date().toISOString().slice(0, 10),
+      body: initialNote,
+    });
+  }
+
   // Notify the assignee if the lead was handed to someone other than the creator.
   if (assignedTo && assignedTo !== user.id) {
     await sendPushToUser(assignedTo, {
