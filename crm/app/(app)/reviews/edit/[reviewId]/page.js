@@ -4,6 +4,7 @@ import { requireAdmin } from '@/lib/auth';
 import { groupByCategory } from '@/lib/reviews';
 import SubmitButton from '@/components/SubmitButton';
 import DateField from '@/components/DateField';
+import StarRating from '@/components/StarRating';
 import { updateReview } from '../../actions';
 
 export const dynamic = 'force-dynamic';
@@ -62,17 +63,12 @@ export default async function EditReviewPage({ params, searchParams }) {
             {items.map((c) => {
               const current = byId[c.id] ?? byLabel[c.label] ?? '';
               return (
-                <div className="field" key={c.id}>
-                  <label>
-                    {c.label}
-                    {c.hint ? <span className="small muted"> — {c.hint}</span> : null}
-                  </label>
-                  <select name={`crit_${c.id}`} defaultValue={current ? String(current) : ''}>
-                    <option value="">N/A — not applicable</option>
-                    {[5, 4, 3, 2, 1].map((n) => (
-                      <option key={n} value={n}>{'★'.repeat(n)} ({n})</option>
-                    ))}
-                  </select>
+                <div className="kpi-item" key={c.id}>
+                  <div className="kpi-label">
+                    <div className="name">{c.label}</div>
+                    {c.hint ? <div className="small muted">{c.hint}</div> : null}
+                  </div>
+                  <StarRating name={`crit_${c.id}`} defaultValue={current ? String(current) : ''} />
                 </div>
               );
             })}

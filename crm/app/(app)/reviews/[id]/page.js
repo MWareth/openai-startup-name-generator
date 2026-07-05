@@ -6,6 +6,7 @@ import { starString, starsFromTargetFraction, scoreOutOf100, scoreColor, groupBy
 import { getTargetProgress } from '@/lib/targets';
 import SubmitButton from '@/components/SubmitButton';
 import DateField from '@/components/DateField';
+import StarRating from '@/components/StarRating';
 import { createReview, deleteReview } from '../actions';
 
 export const dynamic = 'force-dynamic';
@@ -113,17 +114,12 @@ export default async function AgentReviewPage({ params, searchParams }) {
                 {items.map((c) => {
                   const preset = c.auto_from_target && goalStars ? String(goalStars) : '';
                   return (
-                    <div className="field" key={c.id}>
-                      <label>
-                        {c.label}
-                        {c.hint ? <span className="small muted"> — {c.hint}</span> : null}
-                      </label>
-                      <select name={`crit_${c.id}`} defaultValue={preset}>
-                        <option value="">N/A — not applicable</option>
-                        {[5, 4, 3, 2, 1].map((n) => (
-                          <option key={n} value={n}>{'★'.repeat(n)} ({n})</option>
-                        ))}
-                      </select>
+                    <div className="kpi-item" key={c.id}>
+                      <div className="kpi-label">
+                        <div className="name">{c.label}</div>
+                        {c.hint ? <div className="small muted">{c.hint}</div> : null}
+                      </div>
+                      <StarRating name={`crit_${c.id}`} defaultValue={preset} />
                     </div>
                   );
                 })}
