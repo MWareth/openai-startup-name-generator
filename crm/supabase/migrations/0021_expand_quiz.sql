@@ -1,12 +1,94 @@
 -- ============================================================================
--- 0021 — Expand the junior training test to a 60-question bank.
+-- 0021 — Junior training test: 60-question bank.  (SELF-CONTAINED)
 -- ----------------------------------------------------------------------------
 -- Each attempt draws 25 questions at random from these 60, shuffled, with a
 -- 25-minute timer. Mix of multiple-choice and typed-number answers. Commission
 -- questions are gross = rate x deal value only (no company-split questions).
--- Self-contained & idempotent: run in the Supabase SQL editor AFTER 0018.
--- Supersedes the 25-question seed in 0019 (safe to run even if 0019 never was).
+--
+-- This file is self-contained: it also creates the quiz tables if they don't
+-- exist yet (folding in migrations 0018 + 0020), so it can be run on its own in
+-- the Supabase SQL editor. Relies only on is_admin() from the base schema.
+-- Fully idempotent — safe to re-run. Supersedes the 25-question seed in 0019.
 -- ============================================================================
+
+-- ---- Prerequisite: quiz tables (from 0018) ---------------------------------
+create table if not exists public.quizzes (
+  id                 uuid primary key default gen_random_uuid(),
+  title              text not null,
+  description        text,
+  time_limit_minutes int  not null default 15,
+  pass_mark          numeric not null default 0.7,
+  is_active          boolean not null default true,
+  created_by         uuid references public.profiles(id),
+  created_at         timestamptz not null default now()
+);
+
+create table if not exists public.quiz_questions (
+  id            uuid primary key default gen_random_uuid(),
+  quiz_id       uuid not null references public.quizzes(id) on delete cascade,
+  position      int  not null default 0,
+  kind          text not null default 'mcq',
+  prompt        text not null,
+  options       jsonb,
+  correct_key   text,
+  correct_value numeric,
+  tolerance     numeric not null default 0,
+  points        int  not null default 1,
+  is_hard       boolean not null default false,
+  explanation   text
+);
+create index if not exists quiz_questions_quiz_idx on public.quiz_questions(quiz_id, position);
+
+create table if not exists public.quiz_attempts (
+  id           uuid primary key default gen_random_uuid(),
+  quiz_id      uuid not null references public.quizzes(id) on delete cascade,
+  user_id      uuid not null references public.profiles(id) on delete cascade,
+  started_at   timestamptz not null default now(),
+  submitted_at timestamptz,
+  correct      int not null default 0,
+  total        int not null default 0,
+  score_pct    numeric not null default 0,
+  passed       boolean not null default false,
+  answers      jsonb,
+  unique (quiz_id, user_id)
+);
+create index if not exists quiz_attempts_quiz_idx on public.quiz_attempts(quiz_id);
+
+alter table public.quizzes        enable row level security;
+alter table public.quiz_questions enable row level security;
+alter table public.quiz_attempts  enable row level security;
+
+drop policy if exists quizzes_select on public.quizzes;
+create policy quizzes_select on public.quizzes for select to authenticated using (true);
+drop policy if exists quizzes_admin_write on public.quizzes;
+create policy quizzes_admin_write on public.quizzes
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists quiz_questions_admin on public.quiz_questions;
+create policy quiz_questions_admin on public.quiz_questions
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+drop policy if exists quiz_attempts_select on public.quiz_attempts;
+create policy quiz_attempts_select on public.quiz_attempts
+  for select to authenticated using (user_id = auth.uid() or public.is_admin());
+drop policy if exists quiz_attempts_admin_write on public.quiz_attempts;
+create policy quiz_attempts_admin_write on public.quiz_attempts
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- ---- Prerequisite: test assignments (from 0020) ----------------------------
+create table if not exists public.quiz_assignments (
+  id          uuid primary key default gen_random_uuid(),
+  quiz_id     uuid not null references public.quizzes(id) on delete cascade,
+  user_id     uuid not null references public.profiles(id) on delete cascade,
+  assigned_by uuid references public.profiles(id),
+  assigned_at timestamptz not null default now(),
+  unique (quiz_id, user_id)
+);
+create index if not exists quiz_assignments_user_idx on public.quiz_assignments(user_id);
+alter table public.quiz_assignments enable row level security;
+drop policy if exists quiz_assignments_select_own on public.quiz_assignments;
+create policy quiz_assignments_select_own on public.quiz_assignments
+  for select to authenticated using (user_id = auth.uid() or public.is_admin());
 
 -- How many questions each attempt draws from the bank.
 alter table public.quizzes add column if not exists question_count int not null default 25;

@@ -1,12 +1,67 @@
 -- ============================================================================
--- 0022 — KPIs: categorised criteria + N/A + score out of 100.
+-- 0022 — KPIs: categorised criteria + N/A + score out of 100.  (SELF-CONTAINED)
 -- ----------------------------------------------------------------------------
 -- Renames the review model to a KPI scorecard. Criteria are grouped into five
 -- categories (A-E). Each criterion is rated 1-5 stars or marked N/A (excluded).
--- The overall score is out of 100 with EQUAL WEIGHT PER CATEGORY (each of the
--- five categories present counts 20). Management-only, like before.
--- Run in the Supabase SQL editor AFTER 0012. Idempotent.
+-- The overall score is out of 100 with EQUAL WEIGHT PER CATEGORY. Mgmt-only.
+--
+-- This file is self-contained: it also creates the underlying review tables if
+-- they don't exist yet (folding in migrations 0010 + 0012), so it can be run on
+-- its own in the Supabase SQL editor. Fully idempotent — safe to re-run.
 -- ============================================================================
+
+-- ---- Prerequisite: management check + review tables (from 0010) ------------
+create or replace function public.is_management()
+returns boolean language sql security definer stable set search_path = public as $$
+  select exists (
+    select 1 from public.profiles
+    where id = auth.uid() and role in ('admin', 'director', 'c_suite')
+  );
+$$;
+
+create table if not exists public.agent_reviews (
+  id           uuid primary key default gen_random_uuid(),
+  agent_id     uuid not null references public.profiles(id) on delete cascade,
+  reviewer_id  uuid references public.profiles(id),
+  period_label text not null default '',
+  reviewed_on  date not null default current_date,
+  overall      numeric,
+  comment      text,
+  created_at   timestamptz not null default now()
+);
+create index if not exists agent_reviews_agent_idx on public.agent_reviews(agent_id);
+
+create table if not exists public.agent_review_scores (
+  id         uuid primary key default gen_random_uuid(),
+  review_id  uuid not null references public.agent_reviews(id) on delete cascade,
+  criterion  text not null,
+  stars      int  not null check (stars between 1 and 5)
+);
+create index if not exists agent_review_scores_review_idx on public.agent_review_scores(review_id);
+
+alter table public.agent_reviews       enable row level security;
+alter table public.agent_review_scores enable row level security;
+drop policy if exists reviews_mgmt_all on public.agent_reviews;
+create policy reviews_mgmt_all on public.agent_reviews
+  for all to authenticated using (public.is_management()) with check (public.is_management());
+drop policy if exists review_scores_mgmt_all on public.agent_review_scores;
+create policy review_scores_mgmt_all on public.agent_review_scores
+  for all to authenticated using (public.is_management()) with check (public.is_management());
+
+-- ---- Prerequisite: editable criteria (from 0012) ---------------------------
+create table if not exists public.review_criteria (
+  id               uuid primary key default gen_random_uuid(),
+  label            text not null,
+  sort_order       int not null default 0,
+  auto_from_target boolean not null default false,
+  active           boolean not null default true,
+  created_at       timestamptz not null default now()
+);
+alter table public.agent_review_scores add column if not exists criterion_id uuid references public.review_criteria(id);
+alter table public.review_criteria enable row level security;
+drop policy if exists review_criteria_mgmt_all on public.review_criteria;
+create policy review_criteria_mgmt_all on public.review_criteria
+  for all to authenticated using (public.is_management()) with check (public.is_management());
 
 -- New columns: which category a criterion belongs to, and a short hint.
 alter table public.review_criteria add column if not exists category text;
