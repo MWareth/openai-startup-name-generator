@@ -20,10 +20,12 @@ function getTransporter() {
   if (!user || !pass) return null;
   if (!transporter) {
     const port = Number(process.env.SMTP_PORT || 465);
+    const secure = port === 465; // 465 = SSL; 587 = STARTTLS (Microsoft 365, etc.)
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST || 'smtp.gmail.com',
       port,
-      secure: port === 465, // 465 = SSL, 587 = STARTTLS
+      secure,
+      requireTLS: !secure, // force STARTTLS on 587 (required by Office 365)
       auth: { user, pass },
     });
   }
