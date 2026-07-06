@@ -75,22 +75,6 @@ export default async function LeadDetail({ params, searchParams }) {
     .every((v) => v != null && String(v).trim() !== '');
   const canSaveContact = isAdmin || !contactAllFilled;
 
-  // Timeline rows as clean bullet points (newest first).
-  const timelineRows = timeline.map((item) => {
-    if (item.kind === 'activity') {
-      const a = item.data;
-      const icon = a.type === 'call' || a.type === 'call_update' ? '📞'
-        : a.type === 'meeting' ? '🤝' : a.type === 'viewing' ? '🏠' : '📝';
-      return { key: item.key, icon, title: ACTIVITY_LABELS[a.type] || 'Activity', when: a.occurred_on, note: a.body, by: a.agent?.full_name, translate: a.body };
-    }
-    if (item.kind === 'fu_scheduled') {
-      const f = item.data;
-      return { key: item.key, icon: '📅', title: 'Follow-up scheduled', when: f.created_at, note: `Due ${formatDate(f.due_on)}${f.note ? ' — ' + f.note : ''}` };
-    }
-    const f = item.data;
-    return { key: item.key, icon: '✅', title: 'Follow-up done', when: f.done_at, note: `Was due ${formatDate(f.due_on)}` };
-  });
-
   // Merge activities + follow-up events into one timeline, newest first.
   const timeline = [
     ...(activities || []).map((a) => ({
@@ -112,6 +96,22 @@ export default async function LeadDetail({ params, searchParams }) {
       data: f,
     })),
   ].sort((a, b) => b.when - a.when);
+
+  // Timeline rows as clean bullet points (newest first).
+  const timelineRows = timeline.map((item) => {
+    if (item.kind === 'activity') {
+      const a = item.data;
+      const icon = a.type === 'call' || a.type === 'call_update' ? '📞'
+        : a.type === 'meeting' ? '🤝' : a.type === 'viewing' ? '🏠' : '📝';
+      return { key: item.key, icon, title: ACTIVITY_LABELS[a.type] || 'Activity', when: a.occurred_on, note: a.body, by: a.agent?.full_name, translate: a.body };
+    }
+    if (item.kind === 'fu_scheduled') {
+      const f = item.data;
+      return { key: item.key, icon: '📅', title: 'Follow-up scheduled', when: f.created_at, note: `Due ${formatDate(f.due_on)}${f.note ? ' — ' + f.note : ''}` };
+    }
+    const f = item.data;
+    return { key: item.key, icon: '✅', title: 'Follow-up done', when: f.done_at, note: `Was due ${formatDate(f.due_on)}` };
+  });
 
   // Other agents to suggest the lead to.
   const { data: agents } = await supabase
