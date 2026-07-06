@@ -5,6 +5,7 @@ import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import NavLink from '@/components/NavLink';
 import Avatar from '@/components/Avatar';
 import PresenceTracker from '@/components/PresenceTracker';
+import Sidebar from '@/components/Sidebar';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ export default async function AppLayout({ children }) {
 
   return (
     <div className="shell">
-      <aside className="sidebar">
+      <Sidebar>
         <div className="brand" style={{ padding: '0 0 14px' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Bullish Team — Bridges & Allies" style={{ width: 185, maxWidth: '100%', height: 'auto' }} />
@@ -67,7 +68,7 @@ export default async function AppLayout({ children }) {
             <button className="btn ghost small" type="submit">Sign out</button>
           </form>
         </div>
-      </aside>
+      </Sidebar>
       <main className="content">
         <div className="topbar">
           <Link href="/notifications" className="bell" aria-label="Notifications" title="Notifications">
