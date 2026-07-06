@@ -18,6 +18,7 @@ import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
 import DateField from '@/components/DateField';
+import LeadProgress from '@/components/LeadProgress';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,6 +60,21 @@ export default async function LeadDetail({ params, searchParams }) {
 
   const pendingFollowups = (followups || []).filter((f) => !f.done);
   const doneFollowups = (followups || []).filter((f) => f.done);
+
+  // Lead progress stepper: Assigned → Contacted → Meeting → Follow → Closed.
+  // Each stage is inferred from real data (assignment, logged activities,
+  // follow-ups) and the closed deal. `reached` = furthest stage completed.
+  const acts = activities || [];
+  const hasContacted = acts.some((a) => a.type === 'call' || a.type === 'call_update');
+  const hasMeeting = acts.some((a) => a.type === 'meeting' || a.type === 'viewing');
+  const hasFollow = (followups || []).length > 0;
+  let reached = -1;
+  if (lead.assigned_agent_id) reached = 0;
+  if (hasContacted) reached = Math.max(reached, 1);
+  if (hasMeeting) reached = Math.max(reached, 2);
+  if (hasFollow) reached = Math.max(reached, 3);
+  if (lead.status === 'won') reached = 4;
+  const leadLost = lead.status === 'lost';
 
   // Merge activities + follow-up events into one timeline, newest first.
   const timeline = [
@@ -102,6 +118,9 @@ export default async function LeadDetail({ params, searchParams }) {
               {STATUS_LABELS[lead.status]}
             </span>
           </div>
+        </div>
+        <div className="card" style={{ marginTop: 12 }}>
+          <LeadProgress reached={reached} lost={leadLost} />
         </div>
       </div>
       {ok ? <div className="alert ok">{ok}</div> : null}
@@ -358,11 +377,15 @@ export default async function LeadDetail({ params, searchParams }) {
       {/* Deal section */}
       <div className="card">
         <h3>Close a deal</h3>
-        <p className="small muted">
-          The deal value counts toward the assigned agent&apos;s target. Commission is split after the
-          referral cut: <strong>junior 50/50</strong>, <strong>senior 55/45</strong>, <strong>team leader 60/40</strong>.
-          An <strong>own-referral</strong> lead pays the agent <strong>60/40</strong> regardless of seniority.
-        </p>
+        {isAdmin ? (
+          <p className="small muted">
+            The deal value counts toward the assigned agent&apos;s target. Commission is split after the
+            referral cut: <strong>junior 50/50</strong>, <strong>senior 55/45</strong>, <strong>team leader 60/40</strong>.
+            An <strong>own-referral</strong> lead pays the agent <strong>60/40</strong> regardless of seniority.
+          </p>
+        ) : (
+          <p className="small muted">Record the sold property and value, then log it to mark this lead won.</p>
+        )}
         <form action={logDeal}>
           <input type="hidden" name="lead_id" value={lead.id} />
           <div className="form-grid">
@@ -394,7 +417,7 @@ export default async function LeadDetail({ params, searchParams }) {
           <div className="field">
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
               <input type="checkbox" name="self_sourced" value="true" defaultChecked={!!lead.self_sourced} style={{ width: 'auto' }} />
-              Own referral — agent brought this lead (60/40 split)
+              Own referral — agent brought this lead{isAdmin ? ' (60/40 split)' : ''}
             </label>
           </div>
           <SubmitButton className="btn" pendingLabel="Logging…">Log deal &amp; mark won</SubmitButton>

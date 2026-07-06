@@ -370,3 +370,25 @@ hr.divider { background: var(--border); }
 /* Native calendar date picker — keep it consistent with other inputs */
 input[type="date"] { cursor: pointer; min-height: 40px; }
 input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .7; }
+
+/* ---- Lead progress stepper ------------------------------------------------ */
+.lead-progress { display: flex; align-items: flex-start; overflow-x: auto; padding: 6px 2px 2px; }
+.lp-step { flex: 1 1 0; min-width: 58px; display: flex; flex-direction: column; align-items: center; position: relative; }
+.lp-step .dot {
+  width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; border: 2px solid var(--border); background: var(--panel-2);
+  color: var(--muted); z-index: 1; transition: transform .12s;
+}
+.lp-step .lbl { margin-top: 6px; font-size: 11px; text-align: center; color: var(--muted); font-weight: 600; line-height: 1.2; }
+.lp-step.done .dot { background: var(--green); border-color: var(--green); color: #fff; }
+.lp-step.current .dot { border-color: var(--gold); color: var(--gold); background: var(--card); transform: scale(1.08); }
+.lp-step.lost .dot { background: var(--red); border-color: var(--red); color: #fff; }
+.lp-step.done .lbl, .lp-step.current .lbl { color: var(--text); }
+/* connector line joining the dots */
+.lp-step::before, .lp-step::after { content: ''; position: absolute; top: 14px; height: 2px; background: var(--border); width: 50%; z-index: 0; }
+.lp-step::before { left: 0; }
+.lp-step::after { right: 0; }
+.lp-step:first-child::before { display: none; }
+.lp-step:last-child::after { display: none; }
+.lp-step.done::before, .lp-step.done::after { background: var(--green); }
+.lp-cheer { align-self: center; margin-left: 10px; color: var(--green); font-weight: 700; font-size: 12px; white-space: nowrap; }

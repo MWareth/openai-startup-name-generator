@@ -99,9 +99,11 @@ export default async function EditDealPage({ params, searchParams }) {
           </label>
         </div>
 
-        <div className="row small muted" style={{ marginBottom: 12 }}>
-          Current split — agent {aed(deal.agent_commission)} · company {aed(deal.company_commission)}
-        </div>
+        {isStaff ? (
+          <div className="row small muted" style={{ marginBottom: 12 }}>
+            Current split — agent {aed(deal.agent_commission)} · company {aed(deal.company_commission)}
+          </div>
+        ) : null}
 
         <SubmitButton className="btn" pendingLabel="Saving…">Save changes</SubmitButton>
       </form>
