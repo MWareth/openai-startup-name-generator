@@ -138,7 +138,12 @@ export async function reassignLead(formData) {
     patch.sla_alerted_at = null;
     patch.sla_escalated_at = null;
   }
-  const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
+  let { error } = await supabase.from('leads').update(patch).eq('id', leadId);
+  // The SLA fields (migration 0023) may not exist yet — retry without them.
+  if (error && /assigned_at|sla_/.test(error.message || '')) {
+    delete patch.assigned_at; delete patch.sla_alerted_at; delete patch.sla_escalated_at;
+    ({ error } = await supabase.from('leads').update(patch).eq('id', leadId));
+  }
   if (error) back(error.message);
 
   if (agentId) {

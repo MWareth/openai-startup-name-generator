@@ -73,8 +73,13 @@ export async function createLead(formData) {
   if (community) insert.community = community; // only when set (safe pre-migration 0008)
   if (formData.get('self_sourced')) insert.self_sourced = true; // own referral (safe pre-migration 0009)
 
-  const { data, error } = await supabase.from('leads').insert(insert).select('id').single();
-
+  let { data, error } = await supabase.from('leads').insert(insert).select('id').single();
+  // `assigned_at` (migration 0023, for the response SLA) may not exist yet —
+  // retry without it so lead creation keeps working before that migration runs.
+  if (error && /assigned_at|sla_/.test(error.message || '')) {
+    delete insert.assigned_at;
+    ({ data, error } = await supabase.from('leads').insert(insert).select('id').single());
+  }
   if (error) redirect('/leads/new?error=' + encodeURIComponent(error.message));
 
   // Optional opening note (used by the paste-to-create flow) → lead timeline.
@@ -322,7 +327,12 @@ export async function suggestReassign(formData) {
     patch.sla_escalated_at = null;
   }
 
-  const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
+  let { error } = await supabase.from('leads').update(patch).eq('id', leadId);
+  // Drop the SLA fields (migration 0023) and retry if that column isn't there.
+  if (error && /assigned_at|sla_/.test(error.message || '')) {
+    delete patch.assigned_at; delete patch.sla_alerted_at; delete patch.sla_escalated_at;
+    ({ error } = await supabase.from('leads').update(patch).eq('id', leadId));
+  }
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
 
   // Notifications.
