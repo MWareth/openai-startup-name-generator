@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { writeTolerant } from '@/lib/db';
 import { syncProjectsFromSheet } from '@/lib/projectsSync';
 import { sendPushToUser } from '@/lib/push';
 import { notify } from '@/lib/notify';
@@ -138,12 +139,7 @@ export async function reassignLead(formData) {
     patch.sla_alerted_at = null;
     patch.sla_escalated_at = null;
   }
-  let { error } = await supabase.from('leads').update(patch).eq('id', leadId);
-  // The SLA fields (migration 0023) may not exist yet — retry without them.
-  if (error && /assigned_at|sla_/.test(error.message || '')) {
-    delete patch.assigned_at; delete patch.sla_alerted_at; delete patch.sla_escalated_at;
-    ({ error } = await supabase.from('leads').update(patch).eq('id', leadId));
-  }
+  const { error } = await writeTolerant((p) => supabase.from('leads').update(p).eq('id', leadId), patch);
   if (error) back(error.message);
 
   if (agentId) {

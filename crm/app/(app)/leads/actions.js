@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireUser, requireStaff, hasAdminAccess, hasStaffAccess, STAFF_ROLES } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { writeTolerant } from '@/lib/db';
 import { computeCommission } from '@/lib/commission';
 import { sendPushToUser } from '@/lib/push';
 import { notify, notifyManagement } from '@/lib/notify';
@@ -73,13 +74,12 @@ export async function createLead(formData) {
   if (community) insert.community = community; // only when set (safe pre-migration 0008)
   if (formData.get('self_sourced')) insert.self_sourced = true; // own referral (safe pre-migration 0009)
 
-  let { data, error } = await supabase.from('leads').insert(insert).select('id').single();
-  // `assigned_at` (migration 0023, for the response SLA) may not exist yet —
-  // retry without it so lead creation keeps working before that migration runs.
-  if (error && /assigned_at|sla_/.test(error.message || '')) {
-    delete insert.assigned_at;
-    ({ data, error } = await supabase.from('leads').insert(insert).select('id').single());
-  }
+  // Tolerant insert: any column this database hasn't migrated yet (community,
+  // assigned_at, self_sourced, …) is dropped and the insert retried.
+  const { data, error } = await writeTolerant(
+    (p) => supabase.from('leads').insert(p).select('id').single(),
+    insert
+  );
   if (error) redirect('/leads/new?error=' + encodeURIComponent(error.message));
 
   // Optional opening note (used by the paste-to-create flow) → lead timeline.
@@ -218,7 +218,7 @@ export async function updateLead(formData) {
   const beds = emptyToNull(formData.get('bedrooms'));
   if (beds) patch.bedrooms = beds; // only when chosen (safe pre-migration 0006)
 
-  const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
+  const { error } = await writeTolerant((p) => supabase.from('leads').update(p).eq('id', leadId), patch);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   revalidatePath(`/leads/${leadId}`);
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Lead updated.'));
@@ -259,13 +259,10 @@ export async function updateLeadDetails(formData) {
     budget: budgetRaw ? Number(budgetRaw) : null,
     property_interest: emptyToNull(formData.get('property_interest')),
   };
-  // `community` was added later (migration 0008). Include it, but if that column
-  // isn't present yet, retry without it so the rest of the details still save.
+  // `community` was added later (migration 0008); writeTolerant drops it (or any
+  // other not-yet-migrated column) and retries so the rest of the details save.
   const patch = { ...core, community: emptyToNull(formData.get('community')) };
-  let { error } = await supabase.from('leads').update(patch).eq('id', leadId);
-  if (error && /community/i.test(error.message || '')) {
-    ({ error } = await supabase.from('leads').update(core).eq('id', leadId));
-  }
+  const { error } = await writeTolerant((p) => supabase.from('leads').update(p).eq('id', leadId), patch);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/leads');
@@ -327,12 +324,7 @@ export async function suggestReassign(formData) {
     patch.sla_escalated_at = null;
   }
 
-  let { error } = await supabase.from('leads').update(patch).eq('id', leadId);
-  // Drop the SLA fields (migration 0023) and retry if that column isn't there.
-  if (error && /assigned_at|sla_/.test(error.message || '')) {
-    delete patch.assigned_at; delete patch.sla_alerted_at; delete patch.sla_escalated_at;
-    ({ error } = await supabase.from('leads').update(patch).eq('id', leadId));
-  }
+  const { error } = await writeTolerant((p) => supabase.from('leads').update(p).eq('id', leadId), patch);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
 
   // Notifications.
