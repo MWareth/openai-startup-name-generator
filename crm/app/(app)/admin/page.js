@@ -23,6 +23,7 @@ import {
   createDeveloper,
   deleteDeveloper,
   syncProjects,
+  sendTestEmail,
 } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -97,6 +98,22 @@ export default async function AdminPage({ searchParams }) {
       </div>
       {ok ? <div className="alert ok">{ok}</div> : null}
       {error ? <div className="alert error">{error}</div> : null}
+
+      {/* Email connection test */}
+      <div className="card">
+        <div className="spread" style={{ flexWrap: 'wrap', gap: 8 }}>
+          <div>
+            <h3 style={{ margin: 0 }}>📧 Test email</h3>
+            <p className="small muted" style={{ margin: '4px 0 0' }}>
+              Sends a test email to you to check the email connection is working.
+            </p>
+          </div>
+          <form action={sendTestEmail}>
+            <button className="btn small" type="submit">Send test email to me</button>
+          </form>
+        </div>
+      </div>
+
       <p className="small muted">Tap a section to open or close it.</p>
 
       {/* ---- New launches (open by default) ---- */}

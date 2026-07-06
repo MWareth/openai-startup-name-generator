@@ -8,6 +8,24 @@ import { writeTolerant } from '@/lib/db';
 import { syncProjectsFromSheet } from '@/lib/projectsSync';
 import { sendPushToUser } from '@/lib/push';
 import { notify } from '@/lib/notify';
+import { sendEmail, notificationEmail } from '@/lib/email';
+
+// Send a test email to the signed-in admin to verify the email connection.
+// Reports back whether it actually sent (SMTP configured & accepted it).
+export async function sendTestEmail() {
+  const { user, profile } = await requireAdmin();
+  const email = profile?.email || user.email;
+  if (!email) redirect('/admin?error=' + encodeURIComponent('No email is set on your profile.'));
+  const { html, text } = notificationEmail({
+    title: 'Test email from your CRM ✅',
+    body: 'If you can read this, your email connection works — agents will now get their notifications by email too.',
+    link: '/dashboard',
+    cta: 'Open the CRM',
+  });
+  const sent = await sendEmail({ to: email, subject: 'CRM test email ✅', html, text });
+  if (sent) redirect('/admin?ok=' + encodeURIComponent(`Test email sent to ${email}. Check your inbox (and spam).`));
+  redirect('/admin?error=' + encodeURIComponent('Email did NOT send — the SMTP keys are missing/wrong in Vercel, or Microsoft is blocking it. Check the setup and try again.'));
+}
 
 const ADMIN = '/admin';
 const back = (msg, ok) => redirect(`${ADMIN}?${ok ? 'ok' : 'error'}=` + encodeURIComponent(msg));
