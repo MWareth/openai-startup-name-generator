@@ -14,7 +14,7 @@ import {
   BEDROOM_OPTIONS,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
-import { addActivity, updateLead, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon, addFollowUp, completeFollowUp, deleteFollowUp, logCall } from '../actions';
+import { addActivity, updateLead, updateLeadDetails, updateLeadPhone, deleteLead, suggestReassign, logDeal, markLeadWon, addFollowUp, completeFollowUp, deleteFollowUp, logCall } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
@@ -126,13 +126,19 @@ export default async function LeadDetail({ params, searchParams }) {
         <div className="stack">
           <div className="card">
             <h3>Contact details</h3>
+            {/* Phone has its own Save button so the number always updates on its own. */}
+            <form action={updateLeadPhone} className="field" style={{ marginBottom: 10 }}>
+              <input type="hidden" name="lead_id" value={lead.id} />
+              <label>Phone</label>
+              <div className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
+                <input name="phone" defaultValue={lead.phone || ''} inputMode="tel" autoComplete="off" style={{ flex: 1 }} />
+                <button className="btn small" type="submit">Save</button>
+              </div>
+            </form>
             <form action={updateLeadDetails} className="stack" style={{ gap: 10 }}>
               <input type="hidden" name="lead_id" value={lead.id} />
               <div className="field"><label>Full name</label><input name="name" defaultValue={lead.name} required /></div>
-              <div className="form-grid">
-                <div className="field"><label>Phone</label><input name="phone" defaultValue={lead.phone || ''} /></div>
-                <div className="field"><label>Email</label><input name="email" type="email" defaultValue={lead.email || ''} /></div>
-              </div>
+              <div className="field"><label>Email</label><input name="email" type="email" defaultValue={lead.email || ''} /></div>
               <div className="form-grid">
                 <div className="field">
                   <label>Source</label>

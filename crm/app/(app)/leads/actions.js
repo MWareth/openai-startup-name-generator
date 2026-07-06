@@ -219,6 +219,20 @@ export async function updateLead(formData) {
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Lead updated.'));
 }
 
+// Quick-save just the phone number (has its own Save button next to the field).
+// Only touches the `phone` column, which always exists, so it can't be blocked
+// by a not-yet-applied column migration.
+export async function updateLeadPhone(formData) {
+  const { supabase } = await requireUser();
+  const leadId = String(formData.get('lead_id'));
+  const phone = emptyToNull(formData.get('phone'));
+  const { error } = await supabase.from('leads').update({ phone }).eq('id', leadId);
+  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath('/leads');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Phone number updated.'));
+}
+
 // Edit the core contact details. The lead owner, creator, or admin can do this
 // (enforced by RLS via the user's session client).
 export async function updateLeadDetails(formData) {
@@ -231,17 +245,22 @@ export async function updateLeadDetails(formData) {
   if (source && source.trim().toLowerCase() === 'cold call') source = 'Cold Call';
   const budgetRaw = String(formData.get('budget') || '').trim();
 
-  const patch = {
+  // Phone is saved by its own quick-save form (updateLeadPhone), so it isn't
+  // touched here — that keeps this form from ever blanking the number.
+  const core = {
     name,
-    phone: emptyToNull(formData.get('phone')),
     email: emptyToNull(formData.get('email')),
     source,
     budget: budgetRaw ? Number(budgetRaw) : null,
-    community: emptyToNull(formData.get('community')),
     property_interest: emptyToNull(formData.get('property_interest')),
   };
-
-  const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
+  // `community` was added later (migration 0008). Include it, but if that column
+  // isn't present yet, retry without it so the rest of the details still save.
+  const patch = { ...core, community: emptyToNull(formData.get('community')) };
+  let { error } = await supabase.from('leads').update(patch).eq('id', leadId);
+  if (error && /community/i.test(error.message || '')) {
+    ({ error } = await supabase.from('leads').update(core).eq('id', leadId));
+  }
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/leads');
