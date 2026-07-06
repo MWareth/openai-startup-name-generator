@@ -124,9 +124,19 @@ export const SPLIT_LABELS = {
 
 export const STATUS_LABELS = {
   new: 'New',
-  active: 'Active',
+  active: 'Contacted',
   viewing: 'Viewing',
   negotiation: 'Negotiation',
   won: 'Won',
   lost: 'Lost',
 };
+
+// The forward sales pipeline (in order) used by the lead progress stepper.
+export const LEAD_PIPELINE = [
+  { status: 'new', label: 'New' },
+  { status: 'active', label: 'Contacted' },
+  { status: 'viewing', label: 'Viewing' },
+  { status: 'negotiation', label: 'Negotiation' },
+  { status: 'won', label: 'Closed' },
+];
+export const PIPELINE_ORDER = LEAD_PIPELINE.map((s) => s.status);

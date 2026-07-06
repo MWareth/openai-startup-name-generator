@@ -5,6 +5,7 @@ import SubmitButton from '@/components/SubmitButton';
 import {
   QUAL_LABELS,
   STATUS_LABELS,
+  PIPELINE_ORDER,
   ACTIVITY_LABELS,
   formatDate,
   aed,
@@ -61,20 +62,14 @@ export default async function LeadDetail({ params, searchParams }) {
   const pendingFollowups = (followups || []).filter((f) => !f.done);
   const doneFollowups = (followups || []).filter((f) => f.done);
 
-  // Lead progress stepper: Assigned → Contacted → Meeting → Follow → Closed.
-  // Each stage is inferred from real data (assignment, logged activities,
-  // follow-ups) and the closed deal. `reached` = furthest stage completed.
-  const acts = activities || [];
-  const hasContacted = acts.some((a) => a.type === 'call' || a.type === 'call_update');
-  const hasMeeting = acts.some((a) => a.type === 'meeting' || a.type === 'viewing');
-  const hasFollow = (followups || []).length > 0;
-  let reached = -1;
-  if (lead.assigned_agent_id) reached = 0;
-  if (hasContacted) reached = Math.max(reached, 1);
-  if (hasMeeting) reached = Math.max(reached, 2);
-  if (hasFollow) reached = Math.max(reached, 3);
-  if (lead.status === 'won') reached = 4;
-  const leadLost = lead.status === 'lost';
+  // Lead progress stepper, driven by the lead's real Status through the sales
+  // pipeline (New → Contacted → Viewing → Negotiation → Closed). The stage the
+  // agent is currently on is highlighted; earlier stages are ticked done.
+  let reached;
+  let leadLost = false;
+  if (lead.status === 'won') reached = PIPELINE_ORDER.length - 1; // all done
+  else if (lead.status === 'lost') { reached = -1; leadLost = true; }
+  else reached = PIPELINE_ORDER.indexOf(lead.status) - 1; // current stage = highlighted
 
   // Merge activities + follow-up events into one timeline, newest first.
   const timeline = [
