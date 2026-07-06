@@ -13,7 +13,7 @@ import {
   BEDROOM_OPTIONS,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
-import { addActivity, updateLead, updateLeadDetails, deleteLead, suggestReassign, logDeal, addFollowUp, completeFollowUp, deleteFollowUp } from '../actions';
+import { addActivity, updateLead, updateLeadDetails, deleteLead, suggestReassign, logDeal, addFollowUp, completeFollowUp, deleteFollowUp, logCall } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
@@ -157,16 +157,31 @@ export default async function LeadDetail({ params, searchParams }) {
               <button className="btn secondary small" type="submit">Save details</button>
             </form>
             <div className="small muted" style={{ marginTop: 10 }}>Assigned: {lead.assigned?.full_name || 'Unassigned'}</div>
-            {waLink(lead.phone) ? (
-              <a
-                className="btn small"
-                href={waLink(lead.phone)}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{ marginTop: 10, background: '#25D366' }}
-              >
-                WhatsApp message
-              </a>
+            <div className="row" style={{ gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+              {waLink(lead.phone) ? (
+                <a className="btn small" href={waLink(lead.phone)} target="_blank" rel="noopener noreferrer" style={{ background: '#25D366' }}>
+                  WhatsApp message
+                </a>
+              ) : null}
+              {lead.phone ? (
+                <a className="btn small" href={`tel:${String(lead.phone).replace(/[^\d+]/g, '')}`} style={{ background: '#2563eb' }}>
+                  📞 Call
+                </a>
+              ) : null}
+            </div>
+            {lead.phone ? (
+              <div style={{ marginTop: 8 }}>
+                <div className="small muted" style={{ marginBottom: 4 }}>After calling, log the outcome:</div>
+                <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
+                  {[['answered', '✅ Answered'], ['no_answer', '❌ No answer'], ['voicemail', '📩 Voicemail']].map(([v, l]) => (
+                    <form key={v} action={logCall}>
+                      <input type="hidden" name="lead_id" value={lead.id} />
+                      <input type="hidden" name="outcome" value={v} />
+                      <button className="btn ghost small" type="submit">{l}</button>
+                    </form>
+                  ))}
+                </div>
+              </div>
             ) : null}
           </div>
 

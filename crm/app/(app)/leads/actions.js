@@ -263,6 +263,28 @@ export async function deleteLead(formData) {
   redirect('/leads?ok=' + encodeURIComponent('Lead deleted.'));
 }
 
+// Log a phone call to the lead's timeline with its outcome (answered / no
+// answer / voicemail). Counts as a 'call' activity, so it also advances the
+// progress stepper and stops the response-SLA clock.
+export async function logCall(formData) {
+  const { user, supabase } = await requireUser();
+  const leadId = String(formData.get('lead_id'));
+  const outcome = String(formData.get('outcome') || '');
+  const LABEL = { answered: 'Answered ✅', no_answer: 'No answer ❌', voicemail: 'Left voicemail 📩' };
+  const label = LABEL[outcome] || 'Called';
+  const today = new Date().toISOString().slice(0, 10);
+  const { error } = await supabase.from('lead_activities').insert({
+    lead_id: leadId,
+    agent_id: user.id,
+    type: 'call',
+    occurred_on: today,
+    body: `📞 Phone call — ${label}`,
+  });
+  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  revalidatePath(`/leads/${leadId}`);
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent(`Call logged — ${label}.`));
+}
+
 export async function suggestReassign(formData) {
   const { user, profile, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
