@@ -69,10 +69,14 @@ p { margin: 0 0 10px; }
   height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* only the nav list scrolls, not the whole sidebar */
 }
 .brand { font-weight: 700; font-size: 1.1rem; padding: 0 8px 18px; letter-spacing: 0.02em; }
 .brand span { color: var(--gold); }
-.nav { display: flex; flex-direction: column; gap: 2px; }
+/* Nav list fills the space between the logo and footer and scrolls on its own. */
+.nav { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+.nav::-webkit-scrollbar { width: 6px; }
+.nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 .nav a {
   color: var(--text);
   padding: 9px 12px;
@@ -152,6 +156,7 @@ p { margin: 0 0 10px; }
     flex-wrap: wrap;
     gap: 8px;
     padding: 10px 14px;
+    overflow: visible; /* horizontal top bar — no internal scroll box */
   }
   .brand { padding: 0; margin-right: 6px; font-size: 1rem; }
   .nav {
@@ -159,6 +164,8 @@ p { margin: 0 0 10px; }
     flex: 1 1 100%;
     order: 3;
     overflow-x: auto;
+    overflow-y: visible;
+    min-height: 0;
     gap: 4px;
     -webkit-overflow-scrolling: touch;
   }
