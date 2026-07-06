@@ -13,7 +13,7 @@ import {
   BEDROOM_OPTIONS,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
-import { addActivity, updateLead, updateLeadDetails, deleteLead, suggestReassign, logDeal, addFollowUp, completeFollowUp, deleteFollowUp, logCall } from '../actions';
+import { addActivity, updateLead, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon, addFollowUp, completeFollowUp, deleteFollowUp, logCall } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
@@ -389,18 +389,15 @@ export default async function LeadDetail({ params, searchParams }) {
         </div>
       </div>
 
-      {/* Deal section */}
+      {/* Deal section — full deal entry is support/management only. */}
+      {isAdmin ? (
       <div className="card">
         <h3>Close a deal</h3>
-        {isAdmin ? (
-          <p className="small muted">
-            The deal value counts toward the assigned agent&apos;s target. Commission is split after the
-            referral cut: <strong>junior 50/50</strong>, <strong>senior 55/45</strong>, <strong>team leader 60/40</strong>.
-            An <strong>own-referral</strong> lead pays the agent <strong>60/40</strong> regardless of seniority.
-          </p>
-        ) : (
-          <p className="small muted">Record the sold property and value, then log it to mark this lead won.</p>
-        )}
+        <p className="small muted">
+          The deal value counts toward the assigned agent&apos;s target. Commission is split after the
+          referral cut: <strong>junior 50/50</strong>, <strong>senior 55/45</strong>, <strong>team leader 60/40</strong>.
+          An <strong>own-referral</strong> lead pays the agent <strong>60/40</strong> regardless of seniority.
+        </p>
         <form action={logDeal}>
           <input type="hidden" name="lead_id" value={lead.id} />
           <div className="form-grid">
@@ -464,6 +461,22 @@ export default async function LeadDetail({ params, searchParams }) {
           </>
         ) : null}
       </div>
+      ) : (
+        <div className="card">
+          <h3>Mark as closed</h3>
+          {lead.status === 'won' ? (
+            <p className="small muted">✅ This lead is marked <strong>won</strong>. Support will collect the deal details from you and record the value &amp; commission.</p>
+          ) : (
+            <>
+              <p className="small muted">Closed the deal? Mark it won — support will then take the details from you and record the value &amp; commission.</p>
+              <form action={markLeadWon}>
+                <input type="hidden" name="lead_id" value={lead.id} />
+                <SubmitButton className="btn" pendingLabel="Marking…">Mark as closed / won</SubmitButton>
+              </form>
+            </>
+          )}
+        </div>
+      )}
 
       {isAdmin ? (
         <div className="card" style={{ borderColor: 'var(--red)' }}>

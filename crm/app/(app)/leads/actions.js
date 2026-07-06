@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
+import { requireUser, requireStaff, hasAdminAccess, hasStaffAccess, STAFF_ROLES } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { computeCommission } from '@/lib/commission';
 import { sendPushToUser } from '@/lib/push';
@@ -346,8 +346,39 @@ export async function suggestReassign(formData) {
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent(msg));
 }
 
+// Agent marks the lead won without entering money. Support finalises the deal.
+export async function markLeadWon(formData) {
+  const { profile, supabase } = await requireUser();
+  const leadId = String(formData.get('lead_id'));
+  const { data: lead } = await supabase.from('leads').select('name').eq('id', leadId).single();
+
+  const { error } = await supabase.from('leads').update({ status: 'won' }).eq('id', leadId);
+  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+
+  // Notify support + management to collect details and record the deal.
+  const admin = createAdminClient();
+  const { data: staff } = await admin.from('profiles').select('id').in('role', STAFF_ROLES);
+  for (const s of staff || []) {
+    await notify({
+      userId: s.id,
+      type: 'deal_pending',
+      title: `Deal to finalise: ${lead?.name || 'a lead'}`,
+      body: `${profile?.full_name || 'An agent'} marked this lead as closed/won. Please get the deal details from them and record the value & commission.`,
+      link: `/leads/${leadId}`,
+      leadId,
+      cta: 'Open the lead',
+    });
+  }
+
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath('/leads');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Marked as won — support will finalise the deal details.'));
+}
+
+// Full deal entry (value, commission split). Support/management only — agents
+// mark the lead won via markLeadWon and support records the details.
 export async function logDeal(formData) {
-  const { user, profile, supabase } = await requireUser();
+  const { user, profile, supabase } = await requireStaff();
   const leadId = String(formData.get('lead_id'));
 
   // The deal is credited to the lead's assigned agent (fallback: current user).
