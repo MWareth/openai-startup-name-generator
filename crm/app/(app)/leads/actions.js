@@ -61,6 +61,8 @@ export async function createLead(formData) {
     assigned_agent_id: assignedTo,
     created_by: user.id,
   };
+  // Start the response-SLA clock when the lead is created already assigned.
+  if (assignedTo) insert.assigned_at = new Date().toISOString();
   // Only include these when chosen, so lead creation still works even before
   // the property_type (0005) / bedrooms (0006) column migrations are applied.
   const ptype = emptyToNull(formData.get('property_type'));
@@ -272,6 +274,12 @@ export async function suggestReassign(formData) {
   const patch = admin
     ? { assigned_agent_id: selected, suggested_agent_id: null }
     : { suggested_agent_id: selected };
+  // Restart the response-SLA clock on a direct (re)assignment to an agent.
+  if (admin && selected) {
+    patch.assigned_at = new Date().toISOString();
+    patch.sla_alerted_at = null;
+    patch.sla_escalated_at = null;
+  }
 
   const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));

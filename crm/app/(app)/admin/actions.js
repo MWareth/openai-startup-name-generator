@@ -131,10 +131,14 @@ export async function reassignLead(formData) {
   const leadId = String(formData.get('lead_id'));
   const agentId = String(formData.get('assigned_agent_id') || '') || null;
 
-  const { error } = await supabase
-    .from('leads')
-    .update({ assigned_agent_id: agentId, suggested_agent_id: null })
-    .eq('id', leadId);
+  const patch = { assigned_agent_id: agentId, suggested_agent_id: null };
+  // Restart the response-SLA clock when (re)assigned to an agent.
+  if (agentId) {
+    patch.assigned_at = new Date().toISOString();
+    patch.sla_alerted_at = null;
+    patch.sla_escalated_at = null;
+  }
+  const { error } = await supabase.from('leads').update(patch).eq('id', leadId);
   if (error) back(error.message);
 
   if (agentId) {
