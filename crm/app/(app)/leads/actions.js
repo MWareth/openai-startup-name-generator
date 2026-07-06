@@ -238,30 +238,50 @@ export async function updateLeadPhone(formData) {
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Phone number updated.'));
 }
 
-// Edit the core contact details. The lead owner, creator, or admin can do this
-// (enforced by RLS via the user's session client).
+// Edit the contact details. Admin/support can change anything. Agents can only
+// FILL IN blank fields — they can never overwrite a detail that's already saved
+// (enforced here on the server, not just hidden in the UI).
 export async function updateLeadDetails(formData) {
-  const { supabase } = await requireUser();
+  const { profile, supabase } = await requireUser();
+  const staff = hasStaffAccess(profile);
   const leadId = String(formData.get('lead_id'));
   const name = String(formData.get('name') || '').trim();
-  if (!name) redirect(`/leads/${leadId}?error=` + encodeURIComponent('Name is required.'));
 
   let source = emptyToNull(formData.get('source'));
   if (source && source.trim().toLowerCase() === 'cold call') source = 'Cold Call';
   const budgetRaw = String(formData.get('budget') || '').trim();
 
-  // Phone is saved by its own quick-save form (updateLeadPhone), so it isn't
-  // touched here — that keeps this form from ever blanking the number.
-  const core = {
-    name,
+  const desired = {
+    name: name || null,
+    phone: emptyToNull(formData.get('phone')),
     email: emptyToNull(formData.get('email')),
     source,
     budget: budgetRaw ? Number(budgetRaw) : null,
+    community: emptyToNull(formData.get('community')),
     property_interest: emptyToNull(formData.get('property_interest')),
   };
-  // `community` was added later (migration 0008); writeTolerant drops it (or any
-  // other not-yet-migrated column) and retries so the rest of the details save.
-  const patch = { ...core, community: emptyToNull(formData.get('community')) };
+
+  let patch;
+  if (staff) {
+    if (!name) redirect(`/leads/${leadId}?error=` + encodeURIComponent('Name is required.'));
+    patch = desired;
+  } else {
+    // Agents: only apply values to fields that are currently blank.
+    const { data: cur } = await supabase.from('leads').select('*').eq('id', leadId).single();
+    patch = {};
+    for (const k of Object.keys(desired)) {
+      const curVal = cur ? cur[k] : null;
+      const blank = curVal === null || curVal === undefined || String(curVal).trim() === '';
+      const val = desired[k];
+      const hasNew = val !== null && val !== undefined && String(val).trim() !== '';
+      if (blank && hasNew) patch[k] = val;
+    }
+    if (!Object.keys(patch).length) {
+      redirect(`/leads/${leadId}?ok=` + encodeURIComponent('No changes — you can only fill blank fields. Ask an admin to change saved details.'));
+    }
+  }
+
+  // writeTolerant drops any not-yet-migrated column (e.g. community) and retries.
   const { error } = await writeTolerant((p) => supabase.from('leads').update(p).eq('id', leadId), patch);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   revalidatePath(`/leads/${leadId}`);

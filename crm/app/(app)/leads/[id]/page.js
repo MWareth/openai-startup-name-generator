@@ -14,7 +14,7 @@ import {
   BEDROOM_OPTIONS,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
-import { addActivity, updateLead, updateLeadDetails, updateLeadPhone, deleteLead, suggestReassign, logDeal, markLeadWon, addFollowUp, completeFollowUp, deleteFollowUp, logCall } from '../actions';
+import { addActivity, updateLead, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon, logCall } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
@@ -59,9 +59,6 @@ export default async function LeadDetail({ params, searchParams }) {
     .eq('lead_id', lead.id)
     .order('due_on', { ascending: true });
 
-  const pendingFollowups = (followups || []).filter((f) => !f.done);
-  const doneFollowups = (followups || []).filter((f) => f.done);
-
   // Lead progress stepper, driven by the lead's real Status through the sales
   // pipeline (New → Contacted → Viewing → Negotiation → Closed). The stage the
   // agent is currently on is highlighted; earlier stages are ticked done.
@@ -70,6 +67,29 @@ export default async function LeadDetail({ params, searchParams }) {
   if (lead.status === 'won') reached = PIPELINE_ORDER.length - 1; // all done
   else if (lead.status === 'lost') { reached = -1; leadLost = true; }
   else reached = PIPELINE_ORDER.indexOf(lead.status) - 1; // current stage = highlighted
+
+  // Contact fields: agents may only fill blanks (a filled field is locked);
+  // admin/support can change anything.
+  const lockField = (v) => !isAdmin && v != null && String(v).trim() !== '';
+  const contactAllFilled = [lead.name, lead.phone, lead.email, lead.source, lead.budget, lead.community, lead.property_interest]
+    .every((v) => v != null && String(v).trim() !== '');
+  const canSaveContact = isAdmin || !contactAllFilled;
+
+  // Timeline rows as clean bullet points (newest first).
+  const timelineRows = timeline.map((item) => {
+    if (item.kind === 'activity') {
+      const a = item.data;
+      const icon = a.type === 'call' || a.type === 'call_update' ? '📞'
+        : a.type === 'meeting' ? '🤝' : a.type === 'viewing' ? '🏠' : '📝';
+      return { key: item.key, icon, title: ACTIVITY_LABELS[a.type] || 'Activity', when: a.occurred_on, note: a.body, by: a.agent?.full_name, translate: a.body };
+    }
+    if (item.kind === 'fu_scheduled') {
+      const f = item.data;
+      return { key: item.key, icon: '📅', title: 'Follow-up scheduled', when: f.created_at, note: `Due ${formatDate(f.due_on)}${f.note ? ' — ' + f.note : ''}` };
+    }
+    const f = item.data;
+    return { key: item.key, icon: '✅', title: 'Follow-up done', when: f.done_at, note: `Was due ${formatDate(f.due_on)}` };
+  });
 
   // Merge activities + follow-up events into one timeline, newest first.
   const timeline = [
@@ -121,41 +141,77 @@ export default async function LeadDetail({ params, searchParams }) {
       {ok ? <div className="alert ok">{ok}</div> : null}
       {error ? <div className="alert error">{error}</div> : null}
 
+      {/* Timeline — step-by-step at the top of the page. */}
+      <div className="card">
+        <h3>Timeline</h3>
+        {timelineRows.length ? (
+          <ul className="timeline">
+            {timelineRows.map((r) => (
+              <li key={r.key} className="timeline-item">
+                <span className="ti-dot">{r.icon}</span>
+                <div className="ti-body">
+                  <div className="ti-head">
+                    <strong>{r.title}</strong>
+                    <span className="small muted">{formatDate(r.when)}</span>
+                  </div>
+                  {r.note ? <div className="small" style={{ marginTop: 2, whiteSpace: 'pre-wrap' }}>{r.note}</div> : null}
+                  {r.translate ? <TranslateButton text={r.translate} /> : null}
+                  {r.by ? <div className="small muted" style={{ marginTop: 2 }}>{r.by}</div> : null}
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="muted small">No activity yet. Log the first call or meeting below.</p>
+        )}
+      </div>
+
       <div className="grid grid-2">
         {/* Left column */}
         <div className="stack">
           <div className="card">
             <h3>Contact details</h3>
-            {/* Phone has its own Save button so the number always updates on its own. */}
-            <form action={updateLeadPhone} className="field" style={{ marginBottom: 10 }}>
-              <input type="hidden" name="lead_id" value={lead.id} />
-              <label>Phone</label>
-              <div className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
-                <input name="phone" defaultValue={lead.phone || ''} inputMode="tel" autoComplete="off" style={{ flex: 1 }} />
-                <button className="btn small" type="submit">Save</button>
-              </div>
-            </form>
+            {!isAdmin ? (
+              <p className="small muted" style={{ marginTop: 0 }}>
+                You can fill in blank fields. Details already saved are locked — ask an admin to change them.
+              </p>
+            ) : null}
             <form action={updateLeadDetails} className="stack" style={{ gap: 10 }}>
               <input type="hidden" name="lead_id" value={lead.id} />
-              <div className="field"><label>Full name</label><input name="name" defaultValue={lead.name} required /></div>
-              <div className="field"><label>Email</label><input name="email" type="email" defaultValue={lead.email || ''} /></div>
+              <div className="field"><label>Full name</label>
+                <input name="name" defaultValue={lead.name} required readOnly={lockField(lead.name)} className={lockField(lead.name) ? 'locked' : undefined} />
+              </div>
+              <div className="form-grid">
+                <div className="field"><label>Phone</label>
+                  <input name="phone" defaultValue={lead.phone || ''} inputMode="tel" autoComplete="off" readOnly={lockField(lead.phone)} className={lockField(lead.phone) ? 'locked' : undefined} />
+                </div>
+                <div className="field"><label>Email</label>
+                  <input name="email" type="email" defaultValue={lead.email || ''} readOnly={lockField(lead.email)} className={lockField(lead.email) ? 'locked' : undefined} />
+                </div>
+              </div>
               <div className="form-grid">
                 <div className="field">
                   <label>Source</label>
-                  <input name="source" defaultValue={lead.source || ''} list="lead-source-options" autoComplete="off" />
+                  <input name="source" defaultValue={lead.source || ''} list="lead-source-options" autoComplete="off" readOnly={lockField(lead.source)} className={lockField(lead.source) ? 'locked' : undefined} />
                   <datalist id="lead-source-options">
                     <option value="Cold Call" /><option value="Instagram" /><option value="Referral" />
                     <option value="Bayut" /><option value="Property Finder" /><option value="Website" />
                     <option value="WhatsApp" /><option value="Walk-in" />
                   </datalist>
                 </div>
-                <div className="field"><label>Budget (AED)</label><input name="budget" type="number" min="0" step="1000" defaultValue={lead.budget || ''} /></div>
+                <div className="field"><label>Budget (AED)</label>
+                  <input name="budget" type="number" min="0" step="1000" defaultValue={lead.budget || ''} readOnly={lockField(lead.budget)} className={lockField(lead.budget) ? 'locked' : undefined} />
+                </div>
               </div>
               <div className="form-grid">
-                <div className="field"><label>Community / area</label><input name="community" defaultValue={lead.community || ''} /></div>
-                <div className="field"><label>Building / project</label><input name="property_interest" defaultValue={lead.property_interest || ''} /></div>
+                <div className="field"><label>Community / area</label>
+                  <input name="community" defaultValue={lead.community || ''} readOnly={lockField(lead.community)} className={lockField(lead.community) ? 'locked' : undefined} />
+                </div>
+                <div className="field"><label>Building / project</label>
+                  <input name="property_interest" defaultValue={lead.property_interest || ''} readOnly={lockField(lead.property_interest)} className={lockField(lead.property_interest) ? 'locked' : undefined} />
+                </div>
               </div>
-              <button className="btn secondary small" type="submit">Save details</button>
+              {canSaveContact ? <button className="btn secondary small" type="submit">Save details</button> : null}
             </form>
             <div className="small muted" style={{ marginTop: 10 }}>Assigned: {lead.assigned?.full_name || 'Unassigned'}</div>
             <div className="row" style={{ gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
@@ -183,52 +239,6 @@ export default async function LeadDetail({ params, searchParams }) {
                   ))}
                 </div>
               </div>
-            ) : null}
-          </div>
-
-          <div className="card">
-            <h3>Follow-ups</h3>
-            {pendingFollowups.length ? (
-              <div className="stack" style={{ gap: 8, marginBottom: 12 }}>
-                {pendingFollowups.map((f) => (
-                  <div key={f.id} className="spread" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 8, gap: 8 }}>
-                    <div>
-                      <span className="small"><strong>{formatDate(f.due_on)}</strong></span>
-                      {f.due_on <= today ? <span className="badge hot" style={{ marginLeft: 8 }}>{f.due_on < today ? 'Overdue' : 'Due'}</span> : null}
-                      {f.note ? <div className="small muted" style={{ whiteSpace: 'pre-wrap' }}>{f.note}</div> : null}
-                    </div>
-                    <div className="row" style={{ gap: 6 }}>
-                      <form action={completeFollowUp}>
-                        <input type="hidden" name="lead_id" value={lead.id} />
-                        <input type="hidden" name="followup_id" value={f.id} />
-                        <button className="btn secondary small" type="submit">Done</button>
-                      </form>
-                      <form action={deleteFollowUp}>
-                        <input type="hidden" name="lead_id" value={lead.id} />
-                        <input type="hidden" name="followup_id" value={f.id} />
-                        <button className="btn ghost small" type="submit">✕</button>
-                      </form>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="small muted">No follow-ups scheduled.</p>
-            )}
-
-            <form action={addFollowUp} className="stack" style={{ gap: 8 }}>
-              <input type="hidden" name="lead_id" value={lead.id} />
-              <div className="row" style={{ gap: 8 }}>
-                <DateField name="due_on" defaultValue={today} style={{ maxWidth: 180 }} />
-                <button className="btn secondary small" type="submit">+ Add follow-up</button>
-              </div>
-              <input name="note" placeholder="Note (optional) — e.g. call after he sees the brochure" />
-            </form>
-
-            {doneFollowups.length ? (
-              <p className="small muted" style={{ marginTop: 10 }}>
-                ✅ {doneFollowups.length} completed — see the timeline for details.
-              </p>
             ) : null}
           </div>
 
@@ -278,29 +288,6 @@ export default async function LeadDetail({ params, searchParams }) {
             </form>
           </div>
 
-          <div className="card">
-            <h3>{isAdmin ? 'Reassign lead' : 'Suggest reassignment'}</h3>
-            <p className="small muted">
-              {isAdmin
-                ? 'Assign this lead to another agent, or send it to the Lead Pool. Takes effect immediately.'
-                : 'Propose another agent. An admin makes the final reassignment.'}
-            </p>
-            {!isAdmin && lead.suggested?.full_name ? (
-              <p className="small">Currently suggested: <span className="badge role">{lead.suggested.full_name}</span></p>
-            ) : null}
-            <form action={suggestReassign}>
-              <input type="hidden" name="lead_id" value={lead.id} />
-              <div className="field">
-                <select name="suggested_agent_id" defaultValue={isAdmin ? (lead.assigned?.id || '') : (lead.suggested?.id || '')}>
-                  <option value="">{isAdmin ? '📥 Lead Pool (unassign)' : '— No suggestion —'}</option>
-                  {(agents || []).map((a) => (
-                    <option key={a.id} value={a.id}>{a.full_name}</option>
-                  ))}
-                </select>
-              </div>
-              <button className="btn secondary small" type="submit">{isAdmin ? 'Reassign' : 'Save suggestion'}</button>
-            </form>
-          </div>
         </div>
 
         {/* Right column */}
@@ -335,58 +322,6 @@ export default async function LeadDetail({ params, searchParams }) {
             </form>
           </div>
 
-          <div className="card">
-            <h3>Timeline</h3>
-            {timeline.length ? (
-              <div className="stack" style={{ gap: 10 }}>
-                {timeline.map((item) => {
-                  if (item.kind === 'activity') {
-                    const a = item.data;
-                    return (
-                      <div key={item.key} style={{ borderLeft: '2px solid var(--border)', paddingLeft: 12 }}>
-                        <div className="spread">
-                          <span className="badge status">{ACTIVITY_LABELS[a.type]}</span>
-                          <span className="small muted">{formatDate(a.occurred_on)}</span>
-                        </div>
-                        <div className="small" style={{ marginTop: 4, whiteSpace: 'pre-wrap' }}>{a.body}</div>
-                        {a.body ? <TranslateButton text={a.body} /> : null}
-                        <div className="small muted">{a.agent?.full_name}</div>
-                      </div>
-                    );
-                  }
-                  if (item.kind === 'fu_scheduled') {
-                    const f = item.data;
-                    return (
-                      <div key={item.key} style={{ borderLeft: '2px solid var(--brand)', paddingLeft: 12 }}>
-                        <div className="spread">
-                          <span className="badge role">📅 Follow-up</span>
-                          <span className="small muted">{formatDate(f.created_at)}</span>
-                        </div>
-                        <div className="small" style={{ marginTop: 4 }}>
-                          Scheduled for <strong>{formatDate(f.due_on)}</strong>
-                          {!f.done ? null : <span className="small muted"> · completed</span>}
-                        </div>
-                        {f.note ? <div className="small muted" style={{ whiteSpace: 'pre-wrap' }}>{f.note}</div> : null}
-                      </div>
-                    );
-                  }
-                  // fu_done
-                  const f = item.data;
-                  return (
-                    <div key={item.key} style={{ borderLeft: '2px solid var(--won, #16a34a)', paddingLeft: 12 }}>
-                      <div className="spread">
-                        <span className="badge won">✅ Follow-up done</span>
-                        <span className="small muted">{formatDate(f.done_at)}</span>
-                      </div>
-                      <div className="small" style={{ marginTop: 4 }}>Completed (was due {formatDate(f.due_on)})</div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <p className="muted small">No activity logged yet.</p>
-            )}
-          </div>
         </div>
       </div>
 
@@ -473,6 +408,31 @@ export default async function LeadDetail({ params, searchParams }) {
           )}
         </div>
       )}
+
+      {/* Reassignment — request to admin (agents) / direct reassign (admin). */}
+      <div className="card">
+        <h3>{isAdmin ? 'Reassign lead' : 'Request reassignment'}</h3>
+        <p className="small muted">
+          {isAdmin
+            ? 'Assign this lead to another agent, or send it to the Lead Pool. Takes effect immediately.'
+            : 'Ask an admin to move this lead to another agent. Only an admin can reassign it.'}
+        </p>
+        {!isAdmin && lead.suggested?.full_name ? (
+          <p className="small">Requested: <span className="badge role">{lead.suggested.full_name}</span></p>
+        ) : null}
+        <form action={suggestReassign}>
+          <input type="hidden" name="lead_id" value={lead.id} />
+          <div className="field">
+            <select name="suggested_agent_id" defaultValue={isAdmin ? (lead.assigned?.id || '') : (lead.suggested?.id || '')}>
+              <option value="">{isAdmin ? '📥 Lead Pool (unassign)' : '— Choose an agent to request —'}</option>
+              {(agents || []).map((a) => (
+                <option key={a.id} value={a.id}>{a.full_name}</option>
+              ))}
+            </select>
+          </div>
+          <button className="btn secondary small" type="submit">{isAdmin ? 'Reassign' : 'Send request to admin'}</button>
+        </form>
+      </div>
 
       {isAdmin ? (
         <div className="card" style={{ borderColor: 'var(--red)' }}>
