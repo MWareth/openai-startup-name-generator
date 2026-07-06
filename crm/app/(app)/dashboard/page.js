@@ -287,6 +287,22 @@ async function AdminDashboard({ supabase, name }) {
   }
   const yearTotal = quarters.reduce((s, v) => s + v, 0);
 
+  // Current quarter (Dubai time) — the dashboard leads with this, not the total.
+  const qLabels = ['Q1 (Jan–Mar)', 'Q2 (Apr–Jun)', 'Q3 (Jul–Sep)', 'Q4 (Oct–Dec)'];
+  const dubaiMonth = Number(new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Dubai', month: 'numeric' }).format(new Date()));
+  const curQ = Math.floor((dubaiMonth - 1) / 3);
+  const qShort = qLabels[curQ].split(' ')[0]; // "Q3"
+  const quartersCompany = [0, 0, 0, 0];
+  const quartersDeals = [0, 0, 0, 0];
+  for (const d of deals || []) {
+    if (!d.closed_on) continue;
+    const dt = new Date(d.closed_on);
+    if (dt.getFullYear() !== year) continue;
+    const qi = Math.floor(dt.getMonth() / 3);
+    quartersCompany[qi] += Number(d.company_commission || 0);
+    quartersDeals[qi] += 1;
+  }
+
   return (
     <div className="stack">
       <h1>{greetingNow()}, {name?.split(' ')[0] || 'there'} 👋</h1>
@@ -294,32 +310,41 @@ async function AdminDashboard({ supabase, name }) {
       <div className="grid grid-3">
         <div className="card stat"><span className="muted small">Agents</span><span className="value">{agentCount ?? 0}</span></div>
         <div className="card stat"><span className="muted small">Leads</span><span className="value">{leadCount ?? 0}</span></div>
-        <div className="card stat"><span className="muted small">Deals closed</span><span className="value">{deals?.length ?? 0}</span></div>
-        <div className="card stat"><span className="muted small">Total sales value (all-time)</span><span className="value">{aed(totalValue)}</span></div>
-        <div className="card stat"><span className="muted small">Company commission</span><span className="value">{aed(companyCommission)}</span></div>
+        <div className="card stat"><span className="muted small">Deals closed — {qShort}</span><span className="value">{quartersDeals[curQ]}</span></div>
+        <div className="card stat" style={{ borderColor: 'var(--brand)' }}><span className="muted small">Sales value — {qLabels[curQ]}</span><span className="value">{aed(quarters[curQ])}</span></div>
+        <div className="card stat"><span className="muted small">Company commission — {qShort}</span><span className="value">{aed(quartersCompany[curQ])}</span></div>
       </div>
 
       {/* Team follow-up calendar */}
       <FollowUpCalendar leads={followupLeads} agents={agentList || []} showAgentFilter />
 
-      <div className="card">
-        <div className="spread">
-          <h3>Sales value by quarter — {year}</h3>
-          <span className="small muted">Year total: <strong style={{ color: 'var(--text)' }}>{aed(yearTotal)}</strong></span>
-        </div>
-        <div className="grid grid-3" style={{ marginTop: 8 }}>
-          {['Q1 (Jan–Mar)', 'Q2 (Apr–Jun)', 'Q3 (Jul–Sep)', 'Q4 (Oct–Dec)'].map((label, i) => (
-            <div key={label} className="card stat" style={{ background: 'var(--panel-2)', boxShadow: 'none' }}>
-              <span className="muted small">{label}</span>
-              <span className="value" style={{ fontSize: '1.25rem' }}>{aed(quarters[i])}</span>
+      {/* All-time & full-year totals — hidden by default, click to reveal. */}
+      <details className="card panel">
+        <summary><h3 style={{ margin: 0 }}>Full-year &amp; all-time totals</h3></summary>
+        <div className="panel-body">
+          <div className="grid grid-3">
+            <div className="card stat"><span className="muted small">Total sales value (all-time)</span><span className="value">{aed(totalValue)}</span></div>
+            <div className="card stat"><span className="muted small">Company commission (all-time)</span><span className="value">{aed(companyCommission)}</span></div>
+            <div className="card stat"><span className="muted small">Deals closed (all-time)</span><span className="value">{deals?.length ?? 0}</span></div>
+          </div>
+          <div className="spread" style={{ marginTop: 16 }}>
+            <h3 style={{ margin: 0 }}>Sales value by quarter — {year}</h3>
+            <span className="small muted">Year total: <strong style={{ color: 'var(--text)' }}>{aed(yearTotal)}</strong></span>
+          </div>
+          <div className="grid grid-3" style={{ marginTop: 8 }}>
+            {qLabels.map((label, i) => (
+              <div key={label} className="card stat" style={{ background: 'var(--panel-2)', boxShadow: 'none', border: i === curQ ? '1px solid var(--brand)' : undefined }}>
+                <span className="muted small">{label}{i === curQ ? ' · now' : ''}</span>
+                <span className="value" style={{ fontSize: '1.25rem' }}>{aed(quarters[i])}</span>
+              </div>
+            ))}
+            <div className="card stat" style={{ background: 'var(--brand)' }}>
+              <span className="small" style={{ color: 'rgba(255,255,255,0.7)' }}>Total {year}</span>
+              <span className="value" style={{ fontSize: '1.25rem', color: '#fff' }}>{aed(yearTotal)}</span>
             </div>
-          ))}
-          <div className="card stat" style={{ background: 'var(--brand)' }}>
-            <span className="small" style={{ color: 'rgba(255,255,255,0.7)' }}>Total {year}</span>
-            <span className="value" style={{ fontSize: '1.25rem', color: '#fff' }}>{aed(yearTotal)}</span>
           </div>
         </div>
-      </div>
+      </details>
 
       <div className="card">
         <div className="spread"><h3>Reassignment suggestions</h3><Link className="small" href="/admin">Manage →</Link></div>
