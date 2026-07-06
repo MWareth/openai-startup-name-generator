@@ -366,3 +366,7 @@ hr.divider { background: var(--border); }
   .kpi-item { flex-wrap: wrap; gap: 4px; }
   .kpi-stars .star { font-size: 1.6rem; }
 }
+
+/* Native calendar date picker — keep it consistent with other inputs */
+input[type="date"] { cursor: pointer; min-height: 40px; }
+input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .7; }
