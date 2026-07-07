@@ -114,6 +114,29 @@ export default async function AdminPage({ searchParams }) {
         </div>
       </div>
 
+      {/* Lead intake (website / Meta / portals) */}
+      <details className="card panel">
+        <summary><h2>Lead intake — website, Meta &amp; portals</h2></summary>
+        <div className="panel-body">
+          <p className="small muted" style={{ marginTop: 0 }}>
+            Send new leads straight into the CRM from anywhere. Point a source at this link (it creates
+            the lead and pings you). Duplicates by phone/email are merged automatically.
+          </p>
+          <div className="card" style={{ background: 'var(--panel-2)', boxShadow: 'none' }}>
+            <div className="small muted">Your intake link (replace <code>YOUR_TOKEN</code>):</div>
+            <code className="small" style={{ wordBreak: 'break-all' }}>
+              {(process.env.NEXT_PUBLIC_APP_URL || 'https://bullish-crm.vercel.app')}/api/leads/intake?key=YOUR_TOKEN
+            </code>
+          </div>
+          <ul className="small muted" style={{ margin: '10px 0 0', paddingLeft: 18 }}>
+            <li>First, set <code>LEAD_INTAKE_TOKEN</code> to any secret word in Vercel → redeploy. Use that word as <code>YOUR_TOKEN</code>.</li>
+            <li><strong>Website form</strong> → send its submissions (POST) to this link with fields name, phone, email, message.</li>
+            <li><strong>Meta / Instagram lead ads</strong> → in Zapier or Make, trigger “Facebook Lead Ads” → action “Webhook POST” to this link.</li>
+            <li><strong>Bayut / Property Finder / PropSpace emails</strong> → forward the lead email to a Zapier/Make email parser → POST to this link.</li>
+          </ul>
+        </div>
+      </details>
+
       <p className="small muted">Tap a section to open or close it.</p>
 
       {/* ---- New launches (open by default) ---- */}
