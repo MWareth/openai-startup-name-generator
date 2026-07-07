@@ -132,12 +132,18 @@ export async function addActivity(formData) {
   // Optionally schedule a follow-up from the same form.
   const nextFollowUp = emptyToNull(formData.get('next_follow_up'));
   if (nextFollowUp) {
-    await supabase.from('lead_followups').insert({
-      lead_id: leadId,
-      due_on: nextFollowUp,
-      note: '',
-      created_by: user.id,
-    });
+    const dueOn = nextFollowUp.slice(0, 10);
+    let dueAt = null;
+    if (nextFollowUp.includes('T')) {
+      const withSecs = nextFollowUp.length === 16 ? nextFollowUp + ':00' : nextFollowUp;
+      const d = new Date(withSecs + '+04:00'); // entered in Dubai time
+      if (!Number.isNaN(d.getTime())) dueAt = d.toISOString();
+    }
+    // writeTolerant drops due_at if migration 0024 hasn't been applied yet.
+    await writeTolerant(
+      (p) => supabase.from('lead_followups').insert(p),
+      { lead_id: leadId, due_on: dueOn, due_at: dueAt, note: '', created_by: user.id }
+    );
     await syncNextFollowUp(supabase, leadId);
   }
 

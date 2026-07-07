@@ -97,6 +97,15 @@ export default async function LeadDetail({ params, searchParams }) {
     })),
   ].sort((a, b) => b.when - a.when);
 
+  // Follow-up due date, with the calling time if one was set.
+  const fmtDue = (f) => {
+    if (f.due_at) {
+      const time = new Intl.DateTimeFormat('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Asia/Dubai' }).format(new Date(f.due_at));
+      return `${formatDate(f.due_on)} · ${time}`;
+    }
+    return formatDate(f.due_on);
+  };
+
   // Timeline rows as clean bullet points (newest first).
   const timelineRows = timeline.map((item) => {
     if (item.kind === 'activity') {
@@ -107,10 +116,10 @@ export default async function LeadDetail({ params, searchParams }) {
     }
     if (item.kind === 'fu_scheduled') {
       const f = item.data;
-      return { key: item.key, icon: '📅', title: 'Follow-up scheduled', when: f.created_at, note: `Due ${formatDate(f.due_on)}${f.note ? ' — ' + f.note : ''}` };
+      return { key: item.key, icon: '📅', title: 'Follow-up scheduled', when: f.created_at, note: `Due ${fmtDue(f)}${f.note ? ' — ' + f.note : ''}` };
     }
     const f = item.data;
-    return { key: item.key, icon: '✅', title: 'Follow-up done', when: f.done_at, note: `Was due ${formatDate(f.due_on)}` };
+    return { key: item.key, icon: '✅', title: 'Follow-up done', when: f.done_at, note: `Was due ${fmtDue(f)}` };
   });
 
   // Other agents to suggest the lead to.
@@ -315,8 +324,8 @@ export default async function LeadDetail({ params, searchParams }) {
                 <DictateField name="body" placeholder="What happened? (or tap Dictate and speak)" required />
               </div>
               <div className="field">
-                <label>Set next follow-up (optional)</label>
-                <DateField name="next_follow_up" />
+                <label>Set next follow-up — date &amp; time (optional)</label>
+                <input type="datetime-local" name="next_follow_up" />
               </div>
               <SubmitButton className="btn small" pendingLabel="Saving…">Add activity</SubmitButton>
             </form>
