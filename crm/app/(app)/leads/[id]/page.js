@@ -10,16 +10,15 @@ import {
   formatDate,
   aed,
   waLink,
-  PROPERTY_TYPES,
-  BEDROOM_OPTIONS,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
-import { addActivity, updateLead, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon, logCall } from '../actions';
+import { addActivity, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon, logCall } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
 import DateField from '@/components/DateField';
 import LeadProgress from '@/components/LeadProgress';
+import QualStatusForm from '@/components/QualStatusForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -253,48 +252,13 @@ export default async function LeadDetail({ params, searchParams }) {
 
           <div className="card">
             <h3>Qualification & status</h3>
-            <form action={updateLead}>
-              <input type="hidden" name="lead_id" value={lead.id} />
-              <div className="form-grid">
-                <div className="field">
-                  <label>Qualification</label>
-                  <select name="qualification" defaultValue={lead.qualification}>
-                    <option value="hot">Hot</option>
-                    <option value="warm">Warm</option>
-                    <option value="cold">Cold</option>
-                  </select>
-                </div>
-                <div className="field">
-                  <label>Status</label>
-                  <select name="status" defaultValue={lead.status}>
-                    {Object.entries(STATUS_LABELS).map(([v, l]) => (
-                      <option key={v} value={v}>{l}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <div className="form-grid">
-                <div className="field">
-                  <label>Property type</label>
-                  <select name="property_type" defaultValue={lead.property_type || ''}>
-                    <option value="">— Select —</option>
-                    {PROPERTY_TYPES.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="field">
-                  <label>Bedrooms</label>
-                  <select name="bedrooms" defaultValue={lead.bedrooms || ''}>
-                    <option value="">— Select —</option>
-                    {BEDROOM_OPTIONS.map((b) => (
-                      <option key={b} value={b}>{b}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <button className="btn secondary small" type="submit">Update</button>
-            </form>
+            <QualStatusForm
+              leadId={lead.id}
+              qualification={lead.qualification}
+              status={lead.status}
+              propertyType={lead.property_type}
+              bedrooms={lead.bedrooms}
+            />
           </div>
 
         </div>

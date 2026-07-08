@@ -257,7 +257,10 @@ export async function deleteFollowUp(formData) {
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Follow-up removed.'));
 }
 
-export async function updateLead(formData) {
+// useFormState action: returns { ok }/{ error } so the confirmation shows inline
+// on the form (no redirect) — reliable on iPhone, where the redirect message was
+// getting dropped.
+export async function updateLead(prevState, formData) {
   const { supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
 
@@ -270,16 +273,15 @@ export async function updateLead(formData) {
   if (beds) patch.bedrooms = beds; // only when chosen (safe pre-migration 0006)
 
   const { error } = await writeTolerant((p) => supabase.from('leads').update(p).eq('id', leadId), patch);
-  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  if (error) return { error: error.message };
 
-  // Confirm exactly what changed, so the green message is meaningful.
   const parts = [];
   if (patch.status) parts.push(`Status → ${STATUS_LABELS[patch.status] || patch.status}`);
   if (patch.qualification) parts.push(`Qualification → ${QUAL_LABELS[patch.qualification] || patch.qualification}`);
   const msg = parts.length ? `Saved · ${parts.join(' · ')}` : 'Lead updated.';
 
   revalidatePath(`/leads/${leadId}`);
-  redirect(`/leads/${leadId}?ok=` + encodeURIComponent(msg));
+  return { ok: msg };
 }
 
 // Quick-save just the phone number (has its own Save button next to the field).
