@@ -50,6 +50,7 @@ export default async function AppLayout({ children }) {
           {isStaff ? <NavLink href="/commission">Commission</NavLink> : null}
           {isStaff ? <NavLink href="/teams">Teams</NavLink> : null}
           {isStaff ? <NavLink href="/presence">Presence</NavLink> : null}
+          {isAdmin ? <NavLink href="/activity">Activity log</NavLink> : null}
           {isAdmin ? <NavLink href="/reviews">KPIs</NavLink> : null}
           {isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
         </nav>
