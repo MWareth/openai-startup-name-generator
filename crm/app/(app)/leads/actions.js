@@ -8,6 +8,47 @@ import { writeTolerant } from '@/lib/db';
 import { computeCommission } from '@/lib/commission';
 import { sendPushToUser } from '@/lib/push';
 import { notify, notifyManagement } from '@/lib/notify';
+import { ACTIVITY_LABELS } from '@/lib/format';
+
+// Route a lead update to the right bell:
+//  • an agent's update pings all admins (their bell = the team activity feed),
+//  • an admin/manager's note pings the lead's assigned agent.
+// Agent→admin pings are in-app only (no email) to avoid flooding inboxes.
+async function notifyLeadActivity({ supabase, user, profile, leadId, typeLabel, body }) {
+  const { data: lead } = await supabase.from('leads').select('name, assigned_agent_id').eq('id', leadId).single();
+  const leadName = lead?.name || 'a lead';
+  const text = String(body || '').trim();
+  const snippet = text.length > 90 ? text.slice(0, 90) + '…' : text;
+
+  if (hasStaffAccess(profile)) {
+    if (lead?.assigned_agent_id && lead.assigned_agent_id !== user.id) {
+      await notify({
+        userId: lead.assigned_agent_id,
+        type: 'lead_comment',
+        title: `${profile?.full_name || 'Management'} added a note on ${leadName}`,
+        body: `${typeLabel}${snippet ? ': ' + snippet : ''}`,
+        link: `/leads/${leadId}`,
+        leadId,
+        cta: 'Open the lead',
+      });
+    }
+    return;
+  }
+  const adminCli = createAdminClient();
+  const { data: mgrs } = await adminCli.from('profiles').select('id').in('role', ['admin', 'director', 'c_suite']);
+  for (const m of mgrs || []) {
+    if (m.id === user.id) continue;
+    await notify({
+      userId: m.id,
+      type: 'lead_activity',
+      title: `${profile?.full_name || 'An agent'} · ${typeLabel} on ${leadName}`,
+      body: snippet || typeLabel,
+      link: `/leads/${leadId}`,
+      leadId,
+      email: false,
+    });
+  }
+}
 
 export async function createLead(formData) {
   const { user, profile, supabase } = await requireUser();
@@ -116,18 +157,22 @@ export async function createLead(formData) {
 }
 
 export async function addActivity(formData) {
-  const { user, supabase } = await requireUser();
+  const { user, profile, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
+  const type = String(formData.get('type') || 'note');
+  const body = String(formData.get('body') || '').trim();
 
   const { error } = await supabase.from('lead_activities').insert({
     lead_id: leadId,
     agent_id: user.id,
-    type: String(formData.get('type') || 'note'),
+    type,
     occurred_on: String(formData.get('occurred_on') || new Date().toISOString().slice(0, 10)),
-    body: String(formData.get('body') || '').trim(),
+    body,
   });
 
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+
+  await notifyLeadActivity({ supabase, user, profile, leadId, typeLabel: ACTIVITY_LABELS[type] || 'Update', body });
 
   // Optionally schedule a follow-up from the same form.
   const nextFollowUp = emptyToNull(formData.get('next_follow_up'));
@@ -314,7 +359,7 @@ export async function deleteLead(formData) {
 // answer / voicemail). Counts as a 'call' activity, so it also advances the
 // progress stepper and stops the response-SLA clock.
 export async function logCall(formData) {
-  const { user, supabase } = await requireUser();
+  const { user, profile, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
   const outcome = String(formData.get('outcome') || '');
   const LABEL = { answered: 'Answered ✅', no_answer: 'No answer ❌', voicemail: 'Left voicemail 📩' };
@@ -328,6 +373,7 @@ export async function logCall(formData) {
     body: `📞 Phone call — ${label}`,
   });
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  await notifyLeadActivity({ supabase, user, profile, leadId, typeLabel: 'Call', body: `Phone call — ${label}` });
   revalidatePath(`/leads/${leadId}`);
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent(`Call logged — ${label}.`));
 }
