@@ -8,7 +8,7 @@ import { writeTolerant } from '@/lib/db';
 import { computeCommission } from '@/lib/commission';
 import { sendPushToUser } from '@/lib/push';
 import { notify, notifyManagement } from '@/lib/notify';
-import { ACTIVITY_LABELS } from '@/lib/format';
+import { ACTIVITY_LABELS, STATUS_LABELS, QUAL_LABELS } from '@/lib/format';
 
 // Route a lead update to the right bell:
 //  • an agent's update pings all admins (their bell = the team activity feed),
@@ -271,8 +271,15 @@ export async function updateLead(formData) {
 
   const { error } = await writeTolerant((p) => supabase.from('leads').update(p).eq('id', leadId), patch);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+
+  // Confirm exactly what changed, so the green message is meaningful.
+  const parts = [];
+  if (patch.status) parts.push(`Status → ${STATUS_LABELS[patch.status] || patch.status}`);
+  if (patch.qualification) parts.push(`Qualification → ${QUAL_LABELS[patch.qualification] || patch.qualification}`);
+  const msg = parts.length ? `Saved · ${parts.join(' · ')}` : 'Lead updated.';
+
   revalidatePath(`/leads/${leadId}`);
-  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Lead updated.'));
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent(msg));
 }
 
 // Quick-save just the phone number (has its own Save button next to the field).
