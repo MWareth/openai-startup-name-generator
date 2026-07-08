@@ -280,7 +280,8 @@ export async function updateLead(prevState, formData) {
   if (patch.qualification) parts.push(`Qualification → ${QUAL_LABELS[patch.qualification] || patch.qualification}`);
   const msg = parts.length ? `Saved · ${parts.join(' · ')}` : 'Lead updated.';
 
-  revalidatePath(`/leads/${leadId}`);
+  // No revalidatePath here — the client refreshes via router.refresh() after
+  // reading this result, so the action never triggers an inline page re-render.
   return { ok: msg };
 }
 

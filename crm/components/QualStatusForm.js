@@ -1,26 +1,36 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { updateLead } from '@/app/(app)/leads/actions';
 import { STATUS_LABELS, PROPERTY_TYPES, BEDROOM_OPTIONS } from '@/lib/format';
 
-function SaveButton() {
-  const { pending } = useFormStatus();
-  return (
-    <button className="btn secondary small" type="submit" disabled={pending}>
-      {pending ? 'Saving…' : 'Update'}
-    </button>
-  );
-}
-
-// Qualification & status form. Shows the green confirmation inline (via
-// useFormState) so it always appears — no redirect that iPhone could drop.
+// Qualification & status form. Submits via the server action, shows the green
+// confirmation inline (client state), then refreshes the page data. No redirect,
+// so the message reliably appears — including on iPhone.
 export default function QualStatusForm({ leadId, qualification, status, propertyType, bedrooms }) {
-  const [state, action] = useFormState(updateLead, null);
+  const [msg, setMsg] = useState(null);
+  const [pending, startTransition] = useTransition();
+  const router = useRouter();
+
+  function onSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    startTransition(async () => {
+      try {
+        const res = await updateLead(null, formData);
+        setMsg(res);
+        if (res?.ok) router.refresh();
+      } catch {
+        setMsg({ error: 'Could not save — please try again.' });
+      }
+    });
+  }
+
   return (
-    <form action={action}>
-      {state?.ok ? <div className="alert ok" role="status">{state.ok}</div> : null}
-      {state?.error ? <div className="alert error" role="alert">{state.error}</div> : null}
+    <form onSubmit={onSubmit}>
+      {msg?.ok ? <div className="alert ok" role="status">{msg.ok}</div> : null}
+      {msg?.error ? <div className="alert error" role="alert">{msg.error}</div> : null}
       <input type="hidden" name="lead_id" value={leadId} />
       <div className="form-grid">
         <div className="field">
@@ -60,7 +70,9 @@ export default function QualStatusForm({ leadId, qualification, status, property
           </select>
         </div>
       </div>
-      <SaveButton />
+      <button className="btn secondary small" type="submit" disabled={pending}>
+        {pending ? 'Saving…' : 'Update'}
+      </button>
     </form>
   );
 }
