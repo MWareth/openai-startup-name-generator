@@ -8,6 +8,10 @@
 -- Idempotent.
 -- ============================================================================
 
+-- Add 'marketing' to the user_role enum (run this first / on its own if the
+-- editor complains about using a new enum value in the same transaction).
+alter type public.user_role add value if not exists 'marketing';
+
 create or replace function public.is_marketing()
 returns boolean language sql security definer stable set search_path = public as $$
   select exists (select 1 from public.profiles where id = auth.uid() and role = 'marketing');
