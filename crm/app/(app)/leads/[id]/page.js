@@ -380,30 +380,27 @@ export default async function LeadDetail({ params, searchParams }) {
         </div>
       )}
 
-      {/* Reassignment — direct reassign (admin/marketing) / request (agents). */}
-      <div className="card">
-        <h3>{canRoute ? 'Reassign lead' : 'Request reassignment'}</h3>
-        <p className="small muted">
-          {canRoute
-            ? 'Assign this lead to another agent, or send it to the Lead Pool. Takes effect immediately.'
-            : 'Ask an admin to move this lead to another agent. Only an admin can reassign it.'}
-        </p>
-        {!canRoute && lead.suggested?.full_name ? (
-          <p className="small">Requested: <span className="badge role">{lead.suggested.full_name}</span></p>
-        ) : null}
-        <form action={suggestReassign}>
-          <input type="hidden" name="lead_id" value={lead.id} />
-          <div className="field">
-            <select name="suggested_agent_id" defaultValue={canRoute ? (lead.assigned?.id || '') : (lead.suggested?.id || '')}>
-              <option value="">{canRoute ? '📥 Lead Pool (unassign)' : '— Choose an agent to request —'}</option>
-              {(agents || []).map((a) => (
-                <option key={a.id} value={a.id}>{a.full_name}</option>
-              ))}
-            </select>
-          </div>
-          <button className="btn secondary small" type="submit">{canRoute ? 'Reassign' : 'Send request to admin'}</button>
-        </form>
-      </div>
+      {/* Reassignment — Admin / Support / Marketing only (hidden from agents). */}
+      {canRoute ? (
+        <div className="card">
+          <h3>Reassign lead</h3>
+          <p className="small muted">
+            Assign this lead to another agent, or send it to the Lead Pool. Takes effect immediately.
+          </p>
+          <form action={suggestReassign}>
+            <input type="hidden" name="lead_id" value={lead.id} />
+            <div className="field">
+              <select name="suggested_agent_id" defaultValue={lead.assigned?.id || ''}>
+                <option value="">📥 Lead Pool (unassign)</option>
+                {(agents || []).map((a) => (
+                  <option key={a.id} value={a.id}>{a.full_name}</option>
+                ))}
+              </select>
+            </div>
+            <button className="btn secondary small" type="submit">Reassign</button>
+          </form>
+        </div>
+      ) : null}
 
       {isAdmin ? (
         <div className="card" style={{ borderColor: 'var(--red)' }}>
