@@ -365,27 +365,25 @@ export async function deleteLead(formData) {
   redirect('/leads?ok=' + encodeURIComponent('Lead deleted.'));
 }
 
-// Log a phone call to the lead's timeline with its outcome (answered / no
-// answer / voicemail). Counts as a 'call' activity, so it also advances the
-// progress stepper and stops the response-SLA clock.
-export async function logCall(formData) {
+// Log that a message was sent to the lead (WhatsApp / SMS) as a timeline note.
+// Returns { ok } / { error } so the confirmation shows inline (no redirect that
+// iPhone could drop). Also pings the admin bell via notifyLeadActivity.
+export async function logMessage(prevState, formData) {
   const { user, profile, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
-  const outcome = String(formData.get('outcome') || '');
-  const LABEL = { answered: 'Answered ✅', no_answer: 'No answer ❌', voicemail: 'Left voicemail 📩' };
-  const label = LABEL[outcome] || 'Called';
+  const channel = String(formData.get('channel') || 'whatsapp');
+  const label = channel === 'sms' ? '✉️ Sent an SMS' : '📲 Sent a WhatsApp message';
   const today = new Date().toISOString().slice(0, 10);
   const { error } = await supabase.from('lead_activities').insert({
     lead_id: leadId,
     agent_id: user.id,
-    type: 'call',
+    type: 'note',
     occurred_on: today,
-    body: `📞 Phone call — ${label}`,
+    body: label,
   });
-  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
-  await notifyLeadActivity({ supabase, user, profile, leadId, typeLabel: 'Call', body: `Phone call — ${label}` });
-  revalidatePath(`/leads/${leadId}`);
-  redirect(`/leads/${leadId}?ok=` + encodeURIComponent(`Call logged — ${label}.`));
+  if (error) return { error: error.message };
+  await notifyLeadActivity({ supabase, user, profile, leadId, typeLabel: 'Message', body: label });
+  return { ok: 'Message note added.' };
 }
 
 export async function suggestReassign(formData) {

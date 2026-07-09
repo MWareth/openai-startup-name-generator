@@ -12,13 +12,14 @@ import {
   waLink,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
-import { addActivity, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon, logCall } from '../actions';
+import { addActivity, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
 import DateField from '@/components/DateField';
 import LeadProgress from '@/components/LeadProgress';
 import QualStatusForm from '@/components/QualStatusForm';
+import MessageLogButtons from '@/components/MessageLogButtons';
 
 export const dynamic = 'force-dynamic';
 
@@ -234,20 +235,7 @@ export default async function LeadDetail({ params, searchParams }) {
                 </a>
               ) : null}
             </div>
-            {lead.phone ? (
-              <div style={{ marginTop: 8 }}>
-                <div className="small muted" style={{ marginBottom: 4 }}>After calling, log the outcome:</div>
-                <div className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
-                  {[['answered', '✅ Answered'], ['no_answer', '❌ No answer'], ['voicemail', '📩 Voicemail']].map(([v, l]) => (
-                    <form key={v} action={logCall}>
-                      <input type="hidden" name="lead_id" value={lead.id} />
-                      <input type="hidden" name="outcome" value={v} />
-                      <button className="btn ghost small" type="submit">{l}</button>
-                    </form>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+            {lead.phone ? <MessageLogButtons leadId={lead.id} /> : null}
           </div>
 
           <div className="card">
