@@ -77,16 +77,18 @@ export async function updateAgent(formData) {
     if (eErr) back(eErr.message);
   }
 
-  const { error } = await admin
-    .from('profiles')
-    .update({
-      full_name: String(formData.get('full_name') || '').trim(),
-      email: email || null,
-      role: String(formData.get('role') || 'agent'),
-      seniority: String(formData.get('seniority') || 'junior'),
-      avatar_url: emptyToNull(formData.get('avatar_url')),
-    })
-    .eq('id', id);
+  const role = String(formData.get('role') || 'agent');
+  const patch = {
+    full_name: String(formData.get('full_name') || '').trim(),
+    email: email || null,
+    role,
+    avatar_url: emptyToNull(formData.get('avatar_url')),
+  };
+  // Only agents carry a commission scheme; leave non-agents' seniority untouched.
+  if (role === 'agent' && formData.get('seniority')) {
+    patch.seniority = String(formData.get('seniority'));
+  }
+  const { error } = await admin.from('profiles').update(patch).eq('id', id);
   if (error) back(error.message);
   revalidatePath(ADMIN);
   back('Agent updated', true);

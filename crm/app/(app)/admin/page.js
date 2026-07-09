@@ -268,11 +268,15 @@ export default async function AdminPage({ searchParams }) {
                           <option value="c_suite">C-Suite</option>
                           <option value="admin">Admin (Owner)</option>
                         </select>
-                        <select name="seniority" defaultValue={p.seniority} style={{ width: 140 }}>
-                          <option value="junior">Junior 50/50</option>
-                          <option value="senior">Senior 55/45</option>
-                          <option value="team_leader">Team Leader 60/40</option>
-                        </select>
+                        {p.role === 'agent' ? (
+                          <select name="seniority" defaultValue={p.seniority} style={{ width: 140 }}>
+                            <option value="junior">Junior 50/50</option>
+                            <option value="senior">Senior 55/45</option>
+                            <option value="team_leader">Team Leader 60/40</option>
+                          </select>
+                        ) : (
+                          <span className="small muted" style={{ width: 140 }}>— no scheme —</span>
+                        )}
                         <button className="btn secondary small" type="submit">Save</button>
                       </form>
                       {bannedIds.has(p.id) ? <span className="badge lost">Inactive</span> : null}
