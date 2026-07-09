@@ -22,6 +22,7 @@ export default function AddMemberFields() {
           <label>Role</label>
           <select name="role" value={role} onChange={(e) => setRole(e.target.value)}>
             <option value="agent">Agent</option>
+            <option value="marketing">Marketing (leads triage, no money)</option>
             <option value="support">Support (commission collection)</option>
             <option value="director">Director (monitor + full access)</option>
             <option value="c_suite">C-Suite (monitor + full access)</option>
