@@ -45,3 +45,15 @@ export async function requireStaff() {
   if (!hasStaffAccess(ctx.profile)) redirect('/dashboard');
   return ctx;
 }
+
+// Marketing: feeds & triages leads (see all, note, qualify, route, flag fakes),
+// but no money (deals/commission/targets).
+export function hasMarketingAccess(profile) {
+  return !!profile && profile.role === 'marketing';
+}
+
+// Roles that can see ALL leads and route them to any agent / the pool: staff
+// (admin + support + oversight) plus marketing. NOT a money permission.
+export function canRouteLeads(profile) {
+  return hasStaffAccess(profile) || hasMarketingAccess(profile);
+}

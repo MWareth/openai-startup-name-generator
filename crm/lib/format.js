@@ -102,6 +102,7 @@ export const SENIORITY_NAMES = {
 
 export const ROLE_LABELS = {
   agent: 'Agent',
+  marketing: 'Marketing',
   director: 'Director',
   c_suite: 'C-Suite',
   support: 'Support',

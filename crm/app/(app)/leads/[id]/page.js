@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireUser, hasStaffAccess } from '@/lib/auth';
+import { requireUser, hasStaffAccess, hasMarketingAccess, canRouteLeads } from '@/lib/auth';
 import SubmitButton from '@/components/SubmitButton';
 import {
   QUAL_LABELS,
@@ -12,7 +12,7 @@ import {
   waLink,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
-import { addActivity, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon } from '../actions';
+import { addActivity, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon, markLeadFake } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
@@ -25,7 +25,9 @@ export const dynamic = 'force-dynamic';
 
 export default async function LeadDetail({ params, searchParams }) {
   const { user, profile, supabase } = await requireUser();
-  const isAdmin = hasStaffAccess(profile); // admin + support can reassign directly
+  const isAdmin = hasStaffAccess(profile); // admin + support: money + direct reassign
+  const isMarketing = hasMarketingAccess(profile); // triages leads, no money
+  const canRoute = canRouteLeads(profile); // admin + support + marketing route leads directly
   const error = searchParams?.error;
   const ok = searchParams?.ok;
   const today = new Date().toISOString().slice(0, 10);
@@ -247,6 +249,14 @@ export default async function LeadDetail({ params, searchParams }) {
               propertyType={lead.property_type}
               bedrooms={lead.bedrooms}
             />
+            {lead.status !== 'lost' ? (
+              <form action={markLeadFake} style={{ marginTop: 10 }}>
+                <input type="hidden" name="lead_id" value={lead.id} />
+                <button className="btn ghost small" type="submit" style={{ borderColor: 'var(--red)', color: 'var(--red)' }}>
+                  🚫 Flag as fake / spam
+                </button>
+              </form>
+            ) : null}
           </div>
 
         </div>
@@ -286,8 +296,8 @@ export default async function LeadDetail({ params, searchParams }) {
         </div>
       </div>
 
-      {/* Deal section — full deal entry is support/management only. */}
-      {isAdmin ? (
+      {/* Deal section — hidden from Marketing (no money); staff enter the deal. */}
+      {isMarketing ? null : isAdmin ? (
       <div className="card">
         <h3>Close a deal</h3>
         <form action={logDeal}>
@@ -370,28 +380,28 @@ export default async function LeadDetail({ params, searchParams }) {
         </div>
       )}
 
-      {/* Reassignment — request to admin (agents) / direct reassign (admin). */}
+      {/* Reassignment — direct reassign (admin/marketing) / request (agents). */}
       <div className="card">
-        <h3>{isAdmin ? 'Reassign lead' : 'Request reassignment'}</h3>
+        <h3>{canRoute ? 'Reassign lead' : 'Request reassignment'}</h3>
         <p className="small muted">
-          {isAdmin
+          {canRoute
             ? 'Assign this lead to another agent, or send it to the Lead Pool. Takes effect immediately.'
             : 'Ask an admin to move this lead to another agent. Only an admin can reassign it.'}
         </p>
-        {!isAdmin && lead.suggested?.full_name ? (
+        {!canRoute && lead.suggested?.full_name ? (
           <p className="small">Requested: <span className="badge role">{lead.suggested.full_name}</span></p>
         ) : null}
         <form action={suggestReassign}>
           <input type="hidden" name="lead_id" value={lead.id} />
           <div className="field">
-            <select name="suggested_agent_id" defaultValue={isAdmin ? (lead.assigned?.id || '') : (lead.suggested?.id || '')}>
-              <option value="">{isAdmin ? '📥 Lead Pool (unassign)' : '— Choose an agent to request —'}</option>
+            <select name="suggested_agent_id" defaultValue={canRoute ? (lead.assigned?.id || '') : (lead.suggested?.id || '')}>
+              <option value="">{canRoute ? '📥 Lead Pool (unassign)' : '— Choose an agent to request —'}</option>
               {(agents || []).map((a) => (
                 <option key={a.id} value={a.id}>{a.full_name}</option>
               ))}
             </select>
           </div>
-          <button className="btn secondary small" type="submit">{isAdmin ? 'Reassign' : 'Send request to admin'}</button>
+          <button className="btn secondary small" type="submit">{canRoute ? 'Reassign' : 'Send request to admin'}</button>
         </form>
       </div>
 

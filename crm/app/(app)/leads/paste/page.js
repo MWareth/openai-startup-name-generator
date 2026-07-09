@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { requireUser, hasStaffAccess } from '@/lib/auth';
+import { requireUser, canRouteLeads } from '@/lib/auth';
 import PasteLeadForm from '@/components/PasteLeadForm';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PasteLeadPage({ searchParams }) {
   const { profile, supabase } = await requireUser();
-  const isStaff = hasStaffAccess(profile);
+  const isStaff = canRouteLeads(profile); // staff + marketing get the assign dropdown
   const error = searchParams?.error;
 
   let agents = [];

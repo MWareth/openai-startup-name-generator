@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { aed, SENIORITY_NAMES } from '@/lib/format';
 import Avatar from '@/components/Avatar';
@@ -7,7 +8,8 @@ export const dynamic = 'force-dynamic';
 const MEDALS = ['🥇', '🥈', '🥉'];
 
 export default async function LeaderboardPage() {
-  const { user, supabase } = await requireUser();
+  const { user, profile, supabase } = await requireUser();
+  if (profile?.role === 'marketing') redirect('/leads'); // no money for Marketing
   const { data: rows } = await supabase.rpc('agent_leaderboard');
   const board = rows || [];
   const topValue = board.length ? Number(board[0].total_value) || 0 : 0;

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { requireUser, hasAdminAccess, hasStaffAccess } from '@/lib/auth';
+import { requireUser, hasAdminAccess, hasStaffAccess, hasMarketingAccess } from '@/lib/auth';
 import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import NavLink from '@/components/NavLink';
 import Avatar from '@/components/Avatar';
@@ -16,6 +16,7 @@ export default async function AppLayout({ children }) {
   if (profile?.must_change_password) redirect('/set-password');
   const isAdmin = hasAdminAccess(profile);
   const isStaff = hasStaffAccess(profile);
+  const isMarketing = hasMarketingAccess(profile);
   const name = profile?.full_name || user.email;
 
   const { count: unread } = await supabase
@@ -42,10 +43,11 @@ export default async function AppLayout({ children }) {
           <NavLink href="/leads">Leads</NavLink>
           <NavLink href="/projects">Projects</NavLink>
           <NavLink href="/proposal">Proposal</NavLink>
-          <NavLink href="/leaderboard">Leaderboard</NavLink>
-          <NavLink href="/cold-calls">Cold Calls</NavLink>
-          <NavLink href="/targets">My Targets</NavLink>
-          <NavLink href="/training">Training</NavLink>
+          {/* Money / agent-only tabs — hidden from Marketing. */}
+          {!isMarketing ? <NavLink href="/leaderboard">Leaderboard</NavLink> : null}
+          {!isMarketing ? <NavLink href="/cold-calls">Cold Calls</NavLink> : null}
+          {!isMarketing ? <NavLink href="/targets">My Targets</NavLink> : null}
+          {!isMarketing ? <NavLink href="/training">Training</NavLink> : null}
           <NavLink href="/profile">My Profile</NavLink>
           {isStaff ? <NavLink href="/commission">Commission</NavLink> : null}
           {isStaff ? <NavLink href="/teams">Teams</NavLink> : null}

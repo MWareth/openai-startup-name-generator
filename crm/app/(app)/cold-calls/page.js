@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import Avatar from '@/components/Avatar';
@@ -8,7 +9,8 @@ const MEDALS = ['🥇', '🥈', '🥉'];
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default async function ColdCallsPage() {
-  const { user } = await requireUser();
+  const { user, profile } = await requireUser();
+  if (profile?.role === 'marketing') redirect('/leads'); // no money for Marketing
 
   // Month boundary in Dubai time (the whole team is Dubai-based).
   const dubaiYMD = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Dubai', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());

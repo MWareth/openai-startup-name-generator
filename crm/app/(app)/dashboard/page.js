@@ -24,6 +24,8 @@ export default async function Dashboard() {
 
   // Support staff work from the commission queue, not a sales dashboard.
   if (profile?.role === 'support') redirect('/commission');
+  // Marketing works from the leads list (no sales dashboard / money).
+  if (profile?.role === 'marketing') redirect('/leads');
 
   if (isAdmin) return <AdminDashboard supabase={supabase} name={profile.full_name} />;
 

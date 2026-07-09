@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { requireUser, requireStaff, hasAdminAccess, hasStaffAccess, STAFF_ROLES } from '@/lib/auth';
+import { requireUser, requireStaff, hasAdminAccess, hasStaffAccess, canRouteLeads, STAFF_ROLES } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { writeTolerant } from '@/lib/db';
 import { computeCommission } from '@/lib/commission';
@@ -386,13 +386,35 @@ export async function logMessage(prevState, formData) {
   return { ok: 'Message note added.' };
 }
 
+// Flag a lead as fake / spam: move it to Lost and drop a note. Any agent (on
+// their own lead), marketing, or admin can do this — RLS governs who can update.
+export async function markLeadFake(formData) {
+  const { user, supabase } = await requireUser();
+  const leadId = String(formData.get('lead_id'));
+  const { error } = await writeTolerant(
+    (p) => supabase.from('leads').update(p).eq('id', leadId),
+    { status: 'lost' }
+  );
+  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  await supabase.from('lead_activities').insert({
+    lead_id: leadId,
+    agent_id: user.id,
+    type: 'note',
+    occurred_on: new Date().toISOString().slice(0, 10),
+    body: '🚫 Flagged as fake / spam',
+  });
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath('/leads');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Flagged as fake — moved to Lost.'));
+}
+
 export async function suggestReassign(formData) {
   const { user, profile, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
   const selected = emptyToNull(formData.get('suggested_agent_id'));
-  const admin = hasStaffAccess(profile); // admin + support reassign directly
+  const admin = canRouteLeads(profile); // admin + support + marketing reassign directly
 
-  // Admin/owner reassigns the lead directly; agents can only propose (the DB
+  // Admin/marketing reassign the lead directly; agents can only propose (the DB
   // trigger blocks them from changing assigned_agent_id).
   const patch = admin
     ? { assigned_agent_id: selected, suggested_agent_id: null }

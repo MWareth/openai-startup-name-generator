@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { getTargetProgress } from '@/lib/targets';
 import { aed, pct, formatDate, SENIORITY_NAMES } from '@/lib/format';
@@ -6,6 +7,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function TargetsPage() {
   const { user, profile, supabase } = await requireUser();
+  if (profile?.role === 'marketing') redirect('/leads'); // no money for Marketing
 
   const { data: targets } = await supabase
     .from('targets')
