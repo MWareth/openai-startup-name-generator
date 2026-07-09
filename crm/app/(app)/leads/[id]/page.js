@@ -19,7 +19,6 @@ import DealMoneyFields from '@/components/DealMoneyFields';
 import DateField from '@/components/DateField';
 import LeadProgress from '@/components/LeadProgress';
 import QualStatusForm from '@/components/QualStatusForm';
-import MessageLogButtons from '@/components/MessageLogButtons';
 
 export const dynamic = 'force-dynamic';
 
@@ -237,7 +236,6 @@ export default async function LeadDetail({ params, searchParams }) {
                 </a>
               ) : null}
             </div>
-            {lead.phone ? <MessageLogButtons leadId={lead.id} /> : null}
           </div>
 
           <div className="card">
