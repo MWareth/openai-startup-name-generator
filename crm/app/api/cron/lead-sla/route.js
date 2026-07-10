@@ -106,6 +106,7 @@ export async function GET(request) {
         link: `/leads/${l.id}`,
         leadId: l.id,
         cta: 'Open the lead',
+        push: false, // already pushed above
       });
       await admin.from('leads').update({ sla_alerted_at: new Date().toISOString() }).eq('id', l.id);
       alerted += 1;

@@ -179,6 +179,7 @@ export async function reassignLead(formData) {
       body: 'A manager assigned you this lead.',
       link: `/leads/${leadId}`,
       leadId,
+      push: false, // already pushed above
     });
   }
 

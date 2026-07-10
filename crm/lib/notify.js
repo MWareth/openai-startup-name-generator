@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin';
 import { sendEmail, notificationEmail } from '@/lib/email';
+import { sendPushToUser } from '@/lib/push';
 
 // Notification types that represent OUTSTANDING WORK — they keep the bell lit
 // even after the user has seen them, and only clear once the work is done
@@ -34,7 +35,7 @@ async function insertNotifications(admin, rows) {
 // email them. Inserts via the service-role client so it works regardless of who
 // triggered it (RLS only governs reads). Fails silently (e.g. before migration
 // 0013, or if email isn't configured) so it never blocks the action.
-export async function notify({ userId, type = 'lead_assigned', title, body, link, leadId, email = true, cta }) {
+export async function notify({ userId, type = 'lead_assigned', title, body, link, leadId, email = true, push = true, cta }) {
   if (!userId || !title) return;
   const admin = createAdminClient();
   try {
@@ -51,6 +52,15 @@ export async function notify({ userId, type = 'lead_assigned', title, body, link
     ]);
   } catch (e) {
     // no-op — in-app insert failed (e.g. before migration 0013)
+  }
+  // Also push to the recipient's phone(s), so notes/reminders reach them even
+  // when the app is closed. Silently skipped if push isn't set up / subscribed.
+  if (push) {
+    try {
+      await sendPushToUser(userId, { title, body: body || '', url: link || '/notifications' });
+    } catch (e) {
+      // no-op — never let a push failure break the triggering action
+    }
   }
   if (email) {
     try {

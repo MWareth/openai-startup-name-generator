@@ -45,6 +45,7 @@ export async function GET(request) {
       body: `Due or overdue: ${preview}. Please action them and update the lead.`,
       link: '/dashboard',
       cta: 'View my leads',
+      push: false, // already pushed above
     });
     notified += 1;
   }

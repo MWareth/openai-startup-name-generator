@@ -46,6 +46,7 @@ async function notifyLeadActivity({ supabase, user, profile, leadId, typeLabel, 
       link: `/leads/${leadId}`,
       leadId,
       email: false,
+      push: false, // agent activity feed → in-app only, don't buzz every admin's phone
     });
   }
 }
@@ -149,6 +150,7 @@ export async function createLead(formData) {
       body: `${profile?.full_name || 'A manager'} assigned you this lead.`,
       link: `/leads/${data.id}`,
       leadId: data.id,
+      push: false, // already pushed above
     });
   }
 
@@ -463,6 +465,7 @@ export async function suggestReassign(formData) {
       body: `${profile?.full_name || 'A manager'} assigned you this lead.`,
       link: `/leads/${leadId}`,
       leadId,
+      push: false, // already pushed above
     });
   } else if (!admin && selected) {
     // Agent proposed a reassignment → tell management.
