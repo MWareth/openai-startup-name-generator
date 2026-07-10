@@ -4,6 +4,20 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 
+// Called when the notifications page is opened: everything is now "seen", so
+// mark it read. Action-required items stay on the bell via their own
+// resolved_at (unaffected by read_at), so they remain lit until the work is
+// done. No redirect — the client refreshes so the bell updates immediately.
+export async function markSeenOnView() {
+  const { user, supabase } = await requireUser();
+  await supabase
+    .from('notifications')
+    .update({ read_at: new Date().toISOString() })
+    .eq('user_id', user.id)
+    .is('read_at', null);
+  revalidatePath('/dashboard');
+}
+
 export async function markAllRead() {
   const { user, supabase } = await requireUser();
   await supabase

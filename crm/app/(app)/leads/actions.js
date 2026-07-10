@@ -7,7 +7,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { writeTolerant } from '@/lib/db';
 import { computeCommission } from '@/lib/commission';
 import { sendPushToUser } from '@/lib/push';
-import { notify, notifyManagement } from '@/lib/notify';
+import { notify, notifyManagement, resolveNotifications } from '@/lib/notify';
 import { ACTIVITY_LABELS, STATUS_LABELS, QUAL_LABELS } from '@/lib/format';
 
 // Route a lead update to the right bell:
@@ -174,6 +174,12 @@ export async function addActivity(formData) {
 
   await notifyLeadActivity({ supabase, user, profile, leadId, typeLabel: ACTIVITY_LABELS[type] || 'Update', body });
 
+  // Acting on the lead resolves its action-required notifications for this user
+  // (so "new lead not contacted" / SLA / docs reminders drop off the bell), plus
+  // any general "update your leads" reminder.
+  await resolveNotifications({ userId: user.id, leadId, types: ['lead_assigned', 'lead_sla', 'deal_docs'] });
+  await resolveNotifications({ userId: user.id, types: ['update_leads'] });
+
   // Optionally schedule a follow-up from the same form.
   const nextFollowUp = emptyToNull(formData.get('next_follow_up'));
   if (nextFollowUp) {
@@ -261,7 +267,7 @@ export async function deleteFollowUp(formData) {
 // on the form (no redirect) — reliable on iPhone, where the redirect message was
 // getting dropped.
 export async function updateLead(prevState, formData) {
-  const { supabase } = await requireUser();
+  const { user, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
 
   const patch = {};
@@ -274,6 +280,11 @@ export async function updateLead(prevState, formData) {
 
   const { error } = await writeTolerant((p) => supabase.from('leads').update(p).eq('id', leadId), patch);
   if (error) return { error: error.message };
+
+  // Changing status is acting on the lead → clear its action reminders.
+  if (patch.status) {
+    await resolveNotifications({ userId: user.id, leadId, types: ['lead_assigned', 'lead_sla'] });
+  }
 
   const parts = [];
   if (patch.status) parts.push(`Status → ${STATUS_LABELS[patch.status] || patch.status}`);

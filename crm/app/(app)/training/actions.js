@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { gradeAttempt } from '@/lib/quiz';
-import { notify } from '@/lib/notify';
+import { notify, resolveNotifications } from '@/lib/notify';
 
 // Submit a quiz attempt. Grading uses the service-role client so answers stay
 // secret and the score can't be forged from the browser. One attempt per user.
@@ -62,6 +62,9 @@ export async function submitAttempt(formData) {
     answers,
   });
   if (error) redirect('/training?error=' + encodeURIComponent(error.message));
+
+  // Completing the test clears the "test to take" reminder off the bell.
+  await resolveNotifications({ userId: user.id, types: ['test_assigned'] });
 
   // Notify the member of their result.
   await notify({

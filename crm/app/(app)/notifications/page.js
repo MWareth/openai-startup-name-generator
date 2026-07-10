@@ -1,6 +1,7 @@
 import { requireUser } from '@/lib/auth';
 import { formatDate } from '@/lib/format';
-import { markAllRead, clearRead, openNotification } from './actions';
+import { markAllRead, clearRead, openNotification, markSeenOnView } from './actions';
+import MarkSeenOnMount from '@/components/MarkSeenOnMount';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,13 +26,22 @@ export default async function NotificationsPage({ searchParams }) {
     .limit(100);
 
   const unread = (items || []).filter((n) => !n.read_at).length;
+  // Still-open action items keep the bell lit even once seen.
+  const actionNeeded = (items || []).filter((n) => n.requires_action && !n.resolved_at).length;
 
   return (
     <div className="stack" style={{ maxWidth: 720 }}>
+      {/* Opening this page marks everything seen; the bell then shows only the
+          action items still outstanding. */}
+      <MarkSeenOnMount action={markSeenOnView} />
       <div className="spread">
         <div>
           <h1>Notifications</h1>
-          <p className="muted">{unread ? `${unread} unread` : 'You’re all caught up.'}</p>
+          <p className="muted">
+            {actionNeeded
+              ? `${actionNeeded} need${actionNeeded === 1 ? 's' : ''} action`
+              : 'You’re all caught up.'}
+          </p>
         </div>
         <div className="row" style={{ gap: 8 }}>
           {unread ? (
@@ -59,6 +69,9 @@ export default async function NotificationsPage({ searchParams }) {
                   <div style={{ fontWeight: n.read_at ? 500 : 700 }}>
                     {!n.read_at ? <span style={{ color: 'var(--gold)' }}>● </span> : null}
                     {n.title}
+                    {n.requires_action && !n.resolved_at ? (
+                      <span className="badge lost" style={{ marginLeft: 8, verticalAlign: 'middle' }}>Action needed</span>
+                    ) : null}
                   </div>
                   {n.body ? <div className="small muted">{n.body}</div> : null}
                   <div className="small muted">{timeAgo(n.created_at)}</div>

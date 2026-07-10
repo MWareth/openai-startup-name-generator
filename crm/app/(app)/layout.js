@@ -19,11 +19,27 @@ export default async function AppLayout({ children }) {
   const isMarketing = hasMarketingAccess(profile);
   const name = profile?.full_name || user.email;
 
-  const { count: unread } = await supabase
-    .from('notifications')
-    .select('id', { count: 'exact', head: true })
-    .eq('user_id', user.id)
-    .is('read_at', null);
+  // Bell = pending items: informational ones you haven't seen, plus
+  // action-required ones (assigned lead not yet contacted, SLA breach, admin
+  // reminders, a test to take) that aren't resolved yet — those stay lit even
+  // after you've seen them. Falls back to plain unread before migration 0026.
+  let unread = 0;
+  try {
+    const { count, error } = await supabase
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .or('and(requires_action.is.false,read_at.is.null),and(requires_action.is.true,resolved_at.is.null)');
+    if (error) throw error;
+    unread = count || 0;
+  } catch (e) {
+    const { count } = await supabase
+      .from('notifications')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id)
+      .is('read_at', null);
+    unread = count || 0;
+  }
 
   return (
     <div className="shell">
