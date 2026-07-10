@@ -135,7 +135,7 @@ export default function PasteLeadForm({ agents = [], isStaff = false }) {
         </div>
         <div className="form-grid">
           <div className="field"><label>Source</label><input name="source" value={f.source} onChange={(e) => set('source', e.target.value)} /></div>
-          <div className="field"><label>Budget (AED)</label><input name="budget" type="number" value={f.budget} onChange={(e) => set('budget', e.target.value)} /></div>
+          <div className="field"><label>Budget (AED)</label><input name="budget" type="text" inputMode="numeric" value={f.budget ? Number(f.budget).toLocaleString('en-US') : ''} onChange={(e) => set('budget', e.target.value.replace(/[^0-9.]/g, ''))} /></div>
         </div>
         <div className="form-grid">
           <div className="field"><label>Community / area</label><input name="community" value={f.community} onChange={(e) => set('community', e.target.value)} /></div>

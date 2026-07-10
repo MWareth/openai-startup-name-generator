@@ -1,7 +1,8 @@
 import Link from 'next/link';
-import { requireUser, hasStaffAccess } from '@/lib/auth';
+import { requireUser, hasStaffAccess, canCarryLeads } from '@/lib/auth';
 import { PROPERTY_TYPES, BEDROOM_OPTIONS } from '@/lib/format';
 import SubmitButton from '@/components/SubmitButton';
+import MoneyInput from '@/components/MoneyInput';
 import { createLead } from '../actions';
 
 export const dynamic = 'force-dynamic';
@@ -19,7 +20,7 @@ export default async function NewLeadPage({ searchParams }) {
       .select('id, full_name')
       .in('role', ['agent', 'admin'])
       .order('full_name');
-    assignees = data || [];
+    assignees = (data || []).filter(canCarryLeads);
   }
 
   const { data: areaRows } = await supabase.from('areas').select('name').order('name');
@@ -77,7 +78,7 @@ export default async function NewLeadPage({ searchParams }) {
           </div>
           <div className="field">
             <label htmlFor="budget">Budget (AED)</label>
-            <input id="budget" name="budget" type="number" min="0" step="1000" />
+            <MoneyInput id="budget" name="budget" placeholder="e.g. 1,200,000" />
           </div>
         </div>
         <div className="form-grid">

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireUser, hasStaffAccess, hasMarketingAccess, canRouteLeads } from '@/lib/auth';
+import { requireUser, hasStaffAccess, hasMarketingAccess, canRouteLeads, canCarryLeads } from '@/lib/auth';
 import SubmitButton from '@/components/SubmitButton';
 import {
   QUAL_LABELS,
@@ -16,6 +16,7 @@ import { addActivity, updateLeadDetails, deleteLead, suggestReassign, logDeal, m
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
+import MoneyInput from '@/components/MoneyInput';
 import DateField from '@/components/DateField';
 import LeadProgress from '@/components/LeadProgress';
 import QualStatusForm from '@/components/QualStatusForm';
@@ -123,13 +124,14 @@ export default async function LeadDetail({ params, searchParams }) {
     return { key: item.key, icon: '✅', title: 'Follow-up done', when: f.done_at, note: `Was due ${fmtDue(f)}` };
   });
 
-  // Other agents to suggest the lead to.
-  const { data: agents } = await supabase
+  // Other agents to suggest the lead to (non-selling admins like Zoheb excluded).
+  const { data: agentsRaw } = await supabase
     .from('profiles')
     .select('id, full_name')
     .in('role', ['agent', 'admin'])
     .neq('id', user.id)
     .order('full_name');
+  const agents = (agentsRaw || []).filter(canCarryLeads);
 
   return (
     <div className="stack">
@@ -210,7 +212,7 @@ export default async function LeadDetail({ params, searchParams }) {
                   </datalist>
                 </div>
                 <div className="field"><label>Budget (AED)</label>
-                  <input name="budget" type="number" min="0" step="1000" defaultValue={lead.budget || ''} readOnly={lockField(lead.budget)} className={lockField(lead.budget) ? 'locked' : undefined} />
+                  <MoneyInput name="budget" defaultValue={lead.budget || ''} readOnly={lockField(lead.budget)} className={lockField(lead.budget) ? 'locked' : undefined} />
                 </div>
               </div>
               <div className="form-grid">

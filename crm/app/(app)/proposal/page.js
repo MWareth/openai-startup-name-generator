@@ -1,5 +1,6 @@
 import { requireUser } from '@/lib/auth';
 import { aed } from '@/lib/format';
+import MoneyInput from '@/components/MoneyInput';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +33,7 @@ export default async function ProposalPage({ searchParams }) {
       <form className="card" method="get">
         <div className="form-grid">
           <div className="field"><label>Client name</label><input name="client" defaultValue={client} placeholder="e.g. Mr. Ahmed" /></div>
-          <div className="field"><label>Budget up to (AED)</label><input name="budget" type="number" defaultValue={budget} placeholder="850000" /></div>
+          <div className="field"><label>Budget up to (AED)</label><MoneyInput name="budget" defaultValue={budget} placeholder="850,000" /></div>
         </div>
         <div className="form-grid">
           <div className="field">

@@ -1,8 +1,10 @@
 import Link from 'next/link';
-import { requireAdmin } from '@/lib/auth';
+import { requireAdmin, canCarryLeads } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { aed, formatDate, QUAL_LABELS } from '@/lib/format';
 import AddMemberFields from '@/components/AddMemberFields';
+import EditMemberRoleFields from '@/components/EditMemberRoleFields';
+import MoneyInput from '@/components/MoneyInput';
 import Avatar from '@/components/Avatar';
 import DateField from '@/components/DateField';
 import {
@@ -47,9 +49,10 @@ export default async function AdminPage({ searchParams }) {
   );
 
   // People who can carry leads: active agents (incl. team leaders) and the
-  // selling owner/admin. Deactivated (departed) agents are excluded.
+  // selling owner/admin. Deactivated (departed) agents and non-selling admins
+  // (e.g. Zoheb) are excluded.
   const agents = (profiles || []).filter(
-    (p) => (p.role === 'agent' || p.role === 'admin') && !bannedIds.has(p.id)
+    (p) => (p.role === 'agent' || p.role === 'admin') && !bannedIds.has(p.id) && canCarryLeads(p)
   );
 
   const { data: leads } = await supabase
@@ -260,23 +263,7 @@ export default async function AdminPage({ searchParams }) {
                         <input name="full_name" defaultValue={p.full_name} placeholder="Full name" style={{ flex: '1 1 120px' }} />
                         <input name="email" type="email" defaultValue={p.email || ''} placeholder="Email" style={{ flex: '1 1 170px' }} />
                         <input name="avatar_url" defaultValue={p.avatar_url || ''} placeholder="Photo URL" style={{ flex: '1 1 150px' }} />
-                        <select name="role" defaultValue={p.role} style={{ width: 130 }}>
-                          <option value="agent">Agent</option>
-                          <option value="marketing">Marketing</option>
-                          <option value="support">Support</option>
-                          <option value="director">Director</option>
-                          <option value="c_suite">C-Suite</option>
-                          <option value="admin">Admin (Owner)</option>
-                        </select>
-                        {p.role === 'agent' ? (
-                          <select name="seniority" defaultValue={p.seniority} style={{ width: 140 }}>
-                            <option value="junior">Junior 50/50</option>
-                            <option value="senior">Senior 55/45</option>
-                            <option value="team_leader">Team Leader 60/40</option>
-                          </select>
-                        ) : (
-                          <span className="small muted" style={{ width: 140 }}>— no scheme —</span>
-                        )}
+                        <EditMemberRoleFields role={p.role} seniority={p.seniority} />
                         <button className="btn secondary small" type="submit">Save</button>
                       </form>
                       {bannedIds.has(p.id) ? <span className="badge lost">Inactive</span> : null}
@@ -330,7 +317,7 @@ export default async function AdminPage({ searchParams }) {
               </div>
             </div>
             <div className="form-grid">
-              <div className="field"><label>Target amount (AED gross commission)</label><input name="target_amount" type="number" min="0" step="10000" required /></div>
+              <div className="field"><label>Target amount (AED gross commission)</label><MoneyInput name="target_amount" placeholder="e.g. 500,000" required /></div>
               <div className="field"><label>Period start</label><DateField name="period_start" /></div>
             </div>
             <div className="field" style={{ maxWidth: 240 }}><label>Period end</label><DateField name="period_end" /></div>
@@ -377,8 +364,8 @@ export default async function AdminPage({ searchParams }) {
                   <form action={addTier} className="row" style={{ marginTop: 10, gap: 8 }}>
                     <input type="hidden" name="target_id" value={t.id} />
                     <input name="reward_label" placeholder="Reward (e.g. Bali trip)" style={{ flex: '1 1 160px' }} required />
-                    <input name="threshold_amount" type="number" min="0" step="10000" placeholder="Threshold AED" style={{ width: 150 }} required />
-                    <input name="reward_amount" type="number" min="0" step="500" placeholder="Bonus AED (opt)" style={{ width: 140 }} />
+                    <MoneyInput name="threshold_amount" placeholder="Threshold AED" style={{ width: 150 }} required />
+                    <MoneyInput name="reward_amount" placeholder="Bonus AED (opt)" style={{ width: 140 }} />
                     <button className="btn secondary small" type="submit">+ Tier</button>
                   </form>
                 </div>
@@ -417,7 +404,7 @@ export default async function AdminPage({ searchParams }) {
             </div>
             <div className="form-grid">
               <div className="field"><label>Handover</label><input name="handover" placeholder="e.g. Q4 2027" /></div>
-              <div className="field"><label>Starting price (AED)</label><input name="starting_price" type="number" min="0" step="10000" /></div>
+              <div className="field"><label>Starting price (AED)</label><MoneyInput name="starting_price" placeholder="e.g. 1,200,000" /></div>
             </div>
             <div className="field"><label>Payment plan</label><input name="payment_plan" placeholder="e.g. 60/40, 1% monthly" /></div>
             <div className="field"><label>Description</label><textarea name="description" /></div>

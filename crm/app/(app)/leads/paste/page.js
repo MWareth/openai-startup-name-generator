@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { requireUser, canRouteLeads } from '@/lib/auth';
+import { requireUser, canRouteLeads, canCarryLeads } from '@/lib/auth';
 import PasteLeadForm from '@/components/PasteLeadForm';
 
 export const dynamic = 'force-dynamic';
@@ -16,7 +16,7 @@ export default async function PasteLeadPage({ searchParams }) {
       .select('id, full_name')
       .in('role', ['agent', 'admin'])
       .order('full_name');
-    agents = data || [];
+    agents = (data || []).filter(canCarryLeads);
   }
 
   return (
