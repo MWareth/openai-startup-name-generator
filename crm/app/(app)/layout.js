@@ -6,6 +6,7 @@ import NavLink from '@/components/NavLink';
 import Avatar from '@/components/Avatar';
 import PresenceTracker from '@/components/PresenceTracker';
 import Sidebar from '@/components/Sidebar';
+import RegisterServiceWorker from '@/components/RegisterServiceWorker';
 
 export const dynamic = 'force-dynamic';
 
@@ -98,6 +99,7 @@ export default async function AppLayout({ children }) {
         {children}
       </main>
       <PresenceTracker />
+      <RegisterServiceWorker />
     </div>
   );
 }

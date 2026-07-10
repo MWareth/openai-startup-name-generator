@@ -4,6 +4,8 @@ import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import { updateMyProfile } from './actions';
 import { changeMyPassword } from '../../set-password/actions';
 import EnableNotifications from '@/components/EnableNotifications';
+import TestPushButton from '@/components/TestPushButton';
+import { sendTestPush } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,6 +89,33 @@ export default async function ProfilePage({ searchParams }) {
       <div className="card">
         <h3>🔔 Notifications</h3>
         <EnableNotifications vapidPublicKey={process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || ''} />
+        <div style={{ marginTop: 10 }}>
+          <TestPushButton action={sendTestPush} />
+        </div>
+        <details className="small muted" style={{ marginTop: 12 }}>
+          <summary>Not getting notifications? Read this</summary>
+          <div className="stack" style={{ gap: 8, marginTop: 8 }}>
+            <div>
+              <strong>iPhone / iPad:</strong> web notifications only work from the installed app.
+              <ol style={{ margin: '4px 0 0 18px' }}>
+                <li>Open the CRM in <strong>Safari</strong> (not Chrome).</li>
+                <li>Tap the <strong>Share</strong> icon → <strong>Add to Home Screen</strong>.</li>
+                <li>Open the app from the new <strong>home-screen icon</strong>.</li>
+                <li>Go to Profile → tap <strong>Enable notifications</strong> → <strong>Allow</strong>.</li>
+                <li>Send the test above. (Requires iOS 16.4 or newer.)</li>
+              </ol>
+            </div>
+            <div>
+              <strong>Samsung / Android:</strong> notifications only survive in the background when the app is <strong>installed</strong>.
+              <ol style={{ margin: '4px 0 0 18px' }}>
+                <li>Open the CRM in <strong>Chrome</strong>.</li>
+                <li>Menu <strong>⋮</strong> → <strong>Install app / Add to Home screen</strong>.</li>
+                <li>Open it from the installed icon, then <strong>Enable notifications</strong>.</li>
+                <li>In phone Settings, allow notifications for the app and turn <strong>off battery optimization</strong> for it.</li>
+              </ol>
+            </div>
+          </div>
+        </details>
       </div>
 
       {/* Change password */}

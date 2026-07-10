@@ -4,6 +4,30 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { sendPushDiag } from '@/lib/push';
+
+// Self-test: push a notification to the current user's own devices and report
+// exactly what happened, so we can tell where push breaks on each phone.
+export async function sendTestPush() {
+  const { user } = await requireUser();
+  const res = await sendPushDiag(user.id, {
+    title: '🔔 Test from Bullish CRM',
+    body: 'If you can see this, push works on this device.',
+    url: '/notifications',
+  });
+  if (!res.configured) {
+    return { error: 'Push isn’t set up on the server yet — the VAPID keys are missing in Vercel.' };
+  }
+  if (res.noSubs) {
+    return { error: 'This device isn’t subscribed yet. Tap “Enable notifications on this device” above first, then test.' };
+  }
+  if (res.sent > 0) {
+    return {
+      ok: `Sent to ${res.sent} device${res.sent === 1 ? '' : 's'}. If nothing appears in a few seconds, the phone’s OS is blocking it (see the checklist).`,
+    };
+  }
+  return { error: res.errors[0] || 'Could not send to any device — try Enable again.' };
+}
 
 // Lets a signed-in user set ONLY their own photo. Uses the service-role client
 // but the action is hard-scoped to avatar_url for the current user's id, so
