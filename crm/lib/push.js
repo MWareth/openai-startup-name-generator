@@ -32,7 +32,11 @@ export async function sendPushDiag(userId, payload) {
   const body = JSON.stringify(payload);
   for (const s of subs) {
     try {
-      await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, body);
+      // Cap each send at 10s so an unreachable push endpoint can't hang the page.
+      await Promise.race([
+        webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, body),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timed out reaching the push service')), 10000)),
+      ]);
       sent += 1;
     } catch (e) {
       failed += 1;
