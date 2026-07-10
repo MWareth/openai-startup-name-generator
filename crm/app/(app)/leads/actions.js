@@ -333,23 +333,27 @@ export async function updateLeadDetails(formData) {
     property_interest: emptyToNull(formData.get('property_interest')),
   };
 
+  // Agents may edit these freely; identity fields (name/phone/email) they can
+  // only fill when blank, never overwrite.
+  const AGENT_EDITABLE = ['source', 'budget', 'community', 'property_interest'];
+  const IDENTITY = ['name', 'phone', 'email'];
+
   let patch;
   if (staff) {
     if (!name) redirect(`/leads/${leadId}?error=` + encodeURIComponent('Name is required.'));
     patch = desired;
   } else {
-    // Agents: only apply values to fields that are currently blank.
     const { data: cur } = await supabase.from('leads').select('*').eq('id', leadId).single();
     patch = {};
-    for (const k of Object.keys(desired)) {
+    // Source / budget / area / project — apply whatever the agent entered.
+    for (const k of AGENT_EDITABLE) patch[k] = desired[k];
+    // Name / phone / email — only fill in a currently-blank value.
+    for (const k of IDENTITY) {
       const curVal = cur ? cur[k] : null;
       const blank = curVal === null || curVal === undefined || String(curVal).trim() === '';
       const val = desired[k];
       const hasNew = val !== null && val !== undefined && String(val).trim() !== '';
       if (blank && hasNew) patch[k] = val;
-    }
-    if (!Object.keys(patch).length) {
-      redirect(`/leads/${leadId}?ok=` + encodeURIComponent('No changes — you can only fill blank fields. Ask an admin to change saved details.'));
     }
   }
 

@@ -70,12 +70,11 @@ export default async function LeadDetail({ params, searchParams }) {
   else if (lead.status === 'lost') { reached = -1; leadLost = true; }
   else reached = PIPELINE_ORDER.indexOf(lead.status) - 1; // current stage = highlighted
 
-  // Contact fields: agents may only fill blanks (a filled field is locked);
-  // admin/support can change anything.
+  // Identity fields (name / phone / email): agents may only fill blanks — a
+  // filled one is locked. Everything else (source, budget, area, project) agents
+  // can edit freely. Admin/support can change anything.
   const lockField = (v) => !isAdmin && v != null && String(v).trim() !== '';
-  const contactAllFilled = [lead.name, lead.phone, lead.email, lead.source, lead.budget, lead.community, lead.property_interest]
-    .every((v) => v != null && String(v).trim() !== '');
-  const canSaveContact = isAdmin || !contactAllFilled;
+  const canSaveContact = true; // agents always have editable fields (budget/area/project)
 
   // Merge activities + follow-up events into one timeline, newest first.
   const timeline = [
@@ -185,7 +184,7 @@ export default async function LeadDetail({ params, searchParams }) {
             <h3>Contact details</h3>
             {!isAdmin ? (
               <p className="small muted" style={{ marginTop: 0 }}>
-                You can fill in blank fields. Details already saved are locked — ask an admin to change them.
+                You can edit the source, budget, area and project. Name, phone and email are locked once saved — ask an admin to change those.
               </p>
             ) : null}
             <form action={updateLeadDetails} className="stack" style={{ gap: 10 }}>
@@ -204,7 +203,7 @@ export default async function LeadDetail({ params, searchParams }) {
               <div className="form-grid">
                 <div className="field">
                   <label>Source</label>
-                  <input name="source" defaultValue={lead.source || ''} list="lead-source-options" autoComplete="off" readOnly={lockField(lead.source)} className={lockField(lead.source) ? 'locked' : undefined} />
+                  <input name="source" defaultValue={lead.source || ''} list="lead-source-options" autoComplete="off" />
                   <datalist id="lead-source-options">
                     <option value="Cold Call" /><option value="Instagram" /><option value="Referral" />
                     <option value="Bayut" /><option value="Property Finder" /><option value="Website" />
@@ -212,15 +211,15 @@ export default async function LeadDetail({ params, searchParams }) {
                   </datalist>
                 </div>
                 <div className="field"><label>Budget (AED)</label>
-                  <MoneyInput name="budget" defaultValue={lead.budget || ''} readOnly={lockField(lead.budget)} className={lockField(lead.budget) ? 'locked' : undefined} />
+                  <MoneyInput name="budget" defaultValue={lead.budget || ''} />
                 </div>
               </div>
               <div className="form-grid">
                 <div className="field"><label>Community / area</label>
-                  <input name="community" defaultValue={lead.community || ''} readOnly={lockField(lead.community)} className={lockField(lead.community) ? 'locked' : undefined} />
+                  <input name="community" defaultValue={lead.community || ''} />
                 </div>
                 <div className="field"><label>Building / project</label>
-                  <input name="property_interest" defaultValue={lead.property_interest || ''} readOnly={lockField(lead.property_interest)} className={lockField(lead.property_interest) ? 'locked' : undefined} />
+                  <input name="property_interest" defaultValue={lead.property_interest || ''} />
                 </div>
               </div>
               {canSaveContact ? <button className="btn secondary small" type="submit">Save details</button> : null}
