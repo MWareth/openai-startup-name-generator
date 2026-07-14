@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import { requireUser, canRouteLeads } from '@/lib/auth';
 import { formatDate } from '@/lib/format';
-import { contentReady, SCRIPT_LANGUAGES, SCRIPT_TONES, SCRIPT_DURATIONS } from '@/lib/content';
-import SubmitButton from '@/components/SubmitButton';
-import { createContentProject } from './actions';
+import { contentReady } from '@/lib/content';
+import BrochureForm from '@/components/BrochureForm';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60; // brochure reads can take a while
+export const maxDuration = 300; // brochure reads can take a while
 
 export default async function ContentStudioPage({ searchParams }) {
   const { profile, supabase } = await requireUser();
@@ -54,40 +53,7 @@ export default async function ContentStudioPage({ searchParams }) {
       {isCreator ? (
         <div className="card">
           <h3 style={{ marginTop: 0 }}>New project script</h3>
-          <form action={createContentProject} className="stack" style={{ gap: 10 }}>
-            <div className="field">
-              <label>Brochure (PDF) and/or renders (JPG/PNG) — up to 15 MB total</label>
-              <input name="files" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple />
-            </div>
-            <div className="field">
-              <label>Extra details (optional — payment plan, offer, prices not in the brochure)</label>
-              <textarea name="notes" rows={3} placeholder="e.g. Launch offer: 1% monthly, 10% down. Starting AED 1.2M. Handover Q4 2027." />
-            </div>
-            <div className="form-grid">
-              <div className="field">
-                <label>Script language</label>
-                <select name="language" defaultValue="English">
-                  {SCRIPT_LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
-                </select>
-              </div>
-              <div className="field">
-                <label>Length</label>
-                <select name="duration" defaultValue="45">
-                  {SCRIPT_DURATIONS.map((d) => <option key={d} value={d}>{d} seconds</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="field">
-              <label>Tone</label>
-              <select name="tone">
-                {SCRIPT_TONES.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-            </div>
-            <SubmitButton className="btn" pendingLabel="Reading brochure & writing… (up to a minute)">✨ Generate script</SubmitButton>
-            <p className="small muted" style={{ margin: 0 }}>
-              The script only uses facts found in what you upload — it never invents prices or dates.
-            </p>
-          </form>
+          <BrochureForm />
         </div>
       ) : null}
 

@@ -8,7 +8,7 @@ import CopyButton from '@/components/CopyButton';
 import { generateScript, updateScript, approveScript, deleteScript, deleteContentProject, requestVideo } from '../actions';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const FACT_LABELS = {
   developer: 'Developer',

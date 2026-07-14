@@ -11,8 +11,8 @@ import { notify } from '@/lib/notify';
 // Content Studio actions. Creation/editing/approval is for staff + marketing;
 // agents consume approved scripts read-only on the page.
 
-const MAX_TOTAL_BYTES = 15 * 1024 * 1024; // stay well under the 32MB API request cap after base64
-const OK_IMAGE = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const MAX_TOTAL_BYTES = 20 * 1024 * 1024; // stay under the 32MB API request cap after base64
+const OK_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
 
 function fail(path, msg) {
   redirect(`${path}?error=` + encodeURIComponent(msg));
@@ -24,38 +24,51 @@ async function requireCreator() {
   return ctx;
 }
 
-// Upload brochure/renders (and/or paste notes) → extract facts + first script.
-export async function createContentProject(formData) {
-  const { user } = await requireCreator();
-  if (!contentReady()) fail('/content', 'ANTHROPIC_API_KEY is not set in Vercel yet — see the setup note on this page.');
+// Called from the client after files are uploaded straight to Supabase Storage
+// (bypassing Vercel's ~4.5MB request limit). Reads the files, extracts facts,
+// writes the first script, deletes the uploads. Returns {id} or {error} —
+// never redirects, so the form can show inline errors instead of hanging.
+export async function createContentFromUpload(payload) {
+  const { user, profile } = await requireUser();
+  if (!canRouteLeads(profile)) return { error: 'Only admin, support or marketing can create content.' };
+  if (!contentReady()) return { error: 'ANTHROPIC_API_KEY is not set in Vercel yet — see the setup note on this page.' };
 
-  const language = String(formData.get('language') || 'English');
-  const tone = String(formData.get('tone') || 'Bullish default — short, punchy, direct');
-  const durationSec = parseInt(String(formData.get('duration') || '45'), 10) || 45;
-  const notes = String(formData.get('notes') || '').trim();
+  const { files = [], notes = '', language = 'English', tone = 'Bullish default — short, punchy, direct', duration = 45 } = payload || {};
+  const durationSec = parseInt(String(duration), 10) || 45;
+  const cleanNotes = String(notes).trim();
+  if (!files.length && !cleanNotes) return { error: 'Upload a brochure/renders or paste the project details first.' };
 
-  const uploads = formData.getAll('files').filter((f) => f && typeof f.arrayBuffer === 'function' && f.size > 0);
-  if (!uploads.length && !notes) fail('/content', 'Upload a brochure/renders or paste the project details first.');
+  const admin = createAdminClient();
 
+  // Pull the uploaded files down from Storage.
+  const blobs = [];
   let total = 0;
-  const files = [];
-  for (const f of uploads) {
-    total += f.size;
-    if (total > MAX_TOTAL_BYTES) fail('/content', 'Files are too big — keep the total under 15 MB (use the main brochure, not the full media kit).');
-    const mediaType = f.type === 'application/pdf' ? 'application/pdf' : OK_IMAGE.includes(f.type) ? f.type : null;
-    if (!mediaType) fail('/content', `Unsupported file type: ${f.type || f.name}. Use PDF, JPG, PNG or WebP.`);
-    const buf = Buffer.from(await f.arrayBuffer());
-    files.push({ mediaType, base64: buf.toString('base64') });
+  for (const f of files) {
+    const mediaType = OK_TYPES.includes(f.mediaType) ? f.mediaType : null;
+    if (!mediaType) return { error: `Unsupported file type: ${f.mediaType}. Use PDF, JPG, PNG or WebP.` };
+    const { data, error } = await admin.storage.from('brochures').download(f.path);
+    if (error) return { error: 'Could not read the uploaded file: ' + error.message };
+    const buf = Buffer.from(await data.arrayBuffer());
+    total += buf.length;
+    if (total > MAX_TOTAL_BYTES) return { error: 'Files are too big — keep the total under 20 MB.' };
+    blobs.push({ mediaType, base64: buf.toString('base64') });
   }
 
   let result;
   try {
-    result = await extractAndWriteScript({ files, notes, language, tone, durationSec });
+    result = await extractAndWriteScript({ files: blobs, notes: cleanNotes, language, tone, durationSec });
   } catch (e) {
-    fail('/content', 'Generation failed: ' + (e?.message || 'unknown error') + ' — nothing was saved, try again.');
+    if (e?.digest?.startsWith?.('NEXT_REDIRECT')) throw e;
+    return { error: 'Generation failed: ' + (e?.message || 'unknown error') + ' — nothing was saved, try again.' };
   }
 
-  const admin = createAdminClient();
+  // Best-effort cleanup of the uploaded files (facts are stored; originals aren't needed).
+  try {
+    if (files.length) await admin.storage.from('brochures').remove(files.map((f) => f.path));
+  } catch (e) {
+    // no-op
+  }
+
   const facts = {
     project_name: result.project_name,
     developer: result.developer,
@@ -65,12 +78,12 @@ export async function createContentProject(formData) {
     starting_price: result.starting_price,
     unit_types: result.unit_types,
     usps: result.usps || [],
-    notes: notes || undefined,
+    notes: cleanNotes || undefined,
   };
   const { data: project, error } = await admin
     .from('content_projects')
     .insert({
-      name: result.project_name || String(formData.get('name') || 'Untitled project'),
+      name: result.project_name || 'Untitled project',
       developer: result.developer || null,
       area: result.location || null,
       facts,
@@ -78,7 +91,7 @@ export async function createContentProject(formData) {
     })
     .select('id')
     .single();
-  if (error) fail('/content', error.message);
+  if (error) return { error: error.message };
 
   await admin.from('content_scripts').insert({
     project_id: project.id,
@@ -90,7 +103,7 @@ export async function createContentProject(formData) {
   });
 
   revalidatePath('/content');
-  redirect(`/content/${project.id}?ok=` + encodeURIComponent('Script generated — review, edit and approve it below.'));
+  return { id: project.id };
 }
 
 // New script for an existing project (other language / tone / length) — uses
