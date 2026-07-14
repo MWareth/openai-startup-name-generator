@@ -3,7 +3,6 @@ import { requireUser } from '@/lib/auth';
 import Avatar from '@/components/Avatar';
 import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import { updateMyProfile } from './actions';
-import { giveAvatarConsent } from '../content/actions';
 import { changeMyPassword } from '../../set-password/actions';
 import EnableNotifications from '@/components/EnableNotifications';
 import TestPushButton from '@/components/TestPushButton';
@@ -131,37 +130,20 @@ export default async function ProfilePage({ searchParams }) {
       {/* Video avatar */}
       <div className="card">
         <h3>🎥 My video avatar</h3>
-        {!myAvatar?.consent_at ? (
-          <form action={giveAvatarConsent} className="stack" style={{ gap: 10 }}>
-            <p className="small muted" style={{ margin: 0 }}>
-              Set this up once, and the CRM can turn approved project scripts into videos of <strong>you</strong> presenting —
-              in your own voice — without filming each one.
-            </p>
-            <label className="small" style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <input type="checkbox" name="consent" required style={{ marginTop: 3 }} />
-              <span>
-                I agree that Bullish Team may create AI-generated marketing videos using my likeness and voice,
-                for company marketing only. I can withdraw this anytime by telling my admin.
-              </span>
-            </label>
-            <button className="btn secondary" type="submit">Agree & start my avatar setup</button>
-          </form>
-        ) : !(myAvatar?.avatar_id && myAvatar?.voice_id) ? (
-          <div className="stack" style={{ gap: 8 }}>
-            <p className="small" style={{ margin: 0 }}>✅ Consent given. Now record your clip:</p>
-            <ol className="small" style={{ margin: '0 0 0 18px', lineHeight: 1.7 }}>
-              <li>Find good light (face a window) and a quiet room.</li>
-              <li>Phone vertical, camera at eye level, look into the lens.</li>
-              <li>Talk naturally for <strong>2 minutes</strong> — read any project script, pause and smile occasionally.</li>
-              <li>Send the video file to your admin (WhatsApp or Drive link).</li>
-            </ol>
-            <p className="small muted" style={{ margin: 0 }}>⏳ Your admin will finish the setup — you’ll see “Ready” here when done.</p>
-          </div>
-        ) : (
+        {myAvatar?.avatar_id && myAvatar?.voice_id ? (
           <p className="small" style={{ margin: 0 }}>
-            ✅ <strong>Your avatar is ready.</strong> Open <Link href="/content">Content Studio</Link>, pick an approved
-            script, and tap <strong>🎥 Make my video</strong>.
+            ✅ <strong>Ready.</strong> Open <Link href="/content">Content Studio</Link>, pick an approved script,
+            and tap <strong>🎥 Make my video</strong>.
           </p>
+        ) : (
+          <div className="spread" style={{ flexWrap: 'wrap', gap: 8 }}>
+            <p className="small muted" style={{ margin: 0 }}>
+              {myAvatar?.consent_at
+                ? 'Setup in progress — everything you need is in the recording studio.'
+                : 'One 2-minute recording lets the CRM make videos of you presenting projects, in your own voice.'}
+            </p>
+            <Link className="btn secondary small" href="/content/avatar">🎬 Open the recording studio →</Link>
+          </div>
         )}
       </div>
 

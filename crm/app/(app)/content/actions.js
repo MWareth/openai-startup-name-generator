@@ -271,14 +271,16 @@ export async function deleteContentProject(formData) {
 // Agent ticks the likeness-consent box (required before any video).
 export async function giveAvatarConsent(formData) {
   const { user } = await requireUser();
-  if (!formData.get('consent')) redirect('/profile?error=' + encodeURIComponent('Tick the consent box first.'));
+  const back = String(formData.get('back') || '/profile');
+  if (!formData.get('consent')) redirect(`${back}?error=` + encodeURIComponent('Tick the consent box first.'));
   const admin = createAdminClient();
   const { error } = await admin
     .from('avatar_profiles')
     .upsert({ user_id: user.id, consent_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-  if (error) redirect('/profile?error=' + encodeURIComponent(error.message));
+  if (error) redirect(`${back}?error=` + encodeURIComponent(error.message));
   revalidatePath('/profile');
-  redirect('/profile?ok=' + encodeURIComponent('Consent saved — now record your 2-minute clip and send it to your admin.'));
+  revalidatePath('/content/avatar');
+  redirect(`${back}?ok=` + encodeURIComponent('Consent saved — now set up your shot and record the 2-minute read below.'));
 }
 
 // Admin saves a person's HeyGen avatar/voice IDs (after creating the digital twin).

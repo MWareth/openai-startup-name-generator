@@ -8,11 +8,20 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // brochure reads can take a while
 
 export default async function ContentStudioPage({ searchParams }) {
-  const { profile, supabase } = await requireUser();
+  const { user, profile, supabase } = await requireUser();
   const isCreator = canRouteLeads(profile); // admin + support + marketing
   const ok = searchParams?.ok;
   const error = searchParams?.error;
   const ready = contentReady();
+
+  // This user's avatar status (for the strip below the header).
+  const { data: myAvatar } = await supabase
+    .from('avatar_profiles')
+    .select('consent_at, avatar_id, voice_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+    .then((r) => r, () => ({ data: null }));
+  const avatarState = myAvatar?.avatar_id && myAvatar?.voice_id ? 'ready' : myAvatar?.consent_at ? 'pending' : 'none';
 
   const { data: projects } = await supabase
     .from('content_projects')
@@ -38,6 +47,27 @@ export default async function ContentStudioPage({ searchParams }) {
       </div>
       {ok ? <div className="alert ok">{ok}</div> : null}
       {error ? <div className="alert error">{error}</div> : null}
+
+      {/* Personal avatar status strip */}
+      <div className="card" style={avatarState === 'ready' ? { borderColor: '#16a34a' } : undefined}>
+        <div className="spread" style={{ flexWrap: 'wrap', gap: 8 }}>
+          <div className="small">
+            🎥 <strong>My video avatar:</strong>{' '}
+            {avatarState === 'ready' ? (
+              <span style={{ color: '#16a34a', fontWeight: 700 }}>Ready — pick an approved script and tap “Make my video”.</span>
+            ) : avatarState === 'pending' ? (
+              <span className="muted">Waiting for your recording / admin setup.</span>
+            ) : (
+              <span className="muted">Not set up yet — takes one 2-minute recording.</span>
+            )}
+          </div>
+          {avatarState !== 'ready' ? (
+            <Link className="btn secondary small" href="/content/avatar">
+              {avatarState === 'pending' ? 'Open the recording guide →' : 'Set up my avatar →'}
+            </Link>
+          ) : null}
+        </div>
+      </div>
 
       {isCreator && !ready ? (
         <div className="card" style={{ borderColor: 'var(--gold)' }}>

@@ -167,7 +167,7 @@ export default async function ContentProjectPage({ params, searchParams }) {
                 </form>
               ) : (
                 <p className="small muted" style={{ marginTop: 10 }}>
-                  🎥 Want this as a video of you? Set up your avatar first — <Link href="/profile">Profile → My video avatar</Link>.
+                  🎥 Want this as a video of you? <Link href="/content/avatar">Set up your avatar first — takes one 2-minute recording</Link>.
                 </p>
               )
             ) : null}
