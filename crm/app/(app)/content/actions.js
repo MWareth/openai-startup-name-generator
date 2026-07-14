@@ -14,8 +14,16 @@ import { notify } from '@/lib/notify';
 const MAX_TOTAL_BYTES = 20 * 1024 * 1024; // stay under the 32MB API request cap after base64
 const OK_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
 
+// Never echo secrets (API keys etc.) back to the browser in error messages.
+function redact(msg) {
+  return String(msg || 'unknown error')
+    .replace(/sk-ant-[\w-]+/g, 'sk-ant-…[hidden]')
+    .replace(/sk-[A-Za-z0-9_-]{20,}/g, 'sk-…[hidden]')
+    .slice(0, 300);
+}
+
 function fail(path, msg) {
-  redirect(`${path}?error=` + encodeURIComponent(msg));
+  redirect(`${path}?error=` + encodeURIComponent(redact(msg)));
 }
 
 async function requireCreator() {
@@ -76,7 +84,7 @@ export async function createContentFromUpload(payload) {
         const facts = cleanNotes ? { ...match.facts, extra_notes: cleanNotes } : match.facts;
         body = await writeScriptFromFacts({ facts, language, tone, durationSec });
       } catch (e) {
-        return { error: 'Generation failed: ' + (e?.message || 'unknown error') };
+        return { error: 'Generation failed: ' + redact(e?.message) };
       }
       await admin.from('content_scripts').insert({
         project_id: match.id, language, duration_sec: durationSec, tone, body, created_by: user.id,
@@ -106,7 +114,7 @@ export async function createContentFromUpload(payload) {
     result = await extractAndWriteScript({ files: blobs, notes: cleanNotes, language, tone, durationSec });
   } catch (e) {
     if (e?.digest?.startsWith?.('NEXT_REDIRECT')) throw e;
-    return { error: 'Generation failed: ' + (e?.message || 'unknown error') + ' — nothing was saved, try again.' };
+    return { error: 'Generation failed: ' + redact(e?.message) + ' — nothing was saved, try again.' };
   }
 
   // Best-effort cleanup of the uploaded files (facts are stored; originals aren't needed).
