@@ -53,6 +53,48 @@ async function cleanupStaleUploads(admin) {
 
 const normName = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
 
+// Best-effort: harvest the renders embedded in a brochure PDF by scanning for
+// JPEG start/end markers. Most brochures embed photos as JPEGs, so this pulls
+// usable renders without any AI cost. Small images (logos/icons) are skipped.
+const JPEG_SOI = Buffer.from([0xff, 0xd8, 0xff]);
+const JPEG_EOI = Buffer.from([0xff, 0xd9]);
+function harvestJpegs(buf, max = 8) {
+  const out = [];
+  let i = 0;
+  while (out.length < max) {
+    const start = buf.indexOf(JPEG_SOI, i);
+    if (start === -1) break;
+    const end = buf.indexOf(JPEG_EOI, start + 3);
+    if (end === -1) break;
+    const slice = buf.subarray(start, end + 2);
+    if (slice.length >= 80 * 1024 && slice.length <= 8 * 1024 * 1024) out.push(slice);
+    i = end + 2;
+  }
+  return out;
+}
+
+// Upload image buffers to the public assets bucket + register rows.
+// items: [{ buf, contentType, ext }]
+async function saveProjectAssets(admin, projectId, userId, items) {
+  let saved = 0;
+  for (const [idx, it] of items.entries()) {
+    const path = `${projectId}/asset-${Date.now()}-${idx}.${it.ext}`;
+    const { error: upErr } = await admin.storage
+      .from('project-assets')
+      .upload(path, it.buf, { contentType: it.contentType, upsert: true });
+    if (upErr) continue;
+    const { data: pub } = admin.storage.from('project-assets').getPublicUrl(path);
+    if (!pub?.publicUrl) continue;
+    const { error } = await admin.from('content_assets').insert({
+      project_id: projectId, kind: 'image', url: pub.publicUrl, path, created_by: userId,
+    });
+    if (!error) saved += 1;
+  }
+  return saved;
+}
+
+const extOf = (mediaType) => (mediaType === 'image/jpeg' ? 'jpg' : String(mediaType).split('/')[1] || 'bin');
+
 // Called from the client after files are uploaded straight to Supabase Storage
 // (bypassing Vercel's ~4.5MB request limit). Reads the files, extracts facts,
 // writes the first script, deletes the uploads. Returns {id} or {error} —
@@ -73,11 +115,34 @@ export async function createContentFromUpload(payload) {
   const admin = createAdminClient();
   await cleanupStaleUploads(admin);
 
-  // Reuse path: an existing project was picked and no new files — regenerate
-  // from the stored facts (a fraction of the cost, no brochure re-read).
-  if (!files.length && normName(projectName)) {
+  // An existing project was picked:
+  //  • with files → harvest the renders out of the upload into that project's
+  //    gallery, with NO AI read (free).
+  //  • without files → regenerate a script from the stored facts (a fraction
+  //    of the cost, no brochure re-read).
+  if (normName(projectName)) {
     const { data: all } = await admin.from('content_projects').select('id, name, facts');
     const match = (all || []).find((p) => normName(p.name) === normName(projectName));
+
+    if (match && files.length) {
+      const items = [];
+      for (const f of files) {
+        const { data } = await admin.storage.from('brochures').download(f.path);
+        if (!data) continue;
+        const buf = Buffer.from(await data.arrayBuffer());
+        if (f.mediaType === 'application/pdf') {
+          for (const jpeg of harvestJpegs(buf)) items.push({ buf: jpeg, contentType: 'image/jpeg', ext: 'jpg' });
+        } else {
+          items.push({ buf, contentType: f.mediaType, ext: extOf(f.mediaType) });
+        }
+      }
+      const saved = await saveProjectAssets(admin, match.id, user.id, items.slice(0, 10));
+      try { await admin.storage.from('brochures').remove(files.map((f) => f.path)); } catch (e) { /* no-op */ }
+      revalidatePath(`/content/${match.id}`);
+      if (!saved) return { error: 'Couldn’t find usable renders in that file — upload the renders as JPG/PNG images instead.' };
+      return { id: match.id, assetsOnly: true, saved };
+    }
+
     if (match) {
       let body;
       try {
@@ -92,11 +157,14 @@ export async function createContentFromUpload(payload) {
       revalidatePath('/content');
       return { id: match.id };
     }
-    if (!cleanNotes) return { error: `No existing project called “${projectName}” — upload its brochure or paste its details.` };
+    if (!files.length && !cleanNotes) return { error: `No existing project called “${projectName}” — upload its brochure or paste its details.` };
   }
 
-  // Pull the uploaded files down from Storage.
+  // Pull the uploaded files down from Storage. While we're at it, collect the
+  // renders: uploaded images directly, and JPEGs harvested out of PDFs — they
+  // become the project's video-background gallery.
   const blobs = [];
+  const assetItems = [];
   let total = 0;
   for (const f of files) {
     const mediaType = OK_TYPES.includes(f.mediaType) ? f.mediaType : null;
@@ -107,6 +175,11 @@ export async function createContentFromUpload(payload) {
     total += buf.length;
     if (total > MAX_TOTAL_BYTES) return { error: 'Files are too big — keep the total under 20 MB.' };
     blobs.push({ mediaType, base64: buf.toString('base64') });
+    if (mediaType === 'application/pdf') {
+      for (const jpeg of harvestJpegs(buf)) assetItems.push({ buf: jpeg, contentType: 'image/jpeg', ext: 'jpg' });
+    } else {
+      assetItems.push({ buf, contentType: mediaType, ext: extOf(mediaType) });
+    }
   }
 
   let result;
@@ -117,26 +190,8 @@ export async function createContentFromUpload(payload) {
     return { error: 'Generation failed: ' + redact(e?.message) + ' — nothing was saved, try again.' };
   }
 
-  // Best-effort cleanup of the uploaded files (facts are stored; originals
-  // aren't needed). Uploaded IMAGES (renders) are kept: they move to the public
-  // project-assets bucket so they can become video backgrounds later.
-  const keptImages = [];
+  // Best-effort cleanup of the uploaded originals (facts + renders are kept).
   try {
-    for (const f of files) {
-      if (f.mediaType !== 'application/pdf') {
-        const { data: blob } = await admin.storage.from('brochures').download(f.path);
-        if (blob) {
-          const destPath = f.path; // same folder structure, public bucket
-          const { error: upErr } = await admin.storage
-            .from('project-assets')
-            .upload(destPath, blob, { contentType: f.mediaType, upsert: true });
-          if (!upErr) {
-            const { data: pub } = admin.storage.from('project-assets').getPublicUrl(destPath);
-            if (pub?.publicUrl) keptImages.push({ url: pub.publicUrl, path: destPath });
-          }
-        }
-      }
-    }
     if (files.length) await admin.storage.from('brochures').remove(files.map((f) => f.path));
   } catch (e) {
     // no-op
@@ -169,11 +224,7 @@ export async function createContentFromUpload(payload) {
       await admin.from('content_scripts').insert({
         project_id: existing.id, language, duration_sec: durationSec, tone, body: result.script_body, created_by: user.id,
       });
-      if (keptImages.length) {
-        await admin.from('content_assets').insert(
-          keptImages.map((k) => ({ project_id: existing.id, kind: 'image', url: k.url, path: k.path, created_by: user.id }))
-        ).then((r) => r, () => null);
-      }
+      if (assetItems.length) await saveProjectAssets(admin, existing.id, user.id, assetItems.slice(0, 10));
       revalidatePath('/content');
       return { id: existing.id };
     }
@@ -201,11 +252,7 @@ export async function createContentFromUpload(payload) {
     created_by: user.id,
   });
 
-  if (keptImages.length) {
-    await admin.from('content_assets').insert(
-      keptImages.map((k) => ({ project_id: project.id, kind: 'image', url: k.url, path: k.path, created_by: user.id }))
-    ).then((r) => r, () => null);
-  }
+  if (assetItems.length) await saveProjectAssets(admin, project.id, user.id, assetItems.slice(0, 10));
 
   revalidatePath('/content');
   return { id: project.id };

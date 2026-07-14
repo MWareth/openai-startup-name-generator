@@ -73,7 +73,14 @@ export default function BrochureForm({ existingProjects = [] }) {
         setStatus(null);
         return;
       }
-      router.push(`/content/${res.id}?ok=` + encodeURIComponent('Script generated — review, edit and approve it below.'));
+      router.push(
+        `/content/${res.id}?ok=` +
+          encodeURIComponent(
+            res.assetsOnly
+              ? `${res.saved} render${res.saved === 1 ? '' : 's'} pulled from the brochure into the gallery — no AI credits used.`
+              : 'Script generated — review, edit and approve it below.'
+          )
+      );
     } catch (err) {
       setError(err?.message || 'Something went wrong — try again.');
       setStatus(null);
