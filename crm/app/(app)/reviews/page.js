@@ -2,11 +2,15 @@ import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth';
 import { SENIORITY_NAMES } from '@/lib/format';
 import { scoreColor } from '@/lib/reviews';
+import { getOnboardingConfig } from '@/lib/onboarding';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { updateOnboardingConfig } from '../admin/actions';
 
 export const dynamic = 'force-dynamic';
 
-export default async function ReviewsPage() {
+export default async function ReviewsPage({ searchParams }) {
   const { supabase } = await requireAdmin();
+  const onboarding = await getOnboardingConfig(createAdminClient());
 
   const { data: agents } = await supabase
     .from('profiles')
@@ -44,6 +48,36 @@ export default async function ReviewsPage() {
           each category weighted equally, averaged over their scorecards. Agents cannot see these.
         </p>
       </div>
+
+      {searchParams?.ok ? <div className="alert ok">{searchParams.ok}</div> : null}
+
+      {/* Newcomer 4-week program targets (editable) */}
+      <details className="card panel">
+        <summary><h2 style={{ display: 'inline' }}>🌱 Newcomer 4-week program</h2></summary>
+        <div className="panel-body">
+          <p className="small muted" style={{ marginTop: 0 }}>
+            Weekly targets for every agent&apos;s first month (from their joining date). Set a person&apos;s joining date on
+            the <Link href="/admin">Team page</Link>; each newcomer&apos;s progress vs these targets shows on their KPI page.
+          </p>
+          <form action={updateOnboardingConfig} className="form-grid">
+            <div className="field">
+              <label>Leads worked / week</label>
+              <input name="weekly_leads" type="number" min="0" defaultValue={onboarding.weekly_leads} />
+            </div>
+            <div className="field">
+              <label>Follow-ups done / week</label>
+              <input name="weekly_followups" type="number" min="0" defaultValue={onboarding.weekly_followups} />
+            </div>
+            <div className="field">
+              <label>Respond to new leads within (minutes)</label>
+              <input name="target_response_min" type="number" min="0" defaultValue={onboarding.target_response_min} />
+            </div>
+            <div className="field" style={{ alignSelf: 'flex-end' }}>
+              <button className="btn secondary" type="submit">Save targets</button>
+            </div>
+          </form>
+        </div>
+      </details>
 
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         <table>

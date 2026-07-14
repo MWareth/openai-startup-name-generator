@@ -264,6 +264,10 @@ export default async function AdminPage({ searchParams }) {
                         <input name="email" type="email" defaultValue={p.email || ''} placeholder="Email" style={{ flex: '1 1 170px' }} />
                         <input name="avatar_url" defaultValue={p.avatar_url || ''} placeholder="Photo URL" style={{ flex: '1 1 150px' }} />
                         <EditMemberRoleFields role={p.role} seniority={p.seniority} />
+                        <label className="small muted" title="Joining date — starts the 4-week newcomer KPI" style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                          Joined
+                          <DateField name="joined_on" defaultValue={p.joined_on || ''} style={{ width: 150 }} />
+                        </label>
                         <button className="btn secondary small" type="submit">Save</button>
                       </form>
                       {bannedIds.has(p.id) ? <span className="badge lost">Inactive</span> : null}

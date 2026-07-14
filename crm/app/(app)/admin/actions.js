@@ -52,14 +52,37 @@ export async function createAgent(formData) {
 
   // The signup trigger creates the profile; set its role/seniority/name/team.
   // must_change_password forces the user to replace the temp password at first login.
-  const { error: pErr } = await admin
-    .from('profiles')
-    .update({ full_name, role, seniority, team, must_change_password: true })
-    .eq('id', data.user.id);
+  // joined_on defaults to today so the 4-week newcomer KPI starts now (editable).
+  const today = new Date().toISOString().slice(0, 10);
+  const { error: pErr } = await writeTolerant(
+    (p) => admin.from('profiles').update(p).eq('id', data.user.id),
+    { full_name, role, seniority, team, must_change_password: true, joined_on: today }
+  );
   if (pErr) back(pErr.message);
 
   revalidatePath(ADMIN);
   back(`Created ${email}`, true);
+}
+
+// Edit the newcomer-program targets (leads/week, follow-ups/week, response time).
+export async function updateOnboardingConfig(formData) {
+  await requireAdmin();
+  const admin = createAdminClient();
+  const num = (k, d) => {
+    const n = parseInt(String(formData.get(k) || '').replace(/[^0-9]/g, ''), 10);
+    return Number.isFinite(n) ? n : d;
+  };
+  const patch = {
+    id: 1,
+    weekly_leads: num('weekly_leads', 10),
+    weekly_followups: num('weekly_followups', 15),
+    target_response_min: num('target_response_min', 30),
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await writeTolerant((p) => admin.from('onboarding_config').upsert(p, { onConflict: 'id' }), patch);
+  if (error) redirect('/reviews?ok=' + encodeURIComponent('Could not save: ' + error.message));
+  revalidatePath('/reviews');
+  redirect('/reviews?ok=' + encodeURIComponent('Newcomer targets updated.'));
 }
 
 export async function updateAgent(formData) {
@@ -83,12 +106,14 @@ export async function updateAgent(formData) {
     email: email || null,
     role,
     avatar_url: emptyToNull(formData.get('avatar_url')),
+    joined_on: emptyToNull(formData.get('joined_on')), // start date for the newcomer KPI
   };
   // Only agents carry a commission scheme; leave non-agents' seniority untouched.
   if (role === 'agent' && formData.get('seniority')) {
     patch.seniority = String(formData.get('seniority'));
   }
-  const { error } = await admin.from('profiles').update(patch).eq('id', id);
+  // Tolerant: drops joined_on if migration 0028 hasn't been applied yet.
+  const { error } = await writeTolerant((p) => admin.from('profiles').update(p).eq('id', id), patch);
   if (error) back(error.message);
   revalidatePath(ADMIN);
   back('Agent updated', true);
