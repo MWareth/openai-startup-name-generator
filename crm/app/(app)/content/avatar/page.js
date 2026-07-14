@@ -157,11 +157,34 @@ export default async function AvatarStudioPage({ searchParams }) {
 
           <div className="card">
             <h3 style={{ marginTop: 0 }}>Step 3 · Send it in 📤</h3>
-            <ul className="small" style={{ margin: '0 0 0 18px', lineHeight: 1.8 }}>
+            <ol className="small" style={{ margin: '0 0 10px 18px', lineHeight: 1.8 }}>
               <li>Watch it back once — good light, clear sound, you looked at the lens? If not, one more take.</li>
-              <li>Send the file to your admin on WhatsApp (<strong>as a document</strong>, so quality isn’t compressed) or a Google Drive link.</li>
-              <li>That’s it. Your admin finishes the setup — this page will show <strong>Ready</strong> when your avatar is live.</li>
-            </ul>
+              <li>
+                Upload the video to <strong>Google Drive</strong> (or WeTransfer) and copy the share link
+                — set Drive sharing to <em>“Anyone with the link”</em>.
+              </li>
+              <li>Send Marwan the link with one of these buttons, and paste your link into the message:</li>
+            </ol>
+            <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+              <a
+                className="btn small"
+                style={{ background: '#25D366' }}
+                href={`https://wa.me/971561645645?text=${encodeURIComponent('Hello! This is my avatar video for the CRM, I would like to share it with you: \n\n[paste your link here]')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                💬 WhatsApp Marwan
+              </a>
+              <a
+                className="btn secondary small"
+                href={`mailto:marwan.w@bridgesandalliesre.ae?subject=${encodeURIComponent('My avatar video')}&body=${encodeURIComponent('Hello!\n\nThis is my avatar video for the CRM, I would like to share it with you:\n\n[paste your link here]\n\nThank you!')}`}
+              >
+                ✉️ Email Marwan
+              </a>
+            </div>
+            <p className="small muted" style={{ margin: '10px 0 0' }}>
+              That’s it — Marwan finishes the setup, and this page will show <strong>Ready</strong> when your avatar is live.
+            </p>
           </div>
         </>
       ) : null}
