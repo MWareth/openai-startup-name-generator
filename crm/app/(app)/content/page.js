@@ -16,7 +16,7 @@ export default async function ContentStudioPage({ searchParams }) {
 
   const { data: projects } = await supabase
     .from('content_projects')
-    .select('id, name, developer, area, created_at, content_scripts(id, language, status)')
+    .select('id, name, developer, area, created_at, creator:profiles!content_projects_created_by_fkey(full_name), content_scripts(id, language, status)')
     .order('created_at', { ascending: false });
 
   // Agents only care about projects that have at least one approved script.
@@ -60,7 +60,7 @@ export default async function ContentStudioPage({ searchParams }) {
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         <table>
           <thead>
-            <tr><th>Project</th><th>Developer</th><th>Area</th><th>Scripts</th><th>Added</th></tr>
+            <tr><th>Project</th><th>Developer</th><th>Area</th><th>Scripts</th><th>By</th><th>Added</th></tr>
           </thead>
           <tbody>
             {visible.map((p) => {
@@ -75,12 +75,13 @@ export default async function ContentStudioPage({ searchParams }) {
                   <td className="small">
                     {approved}/{scripts.length} approved{langs ? <span className="muted"> · {langs}</span> : null}
                   </td>
+                  <td className="small muted">{p.creator?.full_name || '—'}</td>
                   <td className="small muted">{formatDate(p.created_at)}</td>
                 </tr>
               );
             })}
             {visible.length === 0 ? (
-              <tr><td colSpan={5} className="muted" style={{ padding: 16 }}>
+              <tr><td colSpan={6} className="muted" style={{ padding: 16 }}>
                 {isCreator ? 'No projects yet — upload your first brochure above.' : 'No approved scripts yet — check back soon.'}
               </td></tr>
             ) : null}

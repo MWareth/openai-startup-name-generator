@@ -27,7 +27,9 @@ export default async function ContentProjectPage({ params, searchParams }) {
 
   const { data: project } = await supabase
     .from('content_projects')
-    .select('*, content_scripts(*)')
+    .select(
+      '*, creator:profiles!content_projects_created_by_fkey(full_name), content_scripts(*, creator:profiles!content_scripts_created_by_fkey(full_name), approver:profiles!content_scripts_approved_by_fkey(full_name))'
+    )
     .eq('id', params.id)
     .single();
   if (!project) notFound();
@@ -61,7 +63,10 @@ export default async function ContentProjectPage({ params, searchParams }) {
             </form>
           ) : null}
         </div>
-        <p className="muted small">{project.developer || '—'}{project.area ? ` · ${project.area}` : ''} · added {formatDate(project.created_at)}</p>
+        <p className="muted small">
+          {project.developer || '—'}{project.area ? ` · ${project.area}` : ''} · added {formatDate(project.created_at)}
+          {project.creator?.full_name ? <> by <strong>{project.creator.full_name}</strong></> : null}
+        </p>
       </div>
       {ok ? <div className="alert ok">{ok}</div> : null}
       {error ? <div className="alert error">{error}</div> : null}
@@ -127,7 +132,10 @@ export default async function ContentProjectPage({ params, searchParams }) {
                   ? <span className="badge" style={{ background: '#16a34a', color: '#fff', marginLeft: 8 }}>Approved</span>
                   : <span className="badge role" style={{ marginLeft: 8 }}>Draft</span>}
               </div>
-              <span className="small muted">{formatDate(s.created_at)}</span>
+              <span className="small muted">
+                ✍️ {s.creator?.full_name || 'Unknown'} · {formatDate(s.created_at)}
+                {s.status === 'approved' && s.approver?.full_name ? <> · ✅ {s.approver.full_name}</> : null}
+              </span>
             </div>
 
             {isCreator ? (
