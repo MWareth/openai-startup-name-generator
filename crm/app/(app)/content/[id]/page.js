@@ -5,7 +5,7 @@ import { formatDate } from '@/lib/format';
 import { SCRIPT_LANGUAGES, SCRIPT_TONES, SCRIPT_DURATIONS } from '@/lib/content';
 import SubmitButton from '@/components/SubmitButton';
 import CopyButton from '@/components/CopyButton';
-import { generateScript, updateScript, approveScript, deleteScript, deleteContentProject } from '../actions';
+import { generateScript, updateScript, approveScript, deleteScript, deleteContentProject, requestVideo } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -20,7 +20,7 @@ const FACT_LABELS = {
 };
 
 export default async function ContentProjectPage({ params, searchParams }) {
-  const { profile, supabase } = await requireUser();
+  const { user, profile, supabase } = await requireUser();
   const isCreator = canRouteLeads(profile);
   const ok = searchParams?.ok;
   const error = searchParams?.error;
@@ -31,6 +31,15 @@ export default async function ContentProjectPage({ params, searchParams }) {
     .eq('id', params.id)
     .single();
   if (!project) notFound();
+
+  // Video Studio: can this user request a video? (consent + admin-set avatar)
+  const { data: myAvatar } = await supabase
+    .from('avatar_profiles')
+    .select('consent_at, avatar_id, voice_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+    .then((r) => r, () => ({ data: null }));
+  const avatarReady = !!(myAvatar?.consent_at && myAvatar?.avatar_id && myAvatar?.voice_id);
 
   const allScripts = (project.content_scripts || []).sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
@@ -137,6 +146,23 @@ export default async function ContentProjectPage({ params, searchParams }) {
                 <CopyButton text={s.body} />
               </>
             )}
+
+            {/* Video Studio: turn an approved script into an avatar video */}
+            {s.status === 'approved' ? (
+              avatarReady ? (
+                <form action={requestVideo} style={{ marginTop: 10 }}>
+                  <input type="hidden" name="script_id" value={s.id} />
+                  <input type="hidden" name="project_id" value={project.id} />
+                  <button className="btn small" type="submit" style={{ background: '#7c3aed' }}>
+                    🎥 Make my video with this script
+                  </button>
+                </form>
+              ) : (
+                <p className="small muted" style={{ marginTop: 10 }}>
+                  🎥 Want this as a video of you? Set up your avatar first — <Link href="/profile">Profile → My video avatar</Link>.
+                </p>
+              )
+            ) : null}
 
             {isCreator ? (
               <div className="row" style={{ gap: 8, marginTop: 10, flexWrap: 'wrap' }}>

@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation';
 import { requireUser, canRouteLeads } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { contentReady, extractAndWriteScript, writeScriptFromFacts } from '@/lib/content';
+import { heygenReady, generateAvatarVideo, getVideoStatus } from '@/lib/heygen';
+import { notify } from '@/lib/notify';
 
 // Content Studio actions. Creation/editing/approval is for staff + marketing;
 // agents consume approved scripts read-only on the page.
@@ -173,4 +175,183 @@ export async function deleteContentProject(formData) {
   await admin.from('content_projects').delete().eq('id', id); // scripts cascade
   revalidatePath('/content');
   redirect('/content?ok=' + encodeURIComponent('Project deleted.'));
+}
+
+/* ============================== Video Studio ============================== */
+
+// Agent ticks the likeness-consent box (required before any video).
+export async function giveAvatarConsent(formData) {
+  const { user } = await requireUser();
+  if (!formData.get('consent')) redirect('/profile?error=' + encodeURIComponent('Tick the consent box first.'));
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from('avatar_profiles')
+    .upsert({ user_id: user.id, consent_at: new Date().toISOString(), updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+  if (error) redirect('/profile?error=' + encodeURIComponent(error.message));
+  revalidatePath('/profile');
+  redirect('/profile?ok=' + encodeURIComponent('Consent saved — now record your 2-minute clip and send it to your admin.'));
+}
+
+// Admin saves a person's HeyGen avatar/voice IDs (after creating the digital twin).
+export async function saveAvatarProfile(formData) {
+  await requireCreator();
+  const userId = String(formData.get('user_id'));
+  const admin = createAdminClient();
+  const { error } = await admin.from('avatar_profiles').upsert(
+    {
+      user_id: userId,
+      avatar_id: String(formData.get('avatar_id') || '').trim() || null,
+      voice_id: String(formData.get('voice_id') || '').trim() || null,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: 'user_id' }
+  );
+  if (error) fail('/content/videos', error.message);
+  revalidatePath('/content/videos');
+  redirect('/content/videos?ok=' + encodeURIComponent('Avatar setup saved.'));
+}
+
+// Agent requests a video of an approved script. Costs nothing yet — the render
+// only fires when an admin approves.
+export async function requestVideo(formData) {
+  const { user, profile } = await requireUser();
+  const scriptId = String(formData.get('script_id'));
+  const projectId = String(formData.get('project_id'));
+  const back = `/content/${projectId}`;
+
+  const admin = createAdminClient();
+  const { data: script } = await admin
+    .from('content_scripts')
+    .select('id, body, language, status, project:content_projects(name)')
+    .eq('id', scriptId)
+    .single();
+  if (!script || script.status !== 'approved') fail(back, 'Only approved scripts can be turned into videos.');
+
+  const { data: av } = await admin.from('avatar_profiles').select('*').eq('user_id', user.id).maybeSingle();
+  if (!av?.consent_at) fail(back, 'First give likeness consent on your Profile page (🎥 My video avatar).');
+  if (!av?.avatar_id || !av?.voice_id) fail(back, 'Your avatar isn’t ready yet — your admin is still setting it up.');
+
+  const { error } = await admin.from('video_requests').insert({
+    agent_id: user.id,
+    script_id: script.id,
+    project_name: script.project?.name || null,
+    language: script.language,
+    script_body: script.body,
+  });
+  if (error) fail(back, error.message);
+
+  // Ping management to approve the render (in-app + phone push, no email spam).
+  const { data: mgrs } = await admin.from('profiles').select('id').in('role', ['admin', 'director', 'c_suite']);
+  for (const m of mgrs || []) {
+    if (m.id === user.id) continue;
+    await notify({
+      userId: m.id,
+      type: 'video_request',
+      title: `🎥 Video request: ${profile?.full_name || 'An agent'} · ${script.project?.name || 'a project'}`,
+      body: `${script.language} script — approve to render.`,
+      link: '/content/videos',
+      email: false,
+    });
+  }
+
+  revalidatePath('/content/videos');
+  redirect(`${back}?ok=` + encodeURIComponent('Video requested — you’ll get a notification when it’s approved and rendered.'));
+}
+
+// Admin approves → the HeyGen render fires (this is the moment credits are spent).
+export async function approveVideoRequest(formData) {
+  const { user } = await requireCreator();
+  const id = String(formData.get('request_id'));
+  if (!heygenReady()) fail('/content/videos', 'HEYGEN_API_KEY is not set in Vercel yet — see the setup note on this page.');
+
+  const admin = createAdminClient();
+  const { data: req } = await admin.from('video_requests').select('*').eq('id', id).single();
+  if (!req || req.status !== 'requested') fail('/content/videos', 'This request is not awaiting approval.');
+
+  const { data: av } = await admin.from('avatar_profiles').select('*').eq('user_id', req.agent_id).maybeSingle();
+  if (!av?.avatar_id || !av?.voice_id) fail('/content/videos', 'That agent’s avatar/voice IDs are missing below.');
+
+  let videoId;
+  try {
+    videoId = await generateAvatarVideo({
+      avatarId: av.avatar_id,
+      voiceId: av.voice_id,
+      text: req.script_body,
+      title: `${req.project_name || 'Project'} · ${req.language}`,
+    });
+  } catch (e) {
+    fail('/content/videos', 'HeyGen render failed to start: ' + (e?.message || 'unknown error'));
+  }
+
+  await admin
+    .from('video_requests')
+    .update({ status: 'rendering', heygen_video_id: videoId, approved_by: user.id, approved_at: new Date().toISOString(), error: null })
+    .eq('id', id);
+
+  await notify({
+    userId: req.agent_id,
+    type: 'video_status',
+    title: '🎬 Your video is rendering',
+    body: `${req.project_name || 'Your project'} (${req.language}) was approved — usually ready in a few minutes.`,
+    link: '/content/videos',
+    email: false,
+  });
+
+  revalidatePath('/content/videos');
+  redirect('/content/videos?ok=' + encodeURIComponent('Render started — hit “Check status” in a few minutes.'));
+}
+
+export async function rejectVideoRequest(formData) {
+  await requireCreator();
+  const id = String(formData.get('request_id'));
+  const admin = createAdminClient();
+  const { data: req } = await admin.from('video_requests').select('agent_id, project_name').eq('id', id).single();
+  await admin.from('video_requests').update({ status: 'rejected' }).eq('id', id);
+  if (req) {
+    await notify({
+      userId: req.agent_id,
+      type: 'video_status',
+      title: 'Video request declined',
+      body: `${req.project_name || 'Your request'} wasn’t approved — ask your admin why.`,
+      link: '/content/videos',
+      email: false,
+    });
+  }
+  revalidatePath('/content/videos');
+  redirect('/content/videos?ok=' + encodeURIComponent('Request rejected.'));
+}
+
+// Poll HeyGen for the render result and store the download URL when done.
+export async function refreshVideoStatus(formData) {
+  const { user, profile } = await requireUser();
+  const id = String(formData.get('request_id'));
+  const admin = createAdminClient();
+  const { data: req } = await admin.from('video_requests').select('*').eq('id', id).single();
+  if (!req) fail('/content/videos', 'Request not found.');
+  if (!canRouteLeads(profile) && req.agent_id !== user.id) fail('/content/videos', 'Not your request.');
+  if (!req.heygen_video_id) fail('/content/videos', 'This request hasn’t been rendered yet.');
+
+  let data;
+  try {
+    data = await getVideoStatus(req.heygen_video_id);
+  } catch (e) {
+    fail('/content/videos', 'Could not check status: ' + (e?.message || 'unknown error'));
+  }
+
+  if (data.status === 'completed' && data.video_url) {
+    await admin.from('video_requests').update({ status: 'done', video_url: data.video_url }).eq('id', id);
+    await notify({
+      userId: req.agent_id,
+      type: 'video_status',
+      title: '✅ Your video is ready!',
+      body: `${req.project_name || 'Your video'} (${req.language}) — download it now (the link expires after ~7 days).`,
+      link: '/content/videos',
+    });
+    redirect('/content/videos?ok=' + encodeURIComponent('Video ready — download it below.'));
+  } else if (data.status === 'failed') {
+    const msg = data?.error?.message || data?.error || 'render failed';
+    await admin.from('video_requests').update({ status: 'failed', error: String(msg) }).eq('id', id);
+    redirect('/content/videos?error=' + encodeURIComponent('Render failed: ' + msg));
+  }
+  redirect('/content/videos?ok=' + encodeURIComponent('Still rendering — check again in a minute.'));
 }

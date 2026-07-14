@@ -27,12 +27,15 @@ export default async function ContentStudioPage({ searchParams }) {
 
   return (
     <div className="stack">
-      <div>
-        <h1>🎬 Content Studio</h1>
-        <p className="muted">
-          Upload a project brochure or renders — get a ready-to-film agent script, in any language.
-          {isCreator ? ' Scripts start as drafts; approve them to publish to the agents.' : ' These scripts are approved by management — pick one and film.'}
-        </p>
+      <div className="spread" style={{ alignItems: 'flex-start' }}>
+        <div>
+          <h1>🎬 Content Studio</h1>
+          <p className="muted">
+            Upload a project brochure or renders — get a ready-to-film agent script, in any language.
+            {isCreator ? ' Scripts start as drafts; approve them to publish to the agents.' : ' These scripts are approved by management — pick one and film.'}
+          </p>
+        </div>
+        <Link className="btn secondary small" href="/content/videos">🎥 Videos →</Link>
       </div>
       {ok ? <div className="alert ok">{ok}</div> : null}
       {error ? <div className="alert error">{error}</div> : null}
