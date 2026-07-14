@@ -24,21 +24,68 @@ async function requireCreator() {
   return ctx;
 }
 
+// Uploaded brochures are deleted right after a successful generation; this
+// sweep also removes anything older than 24h (failed/abandoned attempts), so
+// the bucket never accumulates files. Upload folders are named "<ms>-<rand>".
+async function cleanupStaleUploads(admin) {
+  try {
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    const { data: folders } = await admin.storage.from('brochures').list('', { limit: 100 });
+    for (const f of folders || []) {
+      const ts = parseInt(String(f.name).split('-')[0], 10);
+      if (!Number.isFinite(ts) || ts > cutoff) continue;
+      const { data: inner } = await admin.storage.from('brochures').list(f.name, { limit: 100 });
+      const paths = (inner || []).map((i) => `${f.name}/${i.name}`);
+      if (paths.length) await admin.storage.from('brochures').remove(paths);
+    }
+  } catch (e) {
+    // no-op — cleanup must never block generation
+  }
+}
+
+const normName = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
 // Called from the client after files are uploaded straight to Supabase Storage
 // (bypassing Vercel's ~4.5MB request limit). Reads the files, extracts facts,
 // writes the first script, deletes the uploads. Returns {id} or {error} —
 // never redirects, so the form can show inline errors instead of hanging.
+// Credit savers: picking an existing project (no files) skips the expensive
+// brochure read entirely, and a re-uploaded project merges into the existing
+// one instead of creating a duplicate.
 export async function createContentFromUpload(payload) {
   const { user, profile } = await requireUser();
   if (!canRouteLeads(profile)) return { error: 'Only admin, support or marketing can create content.' };
   if (!contentReady()) return { error: 'ANTHROPIC_API_KEY is not set in Vercel yet — see the setup note on this page.' };
 
-  const { files = [], notes = '', language = 'English', tone = 'Bullish default — short, punchy, direct', duration = 45 } = payload || {};
+  const { files = [], notes = '', language = 'English', tone = 'Bullish default — short, punchy, direct', duration = 45, projectName = '' } = payload || {};
   const durationSec = parseInt(String(duration), 10) || 45;
   const cleanNotes = String(notes).trim();
-  if (!files.length && !cleanNotes) return { error: 'Upload a brochure/renders or paste the project details first.' };
+  if (!files.length && !cleanNotes && !normName(projectName)) return { error: 'Upload a brochure/renders, paste the project details, or pick an existing project.' };
 
   const admin = createAdminClient();
+  await cleanupStaleUploads(admin);
+
+  // Reuse path: an existing project was picked and no new files — regenerate
+  // from the stored facts (a fraction of the cost, no brochure re-read).
+  if (!files.length && normName(projectName)) {
+    const { data: all } = await admin.from('content_projects').select('id, name, facts');
+    const match = (all || []).find((p) => normName(p.name) === normName(projectName));
+    if (match) {
+      let body;
+      try {
+        const facts = cleanNotes ? { ...match.facts, extra_notes: cleanNotes } : match.facts;
+        body = await writeScriptFromFacts({ facts, language, tone, durationSec });
+      } catch (e) {
+        return { error: 'Generation failed: ' + (e?.message || 'unknown error') };
+      }
+      await admin.from('content_scripts').insert({
+        project_id: match.id, language, duration_sec: durationSec, tone, body, created_by: user.id,
+      });
+      revalidatePath('/content');
+      return { id: match.id };
+    }
+    if (!cleanNotes) return { error: `No existing project called “${projectName}” — upload its brochure or paste its details.` };
+  }
 
   // Pull the uploaded files down from Storage.
   const blobs = [];
@@ -80,6 +127,27 @@ export async function createContentFromUpload(payload) {
     usps: result.usps || [],
     notes: cleanNotes || undefined,
   };
+
+  // Duplicate guard: if this project already exists (same name), attach the
+  // new script to it and refresh its facts instead of creating a copy.
+  if (normName(result.project_name)) {
+    const { data: all } = await admin.from('content_projects').select('id, name, facts');
+    const existing = (all || []).find((p) => normName(p.name) === normName(result.project_name));
+    if (existing) {
+      const mergedFacts = { ...facts };
+      for (const [k, v] of Object.entries(existing.facts || {})) {
+        const cur = mergedFacts[k];
+        if (cur == null || cur === '' || (Array.isArray(cur) && !cur.length)) mergedFacts[k] = v;
+      }
+      await admin.from('content_projects').update({ facts: mergedFacts }).eq('id', existing.id);
+      await admin.from('content_scripts').insert({
+        project_id: existing.id, language, duration_sec: durationSec, tone, body: result.script_body, created_by: user.id,
+      });
+      revalidatePath('/content');
+      return { id: existing.id };
+    }
+  }
+
   const { data: project, error } = await admin
     .from('content_projects')
     .insert({

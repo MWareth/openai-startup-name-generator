@@ -53,7 +53,7 @@ export default async function ContentStudioPage({ searchParams }) {
       {isCreator ? (
         <div className="card">
           <h3 style={{ marginTop: 0 }}>New project script</h3>
-          <BrochureForm />
+          <BrochureForm existingProjects={(projects || []).map((p) => ({ id: p.id, name: p.name }))} />
         </div>
       ) : null}
 

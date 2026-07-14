@@ -20,7 +20,7 @@ const TONES = [
 const OK_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
 const MAX_TOTAL = 20 * 1024 * 1024; // keep under the AI request cap
 
-export default function BrochureForm() {
+export default function BrochureForm({ existingProjects = [] }) {
   const router = useRouter();
   const [status, setStatus] = useState(null); // null | 'uploading' | 'writing'
   const [error, setError] = useState(null);
@@ -36,10 +36,11 @@ export default function BrochureForm() {
     const language = String(fd.get('language') || 'English');
     const tone = String(fd.get('tone') || TONES[0]);
     const duration = parseInt(String(fd.get('duration') || '45'), 10) || 45;
+    const projectName = String(fd.get('project') || '').trim();
     const files = Array.from(form.querySelector('input[type=file]')?.files || []);
 
-    if (!files.length && !notes) {
-      setError('Upload a brochure/renders or paste the project details first.');
+    if (!files.length && !notes && !projectName) {
+      setError('Upload a brochure/renders, paste the project details, or pick an existing project.');
       return;
     }
     let total = 0;
@@ -66,7 +67,7 @@ export default function BrochureForm() {
 
       // 2) Server reads the files and writes the script.
       setStatus('writing');
-      const res = await createContentFromUpload({ files: uploaded, notes, language, tone, duration });
+      const res = await createContentFromUpload({ files: uploaded, notes, language, tone, duration, projectName });
       if (res?.error) {
         setError(res.error);
         setStatus(null);
@@ -81,6 +82,15 @@ export default function BrochureForm() {
 
   return (
     <form onSubmit={onSubmit} className="stack" style={{ gap: 10 }}>
+      {existingProjects.length ? (
+        <div className="field">
+          <label>Existing project? Pick it to reuse its saved facts — no brochure re-read, almost free</label>
+          <input name="project" list="existing-projects" placeholder="Leave empty for a new project" disabled={!!status} autoComplete="off" />
+          <datalist id="existing-projects">
+            {existingProjects.map((p) => <option key={p.id} value={p.name} />)}
+          </datalist>
+        </div>
+      ) : null}
       <div className="field">
         <label>Brochure (PDF) and/or renders (JPG/PNG) — up to 20 MB total</label>
         <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple disabled={!!status} />
