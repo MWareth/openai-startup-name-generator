@@ -117,8 +117,26 @@ export async function createContentFromUpload(payload) {
     return { error: 'Generation failed: ' + redact(e?.message) + ' — nothing was saved, try again.' };
   }
 
-  // Best-effort cleanup of the uploaded files (facts are stored; originals aren't needed).
+  // Best-effort cleanup of the uploaded files (facts are stored; originals
+  // aren't needed). Uploaded IMAGES (renders) are kept: they move to the public
+  // project-assets bucket so they can become video backgrounds later.
+  const keptImages = [];
   try {
+    for (const f of files) {
+      if (f.mediaType !== 'application/pdf') {
+        const { data: blob } = await admin.storage.from('brochures').download(f.path);
+        if (blob) {
+          const destPath = f.path; // same folder structure, public bucket
+          const { error: upErr } = await admin.storage
+            .from('project-assets')
+            .upload(destPath, blob, { contentType: f.mediaType, upsert: true });
+          if (!upErr) {
+            const { data: pub } = admin.storage.from('project-assets').getPublicUrl(destPath);
+            if (pub?.publicUrl) keptImages.push({ url: pub.publicUrl, path: destPath });
+          }
+        }
+      }
+    }
     if (files.length) await admin.storage.from('brochures').remove(files.map((f) => f.path));
   } catch (e) {
     // no-op
@@ -151,6 +169,11 @@ export async function createContentFromUpload(payload) {
       await admin.from('content_scripts').insert({
         project_id: existing.id, language, duration_sec: durationSec, tone, body: result.script_body, created_by: user.id,
       });
+      if (keptImages.length) {
+        await admin.from('content_assets').insert(
+          keptImages.map((k) => ({ project_id: existing.id, kind: 'image', url: k.url, path: k.path, created_by: user.id }))
+        ).then((r) => r, () => null);
+      }
       revalidatePath('/content');
       return { id: existing.id };
     }
@@ -178,8 +201,50 @@ export async function createContentFromUpload(payload) {
     created_by: user.id,
   });
 
+  if (keptImages.length) {
+    await admin.from('content_assets').insert(
+      keptImages.map((k) => ({ project_id: project.id, kind: 'image', url: k.url, path: k.path, created_by: user.id }))
+    ).then((r) => r, () => null);
+  }
+
   revalidatePath('/content');
   return { id: project.id };
+}
+
+// Register an asset (render image / animated b-roll clip) uploaded from the
+// browser straight to the public project-assets bucket.
+export async function registerProjectAsset(payload) {
+  const { user, profile } = await requireUser();
+  if (!canRouteLeads(profile)) return { error: 'Only admin, support or marketing can add assets.' };
+  const { projectId, path, kind } = payload || {};
+  if (!projectId || !path) return { error: 'Missing file info.' };
+  const admin = createAdminClient();
+  const { data: pub } = admin.storage.from('project-assets').getPublicUrl(path);
+  if (!pub?.publicUrl) return { error: 'Could not resolve the file URL.' };
+  const { error } = await admin.from('content_assets').insert({
+    project_id: projectId,
+    kind: kind === 'video' ? 'video' : 'image',
+    url: pub.publicUrl,
+    path,
+    created_by: user.id,
+  });
+  if (error) return { error: error.message };
+  revalidatePath(`/content/${projectId}`);
+  return { ok: true };
+}
+
+export async function deleteProjectAsset(formData) {
+  await requireCreator();
+  const id = String(formData.get('asset_id'));
+  const projectId = String(formData.get('project_id'));
+  const admin = createAdminClient();
+  const { data: asset } = await admin.from('content_assets').select('path').eq('id', id).single();
+  if (asset?.path) {
+    await admin.storage.from('project-assets').remove([asset.path]).then((r) => r, () => null);
+  }
+  await admin.from('content_assets').delete().eq('id', id);
+  revalidatePath(`/content/${projectId}`);
+  redirect(`/content/${projectId}?ok=` + encodeURIComponent('Asset removed.'));
 }
 
 // New script for an existing project (other language / tone / length) — uses
@@ -362,6 +427,22 @@ export async function approveVideoRequest(formData) {
   const { data: av } = await admin.from('avatar_profiles').select('*').eq('user_id', req.agent_id).maybeSingle();
   if (!av?.avatar_id || !av?.voice_id) fail('/content/videos', 'That agent’s avatar/voice IDs are missing below.');
 
+  // Project renders / animated b-roll become scene backgrounds behind the agent.
+  let backgrounds = [];
+  if (req.script_id) {
+    const { data: script } = await admin.from('content_scripts').select('project_id').eq('id', req.script_id).maybeSingle();
+    if (script?.project_id) {
+      const { data: assets } = await admin
+        .from('content_assets')
+        .select('kind, url')
+        .eq('project_id', script.project_id)
+        .order('created_at')
+        .then((r) => r, () => ({ data: [] }));
+      // Videos (living renders) first — they make the best scenes.
+      backgrounds = [...(assets || [])].sort((a, b) => (a.kind === 'video' ? -1 : 1) - (b.kind === 'video' ? -1 : 1));
+    }
+  }
+
   let videoId;
   try {
     videoId = await generateAvatarVideo({
@@ -369,6 +450,7 @@ export async function approveVideoRequest(formData) {
       voiceId: av.voice_id,
       text: req.script_body,
       title: `${req.project_name || 'Project'} · ${req.language}`,
+      backgrounds,
     });
   } catch (e) {
     fail('/content/videos', 'HeyGen render failed to start: ' + (e?.message || 'unknown error'));

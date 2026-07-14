@@ -5,7 +5,8 @@ import { formatDate } from '@/lib/format';
 import { SCRIPT_LANGUAGES, SCRIPT_TONES, SCRIPT_DURATIONS } from '@/lib/content';
 import SubmitButton from '@/components/SubmitButton';
 import CopyButton from '@/components/CopyButton';
-import { generateScript, updateScript, approveScript, deleteScript, deleteContentProject, requestVideo } from '../actions';
+import AssetUploader from '@/components/AssetUploader';
+import { generateScript, updateScript, approveScript, deleteScript, deleteContentProject, requestVideo, deleteProjectAsset } from '../actions';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -33,6 +34,14 @@ export default async function ContentProjectPage({ params, searchParams }) {
     .eq('id', params.id)
     .single();
   if (!project) notFound();
+
+  // Renders & b-roll clips attached to this project (video backgrounds).
+  const { data: assets } = await supabase
+    .from('content_assets')
+    .select('*')
+    .eq('project_id', params.id)
+    .order('created_at')
+    .then((r) => r, () => ({ data: [] }));
 
   // Video Studio: can this user request a video? (consent + admin-set avatar)
   const { data: myAvatar } = await supabase
@@ -88,6 +97,49 @@ export default async function ContentProjectPage({ params, searchParams }) {
           <ul className="small" style={{ margin: '10px 0 0 18px' }}>
             {usps.map((u, i) => <li key={i}>{u}</li>)}
           </ul>
+        ) : null}
+      </div>
+
+      {/* Renders & b-roll — used as scene backgrounds behind the agent */}
+      <div className="card">
+        <div className="spread">
+          <h3 style={{ marginTop: 0 }}>🖼️ Renders & b-roll ({(assets || []).length})</h3>
+        </div>
+        <p className="small muted" style={{ marginTop: 0 }}>
+          These appear <strong>behind the agent</strong> in generated videos — the video cuts between them scene by scene.
+          Images = static renders. For the cinematic effect, animate a render in Kling/Higgsfield (building rising, camera
+          descending…) and upload the MP4 here — moving clips are used first.
+        </p>
+        {(assets || []).length ? (
+          <div className="row" style={{ gap: 10, flexWrap: 'wrap' }}>
+            {(assets || []).map((a) => (
+              <div key={a.id} style={{ width: 130 }}>
+                {a.kind === 'video' ? (
+                  <video src={a.url} muted playsInline style={{ width: 130, height: 90, objectFit: 'cover', borderRadius: 8, background: '#000' }} />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={a.url} alt="render" style={{ width: 130, height: 90, objectFit: 'cover', borderRadius: 8 }} />
+                )}
+                <div className="spread" style={{ marginTop: 2 }}>
+                  <span className="small muted">{a.kind === 'video' ? '🎞️ clip' : '🖼️ render'}</span>
+                  {isCreator ? (
+                    <form action={deleteProjectAsset} style={{ margin: 0 }}>
+                      <input type="hidden" name="asset_id" value={a.id} />
+                      <input type="hidden" name="project_id" value={project.id} />
+                      <button className="btn ghost small" type="submit" style={{ padding: '0 6px' }}>✕</button>
+                    </form>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="small muted">No renders yet{isCreator ? ' — add some below so videos have the project behind the agent.' : '.'}</p>
+        )}
+        {isCreator ? (
+          <div style={{ marginTop: 10 }}>
+            <AssetUploader projectId={project.id} />
+          </div>
         ) : null}
       </div>
 

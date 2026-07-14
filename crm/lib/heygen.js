@@ -26,19 +26,45 @@ async function call(path, opts = {}) {
   return json;
 }
 
+// Split a script into n roughly-equal chunks on sentence boundaries, so each
+// scene (with its own background render) gets a natural piece of the speech.
+function splitScript(text, parts) {
+  const sentences = String(text).split(/(?<=[.!?؟。])\s+/).filter(Boolean);
+  if (parts <= 1 || sentences.length <= 1) return [String(text)];
+  const per = Math.ceil(sentences.length / Math.min(parts, sentences.length));
+  const chunks = [];
+  for (let i = 0; i < sentences.length; i += per) chunks.push(sentences.slice(i, i + per).join(' '));
+  return chunks;
+}
+
 // Fire a render: the agent's avatar speaks the script in their cloned voice.
-// Returns the HeyGen video id (poll getVideoStatus for the result).
-export async function generateAvatarVideo({ avatarId, voiceId, text, title }) {
+// backgrounds: [{kind:'image'|'video', url}] — project renders / animated
+// b-roll clips; the video cuts between them scene by scene while the agent
+// keeps talking. Returns the HeyGen video id (poll getVideoStatus).
+export async function generateAvatarVideo({ avatarId, voiceId, text, title, backgrounds = [] }) {
+  const bgs = (backgrounds || []).slice(0, 4);
+  const chunks = bgs.length ? splitScript(text, bgs.length) : [String(text)];
+
+  const video_inputs = chunks.map((chunk, i) => {
+    const scene = {
+      character: { type: 'avatar', avatar_id: avatarId, avatar_style: 'normal', matting: true },
+      voice: { type: 'text', input_text: chunk, voice_id: voiceId },
+    };
+    const bg = bgs.length ? bgs[i % bgs.length] : null;
+    if (bg) {
+      scene.background =
+        bg.kind === 'video'
+          ? { type: 'video', url: bg.url, play_style: 'loop' }
+          : { type: 'image', url: bg.url };
+    }
+    return scene;
+  });
+
   const json = await call('/v2/video/generate', {
     method: 'POST',
     body: JSON.stringify({
       title: title || 'Bullish CRM video',
-      video_inputs: [
-        {
-          character: { type: 'avatar', avatar_id: avatarId, avatar_style: 'normal' },
-          voice: { type: 'text', input_text: text, voice_id: voiceId },
-        },
-      ],
+      video_inputs,
       dimension: { width: 720, height: 1280 },
     }),
   });
