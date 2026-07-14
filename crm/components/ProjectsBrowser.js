@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { aed } from '@/lib/format';
 
 export default function ProjectsBrowser({ projects, developers }) {
@@ -45,11 +46,19 @@ export default function ProjectsBrowser({ projects, developers }) {
                 <div className="small muted">{p.developer}{p.area ? ` · ${p.area}` : ''}</div>
                 {p.description ? <p className="small" style={{ marginTop: 6 }}>{p.description}</p> : null}
                 <div className="small" style={{ marginTop: 6 }}>
-                  {p.starting_price ? <div><span className="muted">From:</span> {aed(p.starting_price)}</div> : null}
+                  {p.starting_price ? <div><span className="muted">From:</span> {aed(p.starting_price)}</div>
+                    : p.price_text ? <div><span className="muted">From:</span> {p.price_text}</div> : null}
                   {p.handover ? <div><span className="muted">Handover:</span> {p.handover}</div> : null}
                   {p.payment_plan ? <div><span className="muted">Payment plan:</span> {p.payment_plan}</div> : null}
                 </div>
-                {p.brochure_url ? <a className="btn secondary small" href={p.brochure_url} target="_blank" rel="noopener noreferrer" style={{ marginTop: 8 }}>Brochure / details</a> : null}
+                <div className="row" style={{ gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                  {p.brochure_url ? <a className="btn secondary small" href={p.brochure_url} target="_blank" rel="noopener noreferrer">Brochure / details</a> : null}
+                  {p.content_id ? (
+                    <Link className="btn small" href={`/content/${p.content_id}`}>
+                      🎬 Scripts{p.scripts_approved ? ` (${p.scripts_approved})` : ''}
+                    </Link>
+                  ) : null}
+                </div>
               </div>
             ))}
             {filtered.length === 0 ? <div className="card muted">No projects match.</div> : null}
