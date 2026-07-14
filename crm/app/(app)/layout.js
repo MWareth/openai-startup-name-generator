@@ -59,6 +59,7 @@ export default async function AppLayout({ children }) {
           </NavLink>
           <NavLink href="/leads">Leads</NavLink>
           <NavLink href="/projects">Projects</NavLink>
+          <NavLink href="/content">🎬 Content Studio</NavLink>
           <NavLink href="/proposal">Proposal</NavLink>
           {/* Money / agent-only tabs — hidden from Marketing. */}
           {!isMarketing ? <NavLink href="/leaderboard">Leaderboard</NavLink> : null}
