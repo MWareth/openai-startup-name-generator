@@ -1,15 +1,18 @@
 import Link from 'next/link';
 import { requireAdmin } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { ACTIVITY_LABELS, formatDate } from '@/lib/format';
+import { ACTIVITY_LABELS } from '@/lib/format';
+import { AUDIT_ICONS, fetchUserLog, computeKpiStats } from '@/lib/audit';
 import Avatar from '@/components/Avatar';
 import PrintButton from '@/components/PrintButton';
+import UserLogSelect from '@/components/UserLogSelect';
 
 export const dynamic = 'force-dynamic';
 
-const ICON = { call: '📞', call_update: '📞', meeting: '🤝', viewing: '🏠', note: '📝' };
+const ICON = {
+  call: '📞', call_update: '📞', meeting: '🤝', viewing: '🏠', note: '📝', ...AUDIT_ICONS,
+};
 
-// Selectable review windows for the KPI 1:1s.
 const PERIODS = [
   { key: '7d', label: 'Last 7 days' },
   { key: '30d', label: 'Last 30 days' },
@@ -22,10 +25,9 @@ function periodStart(key) {
   if (key === '7d') return new Date(now.getTime() - 7 * 86400000);
   if (key === 'quarter') return new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
   if (key === 'all') return null;
-  return new Date(now.getTime() - 30 * 86400000); // default 30d
+  return new Date(now.getTime() - 30 * 86400000);
 }
 
-// Full date + time, e.g. "10 Jul 2026, 14:32" — the evidence stamp for KPIs.
 function stamp(ts) {
   if (!ts) return '';
   return new Date(ts).toLocaleString('en-GB', {
@@ -42,7 +44,6 @@ export default async function ActivityLogPage({ searchParams }) {
   const startDate = periodStart(period);
   const startIso = startDate ? startDate.toISOString() : null;
 
-  // A link that keeps the current agent/period while changing one of them.
   const linkTo = (over = {}) => {
     const a = 'agent' in over ? over.agent : agentFilter;
     const p = 'period' in over ? over.period : period;
@@ -53,86 +54,71 @@ export default async function ActivityLogPage({ searchParams }) {
     return s ? `/activity?${s}` : '/activity';
   };
 
-  const [{ data: agents }, periodRes, feedRes] = await Promise.all([
+  const [{ data: agents }, actCountRes, audCountRes, feed, stats] = await Promise.all([
     admin.from('profiles').select('id, full_name').in('role', ['agent', 'admin', 'team_leader']).order('full_name'),
     (() => {
-      let q = admin.from('lead_activities').select('agent_id, type, lead_id, created_at');
+      let q = admin.from('lead_activities').select('agent_id, created_at');
       if (startIso) q = q.gte('created_at', startIso);
       return q;
     })(),
     (() => {
-      let q = admin
-        .from('lead_activities')
-        .select('id, type, body, occurred_on, created_at, agent_id, agent:profiles(full_name, avatar_url), lead:leads(id, name)')
-        .order('created_at', { ascending: false })
-        .limit(400);
-      if (agentFilter) q = q.eq('agent_id', agentFilter);
+      let q = admin.from('audit_events').select('user_id, created_at');
       if (startIso) q = q.gte('created_at', startIso);
-      return q;
+      return q.then((r) => r, () => ({ data: [] }));
     })(),
+    fetchUserLog(admin, { userId: agentFilter || null, startIso, limit: 400 }),
+    agentFilter ? computeKpiStats(admin, { agentId: agentFilter, startIso }) : null,
   ]);
 
-  const periodActs = periodRes.data || [];
-  const acts = feedRes.data || [];
-
-  // Totals per agent for the chips.
-  const totalByAgent = {};
-  for (const r of periodActs) totalByAgent[r.agent_id] = (totalByAgent[r.agent_id] || 0) + 1;
+  // Totals per user across BOTH activities and audit events (for the chips).
+  const totalByUser = {};
+  for (const r of actCountRes.data || []) totalByUser[r.agent_id] = (totalByUser[r.agent_id] || 0) + 1;
+  for (const r of (audCountRes && audCountRes.data) || []) totalByUser[r.user_id] = (totalByUser[r.user_id] || 0) + 1;
   const summary = (agents || [])
-    .map((a) => ({ ...a, count: totalByAgent[a.id] || 0 }))
+    .map((a) => ({ ...a, count: totalByUser[a.id] || 0 }))
     .sort((a, b) => b.count - a.count);
 
-  // KPI breakdown for the selected agent (type counts + distinct leads touched).
-  let breakdown = null;
-  if (agentFilter) {
-    const rows = periodActs.filter((r) => r.agent_id === agentFilter);
-    const byType = {};
-    const leads = new Set();
-    for (const r of rows) {
-      byType[r.type] = (byType[r.type] || 0) + 1;
-      if (r.lead_id) leads.add(r.lead_id);
-    }
-    breakdown = {
-      name: (agents || []).find((a) => a.id === agentFilter)?.full_name || 'Agent',
-      total: rows.length,
-      leads: leads.size,
-      byType,
-    };
-  }
+  const agentName = (agents || []).find((a) => a.id === agentFilter)?.full_name || 'This user';
 
   return (
     <div className="stack">
       <div className="spread">
         <div>
-          <h1>📜 Lead activity log</h1>
+          <h1>📜 User activity log</h1>
           <p className="muted">
-            Every update your team logs on a lead — calls, meetings, viewings, notes — as dated proof for KPI reviews. Private to admins.
+            Everything each person does on a lead — calls, notes, status changes, follow-ups, contact edits — as dated proof for KPI reviews. Private to admins.
           </p>
         </div>
         <PrintButton className="btn secondary small">🖨 Print for 1:1</PrintButton>
       </div>
 
-      {/* Period picker */}
-      <div className="row no-print" style={{ gap: 8, flexWrap: 'wrap' }}>
-        {PERIODS.map((p) => (
-          <Link
-            key={p.key}
-            href={linkTo({ period: p.key })}
-            className="badge"
-            style={{
-              background: period === p.key ? 'var(--brand)' : 'var(--panel-2)',
-              color: period === p.key ? '#fff' : 'var(--text)',
-              padding: '6px 10px', textDecoration: 'none',
-            }}
-          >
-            {p.label}
-          </Link>
-        ))}
+      {/* Who + period */}
+      <div className="row no-print" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div className="field" style={{ margin: 0 }}>
+          <label className="small muted">Who</label>
+          <UserLogSelect agents={agents || []} value={agentFilter} period={period} />
+        </div>
+        <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+          {PERIODS.map((p) => (
+            <Link
+              key={p.key}
+              href={linkTo({ period: p.key })}
+              className="badge"
+              style={{
+                background: period === p.key ? 'var(--brand)' : 'var(--panel-2)',
+                color: period === p.key ? '#fff' : 'var(--text)',
+                padding: '6px 10px', textDecoration: 'none', alignSelf: 'flex-end',
+              }}
+            >
+              {p.label}
+            </Link>
+          ))}
+        </div>
       </div>
 
-      {/* Per-agent totals for the period (click to filter) */}
+      {/* Per-user totals for the period (click to filter) */}
       <div className="card">
-        <h3 style={{ marginTop: 0 }}>Updates · {periodLabel}</h3>
+        <h3 style={{ marginTop: 0 }}>Actions · {periodLabel}</h3>
         <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
           {summary.map((a) => (
             <Link
@@ -148,21 +134,29 @@ export default async function ActivityLogPage({ searchParams }) {
               {a.full_name} · <strong>{a.count}</strong>
             </Link>
           ))}
-          {agentFilter ? <Link href={linkTo({ agent: '' })} className="small" style={{ alignSelf: 'center' }}>Clear filter ✕</Link> : null}
+          {agentFilter ? <Link href={linkTo({ agent: '' })} className="small" style={{ alignSelf: 'center' }}>Clear ✕</Link> : null}
         </div>
       </div>
 
-      {/* KPI breakdown for the selected agent */}
-      {breakdown ? (
+      {/* KPI breakdown for the selected user */}
+      {stats ? (
         <div className="card">
-          <h3 style={{ marginTop: 0 }}>{breakdown.name} · {periodLabel}</h3>
+          <h3 style={{ marginTop: 0 }}>{agentName} · {periodLabel}</h3>
           <div className="row" style={{ gap: 18, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-            <div><div className="small muted">Total updates</div><div style={{ fontSize: 26, fontWeight: 700 }}>{breakdown.total}</div></div>
-            <div><div className="small muted">Leads touched</div><div style={{ fontSize: 26, fontWeight: 700 }}>{breakdown.leads}</div></div>
-            {Object.keys(ACTIVITY_LABELS).map((t) => (
-              <div key={t}>
-                <div className="small muted">{ICON[t] || ''} {ACTIVITY_LABELS[t]}</div>
-                <div style={{ fontSize: 22, fontWeight: 600 }}>{breakdown.byType[t] || 0}</div>
+            {[
+              ['Leads touched', stats.leadsTouched],
+              ['📞 Calls', stats.calls],
+              ['🤝 Meetings', stats.meetings],
+              ['🏠 Viewings', stats.viewings],
+              ['📝 Notes', stats.notes],
+              ['📅 Follow-ups set', stats.followupsSet],
+              ['✅ Follow-ups done', stats.followupsDone],
+              ['🔀 Status changes', stats.statusChanges],
+              ['✏️ Contact edits', stats.contactEdits],
+            ].map(([label, val]) => (
+              <div key={label}>
+                <div className="small muted">{label}</div>
+                <div style={{ fontSize: 22, fontWeight: 700 }}>{val}</div>
               </div>
             ))}
           </div>
@@ -173,34 +167,34 @@ export default async function ActivityLogPage({ searchParams }) {
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         <table>
           <thead>
-            <tr><th>Date &amp; time</th><th>Agent</th><th>Lead</th><th>Update</th></tr>
+            <tr><th>Date &amp; time</th><th>User</th><th>Lead</th><th>Action</th></tr>
           </thead>
           <tbody>
-            {acts.map((a) => (
-              <tr key={a.id}>
-                <td className="small muted" style={{ whiteSpace: 'nowrap' }}>{stamp(a.created_at)}</td>
+            {feed.map((r) => (
+              <tr key={r.id}>
+                <td className="small muted" style={{ whiteSpace: 'nowrap' }}>{stamp(r.when)}</td>
                 <td>
                   <span className="row" style={{ gap: 6, flexWrap: 'nowrap' }}>
-                    <Avatar url={a.agent?.avatar_url} name={a.agent?.full_name} size="sm" />
-                    <span className="small">{a.agent?.full_name || '—'}</span>
+                    <Avatar url={r.avatar} name={r.agentName} size="sm" />
+                    <span className="small">{r.agentName}</span>
                   </span>
                 </td>
                 <td className="small">
-                  {a.lead?.id ? <Link href={`/leads/${a.lead.id}`}>{a.lead.name || 'Lead'}</Link> : '—'}
+                  {r.lead?.id ? <Link href={`/leads/${r.lead.id}`}>{r.lead.name || 'Lead'}</Link> : '—'}
                 </td>
                 <td className="small">
-                  <span className="badge status" style={{ marginRight: 6 }}>{ICON[a.type] || ''} {ACTIVITY_LABELS[a.type] || a.type}</span>
-                  <span style={{ whiteSpace: 'pre-wrap' }}>{a.body}</span>
+                  <span className="badge status" style={{ marginRight: 6 }}>{ICON[r.kind] || '•'} {r.label}</span>
+                  <span style={{ whiteSpace: 'pre-wrap' }}>{r.body}</span>
                 </td>
               </tr>
             ))}
-            {acts.length === 0 ? (
-              <tr><td colSpan={4} className="muted" style={{ padding: 16 }}>No updates logged in this period{agentFilter ? ' by this agent' : ''}.</td></tr>
+            {feed.length === 0 ? (
+              <tr><td colSpan={4} className="muted" style={{ padding: 16 }}>No actions recorded in this period{agentFilter ? ' by this user' : ''}.</td></tr>
             ) : null}
           </tbody>
         </table>
       </div>
-      {acts.length >= 400 ? <p className="small muted">Showing the 400 most recent updates in this period.</p> : null}
+      {feed.length >= 400 ? <p className="small muted">Showing the 400 most recent actions in this period.</p> : null}
     </div>
   );
 }

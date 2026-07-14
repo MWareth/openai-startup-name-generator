@@ -8,6 +8,7 @@ import { writeTolerant } from '@/lib/db';
 import { computeCommission } from '@/lib/commission';
 import { sendPushToUser } from '@/lib/push';
 import { notify, notifyManagement, resolveNotifications } from '@/lib/notify';
+import { logEvent } from '@/lib/audit';
 import { ACTIVITY_LABELS, STATUS_LABELS, QUAL_LABELS } from '@/lib/format';
 
 // Route a lead update to the right bell:
@@ -198,6 +199,7 @@ export async function addActivity(formData) {
       { lead_id: leadId, due_on: dueOn, due_at: dueAt, note: '', created_by: user.id }
     );
     await syncNextFollowUp(supabase, leadId);
+    await logEvent({ userId: user.id, action: 'followup_set', leadId, detail: `Due ${dueOn}` });
   }
 
   revalidatePath(`/leads/${leadId}`);
@@ -233,13 +235,14 @@ export async function addFollowUp(formData) {
   });
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   await syncNextFollowUp(supabase, leadId);
+  await logEvent({ userId: user.id, action: 'followup_set', leadId, detail: `Due ${due_on}` });
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/dashboard');
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Follow-up added.'));
 }
 
 export async function completeFollowUp(formData) {
-  const { supabase } = await requireUser();
+  const { user, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
   const id = String(formData.get('followup_id'));
   const { error } = await supabase
@@ -248,6 +251,7 @@ export async function completeFollowUp(formData) {
     .eq('id', id);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   await syncNextFollowUp(supabase, leadId);
+  await logEvent({ userId: user.id, action: 'followup_done', leadId });
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/dashboard');
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Follow-up marked done.'));
@@ -280,8 +284,29 @@ export async function updateLead(prevState, formData) {
   const beds = emptyToNull(formData.get('bedrooms'));
   if (beds) patch.bedrooms = beds; // only when chosen (safe pre-migration 0006)
 
+  // Read current values first so we can record what actually changed (audit).
+  const { data: before } = await supabase.from('leads').select('status, qualification').eq('id', leadId).single();
+
   const { error } = await writeTolerant((p) => supabase.from('leads').update(p).eq('id', leadId), patch);
   if (error) return { error: error.message };
+
+  // Audit: record status / qualification changes for the per-user record log.
+  if (patch.status && before && patch.status !== before.status) {
+    await logEvent({
+      userId: user.id,
+      action: 'status_change',
+      leadId,
+      detail: `${STATUS_LABELS[before.status] || before.status || '—'} → ${STATUS_LABELS[patch.status] || patch.status}`,
+    });
+  }
+  if (patch.qualification && before && patch.qualification !== before.qualification) {
+    await logEvent({
+      userId: user.id,
+      action: 'qual_change',
+      leadId,
+      detail: `${QUAL_LABELS[before.qualification] || before.qualification || '—'} → ${QUAL_LABELS[patch.qualification] || patch.qualification}`,
+    });
+  }
 
   // Changing status is acting on the lead → clear its action reminders.
   if (patch.status) {
@@ -339,13 +364,18 @@ export async function updateLeadDetails(formData) {
   // only fill when blank, never overwrite.
   const AGENT_EDITABLE = ['source', 'budget', 'community', 'property_interest'];
   const IDENTITY = ['name', 'phone', 'email'];
+  const FIELD_LABELS = {
+    name: 'name', phone: 'phone', email: 'email', source: 'source',
+    budget: 'budget', community: 'area', property_interest: 'project',
+  };
+
+  const { data: cur } = await supabase.from('leads').select('*').eq('id', leadId).single();
 
   let patch;
   if (staff) {
     if (!name) redirect(`/leads/${leadId}?error=` + encodeURIComponent('Name is required.'));
     patch = desired;
   } else {
-    const { data: cur } = await supabase.from('leads').select('*').eq('id', leadId).single();
     patch = {};
     // Source / budget / area / project — apply whatever the agent entered.
     for (const k of AGENT_EDITABLE) patch[k] = desired[k];
@@ -359,9 +389,25 @@ export async function updateLeadDetails(formData) {
     }
   }
 
+  // Which fields actually changed vs. the current record (for the audit log).
+  const changed = Object.keys(patch).filter((k) => {
+    const a = cur ? cur[k] : null;
+    const norm = (v) => (v === null || v === undefined ? '' : String(v).trim());
+    return norm(a) !== norm(patch[k]);
+  });
+
   // writeTolerant drops any not-yet-migrated column (e.g. community) and retries.
   const { error } = await writeTolerant((p) => supabase.from('leads').update(p).eq('id', leadId), patch);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+
+  if (changed.length) {
+    await logEvent({
+      userId: profile.id,
+      action: 'contact_edit',
+      leadId,
+      detail: 'Updated ' + changed.map((k) => FIELD_LABELS[k] || k).join(', '),
+    });
+  }
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/leads');
   redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Details updated.'));

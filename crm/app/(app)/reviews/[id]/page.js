@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireAdmin } from '@/lib/auth';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { formatDate, pct, SENIORITY_NAMES } from '@/lib/format';
 import { starString, starsFromTargetFraction, scoreOutOf100, scoreColor, groupByCategory } from '@/lib/reviews';
+import { computeKpiStats } from '@/lib/audit';
 import { getTargetProgress } from '@/lib/targets';
 import SubmitButton from '@/components/SubmitButton';
 import DateField from '@/components/DateField';
@@ -53,6 +55,22 @@ export default async function AgentReviewPage({ params, searchParams }) {
   const avg = overalls.length ? Math.round(overalls.reduce((a, b) => a + b, 0) / overalls.length) : 0;
   const grouped = groupByCategory(criteria);
 
+  // Auto-counted evidence for THIS quarter — real actions to rate against.
+  const now = new Date();
+  const quarterStart = new Date(now.getFullYear(), Math.floor(now.getMonth() / 3) * 3, 1);
+  const stats = await computeKpiStats(createAdminClient(), { agentId: agent.id, startIso: quarterStart.toISOString() });
+  const evidence = [
+    ['Leads touched', stats.leadsTouched],
+    ['📞 Calls', stats.calls],
+    ['🤝 Meetings', stats.meetings],
+    ['🏠 Viewings', stats.viewings],
+    ['📝 Notes', stats.notes],
+    ['📅 Follow-ups set', stats.followupsSet],
+    ['✅ Follow-ups done', stats.followupsDone],
+    ['🔀 Status changes', stats.statusChanges],
+    ['✏️ Contact edits', stats.contactEdits],
+  ];
+
   return (
     <div className="stack">
       <div>
@@ -76,6 +94,23 @@ export default async function AgentReviewPage({ params, searchParams }) {
       </div>
       {ok ? <div className="alert ok">{ok}</div> : null}
       {error ? <div className="alert error">{error}</div> : null}
+
+      {/* Auto-counted evidence — the real numbers to rate against */}
+      <div className="card">
+        <div className="spread">
+          <h3 style={{ margin: 0 }}>📊 Auto evidence · this quarter</h3>
+          <Link className="small" href={`/activity?agent=${agent.id}&period=quarter`}>Full activity log →</Link>
+        </div>
+        <p className="small muted" style={{ marginTop: 4 }}>Real actions recorded on leads — rate the KPIs below with these in front of you.</p>
+        <div className="row" style={{ gap: 18, flexWrap: 'wrap', alignItems: 'flex-end', marginTop: 6 }}>
+          {evidence.map(([label, val]) => (
+            <div key={label}>
+              <div className="small muted">{label}</div>
+              <div style={{ fontSize: 22, fontWeight: 700 }}>{val}</div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <div className="grid grid-2">
         {/* New scorecard */}
