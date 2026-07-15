@@ -151,7 +151,11 @@ export default async function AgentReviewPage({ params, searchParams }) {
       <div className="card">
         <div className="spread">
           <h3 style={{ margin: 0 }}>📊 Auto evidence · this quarter</h3>
-          <Link className="small" href={`/activity?agent=${agent.id}&period=quarter`}>Full activity log →</Link>
+          <span className="small">
+            <Link href={`/one-on-one?agent=${agent.id}&period=quarter`}>📋 1:1 report</Link>
+            {' · '}
+            <Link href={`/activity?agent=${agent.id}&period=quarter`}>Full activity log →</Link>
+          </span>
         </div>
         <p className="small muted" style={{ marginTop: 4 }}>Real actions recorded on leads — rate the KPIs below with these in front of you.</p>
         <div className="row" style={{ gap: 18, flexWrap: 'wrap', alignItems: 'flex-end', marginTop: 6 }}>
