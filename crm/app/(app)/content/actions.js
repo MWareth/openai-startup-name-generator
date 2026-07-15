@@ -102,9 +102,29 @@ const extOf = (mediaType) => (mediaType === 'image/jpeg' ? 'jpg' : String(mediaT
 // Credit savers: picking an existing project (no files) skips the expensive
 // brochure read entirely, and a re-uploaded project merges into the existing
 // one instead of creating a duplicate.
+// Ping management when an agent adds content that needs review/approval.
+async function notifyContentReview(admin, user, profile, projectId, projectName, language) {
+  try {
+    const { data: mgrs } = await admin.from('profiles').select('id').in('role', ['admin', 'director', 'c_suite']);
+    for (const m of mgrs || []) {
+      if (m.id === user.id) continue;
+      await notify({
+        userId: m.id,
+        type: 'content_review',
+        title: `🎬 ${profile?.full_name || 'An agent'} added a script: ${projectName || 'a project'}`,
+        body: `${language} — review, edit and approve it in Content Studio.`,
+        link: `/content/${projectId}`,
+        email: false,
+      });
+    }
+  } catch (e) {
+    // no-op
+  }
+}
+
 export async function createContentFromUpload(payload) {
   const { user, profile } = await requireUser();
-  if (!canRouteLeads(profile)) return { error: 'Only admin, support or marketing can create content.' };
+  const isCreator = canRouteLeads(profile);
   if (!contentReady()) return { error: 'ANTHROPIC_API_KEY is not set in Vercel yet — see the setup note on this page.' };
 
   const { files = [], notes = '', language = 'English', tone = 'Bullish default — short, punchy, direct', duration = 45, projectName = '' } = payload || {};
@@ -114,6 +134,18 @@ export async function createContentFromUpload(payload) {
 
   const admin = createAdminClient();
   await cleanupStaleUploads(admin);
+
+  // Agents can add projects too (their scripts stay drafts until admin
+  // approves) — capped at 3 generations/day so credits stay safe.
+  if (!isCreator) {
+    const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const { count } = await admin
+      .from('content_scripts')
+      .select('id', { count: 'exact', head: true })
+      .eq('created_by', user.id)
+      .gte('created_at', dayAgo);
+    if ((count || 0) >= 3) return { error: 'Daily limit reached (3 scripts per day). Ask your admin if you need more today.' };
+  }
 
   // An existing project was picked:
   //  • with files → harvest the renders out of the upload into that project's
@@ -154,6 +186,7 @@ export async function createContentFromUpload(payload) {
       await admin.from('content_scripts').insert({
         project_id: match.id, language, duration_sec: durationSec, tone, body, created_by: user.id,
       });
+      if (!isCreator) await notifyContentReview(admin, user, profile, match.id, match.name, language);
       revalidatePath('/content');
       return { id: match.id };
     }
@@ -225,6 +258,7 @@ export async function createContentFromUpload(payload) {
         project_id: existing.id, language, duration_sec: durationSec, tone, body: result.script_body, created_by: user.id,
       });
       if (assetItems.length) await saveProjectAssets(admin, existing.id, user.id, assetItems.slice(0, 10));
+      if (!isCreator) await notifyContentReview(admin, user, profile, existing.id, existing.name, language);
       revalidatePath('/content');
       return { id: existing.id };
     }
@@ -253,6 +287,7 @@ export async function createContentFromUpload(payload) {
   });
 
   if (assetItems.length) await saveProjectAssets(admin, project.id, user.id, assetItems.slice(0, 10));
+  if (!isCreator) await notifyContentReview(admin, user, profile, project.id, facts.project_name, language);
 
   revalidatePath('/content');
   return { id: project.id };

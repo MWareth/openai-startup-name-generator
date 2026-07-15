@@ -25,13 +25,18 @@ export default async function ContentStudioPage({ searchParams }) {
 
   const { data: projects } = await supabase
     .from('content_projects')
-    .select('id, name, developer, area, created_at, creator:profiles!content_projects_created_by_fkey(full_name), content_scripts(id, language, status)')
+    .select('id, name, developer, area, created_at, created_by, creator:profiles!content_projects_created_by_fkey(full_name), content_scripts(id, language, status, created_by)')
     .order('created_at', { ascending: false });
 
-  // Agents only care about projects that have at least one approved script.
+  // Agents see projects with approved scripts, plus anything they added
+  // themselves (their drafts await admin approval).
   const visible = isCreator
     ? projects || []
-    : (projects || []).filter((p) => (p.content_scripts || []).some((s) => s.status === 'approved'));
+    : (projects || []).filter(
+        (p) =>
+          p.created_by === user.id ||
+          (p.content_scripts || []).some((s) => s.status === 'approved' || s.created_by === user.id)
+      );
 
   return (
     <div className="stack">
@@ -40,7 +45,7 @@ export default async function ContentStudioPage({ searchParams }) {
           <h1>🎬 Content Studio</h1>
           <p className="muted">
             Upload a project brochure or renders — get a ready-to-film agent script, in any language.
-            {isCreator ? ' Scripts start as drafts; approve them to publish to the agents.' : ' These scripts are approved by management — pick one and film.'}
+            {isCreator ? ' Scripts start as drafts; approve them to publish to the agents.' : ' Approved scripts are ready to film — and you can add a project yourself below.'}
           </p>
         </div>
         <Link className="btn secondary small" href="/content/videos">🎥 Videos →</Link>
@@ -80,12 +85,16 @@ export default async function ContentStudioPage({ searchParams }) {
         </div>
       ) : null}
 
-      {isCreator ? (
-        <div className="card">
-          <h3 style={{ marginTop: 0 }}>New project script</h3>
-          <BrochureForm existingProjects={(projects || []).map((p) => ({ id: p.id, name: p.name }))} />
-        </div>
-      ) : null}
+      <div className="card">
+        <h3 style={{ marginTop: 0 }}>New project script</h3>
+        {!isCreator ? (
+          <p className="small muted" style={{ marginTop: 0 }}>
+            Add a project you want content for — your script goes to admin for approval before it can be used or filmed.
+            (Up to 3 per day.)
+          </p>
+        ) : null}
+        <BrochureForm existingProjects={(projects || []).map((p) => ({ id: p.id, name: p.name }))} />
+      </div>
 
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         <table>

@@ -55,7 +55,10 @@ export default async function ContentProjectPage({ params, searchParams }) {
   const allScripts = (project.content_scripts || []).sort(
     (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
-  const scripts = isCreator ? allScripts : allScripts.filter((s) => s.status === 'approved');
+  // Agents see approved scripts plus their own drafts (awaiting approval).
+  const scripts = isCreator
+    ? allScripts
+    : allScripts.filter((s) => s.status === 'approved' || s.created_by === user.id);
   const facts = project.facts || {};
   const usps = Array.isArray(facts.usps) ? facts.usps : [];
 
@@ -203,7 +206,11 @@ export default async function ContentProjectPage({ params, searchParams }) {
             ) : (
               <>
                 <p style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, margin: '0 0 10px' }}>{s.body}</p>
-                <CopyButton text={s.body} />
+                {s.status === 'approved' ? (
+                  <CopyButton text={s.body} />
+                ) : (
+                  <p className="small muted" style={{ margin: 0 }}>⏳ Waiting for admin approval — you’ll be able to use it once it’s approved.</p>
+                )}
               </>
             )}
 
