@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { writeTolerant } from '@/lib/db';
 import { notify } from '@/lib/notify';
+import { pickAgentForLead, detectPropertyType } from '@/lib/routing';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,18 +78,30 @@ export async function POST(request) {
     return NextResponse.json({ ok: true, matched: true, lead_id: existingId });
   }
 
-  // Optional direct assignment by agent email; otherwise it lands in the pool.
+  // Assignment order: explicit agent email → routing rules (budget/type with
+  // fair rotation, set on the Teams page) → the pool.
   let assignedTo = null;
   if (agentEmail) {
     const { data: a } = await admin.from('profiles').select('id').ilike('email', agentEmail).limit(1);
     assignedTo = a?.[0]?.id || null;
   }
 
-  const insert = { name: name || 'New enquiry', phone, email, source };
+  let budgetNum = null;
   if (budgetRaw) {
     const n = Number(budgetRaw.replace(/[^\d.]/g, ''));
-    if (n > 0) insert.budget = n;
+    if (n > 0) budgetNum = n;
   }
+  const typeRaw = val(body, ['property_type', 'propertyType', 'type', 'unit_type', 'unitType']);
+  const propertyType = typeRaw || detectPropertyType(typeRaw, property, community, message);
+
+  if (!assignedTo) {
+    const routed = await pickAgentForLead(admin, { budget: budgetNum, propertyType });
+    assignedTo = routed?.id || null;
+  }
+
+  const insert = { name: name || 'New enquiry', phone, email, source };
+  if (budgetNum) insert.budget = budgetNum;
+  if (propertyType) insert.property_type = propertyType; // writeTolerant drops pre-0005
   if (community) insert.community = community;
   if (property) insert.property_interest = property;
   if (assignedTo) {

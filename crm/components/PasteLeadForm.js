@@ -119,6 +119,7 @@ export default function PasteLeadForm({ agents = [], isStaff = false }) {
             <label>Assign to</label>
             <select value={f.assigned_agent_id} onChange={(e) => set('assigned_agent_id', e.target.value)} name="assigned_agent_id">
               <option value="">— Me / unassigned —</option>
+              <option value="__auto__">⚡ Auto-route (budget/type rules)</option>
               {agents.map((a) => <option key={a.id} value={a.id}>{a.full_name}</option>)}
             </select>
             {agentWarn ? <p className="small" style={{ color: 'var(--amber)' }}>{agentWarn}</p> : null}

@@ -1,8 +1,9 @@
 import { requireStaff } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import Avatar from '@/components/Avatar';
-import { ROLE_LABELS, pct, formatDate } from '@/lib/format';
-import { setUserTeam, assignTest, resetTest, remindUpdateLeads } from './actions';
+import MoneyInput from '@/components/MoneyInput';
+import { ROLE_LABELS, pct, formatDate, PROPERTY_TYPES } from '@/lib/format';
+import { setUserTeam, assignTest, resetTest, remindUpdateLeads, saveRouting } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,7 +14,7 @@ export default async function TeamsPage({ searchParams }) {
 
   const { data: profiles } = await supabase
     .from('profiles')
-    .select('id, full_name, email, role, team, avatar_url')
+    .select('*')
     .order('full_name');
 
   // Training test data (read with the service-role key so staff can see
@@ -124,6 +125,52 @@ export default async function TeamsPage({ searchParams }) {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* ---- Lead routing rules (campaigns → the right agent, auto-rotated) ---- */}
+      <div className="card">
+        <h2 style={{ marginTop: 0 }}>⚡ Lead routing</h2>
+        <p className="small muted" style={{ marginTop: 0 }}>
+          Campaign leads are assigned automatically: the lead’s <strong>budget</strong> and <strong>property type</strong>{' '}
+          are matched against these rules, and matching agents take turns (fair rotation). Applies to leads from the
+          website/Meta webhook and to leads you add with “⚡ Auto-route”. No match → the lead goes to the pool.
+        </p>
+        <div className="stack" style={{ gap: 10 }}>
+          {(profiles || [])
+            .filter((p) => p.role === 'agent' || p.role === 'admin')
+            .map((p) => {
+              const selected = String(p.route_types || '').split(',').map((s) => s.trim()).filter(Boolean);
+              return (
+                <form key={p.id} action={saveRouting} className="card" style={{ background: 'var(--panel-2)', margin: 0 }}>
+                  <input type="hidden" name="member_id" value={p.id} />
+                  <div className="row" style={{ gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Avatar url={p.avatar_url} name={p.full_name} size="sm" />
+                    <strong style={{ minWidth: 120 }}>{p.full_name}</strong>
+                    <label className="small" style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <input type="checkbox" name="route_enabled" defaultChecked={!!p.route_enabled} /> In rotation
+                    </label>
+                    <label className="small muted" style={{ display: 'flex', flexDirection: 'column' }}>
+                      Budget from (AED)
+                      <MoneyInput name="route_min" defaultValue={p.route_min_budget || ''} placeholder="no minimum" style={{ width: 140 }} />
+                    </label>
+                    <label className="small muted" style={{ display: 'flex', flexDirection: 'column' }}>
+                      Budget up to (AED)
+                      <MoneyInput name="route_max" defaultValue={p.route_max_budget || ''} placeholder="no maximum" style={{ width: 140 }} />
+                    </label>
+                  </div>
+                  <div className="row" style={{ gap: 12, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span className="small muted">Types (none ticked = any):</span>
+                    {PROPERTY_TYPES.map((t) => (
+                      <label key={t} className="small" style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
+                        <input type="checkbox" name="route_types" value={t} defaultChecked={selected.includes(t)} /> {t}
+                      </label>
+                    ))}
+                    <button className="btn secondary small" type="submit" style={{ marginLeft: 'auto' }}>Save</button>
+                  </div>
+                </form>
+              );
+            })}
+        </div>
       </div>
     </div>
   );

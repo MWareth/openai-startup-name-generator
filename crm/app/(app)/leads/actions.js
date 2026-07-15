@@ -8,6 +8,7 @@ import { writeTolerant } from '@/lib/db';
 import { computeCommission } from '@/lib/commission';
 import { sendPushToUser } from '@/lib/push';
 import { notify, notifyManagement, resolveNotifications } from '@/lib/notify';
+import { pickAgentForLead } from '@/lib/routing';
 import { logEvent } from '@/lib/audit';
 import { ACTIVITY_LABELS, STATUS_LABELS, QUAL_LABELS } from '@/lib/format';
 
@@ -59,10 +60,13 @@ export async function createLead(formData) {
   if (!name) redirect('/leads/new?error=' + encodeURIComponent('Name is required'));
 
   // Admin/support may assign to any agent; everyone else keeps it themselves.
+  // '__auto__' = route by the Teams-page rules (budget/type + fair rotation).
   let assignedTo = user.id;
+  let autoRoute = false;
   if (hasStaffAccess(profile)) {
     const picked = emptyToNull(formData.get('assigned_agent_id'));
-    if (picked) assignedTo = picked;
+    if (picked === '__auto__') autoRoute = true;
+    else if (picked) assignedTo = picked;
   }
 
   const phone = emptyToNull(formData.get('phone'));
@@ -92,6 +96,15 @@ export async function createLead(formData) {
   // Normalise the cold-call source so the contest counter is reliable.
   let source = emptyToNull(formData.get('source'));
   if (source && source.trim().toLowerCase() === 'cold call') source = 'Cold Call';
+
+  // Auto-routing: match the Teams-page rules on budget + property type.
+  if (autoRoute) {
+    const routed = await pickAgentForLead(createAdminClient(), {
+      budget: budgetRaw ? Number(budgetRaw) : null,
+      propertyType: emptyToNull(formData.get('property_type')),
+    });
+    assignedTo = routed?.id || null; // no match → pool
+  }
 
   const insert = {
     name,

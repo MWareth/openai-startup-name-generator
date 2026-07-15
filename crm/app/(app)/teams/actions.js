@@ -8,6 +8,33 @@ import { notify } from '@/lib/notify';
 
 const TEAMS = ['Offplan', 'Secondary', 'Rental'];
 
+// Save an agent's lead-routing rule (budget range + property types + on/off).
+export async function saveRouting(formData) {
+  await requireStaff();
+  const memberId = String(formData.get('member_id'));
+  const num = (k) => {
+    const n = parseInt(String(formData.get(k) || '').replace(/[^0-9]/g, ''), 10);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  };
+  const types = formData.getAll('route_types').map(String).filter(Boolean).join(',') || null;
+  const patch = {
+    route_enabled: !!formData.get('route_enabled'),
+    route_min_budget: num('route_min'),
+    route_max_budget: num('route_max'),
+    route_types: types,
+  };
+  const admin = createAdminClient();
+  const { error } = await admin.from('profiles').update(patch).eq('id', memberId);
+  if (error) {
+    const msg = /route_enabled|route_min|route_max|route_types|schema cache/.test(error.message)
+      ? 'Run migration 0033 in Supabase first, then save again.'
+      : error.message;
+    redirect('/teams?error=' + encodeURIComponent(msg));
+  }
+  revalidatePath('/teams');
+  redirect('/teams?ok=' + encodeURIComponent('Routing rule saved.'));
+}
+
 // Assign the current active training test to a member and notify them.
 export async function assignTest(formData) {
   const { user } = await requireStaff();

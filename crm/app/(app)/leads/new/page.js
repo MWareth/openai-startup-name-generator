@@ -41,6 +41,7 @@ export default async function NewLeadPage({ searchParams }) {
           <div className="field">
             <label htmlFor="assigned_agent_id">Assign to</label>
             <select id="assigned_agent_id" name="assigned_agent_id" defaultValue={user.id}>
+              <option value="__auto__">⚡ Auto-route (budget/type rules)</option>
               {assignees.map((a) => (
                 <option key={a.id} value={a.id}>{a.full_name}{a.id === user.id ? ' (me)' : ''}</option>
               ))}
