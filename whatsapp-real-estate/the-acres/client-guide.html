@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Acres by Meraas — Buyer's Guide</title>
+<style>
+  :root {
+    --ground: #EFEFE8;
+    --card: #FAFAF5;
+    --ink: #1F2B22;
+    --ink-soft: #5C6B5E;
+    --line: #DBDDD0;
+    --accent: #2F6B52;
+    --accent-soft: #E3EDE6;
+    --water: #2F7D8C;
+    --water-soft: rgba(47, 125, 140, 0.12);
+    --shadow: 0 1px 2px rgba(31, 43, 34, 0.05), 0 4px 16px rgba(31, 43, 34, 0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #131B16;
+      --card: #1B241E;
+      --ink: #E8ECE5;
+      --ink-soft: #93A296;
+      --line: #2C382F;
+      --accent: #5FA985;
+      --accent-soft: #22352A;
+      --water: #5BAABB;
+      --water-soft: rgba(91, 170, 187, 0.14);
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25);
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #EFEFE8; --card: #FAFAF5; --ink: #1F2B22; --ink-soft: #5C6B5E;
+    --line: #DBDDD0; --accent: #2F6B52; --accent-soft: #E3EDE6;
+    --water: #2F7D8C; --water-soft: rgba(47, 125, 140, 0.12);
+    --shadow: 0 1px 2px rgba(31, 43, 34, 0.05), 0 4px 16px rgba(31, 43, 34, 0.05);
+  }
+  :root[data-theme="dark"] {
+    --ground: #131B16; --card: #1B241E; --ink: #E8ECE5; --ink-soft: #93A296;
+    --line: #2C382F; --accent: #5FA985; --accent-soft: #22352A;
+    --water: #5BAABB; --water-soft: rgba(91, 170, 187, 0.14);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.25);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--ground); color: var(--ink);
+    font: 16px/1.55 "Avenir Next", Avenir, Seravek, "Segoe UI", system-ui, sans-serif;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 40px 20px 80px; }
+
+  .eyebrow {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--accent); margin: 0 0 10px;
+  }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 40px; line-height: 1.1; font-weight: 700;
+    letter-spacing: -0.015em; margin: 0 0 12px; text-wrap: balance;
+  }
+  .dek { font-size: 17px; color: var(--ink-soft); margin: 0; max-width: 58ch; }
+  .byline { font-size: 13px; color: var(--ink-soft); margin: 18px 0 0; }
+  .byline b { color: var(--ink); font-weight: 600; }
+
+  section { margin-top: 44px; }
+  .label {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--accent); margin: 0 0 12px;
+  }
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 24px; font-weight: 700; margin: 0 0 10px; text-wrap: balance;
+  }
+  p { margin: 0 0 12px; max-width: 65ch; }
+  .muted { color: var(--ink-soft); font-size: 14px; }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .tile {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; box-shadow: var(--shadow);
+  }
+  .tile .v {
+    font-family: Georgia, serif; font-size: 24px; font-weight: 700;
+    font-variant-numeric: tabular-nums; line-height: 1.15;
+  }
+  .tile .k { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .amenity {
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 5px 13px; font-size: 13px; font-weight: 600;
+  }
+
+  .tablebox { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14.5px; }
+  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: 0; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-soft); font-weight: 700; }
+  td.num, th.num { font-variant-numeric: tabular-nums; }
+  td b { font-weight: 650; }
+
+  .note {
+    border-left: 3px solid var(--accent); background: var(--card);
+    border-radius: 0 10px 10px 0; padding: 12px 16px; margin-top: 14px; font-size: 14.5px;
+  }
+
+  .phase { display: flex; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
+  .phase:last-child { border-bottom: 0; }
+  .phase .when { flex: none; width: 92px; font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .phase .what { flex: 1; font-size: 15px; }
+  .phase .what small { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
+  .pill {
+    flex: none; font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em;
+    border-radius: 999px; padding: 3px 10px; text-transform: uppercase;
+  }
+  .pill.build { background: var(--water-soft); color: var(--water); }
+  .pill.sold { background: var(--accent-soft); color: var(--accent); }
+
+  .chartcard { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 18px 18px 8px; }
+  .charttitle { font-size: 14px; font-weight: 650; margin: 0 0 2px; }
+  .chartsub { font-size: 12.5px; color: var(--ink-soft); margin: 0 0 8px; }
+  #chart { width: 100%; height: auto; display: block; touch-action: none; }
+  .tip {
+    position: fixed; pointer-events: none; z-index: 10; display: none;
+    background: var(--ink); color: var(--ground); border-radius: 8px;
+    padding: 6px 10px; font-size: 12.5px; font-variant-numeric: tabular-nums;
+    white-space: nowrap; box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  }
+  .tip b { font-weight: 700; }
+
+  .loc { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+  .locgroup { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .locgroup h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin: 0 0 8px; }
+  .locgroup ul { margin: 0; padding: 0; list-style: none; font-size: 14px; }
+  .locgroup li { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; }
+  .locgroup li span:last-child { color: var(--ink-soft); font-variant-numeric: tabular-nums; flex: none; }
+
+  .take { counter-reset: t; display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
+  .take .item {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; box-shadow: var(--shadow); font-size: 15px;
+  }
+  .take .item b { display: block; margin-bottom: 3px; font-family: Georgia, serif; font-size: 16.5px; }
+
+  footer { margin-top: 52px; border-top: 1px solid var(--line); padding-top: 20px; }
+  .cta {
+    display: inline-block; background: var(--accent); color: var(--card);
+    border-radius: 999px; padding: 11px 22px; font-weight: 700; font-size: 15px;
+    text-decoration: none; margin-bottom: 16px;
+  }
+  .fine { font-size: 12px; color: var(--ink-soft); line-height: 1.5; max-width: 70ch; }
+  @media (prefers-reduced-motion: no-preference) { .tile, .item { transition: transform .2s ease; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Dubailand · Dubai · Buyer's Guide · July 2026</p>
+    <h1>The Acres by Meraas</h1>
+    <p class="dek">A community of standalone villas only — no townhouses, no apartments — built around swimmable lagoons and parkland, by the developer behind City Walk and Bluewaters. Here is what it is, what homes actually sell for, and when you can move in.</p>
+    <p class="byline">Prepared by <b>Marwan Abdulwareth</b> · Bridges and Allies Real Estate Brokers · ORN 17070<br>Pricing from Dubai Land Department records via Property Monitor, 17 July 2026</p>
+  </header>
+
+  <section>
+    <p class="label">At a glance</p>
+    <div class="tiles">
+      <div class="tile"><div class="v">AED 7.88M</div><div class="k">Average sold price, last 5 months</div></div>
+      <div class="tile"><div class="v">AED 1,707</div><div class="k">Average sold price per sq ft</div></div>
+      <div class="tile"><div class="v">25 sales</div><div class="k">Recorded Feb–Jul 2026</div></div>
+      <div class="tile"><div class="v">2027–28</div><div class="k">First handovers expected</div></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="label">The project</p>
+    <h2>Villas around lagoons, built by Dubai Holding's Meraas</h2>
+    <p>The Acres is a master community of about 1,200 villas in Dubailand, next to Emirates Road. Every home is a standalone villa with its own garden, pool and parking — there are no shared walls anywhere in the community.</p>
+    <p>The masterplan puts nature at the centre: swimmable lagoons with a lagoon clubhouse, a looping central park connecting every neighbourhood, and dry wadi walking trails. A school, nursery, clinic, mosque and a retail promenade are all planned inside the community, and every villa sits within a short walk of a park.</p>
+    <div class="chips">
+      <span class="amenity">Swimmable lagoons</span>
+      <span class="amenity">Lagoon clubhouse</span>
+      <span class="amenity">Halo Loop Park</span>
+      <span class="amenity">Wadi trails</span>
+      <span class="amenity">School &amp; nursery</span>
+      <span class="amenity">Clinic</span>
+      <span class="amenity">Retail promenade</span>
+      <span class="amenity">Private pools</span>
+    </div>
+  </section>
+
+  <section>
+    <p class="label">Homes &amp; prices</p>
+    <h2>What the villas actually sell for</h2>
+    <p>These are real transfer prices recorded with the Dubai Land Department over the last five months — not asking prices. Advertised prices currently run 10–15% higher than what buyers actually pay, which is exactly why you negotiate.</p>
+    <div class="tablebox">
+      <table>
+        <thead>
+          <tr><th>Villa</th><th class="num">Size (built-up)</th><th class="num">Sold recently for</th><th class="num">Launched at (2024)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><b>3 bedroom</b> + maid</td><td class="num">~3,048 sq ft</td><td class="num"><b>AED 5.0M – 5.6M</b></td><td class="num">from AED 5.09M</td></tr>
+          <tr><td><b>4 bedroom</b> + maid</td><td class="num">~3,990 – 4,875 sq ft</td><td class="num"><b>AED 6.5M – 7.75M</b></td><td class="num">from AED 6.79M</td></tr>
+          <tr><td><b>5 bedroom</b> + maid</td><td class="num">~4,960 – 6,000 sq ft</td><td class="num"><b>AED 7.0M – 13.5M</b></td><td class="num">from ~AED 8.4M</td></tr>
+          <tr><td><b>The Acres Estates</b> · 5–7BR mansions</td><td class="num">6,913 – 11,090 sq ft</td><td class="num">asking from AED 14.5M</td><td class="num">from AED 13.3M – 20M</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note"><b>Payment plan:</b> 65/35 with 10% down — you pay 65% in instalments during construction and 35% on handover. Resale buyers take over the original schedule.</div>
+  </section>
+
+  <section>
+    <p class="label">Construction &amp; handover</p>
+    <h2>Nothing is handed over yet — here's the honest timeline</h2>
+    <p>All phases are sold or selling, but the community is still under construction. If you buy today, you are buying off-plan with roughly 18 months to two years until you get keys.</p>
+    <div>
+      <div class="phase"><span class="when">Jan 2024</span><span class="what">The Acres — Phase 1 <small>3–5BR villas · first launch, sold out</small></span><span class="pill build">Building</span></div>
+      <div class="phase"><span class="when">Jun 2024</span><span class="what">The Acres — Phase 2 <small>200+ villas released after Phase 1 sold out</small></span><span class="pill build">Building</span></div>
+      <div class="phase"><span class="when">Late 2024</span><span class="what">The Acres Estates <small>5–7BR mansions · Amber &amp; Ivory collections</small></span><span class="pill build">Building</span></div>
+      <div class="phase"><span class="when">Mar 2025</span><span class="what">Final phase <small>106 villas + 102 Estates mansions</small></span><span class="pill sold">Selling</span></div>
+      <div class="phase"><span class="when">Q4 2027</span><span class="what">First handovers begin <small>staged handovers continue through 2028; Estates to Q3 2028</small></span><span class="pill build">Upcoming</span></div>
+    </div>
+    <p class="muted" style="margin-top:12px">Meraas awarded AED 2.4 billion in construction contracts in April 2026 — the project is funded and moving. Realistically, plan for keys in 2028.</p>
+  </section>
+
+  <section>
+    <p class="label">Price trend</p>
+    <h2>Prices climbed through 2025, then cooled — good news if you're buying</h2>
+    <div class="chartcard">
+      <p class="charttitle">The Acres — average price per sq ft (AED)</p>
+      <p class="chartsub">Property Monitor Dynamic Price Index, June 2025 – June 2026</p>
+      <svg id="chart" viewBox="0 0 660 240" role="img" aria-label="Line chart of The Acres price index rising from 1,609 AED per square foot in June 2025 to a peak of 1,683 in October 2025 and March 2026, then easing to 1,639 by June 2026"></svg>
+    </div>
+    <p style="margin-top:14px">Prices rose steadily through 2025, peaked around <b>AED 1,683 per sq ft</b>, and have eased about 2.6% over the last quarter to <b>AED 1,639</b> — still up on last year. The whole Dubai market took a breather in spring 2026, and here it means one thing for buyers: sellers are negotiable, and deals are closing at or below the numbers in the table above. Windows like this rarely stay open once a community starts handing over.</p>
+  </section>
+
+  <section>
+    <p class="label">Location</p>
+    <h2>Family suburb, 25 minutes from Downtown</h2>
+    <p>The Acres sits on Sheikh Zayed Bin Hamdan Street with direct access to Emirates Road, next to Arabian Ranches. It's a car-based suburb — the trade-off for space, gardens and quiet.</p>
+    <div class="loc">
+      <div class="locgroup"><h3>Schools</h3><ul>
+        <li><span>Jumeirah English Speaking School</span><span>2.5 km</span></li>
+        <li><span>Fairgreen International</span><span>3.1 km</span></li>
+        <li><span>Ranches Primary</span><span>3.3 km</span></li>
+        <li><span>Dunecrest American</span><span>4.7 km</span></li>
+      </ul></div>
+      <div class="locgroup"><h3>Daily life</h3><ul>
+        <li><span>Cityland Mall</span><span>1.8 km</span></li>
+        <li><span>Saudi German Clinic</span><span>1.8 km</span></li>
+        <li><span>Arabian Ranches Retail</span><span>2.6 km</span></li>
+        <li><span>Global Village</span><span>~10 min</span></li>
+      </ul></div>
+      <div class="locgroup"><h3>Getting around</h3><ul>
+        <li><span>Downtown / Business Bay</span><span>~25 min</span></li>
+        <li><span>Dubai Intl Airport (DXB)</span><span>~30 min</span></li>
+        <li><span>Al Maktoum Airport (DWC)</span><span>~25 min</span></li>
+        <li><span>Dubai Marina</span><span>~30–35 min</span></li>
+      </ul></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="label">Our take</p>
+    <h2>Three things to know before you offer</h2>
+    <div class="take">
+      <div class="item"><b>Negotiate — the data is on your side.</b> Advertised prices average well above what actually transfers. Fair value today is AED 1,640–1,710 per sq ft. We anchor every offer to recorded sales, not listings.</div>
+      <div class="item"><b>This is a 2028 move-in, and a hold — not a quick flip.</b> You're buying the corridor's best masterplan before it exists. Communities like this historically re-rate after handover, once the lagoons fill and families move in. Buy it to live in or to hold through 2028–29.</div>
+      <div class="item"><b>3 and 4 bedroom villas are the sweet spot.</b> They have the most sales evidence, the strongest future rental demand (est. AED 280–370K/year at handover), and the deepest resale market. The 5BR+ range is beautiful but thinner — plot and lagoon position matter enormously there.</div>
+    </div>
+  </section>
+
+  <footer>
+    <a class="cta" href="#" onclick="return false">Ask Marwan about available units</a>
+    <p class="fine"><b>Marwan Abdulwareth</b> · Bridges and Allies Real Estate Brokers · ORN 17070<br>Office 504, Business Hub, Al Fattan Marine Towers, Dubai Marina, Dubai, UAE</p>
+    <p class="fine" style="margin-top:10px">Sources: Dubai Land Department transaction records and Property Monitor Dynamic Price Index (report dated 17 July 2026), Meraas / Dubai Holding announcements, and public market data. Sold-price ranges reflect 25 recorded transactions Feb–Jul 2026. Handover dates are developer guidance and may change. This guide is general information, not financial advice — figures should be verified at the time of your transaction.</p>
+  </footer>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+(function () {
+  "use strict";
+  var DATA = [
+    ["Jun 25", 1609], ["Jul 25", 1625], ["Aug 25", 1664], ["Sep 25", 1681],
+    ["Oct 25", 1683], ["Nov 25", 1676], ["Dec 25", 1673], ["Jan 26", 1667],
+    ["Feb 26", 1673], ["Mar 26", 1683], ["Apr 26", 1670], ["May 26", 1658],
+    ["Jun 26", 1639]
+  ];
+  var svg = document.getElementById("chart");
+  var tip = document.getElementById("tip");
+  var NS = "http://www.w3.org/2000/svg";
+  var W = 660, H = 240, padL = 46, padR = 40, padT = 16, padB = 30;
+  var yMin = 1590, yMax = 1700;
+
+  function x(i) { return padL + (i / (DATA.length - 1)) * (W - padL - padR); }
+  function y(v) { return padT + (1 - (v - yMin) / (yMax - yMin)) * (H - padT - padB); }
+  function el(name, attrs, text) {
+    var e = document.createElementNS(NS, name);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text) e.textContent = text;
+    return e;
+  }
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function draw() {
+    svg.innerHTML = "";
+    var line = css("--water"), grid = css("--line"), inkSoft = css("--ink-soft"), card = css("--card");
+
+    [1600, 1640, 1680].forEach(function (v) {
+      svg.appendChild(el("line", { x1: padL, x2: W - padR, y1: y(v), y2: y(v), stroke: grid, "stroke-width": 1 }));
+      svg.appendChild(el("text", { x: padL - 8, y: y(v) + 4, "text-anchor": "end", fill: inkSoft, "font-size": 11, "font-variant-numeric": "tabular-nums" }, String(v)));
+    });
+    [0, 4, 8, 12].forEach(function (i) {
+      svg.appendChild(el("text", { x: x(i), y: H - 10, "text-anchor": "middle", fill: inkSoft, "font-size": 11 }, DATA[i][0]));
+    });
+
+    var pts = DATA.map(function (d, i) { return x(i) + "," + y(d[1]); });
+    var area = "M" + pts.join(" L") + " L" + x(DATA.length - 1) + "," + y(yMin) + " L" + x(0) + "," + y(yMin) + " Z";
+    var a = el("path", { d: area, fill: line, opacity: 0.12, stroke: "none" });
+    svg.appendChild(a);
+    svg.appendChild(el("path", { d: "M" + pts.join(" L"), fill: "none", stroke: line, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
+
+    var li = DATA.length - 1;
+    svg.appendChild(el("circle", { cx: x(li), cy: y(DATA[li][1]), r: 4.5, fill: line, stroke: card, "stroke-width": 2 }));
+    svg.appendChild(el("text", { x: x(li) + 2, y: y(DATA[li][1]) - 10, "text-anchor": "middle", fill: inkSoft, "font-size": 11.5, "font-weight": 700, "font-variant-numeric": "tabular-nums" }, "1,639"));
+
+    var hover = el("g", { style: "display:none" });
+    var cross = el("line", { y1: padT, y2: H - padB, stroke: inkSoft, "stroke-width": 1, "stroke-dasharray": "3,3" });
+    var dot = el("circle", { r: 5, fill: line, stroke: card, "stroke-width": 2 });
+    hover.appendChild(cross); hover.appendChild(dot);
+    svg.appendChild(hover);
+    svg.appendChild(el("rect", { x: 0, y: 0, width: W, height: H, fill: "transparent" }));
+
+    function onMove(clientX, clientY) {
+      var r = svg.getBoundingClientRect();
+      var mx = (clientX - r.left) * (W / r.width);
+      var i = Math.round(((mx - padL) / (W - padL - padR)) * (DATA.length - 1));
+      i = Math.max(0, Math.min(DATA.length - 1, i));
+      hover.style.display = "";
+      cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i));
+      dot.setAttribute("cx", x(i)); dot.setAttribute("cy", y(DATA[i][1]));
+      tip.style.display = "block";
+      tip.innerHTML = DATA[i][0].replace(" ", " 20") + " · <b>AED " + DATA[i][1].toLocaleString() + "</b>/sq ft";
+      tip.style.left = Math.min(clientX + 14, window.innerWidth - tip.offsetWidth - 8) + "px";
+      tip.style.top = (clientY - 34) + "px";
+    }
+    svg.addEventListener("mousemove", function (e) { onMove(e.clientX, e.clientY); });
+    svg.addEventListener("touchmove", function (e) { if (e.touches[0]) onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+    function hide() { hover.style.display = "none"; tip.style.display = "none"; }
+    svg.addEventListener("mouseleave", hide);
+    svg.addEventListener("touchend", hide);
+  }
+
+  draw();
+  if (window.matchMedia) {
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+  }
+  new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+})();
+</script>
+
+</html>
