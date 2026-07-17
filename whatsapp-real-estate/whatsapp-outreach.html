@@ -401,8 +401,15 @@ Fatima, 0521234567"></textarea>
     var valid = contacts.filter(function (c) { return c.phone; });
     $empty.style.display = contacts.length ? "none" : "";
 
-    var sentCount = 0;
+    // unsent contacts stay on top; sent ones drop to the bottom
+    var unsentArr = [], sentArr = [];
     contacts.forEach(function (c) {
+      (c.phone && sent[c.phone] ? sentArr : unsentArr).push(c);
+    });
+    var ordered = unsentArr.concat(sentArr);
+
+    var sentCount = 0;
+    ordered.forEach(function (c) {
       var row = document.createElement("div");
       row.className = "row";
 
