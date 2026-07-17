@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dee's Treats — WhatsApp Outreach</title>
+<style>
+  :root {
+    --ground: #F6EEE1;
+    --card: #FDF8EF;
+    --ink: #33231A;
+    --ink-soft: #7A6552;
+    --line: #E3D5C0;
+    --accent: #A96A2C;
+    --accent-ink: #FDF8EF;
+    --wa: #1FAE54;
+    --wa-ink: #FFFFFF;
+    --sent: #5E7A5E;
+    --sent-bg: #EDF1EA;
+    --field: #FFFFFF;
+    --shadow: 0 1px 2px rgba(51, 35, 26, 0.06), 0 4px 14px rgba(51, 35, 26, 0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #221712;
+      --card: #2C1F18;
+      --ink: #F1E6D6;
+      --ink-soft: #B49B85;
+      --line: #453327;
+      --accent: #C98B4A;
+      --accent-ink: #221712;
+      --wa: #23B85B;
+      --wa-ink: #FFFFFF;
+      --sent: #92AC8F;
+      --sent-bg: #26301F;
+      --field: #1B120D;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.25);
+    }
+  }
+  :root[data-theme="light"] {
+    --ground: #F6EEE1;
+    --card: #FDF8EF;
+    --ink: #33231A;
+    --ink-soft: #7A6552;
+    --line: #E3D5C0;
+    --accent: #A96A2C;
+    --accent-ink: #FDF8EF;
+    --wa: #1FAE54;
+    --wa-ink: #FFFFFF;
+    --sent: #5E7A5E;
+    --sent-bg: #EDF1EA;
+    --field: #FFFFFF;
+    --shadow: 0 1px 2px rgba(51, 35, 26, 0.06), 0 4px 14px rgba(51, 35, 26, 0.05);
+  }
+  :root[data-theme="dark"] {
+    --ground: #221712;
+    --card: #2C1F18;
+    --ink: #F1E6D6;
+    --ink-soft: #B49B85;
+    --line: #453327;
+    --accent: #C98B4A;
+    --accent-ink: #221712;
+    --wa: #23B85B;
+    --wa-ink: #FFFFFF;
+    --sent: #92AC8F;
+    --sent-bg: #26301F;
+    --field: #1B120D;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.25);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font: 16px/1.5 "Avenir Next", Avenir, Seravek, "Segoe UI", system-ui, sans-serif;
+  }
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 32px 20px 96px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  header h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 0 0 4px;
+    text-wrap: balance;
+  }
+  header h1 .amp { color: var(--accent); }
+  header p { margin: 0; color: var(--ink-soft); max-width: 46ch; }
+
+  .step {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .step-label {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--accent);
+  }
+  .step h2 { font-size: 18px; margin: 0; font-weight: 600; }
+  .step h2 small { display: block; font-size: 13px; font-weight: 400; color: var(--ink-soft); margin-top: 2px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    border: 1px solid var(--line);
+    background: var(--field);
+    color: var(--ink);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .chip:hover { border-color: var(--accent); }
+  .chip.active { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .chip:focus-visible, .btn:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  textarea {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--field);
+    color: var(--ink);
+    font: 15px/1.55 inherit;
+    font-family: inherit;
+    padding: 12px 14px;
+    resize: vertical;
+    min-height: 96px;
+  }
+  textarea::placeholder { color: var(--ink-soft); opacity: 0.7; }
+
+  .preview {
+    border-left: 3px solid var(--wa);
+    background: var(--field);
+    border-radius: 0 10px 10px 0;
+    padding: 10px 14px;
+    font-size: 14px;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+  .preview-label { font-size: 12px; color: var(--ink-soft); margin-bottom: 4px; }
+
+  .hint { font-size: 13px; color: var(--ink-soft); margin: 0; }
+
+  .list-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .count { font-size: 14px; font-weight: 600; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .count strong { color: var(--ink); }
+
+  .rows { display: flex; flex-direction: column; gap: 8px; }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid var(--line);
+    background: var(--field);
+    border-radius: 12px;
+    padding: 10px 12px 10px 16px;
+  }
+  .row.sent { background: var(--sent-bg); border-color: transparent; }
+  .row .who { flex: 1; min-width: 0; }
+  .row .name { font-weight: 600; font-size: 15px; }
+  .row.sent .name { color: var(--sent); }
+  .row .phone {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .row .bad { color: #B3452C; font-size: 13px; }
+
+  .btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .btn-send { background: var(--wa); color: var(--wa-ink); }
+  .btn-send:hover { filter: brightness(1.06); }
+  .btn-resend {
+    background: transparent;
+    color: var(--sent);
+    border: 1px solid var(--line);
+    font-weight: 600;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ink-soft);
+    border: 1px solid var(--line);
+    font-weight: 600;
+    font-size: 13px;
+  }
+  .btn-ghost:hover { color: var(--ink); border-color: var(--accent); }
+  .wa-glyph { width: 16px; height: 16px; flex: none; }
+
+  .empty {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+    padding: 18px 0 6px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .row { transition: background 0.25s ease, border-color 0.25s ease; }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Dee's Treats <span class="amp">·</span> WhatsApp Outreach</h1>
+    <p>Write one message, paste your contacts, and send it person by person — each button opens WhatsApp with their first name already in the message.</p>
+  </header>
+
+  <section class="step">
+    <div>
+      <div class="step-label">Step 1</div>
+      <h2>Your message <small>Use <b>{name}</b> where the first name should go. Pick a starter or write your own.</small></h2>
+    </div>
+    <div class="chips" id="chips"></div>
+    <textarea id="template" rows="4" spellcheck="false"></textarea>
+    <div class="preview">
+      <div class="preview-label" id="previewLabel">Preview</div>
+      <div id="previewText"></div>
+    </div>
+  </section>
+
+  <section class="step">
+    <div>
+      <div class="step-label">Step 2</div>
+      <h2>Your contacts <small>One per line: name and number, e.g. <b>Sara Ahmed, 050 123 4567</b>. Pasting from a spreadsheet works too.</small></h2>
+    </div>
+    <textarea id="contacts" rows="6" spellcheck="false" placeholder="Sara Ahmed, 050 123 4567
+Omar K, +971 55 987 6543
+Fatima, 0521234567"></textarea>
+    <p class="hint">UAE numbers starting with 05 are converted to +971 automatically. Other countries: paste the full number with country code.</p>
+  </section>
+
+  <section class="step">
+    <div class="list-head">
+      <div>
+        <div class="step-label">Step 3</div>
+        <h2>Click and send</h2>
+      </div>
+      <span class="count" id="count"></span>
+      <button class="btn btn-ghost" id="reset" type="button">Clear sent marks</button>
+    </div>
+    <div class="rows" id="rows"></div>
+    <div class="empty" id="empty">Paste contacts above and the send list appears here.</div>
+  </section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var PRESETS = [
+    {
+      label: "Intro + menu",
+      text: "Hi {name}! Marwan here from Dee's Treats 🍰 We bake homemade desserts to order in Dubai — San Sebastian cheesecake, pavlova, brownies and more. Can I send you the menu?"
+    },
+    {
+      label: "Short + direct",
+      text: "Hey {name}, Marwan from Dee's Treats. Homemade desserts, baked to order in Dubai. Want the menu?"
+    },
+    {
+      label: "First-order treat",
+      text: "Hi {name}! Dee's Treats here — homemade desserts, baked fresh to order in Dubai. I'll add a little extra treat with your first order 🍫 Want to see the menu?"
+    }
+  ];
+
+  var LS = {
+    template: "dt-wa-template",
+    contacts: "dt-wa-contacts",
+    sent: "dt-wa-sent"
+  };
+
+  var $template = document.getElementById("template");
+  var $contacts = document.getElementById("contacts");
+  var $chips = document.getElementById("chips");
+  var $rows = document.getElementById("rows");
+  var $empty = document.getElementById("empty");
+  var $count = document.getElementById("count");
+  var $previewText = document.getElementById("previewText");
+  var $previewLabel = document.getElementById("previewLabel");
+  var $reset = document.getElementById("reset");
+
+  function load(key, fallback) {
+    try {
+      var v = localStorage.getItem(key);
+      return v === null ? fallback : v;
+    } catch (e) { return fallback; }
+  }
+  function save(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) {}
+  }
+  function loadSent() {
+    try { return JSON.parse(load(LS.sent, "{}")) || {}; } catch (e) { return {}; }
+  }
+  var sent = loadSent();
+
+  // ---- phone + name parsing -------------------------------------------
+  function normalizePhone(raw) {
+    var d = raw.replace(/\D/g, "");
+    if (d.indexOf("00") === 0) d = d.slice(2);
+    if (d.length === 10 && d.indexOf("05") === 0) d = "971" + d.slice(1); // 05x xxx xxxx
+    else if (d.length === 9 && d.charAt(0) === "5") d = "971" + d;        // 5x xxx xxxx
+    return d.length >= 8 && d.length <= 15 ? d : null;
+  }
+
+  function firstName(full) {
+    var w = full.trim().split(/\s+/)[0] || "";
+    return w ? w.charAt(0).toUpperCase() + w.slice(1) : "";
+  }
+
+  function parseLine(line) {
+    // Find the phone-like chunk (longest run of digits with separators).
+    var m = line.match(/\+?\d[\d\s\-().]{6,}\d/);
+    if (!m) return { name: line.trim(), phone: null };
+    var name = (line.slice(0, m.index) + " " + line.slice(m.index + m[0].length))
+      .replace(/[,;\t|]/g, " ").replace(/\s+/g, " ").trim();
+    return { name: name, phone: normalizePhone(m[0]) };
+  }
+
+  function parseContacts(text) {
+    var out = [];
+    text.split(/\r?\n/).forEach(function (line) {
+      if (!line.trim()) return;
+      var c = parseLine(line);
+      if (!c.name && !c.phone) return;
+      out.push(c);
+    });
+    return out;
+  }
+
+  function personalize(template, name) {
+    return template.split("{name}").join(name || "there");
+  }
+
+  function waLink(phone, msg) {
+    return "https://wa.me/" + phone + "?text=" + encodeURIComponent(msg);
+  }
+
+  function prettyPhone(d) {
+    if (d.indexOf("971") === 0 && d.length === 12) {
+      return "+971 " + d.slice(3, 5) + " " + d.slice(5, 8) + " " + d.slice(8);
+    }
+    return "+" + d;
+  }
+
+  var WA_SVG = '<svg class="wa-glyph" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.6-6.1c-.3-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.3-.7.8-.8 1-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4 0-.5.2-.7l.4-.5c.1-.2.1-.4 0-.5l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.8 2.8 4.4 3.9.6.3 1.1.4 1.5.6.6.2 1.2.2 1.6.1.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.2-.2-.5-.3z"/></svg>';
+
+  // ---- rendering -------------------------------------------------------
+  function render() {
+    var contacts = parseContacts($contacts.value);
+    var template = $template.value;
+
+    // live preview uses the first parsed contact, or a sample name
+    var sample = contacts.length && contacts[0].name ? firstName(contacts[0].name) : "Sara";
+    $previewLabel.textContent = "Preview — " + sample;
+    $previewText.textContent = personalize(template, sample);
+
+    $rows.innerHTML = "";
+    var valid = contacts.filter(function (c) { return c.phone; });
+    $empty.style.display = contacts.length ? "none" : "";
+
+    var sentCount = 0;
+    contacts.forEach(function (c) {
+      var row = document.createElement("div");
+      row.className = "row";
+
+      var who = document.createElement("div");
+      who.className = "who";
+      var name = document.createElement("div");
+      name.className = "name";
+      name.textContent = c.name || "(no name)";
+      who.appendChild(name);
+
+      var sub = document.createElement("div");
+      if (c.phone) {
+        sub.className = "phone";
+        sub.textContent = prettyPhone(c.phone);
+      } else {
+        sub.className = "bad";
+        sub.textContent = "No valid number on this line";
+      }
+      who.appendChild(sub);
+      row.appendChild(who);
+
+      if (c.phone) {
+        var isSent = !!sent[c.phone];
+        if (isSent) { sentCount++; row.classList.add("sent"); }
+
+        var a = document.createElement("a");
+        a.className = isSent ? "btn btn-resend" : "btn btn-send";
+        a.href = waLink(c.phone, personalize(template, firstName(c.name)));
+        a.target = "_blank";
+        a.rel = "noopener";
+        a.innerHTML = isSent ? "Sent ✓ — again?" : WA_SVG + "Send to " + (firstName(c.name) || "them");
+        a.addEventListener("click", function () {
+          sent[c.phone] = true;
+          save(LS.sent, JSON.stringify(sent));
+          setTimeout(render, 150);
+        });
+        row.appendChild(a);
+      }
+      $rows.appendChild(row);
+    });
+
+    $count.textContent = valid.length
+      ? sentCount + " of " + valid.length + " sent"
+      : "";
+    $count.innerHTML = valid.length
+      ? "<strong>" + sentCount + "</strong> of " + valid.length + " sent"
+      : "";
+  }
+
+  // ---- preset chips ----------------------------------------------------
+  function renderChips() {
+    $chips.innerHTML = "";
+    PRESETS.forEach(function (p) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "chip" + ($template.value === p.text ? " active" : "");
+      b.textContent = p.label;
+      b.addEventListener("click", function () {
+        $template.value = p.text;
+        save(LS.template, p.text);
+        renderChips();
+        render();
+      });
+      $chips.appendChild(b);
+    });
+  }
+
+  // ---- wiring ----------------------------------------------------------
+  $template.value = load(LS.template, PRESETS[0].text);
+  $contacts.value = load(LS.contacts, "");
+
+  $template.addEventListener("input", function () {
+    save(LS.template, $template.value);
+    renderChips();
+    render();
+  });
+  $contacts.addEventListener("input", function () {
+    save(LS.contacts, $contacts.value);
+    render();
+  });
+  $reset.addEventListener("click", function () {
+    sent = {};
+    save(LS.sent, "{}");
+    render();
+  });
+
+  renderChips();
+  render();
+})();
+</script>
+
+</html>
