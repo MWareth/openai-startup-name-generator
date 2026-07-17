@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arabian Ranches 3 — Owner's Market Update</title>
+<style>
+  :root {
+    --ground: #F3EFE9;
+    --card: #FBF8F3;
+    --ink: #2A2118;
+    --ink-soft: #6E6152;
+    --line: #E4DBCB;
+    --accent: #A6742E;
+    --accent-soft: #EFE7D7;
+    --line2: #B98A3E;
+    --field: #FFFFFF;
+    --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+  :root {
+    --ground: #1E1912;
+    --card: #272016;
+    --ink: #EFE7D8;
+    --ink-soft: #A99B85;
+    --line: #392F20;
+    --accent: #C89A55;
+    --accent-soft: #312716;
+    --line2: #C89A55;
+    --field: #171208;
+    --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05);
+  }
+  }
+:root[data-theme="light"] {
+    --ground: #F3EFE9;
+    --card: #FBF8F3;
+    --ink: #2A2118;
+    --ink-soft: #6E6152;
+    --line: #E4DBCB;
+    --accent: #A6742E;
+    --accent-soft: #EFE7D7;
+    --line2: #B98A3E;
+    --field: #FFFFFF;
+    --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05);
+  }
+:root[data-theme="dark"] {
+    --ground: #1E1912;
+    --card: #272016;
+    --ink: #EFE7D8;
+    --ink-soft: #A99B85;
+    --line: #392F20;
+    --accent: #C89A55;
+    --accent-soft: #312716;
+    --line2: #C89A55;
+    --field: #171208;
+    --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.05);
+  }
+
+
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink);
+    font:16px/1.55 "Avenir Next", Avenir, Seravek, "Segoe UI", system-ui, sans-serif; }
+  .wrap { max-width:720px; margin:0 auto; padding:40px 20px 80px; }
+  .eyebrow { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--accent); margin:0 0 10px; }
+  h1 { font-family:Georgia,"Times New Roman",serif; font-size:36px; line-height:1.13; font-weight:700; letter-spacing:-.015em; margin:0 0 12px; text-wrap:balance; }
+  .dek { font-size:17px; color:var(--ink-soft); margin:0; max-width:60ch; }
+  .byline { font-size:13px; color:var(--ink-soft); margin:18px 0 0; }
+  .byline b { color:var(--ink); font-weight:600; }
+  section { margin-top:44px; }
+  .label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--accent); margin:0 0 12px; }
+  h2 { font-family:Georgia,"Times New Roman",serif; font-size:24px; font-weight:700; margin:0 0 10px; text-wrap:balance; }
+  p { margin:0 0 12px; max-width:65ch; }
+  .muted { color:var(--ink-soft); font-size:14px; }
+  .photo { margin:0; border-radius:14px; overflow:hidden; position:relative;
+    background:linear-gradient(160deg,var(--accent-soft),var(--card)); border:1px solid var(--line); }
+  .photo.hero { aspect-ratio:21/9; margin-top:26px; }
+  .photo img { width:100%; height:100%; object-fit:cover; display:block; }
+  .photo .placeholder { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--ink-soft); font-size:13px; text-align:center; padding:12px; }
+  .photo .placeholder svg { width:26px; height:26px; opacity:.6; }
+  .photo figcaption { position:absolute; left:0; right:0; bottom:0; padding:8px 14px; font-size:12.5px; color:#fff; background:linear-gradient(transparent,rgba(0,0,0,.55)); display:none; }
+  .photo.has-img .placeholder { display:none; }
+  .photo.has-img figcaption { display:block; }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+  .tile { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; box-shadow:var(--shadow); }
+  .tile .v { font-family:Georgia,serif; font-size:23px; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.15; }
+  .tile .k { font-size:12.5px; color:var(--ink-soft); margin-top:4px; }
+  .tablebox { overflow-x:auto; background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); }
+  table { border-collapse:collapse; width:100%; min-width:560px; font-size:14px; }
+  th,td { text-align:left; padding:10px 13px; border-bottom:1px solid var(--line); }
+  tr:last-child td { border-bottom:0; }
+  th { font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); font-weight:700; }
+  td.num,th.num { font-variant-numeric:tabular-nums; }
+  td b { font-weight:650; }
+  .chartcard { background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:18px 18px 8px; }
+  .charttitle { font-size:14px; font-weight:650; margin:0 0 2px; }
+  .chartsub { font-size:12.5px; color:var(--ink-soft); margin:0 0 8px; }
+  #chart { width:100%; height:auto; display:block; touch-action:none; }
+  .tip { position:fixed; pointer-events:none; z-index:10; display:none; background:var(--ink); color:var(--ground); border-radius:8px; padding:6px 10px; font-size:12.5px; font-variant-numeric:tabular-nums; white-space:nowrap; box-shadow:0 4px 14px rgba(0,0,0,.25); }
+  .tip b { font-weight:700; }
+  .paths { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:6px; }
+  @media (max-width:560px){ .paths { grid-template-columns:1fr; } }
+  .path { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px; box-shadow:var(--shadow); }
+  .path h3 { font-family:Georgia,serif; font-size:19px; margin:0 0 8px; }
+  .path ul { margin:0; padding-left:18px; font-size:14.5px; }
+  .path li { margin-bottom:7px; }
+  .loc { display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:10px; }
+  .locgroup { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px 16px; box-shadow:var(--shadow); }
+  .locgroup h3 { font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin:0 0 8px; }
+  .locgroup ul { margin:0; padding:0; list-style:none; font-size:14px; }
+  .locgroup li { display:flex; justify-content:space-between; gap:10px; padding:3px 0; }
+  .locgroup li span:last-child { color:var(--ink-soft); font-variant-numeric:tabular-nums; flex:none; }
+  .ctabox { background:var(--accent-soft); border:1px solid var(--line); border-radius:14px; padding:22px; margin-top:8px; }
+  .ctabox h2 { margin-bottom:6px; }
+  .cta { display:inline-block; background:var(--accent); color:var(--card); border-radius:999px; padding:11px 22px; font-weight:700; font-size:15px; text-decoration:none; margin-top:10px; }
+  footer { margin-top:52px; border-top:1px solid var(--line); padding-top:20px; }
+  .fine { font-size:12px; color:var(--ink-soft); line-height:1.5; max-width:70ch; }
+
+</style>
+<div class="wrap">
+  <header>
+    <p class="eyebrow">Arabian Ranches 3 · Emaar · Owner's Market Update · July 2026</p>
+    <h1>You own in Arabian Ranches 3. Here's exactly where the market is.</h1>
+    <p class="dek">Real transfer prices from the Dubai Land Department, the latest activity in your community, and an honest view on selling now versus holding — prepared for owners, not a sales pitch.</p>
+    <p class="byline">Prepared by <b>Marwan Wareth</b> · Bridges and Allies Real Estate Brokers · ORN 17070<br>Pricing from Dubai Land Department records via Property Monitor, 17 July 2026</p>
+    <figure class="photo hero" id="ph-hero">
+      <span class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.5"/></svg> Arabian Ranches 3 — community imagery</span>
+      <figcaption>Arabian Ranches 3. Imagery © Emaar.</figcaption>
+    </figure>
+  </header>
+
+  <section>
+    <p class="label">The market right now</p>
+    <div class="tiles"><div class="tile"><div class="v">25 homes</div><div class="k">Sold & transferred, in about 3 weeks</div></div><div class="tile"><div class="v">AED 3.92M</div><div class="k">Average sold price</div></div><div class="tile"><div class="v">AED 1,470</div><div class="k">Average sold price per sq ft</div></div><div class="tile"><div class="v">from AED 2.3M</div><div class="k">Most accessible entry in the group</div></div></div>
+  </section>
+
+  <section>
+    <p class="label">Recent sales</p>
+    <h2>What homes like yours have actually sold for</h2>
+    <p>These are official transfers recorded with the Dubai Land Department in the last few weeks. Arabian Ranches 3 is one of the most liquid villa communities in Dubai right now, so your cluster almost certainly has fresh comparables.</p>
+    <div class="tablebox"><table>
+      <thead><tr><th>Transferred</th><th>Sub-community</th><th class="num">Beds</th><th class="num">Built-up (sq ft)</th><th class="num">Sold for (AED)</th><th class="num">AED/sq ft</th></tr></thead>
+      <tbody><tr><td>16 Jul 2026</td><td>Elie Saab 1</td><td class="num">4</td><td class="num">4,661</td><td class="num"><b>7,250,000</b></td><td class="num">1,555</td></tr><tr><td>15 Jul 2026</td><td>June</td><td class="num">4</td><td class="num">3,089</td><td class="num"><b>5,500,000</b></td><td class="num">1,781</td></tr><tr><td>16 Jul 2026</td><td>Raya</td><td class="num">4</td><td class="num">2,353</td><td class="num"><b>3,750,000</b></td><td class="num">1,594</td></tr><tr><td>15 Jul 2026</td><td>Raya</td><td class="num">3</td><td class="num">1,896</td><td class="num"><b>3,025,000</b></td><td class="num">1,595</td></tr><tr><td>13 Jul 2026</td><td>Anya 2</td><td class="num">3</td><td class="num">1,917</td><td class="num"><b>3,000,000</b></td><td class="num">1,565</td></tr><tr><td>08 Jul 2026</td><td>Raya</td><td class="num">3</td><td class="num">1,964</td><td class="num"><b>2,975,000</b></td><td class="num">1,515</td></tr><tr><td>07 Jul 2026</td><td>May</td><td class="num">4</td><td class="num">2,452</td><td class="num"><b>3,600,000</b></td><td class="num">1,468</td></tr><tr><td>02 Jul 2026</td><td>Elie Saab 2</td><td class="num">4</td><td class="num">4,689</td><td class="num"><b>7,000,000</b></td><td class="num">1,493</td></tr><tr><td>01 Jul 2026</td><td>Caya 1</td><td class="num">4</td><td class="num">4,063</td><td class="num"><b>6,500,000</b></td><td class="num">1,600</td></tr><tr><td>30 Jun 2026</td><td>Bliss 2</td><td class="num">3</td><td class="num">2,201</td><td class="num"><b>3,250,000</b></td><td class="num">1,477</td></tr><tr><td>26 Jun 2026</td><td>Anya</td><td class="num">4</td><td class="num">2,459</td><td class="num"><b>3,950,000</b></td><td class="num">1,606</td></tr><tr><td>06 Jul 2026</td><td>Joy</td><td class="num">3</td><td class="num">1,933</td><td class="num"><b>2,300,000</b></td><td class="num">1,190</td></tr></tbody>
+    </table></div>
+    <p class="muted" style="margin-top:10px">12 of 25 recorded transfers shown. Full list available on request, including Anya, Spring, Ruba and Sun sales.</p>
+  </section>
+
+  <section>
+    <p class="label">Price trend</p>
+    <h2>Up on last year, cooler than the spring peak</h2>
+    <div class="chartcard">
+      <p class="charttitle">Property Monitor Dynamic Price Index</p>
+      <p class="chartsub">Dubai villa market trend · June 2025 – June 2026</p>
+      <svg id="chart" viewBox="0 0 660 240" role="img" aria-label="Line chart of the Dubai villa price index easing from a spring 2026 peak of 1,683 to 1,639 AED per square foot by June 2026"></svg>
+    </div>
+    <p style="margin-top:14px">The wider Dubai villa index cooled about 2.6% this quarter after a strong 2025. Arabian Ranches 3 itself is transacting around <b>AED 1,470 per sq ft</b> on recent sales — the accessible entry point that's driving the volume you see in the table. RICS bank valuations in the community are averaging closer to AED 1,687 per sq ft, which supports financing for buyers.</p>
+  </section>
+
+  <section>
+    <p class="label">Community</p>
+    <h2>An established, fully alive community</h2>
+    <figure class="photo hero" id="ph-community" style="margin:6px 0 14px">
+      <span class="placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.5"/></svg> Community lifestyle photo</span>
+      <figcaption>Arabian Ranches 3. Imagery © Emaar.</figcaption>
+    </figure>
+    <p>Arabian Ranches 3 is an Emaar community that's largely handed over and lived-in — families moved in, schools and retail open, and Ghaf Woods Mall right on the doorstep just 0.6 km away.</p><p>That maturity is exactly why it's so liquid: <b>25 villas transferred in about three weeks</b>, from AED 2.3M in Joy up to AED 7.25M in Elie Saab. For owners that means a real, working resale market — buyers can mortgage, view a finished home, and move straight in.</p>
+  </section>
+
+  <section>
+    <p class="label">The decision</p>
+    <h2>Sell now, or hold? An honest view</h2>
+    <div class="paths">
+      <div class="path"><h3>If you're considering selling</h3><ul><li><b>Price to your cluster.</b> 3-beds in Anya, Raya and Spring are clearing AED 2.75–3.05M; larger 4-beds in Caya and Elie Saab reach AED 6.5–7.25M. We price from your exact sub-community, not a community average.</li><li><b>Liquidity is your friend.</b> With this many buyers active, a well-priced villa moves quickly. Presentation and the right asking number decide who transacts.</li><li><b>Bank valuations are supportive.</b> RICS valuations averaging ~AED 1,687/sq ft help buyers finance, which widens your buyer pool.</li></ul></div>
+      <div class="path"><h3>If you're leaning to hold</h3><ul><li>Arabian Ranches 3 has a deep, established rental market — a handed-over Emaar community with schools and amenities is always in family demand.</li><li>A dedicated Dubai Metro link is planned for the community, a long-term value driver.</li><li>The smart move today is simply knowing your number, so you can act the moment it suits you.</li></ul></div>
+    </div>
+  </section>
+
+  <section>
+    <p class="label">Location</p>
+    <h2>What's around you</h2>
+    <div class="loc"><div class="locgroup"><h3>Schools</h3><ul><li><span>GEMS Winchester School</span><span>1.8 km</span></li><li><span>Dunecrest American</span><span>2.9 km</span></li><li><span>JESS (Branch)</span><span>5.0 km</span></li><li><span>GEMS FirstPoint</span><span>6.0 km</span></li></ul></div><div class="locgroup"><h3>Daily life</h3><ul><li><span>Ghaf Woods Mall</span><span>0.6 km</span></li><li><span>Cityland Mall</span><span>1.7 km</span></li><li><span>Neuropedia Clinic</span><span>1.8 km</span></li><li><span>Midtown Majan Centre</span><span>3.2 km</span></li></ul></div><div class="locgroup"><h3>Getting around</h3><ul><li><span>Dubai Intl (DXB)</span><span>23 min</span></li><li><span>Al Maktoum (DWC)</span><span>27 min</span></li><li><span>Downtown Dubai</span><span>short drive</span></li><li><span>Metro link</span><span>planned</span></li></ul></div></div>
+  </section>
+
+  <section>
+    <div class="ctabox">
+      <h2>Know what your home is worth today</h2>
+      <p style="max-width:60ch">I'll prepare a free valuation of your specific home — sub-community, plot and size included — built on the same Dubai Land Department data in this report. No obligation, no listing pressure. If holding is your best move, I'll tell you that.</p>
+      <a class="cta" href="https://wa.me/971561645645?text=Hi%20Marwan%2C%20I%20own%20a%20villa%20at%20Arabian%20Ranches%203%20and%20I%27d%20like%20a%20free%20valuation." target="_blank" rel="noopener">WhatsApp Marwan for your free valuation</a>
+    </div>
+  </section>
+
+  <footer>
+    <p class="fine"><b>Marwan Wareth</b> · Bridges and Allies Real Estate Brokers · ORN 17070<br>Office 504, Business Hub, Al Fattan Marine Towers, Dubai Marina, Dubai, UAE</p>
+    <p class="fine" style="margin-top:10px">Sources: Dubai Land Department transaction records and Property Monitor Dynamic Price Index (report dated 17 July 2026). Sold prices reflect 25 recorded transfers to mid-July 2026 as reported by Property Monitor. The monthly index chart reflects the wider Dubai villa market. This update is general information, not financial advice — figures should be verified at the time of any transaction.</p>
+  </footer>
+</div>
+<div class="tip" id="tip"></div>
+<script>
+(function(){"use strict";
+var DATA=[["Jun 25",1609],["Jul 25",1625],["Aug 25",1664],["Sep 25",1681],["Oct 25",1683],["Nov 25",1676],["Dec 25",1673],["Jan 26",1667],["Feb 26",1673],["Mar 26",1683],["Apr 26",1670],["May 26",1658],["Jun 26",1639]];
+var svg=document.getElementById("chart"),tip=document.getElementById("tip"),NS="http://www.w3.org/2000/svg";
+var W=660,H=240,padL=46,padR=40,padT=16,padB=30,yMin=1590,yMax=1700;
+function x(i){return padL+(i/(DATA.length-1))*(W-padL-padR);}
+function y(v){return padT+(1-(v-yMin)/(yMax-yMin))*(H-padT-padB);}
+function el(n,a,t){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(t)e.textContent=t;return e;}
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function draw(){svg.innerHTML="";var line=css("--line2"),grid=css("--line"),ink=css("--ink-soft"),card=css("--card");
+[1600,1640,1680].forEach(function(v){svg.appendChild(el("line",{x1:padL,x2:W-padR,y1:y(v),y2:y(v),stroke:grid,"stroke-width":1}));svg.appendChild(el("text",{x:padL-8,y:y(v)+4,"text-anchor":"end",fill:ink,"font-size":11,"font-variant-numeric":"tabular-nums"},String(v)));});
+[0,4,8,12].forEach(function(i){svg.appendChild(el("text",{x:x(i),y:H-10,"text-anchor":"middle",fill:ink,"font-size":11},DATA[i][0]));});
+var pts=DATA.map(function(d,i){return x(i)+","+y(d[1]);});
+svg.appendChild(el("path",{d:"M"+pts.join(" L")+" L"+x(DATA.length-1)+","+y(yMin)+" L"+x(0)+","+y(yMin)+" Z",fill:line,opacity:.12,stroke:"none"}));
+svg.appendChild(el("path",{d:"M"+pts.join(" L"),fill:"none",stroke:line,"stroke-width":2,"stroke-linejoin":"round","stroke-linecap":"round"}));
+var li=DATA.length-1;
+svg.appendChild(el("circle",{cx:x(li),cy:y(DATA[li][1]),r:4.5,fill:line,stroke:card,"stroke-width":2}));
+svg.appendChild(el("text",{x:x(li)+2,y:y(DATA[li][1])-10,"text-anchor":"middle",fill:ink,"font-size":11.5,"font-weight":700,"font-variant-numeric":"tabular-nums"},"1,639"));
+var hover=el("g",{style:"display:none"}),cross=el("line",{y1:padT,y2:H-padB,stroke:ink,"stroke-width":1,"stroke-dasharray":"3,3"}),dot=el("circle",{r:5,fill:line,stroke:card,"stroke-width":2});
+hover.appendChild(cross);hover.appendChild(dot);svg.appendChild(hover);svg.appendChild(el("rect",{x:0,y:0,width:W,height:H,fill:"transparent"}));
+function mv(cx,cy){var r=svg.getBoundingClientRect(),mx=(cx-r.left)*(W/r.width),i=Math.round(((mx-padL)/(W-padL-padR))*(DATA.length-1));i=Math.max(0,Math.min(DATA.length-1,i));hover.style.display="";cross.setAttribute("x1",x(i));cross.setAttribute("x2",x(i));dot.setAttribute("cx",x(i));dot.setAttribute("cy",y(DATA[i][1]));tip.style.display="block";tip.innerHTML=DATA[i][0].replace(" "," 20")+" &middot; <b>AED "+DATA[i][1].toLocaleString()+"</b>/sq ft";tip.style.left=Math.min(cx+14,window.innerWidth-tip.offsetWidth-8)+"px";tip.style.top=(cy-34)+"px";}
+svg.addEventListener("mousemove",function(e){mv(e.clientX,e.clientY);});
+svg.addEventListener("touchmove",function(e){if(e.touches[0])mv(e.touches[0].clientX,e.touches[0].clientY);},{passive:true});
+function hide(){hover.style.display="none";tip.style.display="none";}
+svg.addEventListener("mouseleave",hide);svg.addEventListener("touchend",hide);}
+draw();
+if(window.matchMedia)window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",draw);
+new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+})();
+</script>
+
+</html>
