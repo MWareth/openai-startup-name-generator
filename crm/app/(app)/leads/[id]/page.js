@@ -98,29 +98,38 @@ export default async function LeadDetail({ params, searchParams }) {
     })),
   ].sort((a, b) => b.when - a.when);
 
+  // Times shown in Dubai time, e.g. "3:42 pm".
+  const fmtTime = (ts) =>
+    new Intl.DateTimeFormat('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Asia/Dubai' }).format(new Date(ts));
+
   // Follow-up due date, with the calling time if one was set.
   const fmtDue = (f) => {
-    if (f.due_at) {
-      const time = new Intl.DateTimeFormat('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Asia/Dubai' }).format(new Date(f.due_at));
-      return `${formatDate(f.due_on)} · ${time}`;
-    }
+    if (f.due_at) return `${formatDate(f.due_on)} · ${fmtTime(f.due_at)}`;
     return formatDate(f.due_on);
   };
 
-  // Timeline rows as clean bullet points (newest first).
+  // Timeline rows as clean bullet points (newest first) — date AND time.
   const timelineRows = timeline.map((item) => {
     if (item.kind === 'activity') {
       const a = item.data;
       const icon = a.type === 'call' || a.type === 'call_update' ? '📞'
         : a.type === 'meeting' ? '🤝' : a.type === 'viewing' ? '🏠' : '📝';
-      return { key: item.key, icon, title: ACTIVITY_LABELS[a.type] || 'Activity', when: a.occurred_on, note: a.body, by: a.agent?.full_name, translate: a.body };
+      // occurred_on is the date the agent logged it FOR; created_at carries the
+      // real clock time. If they backdated, show both.
+      const sameDay = a.created_at && new Date(a.created_at).toISOString().slice(0, 10) === String(a.occurred_on).slice(0, 10);
+      const whenLabel = a.created_at
+        ? sameDay
+          ? `${formatDate(a.occurred_on)} · ${fmtTime(a.created_at)}`
+          : `${formatDate(a.occurred_on)} (logged ${formatDate(a.created_at)} · ${fmtTime(a.created_at)})`
+        : formatDate(a.occurred_on);
+      return { key: item.key, icon, title: ACTIVITY_LABELS[a.type] || 'Activity', whenLabel, note: a.body, by: a.agent?.full_name, translate: a.body };
     }
     if (item.kind === 'fu_scheduled') {
       const f = item.data;
-      return { key: item.key, icon: '📅', title: 'Follow-up scheduled', when: f.created_at, note: `Due ${fmtDue(f)}${f.note ? ' — ' + f.note : ''}` };
+      return { key: item.key, icon: '📅', title: 'Follow-up scheduled', whenLabel: `${formatDate(f.created_at)} · ${fmtTime(f.created_at)}`, note: `Due ${fmtDue(f)}${f.note ? ' — ' + f.note : ''}` };
     }
     const f = item.data;
-    return { key: item.key, icon: '✅', title: 'Follow-up done', when: f.done_at, note: `Was due ${fmtDue(f)}` };
+    return { key: item.key, icon: '✅', title: 'Follow-up done', whenLabel: `${formatDate(f.done_at)} · ${fmtTime(f.done_at)}`, note: `Was due ${fmtDue(f)}` };
   });
 
   // Other agents to suggest the lead to (non-selling admins like Zoheb excluded).
@@ -163,7 +172,7 @@ export default async function LeadDetail({ params, searchParams }) {
                 <div className="ti-body">
                   <div className="ti-head">
                     <strong>{r.title}</strong>
-                    <span className="small muted">{formatDate(r.when)}</span>
+                    <span className="small muted">{r.whenLabel}</span>
                   </div>
                   {r.note ? <div className="small" style={{ marginTop: 2, whiteSpace: 'pre-wrap' }}>{r.note}</div> : null}
                   {r.translate ? <TranslateButton text={r.translate} /> : null}
