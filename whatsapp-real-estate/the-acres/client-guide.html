@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Acres by Meraas — Buyer's Guide</title>
+<title>The Acres — Owner's Market Update</title>
 <style>
   :root {
     --ground: #EFEFE8;
@@ -57,7 +57,7 @@
   }
   h1 {
     font-family: Georgia, "Times New Roman", serif;
-    font-size: 40px; line-height: 1.1; font-weight: 700;
+    font-size: 38px; line-height: 1.12; font-weight: 700;
     letter-spacing: -0.015em; margin: 0 0 12px; text-wrap: balance;
   }
   .dek { font-size: 17px; color: var(--ink-soft); margin: 0; max-width: 58ch; }
@@ -76,6 +76,31 @@
   p { margin: 0 0 12px; max-width: 65ch; }
   .muted { color: var(--ink-soft); font-size: 14px; }
 
+  /* Photo slots — replaced with real Meraas imagery when supplied */
+  .photo {
+    margin: 0; border-radius: 14px; overflow: hidden; position: relative;
+    background: linear-gradient(160deg, var(--accent-soft), var(--water-soft) 60%, var(--accent-soft));
+    border: 1px solid var(--line);
+  }
+  .photo.hero { aspect-ratio: 21 / 9; margin-top: 26px; }
+  .photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo .placeholder {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 6px;
+    color: var(--ink-soft); font-size: 13px; text-align: center; padding: 12px;
+  }
+  .photo .placeholder svg { width: 26px; height: 26px; opacity: 0.6; }
+  .photo figcaption {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 8px 14px; font-size: 12.5px; color: #fff;
+    background: linear-gradient(transparent, rgba(0,0,0,0.55)); display: none;
+  }
+  .photo.has-img .placeholder { display: none; }
+  .photo.has-img figcaption { display: block; }
+  .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  .gallery .photo { aspect-ratio: 4 / 3; }
+  @media (max-width: 520px) { .gallery { grid-template-columns: 1fr; } }
+
   .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
   .tile {
     background: var(--card); border: 1px solid var(--line); border-radius: 12px;
@@ -87,15 +112,9 @@
   }
   .tile .k { font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-  .amenity {
-    background: var(--accent-soft); color: var(--accent);
-    border-radius: 999px; padding: 5px 13px; font-size: 13px; font-weight: 600;
-  }
-
   .tablebox { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
-  table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14.5px; }
-  th, td { text-align: left; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  table { border-collapse: collapse; width: 100%; min-width: 540px; font-size: 14.5px; }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); }
   tr:last-child td { border-bottom: 0; }
   th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-soft); font-weight: 700; }
   td.num, th.num { font-variant-numeric: tabular-nums; }
@@ -105,18 +124,6 @@
     border-left: 3px solid var(--accent); background: var(--card);
     border-radius: 0 10px 10px 0; padding: 12px 16px; margin-top: 14px; font-size: 14.5px;
   }
-
-  .phase { display: flex; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line); align-items: baseline; }
-  .phase:last-child { border-bottom: 0; }
-  .phase .when { flex: none; width: 92px; font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-  .phase .what { flex: 1; font-size: 15px; }
-  .phase .what small { display: block; color: var(--ink-soft); font-size: 13px; margin-top: 2px; }
-  .pill {
-    flex: none; font-size: 11.5px; font-weight: 700; letter-spacing: 0.04em;
-    border-radius: 999px; padding: 3px 10px; text-transform: uppercase;
-  }
-  .pill.build { background: var(--water-soft); color: var(--water); }
-  .pill.sold { background: var(--accent-soft); color: var(--accent); }
 
   .chartcard { background: var(--card); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); padding: 18px 18px 8px; }
   .charttitle { font-size: 14px; font-weight: 650; margin: 0 0 2px; }
@@ -130,150 +137,145 @@
   }
   .tip b { font-weight: 700; }
 
-  .loc { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
-  .locgroup { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; box-shadow: var(--shadow); }
-  .locgroup h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-soft); margin: 0 0 8px; }
-  .locgroup ul { margin: 0; padding: 0; list-style: none; font-size: 14px; }
-  .locgroup li { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; }
-  .locgroup li span:last-child { color: var(--ink-soft); font-variant-numeric: tabular-nums; flex: none; }
-
-  .take { counter-reset: t; display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
-  .take .item {
-    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-    padding: 14px 16px; box-shadow: var(--shadow); font-size: 15px;
+  .paths { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+  @media (max-width: 560px) { .paths { grid-template-columns: 1fr; } }
+  .path {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 18px; box-shadow: var(--shadow);
   }
-  .take .item b { display: block; margin-bottom: 3px; font-family: Georgia, serif; font-size: 16.5px; }
+  .path h3 { font-family: Georgia, serif; font-size: 19px; margin: 0 0 8px; }
+  .path p { font-size: 14.5px; margin-bottom: 8px; }
+  .path ul { margin: 0; padding-left: 18px; font-size: 14.5px; }
+  .path li { margin-bottom: 5px; }
 
   footer { margin-top: 52px; border-top: 1px solid var(--line); padding-top: 20px; }
+  .ctabox {
+    background: var(--accent-soft); border: 1px solid var(--line); border-radius: 14px;
+    padding: 22px; margin-top: 8px;
+  }
+  .ctabox h2 { margin-bottom: 6px; }
   .cta {
     display: inline-block; background: var(--accent); color: var(--card);
     border-radius: 999px; padding: 11px 22px; font-weight: 700; font-size: 15px;
-    text-decoration: none; margin-bottom: 16px;
+    text-decoration: none; margin-top: 10px;
   }
   .fine { font-size: 12px; color: var(--ink-soft); line-height: 1.5; max-width: 70ch; }
-  @media (prefers-reduced-motion: no-preference) { .tile, .item { transition: transform .2s ease; } }
 </style>
 
 <div class="wrap">
   <header>
-    <p class="eyebrow">Dubailand · Dubai · Buyer's Guide · July 2026</p>
-    <h1>The Acres by Meraas</h1>
-    <p class="dek">A community of standalone villas only — no townhouses, no apartments — built around swimmable lagoons and parkland, by the developer behind City Walk and Bluewaters. Here is what it is, what homes actually sell for, and when you can move in.</p>
+    <p class="eyebrow">The Acres by Meraas · Owner's Market Update · July 2026</p>
+    <h1>You bought into The Acres early. Here's exactly where it stands.</h1>
+    <p class="dek">Real transfer prices from the Dubai Land Department, the latest construction news, and an honest view on selling now versus holding to handover — prepared for owners, not for a sales pitch.</p>
     <p class="byline">Prepared by <b>Marwan Abdulwareth</b> · Bridges and Allies Real Estate Brokers · ORN 17070<br>Pricing from Dubai Land Department records via Property Monitor, 17 July 2026</p>
+    <figure class="photo hero" id="ph-hero">
+      <span class="placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        The Acres — lagoon &amp; masterplan imagery
+      </span>
+      <figcaption>The Acres by Meraas — swimmable lagoons and parkland. Imagery © Meraas.</figcaption>
+    </figure>
   </header>
 
   <section>
-    <p class="label">At a glance</p>
+    <p class="label">The market right now</p>
     <div class="tiles">
-      <div class="tile"><div class="v">AED 7.88M</div><div class="k">Average sold price, last 5 months</div></div>
+      <div class="tile"><div class="v">25 homes</div><div class="k">Sold &amp; transferred, Feb–Jul 2026</div></div>
+      <div class="tile"><div class="v">AED 7.88M</div><div class="k">Average sold price</div></div>
       <div class="tile"><div class="v">AED 1,707</div><div class="k">Average sold price per sq ft</div></div>
-      <div class="tile"><div class="v">25 sales</div><div class="k">Recorded Feb–Jul 2026</div></div>
-      <div class="tile"><div class="v">2027–28</div><div class="k">First handovers expected</div></div>
+      <div class="tile"><div class="v">+1.8%</div><div class="k">Price index, year on year</div></div>
     </div>
   </section>
 
   <section>
-    <p class="label">The project</p>
-    <h2>Villas around lagoons, built by Dubai Holding's Meraas</h2>
-    <p>The Acres is a master community of about 1,200 villas in Dubailand, next to Emirates Road. Every home is a standalone villa with its own garden, pool and parking — there are no shared walls anywhere in the community.</p>
-    <p>The masterplan puts nature at the centre: swimmable lagoons with a lagoon clubhouse, a looping central park connecting every neighbourhood, and dry wadi walking trails. A school, nursery, clinic, mosque and a retail promenade are all planned inside the community, and every villa sits within a short walk of a park.</p>
-    <div class="chips">
-      <span class="amenity">Swimmable lagoons</span>
-      <span class="amenity">Lagoon clubhouse</span>
-      <span class="amenity">Halo Loop Park</span>
-      <span class="amenity">Wadi trails</span>
-      <span class="amenity">School &amp; nursery</span>
-      <span class="amenity">Clinic</span>
-      <span class="amenity">Retail promenade</span>
-      <span class="amenity">Private pools</span>
-    </div>
-  </section>
-
-  <section>
-    <p class="label">Homes &amp; prices</p>
-    <h2>What the villas actually sell for</h2>
-    <p>These are real transfer prices recorded with the Dubai Land Department over the last five months — not asking prices. Advertised prices currently run 10–15% higher than what buyers actually pay, which is exactly why you negotiate.</p>
+    <p class="label">Recent sales</p>
+    <h2>What villas like yours have actually sold for</h2>
+    <p>These are official transfers recorded with the Dubai Land Department — the real market, not asking prices. If your cluster is here, your villa has fresh, bankable comparables.</p>
     <div class="tablebox">
       <table>
         <thead>
-          <tr><th>Villa</th><th class="num">Size (built-up)</th><th class="num">Sold recently for</th><th class="num">Launched at (2024)</th></tr>
+          <tr><th>Transferred</th><th>Cluster</th><th class="num">Beds</th><th class="num">Built-up (sq ft)</th><th class="num">Sold for (AED)</th><th class="num">AED/sq ft</th></tr>
         </thead>
         <tbody>
-          <tr><td><b>3 bedroom</b> + maid</td><td class="num">~3,048 sq ft</td><td class="num"><b>AED 5.0M – 5.6M</b></td><td class="num">from AED 5.09M</td></tr>
-          <tr><td><b>4 bedroom</b> + maid</td><td class="num">~3,990 – 4,875 sq ft</td><td class="num"><b>AED 6.5M – 7.75M</b></td><td class="num">from AED 6.79M</td></tr>
-          <tr><td><b>5 bedroom</b> + maid</td><td class="num">~4,960 – 6,000 sq ft</td><td class="num"><b>AED 7.0M – 13.5M</b></td><td class="num">from ~AED 8.4M</td></tr>
-          <tr><td><b>The Acres Estates</b> · 5–7BR mansions</td><td class="num">6,913 – 11,090 sq ft</td><td class="num">asking from AED 14.5M</td><td class="num">from AED 13.3M – 20M</td></tr>
+          <tr><td>15 Jul 2026</td><td>Cluster J</td><td class="num">5</td><td class="num">4,962</td><td class="num"><b>7,000,000</b></td><td class="num">1,411</td></tr>
+          <tr><td>10 Jul 2026</td><td>Cluster I</td><td class="num">4</td><td class="num">4,091</td><td class="num"><b>7,209,000</b></td><td class="num">1,762</td></tr>
+          <tr><td>03 Jul 2026</td><td>Cluster I</td><td class="num">4</td><td class="num">4,091</td><td class="num"><b>7,094,000</b></td><td class="num">1,734</td></tr>
+          <tr><td>30 Jun 2026</td><td>Cluster H</td><td class="num">4</td><td class="num">4,087</td><td class="num"><b>7,096,000</b></td><td class="num">1,736</td></tr>
+          <tr><td>30 Jun 2026</td><td>Cluster I</td><td class="num">5</td><td class="num">5,944</td><td class="num"><b>9,900,000</b></td><td class="num">1,666</td></tr>
+          <tr><td>18 Jun 2026</td><td>Cluster D</td><td class="num">5</td><td class="num">5,944</td><td class="num"><b>9,000,000</b></td><td class="num">1,514</td></tr>
+          <tr><td>16 Jun 2026</td><td>Cluster B</td><td class="num">3</td><td class="num">3,049</td><td class="num"><b>5,000,000</b></td><td class="num">1,640</td></tr>
+          <tr><td>12 Jun 2026</td><td>Cluster G</td><td class="num">3</td><td class="num">3,047</td><td class="num"><b>5,560,000</b></td><td class="num">1,825</td></tr>
+          <tr><td>08 Jun 2026</td><td>Cluster C</td><td class="num">5</td><td class="num">5,944</td><td class="num"><b>10,550,000</b></td><td class="num">1,775</td></tr>
+          <tr><td>18 May 2026</td><td>Cluster J</td><td class="num">4</td><td class="num">4,091</td><td class="num"><b>7,254,205</b></td><td class="num">1,773</td></tr>
+          <tr><td>14 May 2026</td><td>Cluster C</td><td class="num">5</td><td class="num">4,962</td><td class="num"><b>8,850,000</b></td><td class="num">1,784</td></tr>
+          <tr><td>27 Apr 2026</td><td>Cluster D</td><td class="num">4</td><td class="num">3,986</td><td class="num"><b>7,175,000</b></td><td class="num">1,800</td></tr>
         </tbody>
       </table>
     </div>
-    <div class="note"><b>Payment plan:</b> 65/35 with 10% down — you pay 65% in instalments during construction and 35% on handover. Resale buyers take over the original schedule.</div>
-  </section>
-
-  <section>
-    <p class="label">Construction &amp; handover</p>
-    <h2>Nothing is handed over yet — here's the honest timeline</h2>
-    <p>All phases are sold or selling, but the community is still under construction. If you buy today, you are buying off-plan with roughly 18 months to two years until you get keys.</p>
-    <div>
-      <div class="phase"><span class="when">Jan 2024</span><span class="what">The Acres — Phase 1 <small>3–5BR villas · first launch, sold out</small></span><span class="pill build">Building</span></div>
-      <div class="phase"><span class="when">Jun 2024</span><span class="what">The Acres — Phase 2 <small>200+ villas released after Phase 1 sold out</small></span><span class="pill build">Building</span></div>
-      <div class="phase"><span class="when">Late 2024</span><span class="what">The Acres Estates <small>5–7BR mansions · Amber &amp; Ivory collections</small></span><span class="pill build">Building</span></div>
-      <div class="phase"><span class="when">Mar 2025</span><span class="what">Final phase <small>106 villas + 102 Estates mansions</small></span><span class="pill sold">Selling</span></div>
-      <div class="phase"><span class="when">Q4 2027</span><span class="what">First handovers begin <small>staged handovers continue through 2028; Estates to Q3 2028</small></span><span class="pill build">Upcoming</span></div>
-    </div>
-    <p class="muted" style="margin-top:12px">Meraas awarded AED 2.4 billion in construction contracts in April 2026 — the project is funded and moving. Realistically, plan for keys in 2028.</p>
+    <p class="muted" style="margin-top:10px">12 of 25 recorded transfers shown. Full list available on request — including Clusters A, H, J and W sales up to AED 13.54M.</p>
   </section>
 
   <section>
     <p class="label">Price trend</p>
-    <h2>Prices climbed through 2025, then cooled — good news if you're buying</h2>
+    <h2>Up on last year, cooler than the spring peak</h2>
     <div class="chartcard">
       <p class="charttitle">The Acres — average price per sq ft (AED)</p>
       <p class="chartsub">Property Monitor Dynamic Price Index, June 2025 – June 2026</p>
       <svg id="chart" viewBox="0 0 660 240" role="img" aria-label="Line chart of The Acres price index rising from 1,609 AED per square foot in June 2025 to a peak of 1,683 in October 2025 and March 2026, then easing to 1,639 by June 2026"></svg>
     </div>
-    <p style="margin-top:14px">Prices rose steadily through 2025, peaked around <b>AED 1,683 per sq ft</b>, and have eased about 2.6% over the last quarter to <b>AED 1,639</b> — still up on last year. The whole Dubai market took a breather in spring 2026, and here it means one thing for buyers: sellers are negotiable, and deals are closing at or below the numbers in the table above. Windows like this rarely stay open once a community starts handing over.</p>
+    <p style="margin-top:14px">The index peaked around <b>AED 1,683 per sq ft</b> and has eased about 2.6% this quarter to <b>AED 1,639</b> — still ahead of last year. What that means in practice: buyers are active (25 transfers in five months), but they're negotiating. Villas priced against real DLD evidence are the ones selling; aspirational asking prices are sitting. There are currently 350+ listings competing in the community, so pricing and presentation decide who transacts.</p>
   </section>
 
   <section>
-    <p class="label">Location</p>
-    <h2>Family suburb, 25 minutes from Downtown</h2>
-    <p>The Acres sits on Sheikh Zayed Bin Hamdan Street with direct access to Emirates Road, next to Arabian Ranches. It's a car-based suburb — the trade-off for space, gardens and quiet.</p>
-    <div class="loc">
-      <div class="locgroup"><h3>Schools</h3><ul>
-        <li><span>Jumeirah English Speaking School</span><span>2.5 km</span></li>
-        <li><span>Fairgreen International</span><span>3.1 km</span></li>
-        <li><span>Ranches Primary</span><span>3.3 km</span></li>
-        <li><span>Dunecrest American</span><span>4.7 km</span></li>
-      </ul></div>
-      <div class="locgroup"><h3>Daily life</h3><ul>
-        <li><span>Cityland Mall</span><span>1.8 km</span></li>
-        <li><span>Saudi German Clinic</span><span>1.8 km</span></li>
-        <li><span>Arabian Ranches Retail</span><span>2.6 km</span></li>
-        <li><span>Global Village</span><span>~10 min</span></li>
-      </ul></div>
-      <div class="locgroup"><h3>Getting around</h3><ul>
-        <li><span>Downtown / Business Bay</span><span>~25 min</span></li>
-        <li><span>Dubai Intl Airport (DXB)</span><span>~30 min</span></li>
-        <li><span>Al Maktoum Airport (DWC)</span><span>~25 min</span></li>
-        <li><span>Dubai Marina</span><span>~30–35 min</span></li>
-      </ul></div>
+    <p class="label">Construction update</p>
+    <h2>Your community is funded and moving</h2>
+    <figure class="photo hero" id="ph-construction" style="margin-top:6px; margin-bottom:14px">
+      <span class="placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        Construction progress / villa render
+      </span>
+      <figcaption>Construction underway across The Acres. Imagery © Meraas.</figcaption>
+    </figure>
+    <p>In April 2026 Meraas awarded <b>AED 2.4 billion</b> in new construction contracts across The Acres and The Acres Estates — on top of AED 1.9 billion awarded in late 2025. Foundations are complete on 220+ villas and superstructures are rising.</p>
+    <p><b>First handovers are expected from late 2027, with the main wave through 2028.</b> That timeline matters for your decision below: the window between now and handover is when the resale market is thinnest — and when serious buyers pay for certainty.</p>
+  </section>
+
+  <section>
+    <p class="label">The decision</p>
+    <h2>Sell now, or hold to handover? An honest view</h2>
+    <div class="paths">
+      <div class="path">
+        <h3>If you're considering selling</h3>
+        <p>There is real demand — 25 owners exited in five months. But with 350+ competing listings, three things decide whether you transact:</p>
+        <ul>
+          <li><b>Evidence-based pricing.</b> Deals close at AED 1,640–1,710/sq ft. We price from your cluster's DLD comparables, not hope.</li>
+          <li><b>Plot story.</b> Lagoon-facing, corner and large-plot villas are clearing at the top of the range — up to AED 1,959/sq ft.</li>
+          <li><b>Buyer reach.</b> The active buyers now are end-users planning their 2028 move — they buy from brokers who can show them the data.</li>
+        </ul>
+      </div>
+      <div class="path">
+        <h3>If you're leaning towards holding</h3>
+        <p>Also a strong position — and we'll tell you when it's the better one:</p>
+        <ul>
+          <li>Communities like Arabian Ranches 3 and Tilal Al Ghaf saw their strongest price moves <b>after</b> handover, once homes became real and mortgageable.</li>
+          <li>Your 65/35 payment plan means most capital stays in your pocket until keys.</li>
+          <li>The smart move today is simply knowing your number — so you can act the moment the market or your plans change.</li>
+        </ul>
+      </div>
     </div>
   </section>
 
   <section>
-    <p class="label">Our take</p>
-    <h2>Three things to know before you offer</h2>
-    <div class="take">
-      <div class="item"><b>Negotiate — the data is on your side.</b> Advertised prices average well above what actually transfers. Fair value today is AED 1,640–1,710 per sq ft. We anchor every offer to recorded sales, not listings.</div>
-      <div class="item"><b>This is a 2028 move-in, and a hold — not a quick flip.</b> You're buying the corridor's best masterplan before it exists. Communities like this historically re-rate after handover, once the lagoons fill and families move in. Buy it to live in or to hold through 2028–29.</div>
-      <div class="item"><b>3 and 4 bedroom villas are the sweet spot.</b> They have the most sales evidence, the strongest future rental demand (est. AED 280–370K/year at handover), and the deepest resale market. The 5BR+ range is beautiful but thinner — plot and lagoon position matter enormously there.</div>
+    <div class="ctabox">
+      <h2>Know what your villa is worth today</h2>
+      <p style="max-width:60ch">I'll prepare a free valuation of your specific villa — cluster, plot position and payment-plan status included — built on the same Dubai Land Department data in this report. No obligation, no listing pressure. If holding is your best move, I'll tell you that.</p>
+      <a class="cta" href="#" onclick="return false">WhatsApp Marwan for your free valuation</a>
     </div>
   </section>
 
   <footer>
-    <a class="cta" href="#" onclick="return false">Ask Marwan about available units</a>
     <p class="fine"><b>Marwan Abdulwareth</b> · Bridges and Allies Real Estate Brokers · ORN 17070<br>Office 504, Business Hub, Al Fattan Marine Towers, Dubai Marina, Dubai, UAE</p>
-    <p class="fine" style="margin-top:10px">Sources: Dubai Land Department transaction records and Property Monitor Dynamic Price Index (report dated 17 July 2026), Meraas / Dubai Holding announcements, and public market data. Sold-price ranges reflect 25 recorded transactions Feb–Jul 2026. Handover dates are developer guidance and may change. This guide is general information, not financial advice — figures should be verified at the time of your transaction.</p>
+    <p class="fine" style="margin-top:10px">Sources: Dubai Land Department transaction records and Property Monitor Dynamic Price Index (report dated 17 July 2026); Meraas / Dubai Holding announcements. Sold prices reflect 25 recorded transfers Feb–Jul 2026; one non-market transfer excluded from averages. Handover dates are developer guidance and may change. This update is general information, not financial advice — figures should be verified at the time of any transaction. Project imagery © Meraas, used for illustration.</p>
   </footer>
 </div>
 <div class="tip" id="tip"></div>
@@ -317,8 +319,7 @@
 
     var pts = DATA.map(function (d, i) { return x(i) + "," + y(d[1]); });
     var area = "M" + pts.join(" L") + " L" + x(DATA.length - 1) + "," + y(yMin) + " L" + x(0) + "," + y(yMin) + " Z";
-    var a = el("path", { d: area, fill: line, opacity: 0.12, stroke: "none" });
-    svg.appendChild(a);
+    svg.appendChild(el("path", { d: area, fill: line, opacity: 0.12, stroke: "none" }));
     svg.appendChild(el("path", { d: "M" + pts.join(" L"), fill: "none", stroke: line, "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }));
 
     var li = DATA.length - 1;
