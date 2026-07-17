@@ -344,7 +344,7 @@ Fatima, 0521234567"></textarea>
 
   function firstName(full) {
     var w = full.trim().split(/\s+/)[0] || "";
-    return w ? w.charAt(0).toUpperCase() + w.slice(1) : "";
+    return w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : "";
   }
 
   function parseLine(line) {
