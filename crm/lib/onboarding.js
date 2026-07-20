@@ -111,12 +111,15 @@ export async function computeProgramProgress(admin, { agentId, joinedOn }) {
   const overallTo = windows[windows.length - 1].to.toISOString();
 
   const [actsRes, audRes, ticksRes] = await Promise.all([
+    // Activities are windowed by occurred_on — the date the agent says it
+    // happened — so late logging ("I'll update the CRM at the start of next
+    // week") still lands in the right program week.
     admin
       .from('lead_activities')
-      .select('type, body, created_at')
+      .select('type, body, occurred_on, created_at')
       .eq('agent_id', agentId)
-      .gte('created_at', overallFrom)
-      .lt('created_at', overallTo),
+      .gte('occurred_on', overallFrom.slice(0, 10))
+      .lt('occurred_on', overallTo.slice(0, 10)),
     admin
       .from('audit_events')
       .select('action, detail, created_at')
@@ -141,9 +144,13 @@ export async function computeProgramProgress(admin, { agentId, joinedOn }) {
       const t = new Date(ts).getTime();
       return t >= from && t < to;
     };
+    // Calls/meetings go by the activity's own date (occurred_on) — weeks stay
+    // strict by that date; only the logging delay is forgiven. EOI events are
+    // instant records, so they keep their real timestamp.
+    const actDate = (a) => a.occurred_on || a.created_at;
     if (kind === 'conversations')
-      return acts.filter((a) => (a.type === 'call' || a.type === 'call_update') && inWin(a.created_at) && isRealContact(a.body)).length;
-    if (kind === 'meetings') return acts.filter((a) => a.type === 'meeting' && inWin(a.created_at)).length;
+      return acts.filter((a) => (a.type === 'call' || a.type === 'call_update') && inWin(actDate(a)) && isRealContact(a.body)).length;
+    if (kind === 'meetings') return acts.filter((a) => a.type === 'meeting' && inWin(actDate(a))).length;
     if (kind === 'eoi') return auds.filter((e) => inWin(e.created_at) && /→\s*Negotiation/.test(e.detail || '')).length;
     return 0;
   };
