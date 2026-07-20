@@ -132,14 +132,17 @@ export default async function LeadDetail({ params, searchParams }) {
     return { key: item.key, icon: '✅', title: 'Follow-up done', whenLabel: `${formatDate(f.done_at)} · ${fmtTime(f.done_at)}`, note: `Was due ${fmtDue(f)}` };
   });
 
-  // Other agents to suggest the lead to (non-selling admins like Zoheb excluded).
+  // Reassign targets (non-selling admins like Zoheb excluded, Marketing never
+  // included). Staff can assign to themselves ("me"); agents suggesting a
+  // reassign only see OTHER agents.
   const { data: agentsRaw } = await supabase
     .from('profiles')
     .select('id, full_name')
     .in('role', ['agent', 'admin'])
-    .neq('id', user.id)
     .order('full_name');
-  const agents = (agentsRaw || []).filter(canCarryLeads);
+  const agents = (agentsRaw || [])
+    .filter(canCarryLeads)
+    .filter((a) => (isAdmin ? true : a.id !== user.id));
 
   return (
     <div className="stack">
@@ -401,7 +404,7 @@ export default async function LeadDetail({ params, searchParams }) {
               <select name="suggested_agent_id" defaultValue={lead.assigned?.id || ''}>
                 <option value="">📥 Lead Pool (unassign)</option>
                 {(agents || []).map((a) => (
-                  <option key={a.id} value={a.id}>{a.full_name}</option>
+                  <option key={a.id} value={a.id}>{a.full_name}{a.id === user.id ? ' (me)' : ''}</option>
                 ))}
               </select>
             </div>

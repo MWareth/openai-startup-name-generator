@@ -60,7 +60,7 @@ export function canRouteLeads(profile) {
 
 // Non-selling admins: admins who monitor but never personally carry leads, so
 // they must be hidden from every "assign to" list. Matched by name/email.
-const NON_SELLING_ADMINS = ['zoheb'];
+const NON_SELLING_ADMINS = ['zoheb', 'zohaib', 'zohiab', 'zuhaib'];
 
 // Can this person be assigned/reassigned leads? The DB query already restricts
 // to agent/admin roles; this drops the non-selling admins from that set.
