@@ -53,11 +53,12 @@ export default async function ReviewsPage({ searchParams }) {
 
       {/* Newcomer 4-week program targets (editable) */}
       <details className="card panel">
-        <summary><h2 style={{ display: 'inline' }}>🌱 Newcomer 4-week program</h2></summary>
+        <summary><h2 style={{ display: 'inline' }}>🌱 Newcomer supporting-number targets</h2></summary>
         <div className="panel-body">
           <p className="small muted" style={{ marginTop: 0 }}>
-            Weekly targets for every agent&apos;s first month (from their joining date). Set a person&apos;s joining date on
-            the <Link href="/admin">Team page</Link>; each newcomer&apos;s progress vs these targets shows on their KPI page.
+            The newcomer program itself is the fixed 4-week checklist (shown on each newcomer&apos;s KPI page and their
+            🌱 My Program page). These three numbers are the <strong>supporting evidence row</strong> under it. Set a
+            person&apos;s joining date on the <Link href="/admin">Team page</Link> to start their program.
           </p>
           <form action={updateOnboardingConfig} className="form-grid">
             <div className="field">

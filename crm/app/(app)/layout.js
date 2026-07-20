@@ -7,6 +7,7 @@ import Avatar from '@/components/Avatar';
 import PresenceTracker from '@/components/PresenceTracker';
 import Sidebar from '@/components/Sidebar';
 import RegisterServiceWorker from '@/components/RegisterServiceWorker';
+import { currentWeek } from '@/lib/onboarding';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,6 +67,9 @@ export default async function AppLayout({ children }) {
           {!isMarketing ? <NavLink href="/cold-calls">Cold Calls</NavLink> : null}
           {!isMarketing ? <NavLink href="/targets">My Targets</NavLink> : null}
           {!isMarketing ? <NavLink href="/training">Training</NavLink> : null}
+          {profile?.role === 'agent' && profile?.joined_on && currentWeek(profile.joined_on) <= 6 ? (
+            <NavLink href="/onboarding">🌱 My Program</NavLink>
+          ) : null}
           <NavLink href="/profile">My Profile</NavLink>
           {isStaff ? <NavLink href="/commission">Commission</NavLink> : null}
           {isStaff ? <NavLink href="/teams">Teams</NavLink> : null}

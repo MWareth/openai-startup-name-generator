@@ -5,7 +5,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { formatDate, pct, SENIORITY_NAMES } from '@/lib/format';
 import { starString, starsFromTargetFraction, scoreOutOf100, scoreColor, groupByCategory } from '@/lib/reviews';
 import { computeKpiStats } from '@/lib/audit';
-import { computeNewcomerProgress, getOnboardingConfig, currentWeek } from '@/lib/onboarding';
+import { computeNewcomerProgress, computeProgramProgress, getOnboardingConfig, currentWeek } from '@/lib/onboarding';
+import OnboardingChecklist from '@/components/OnboardingChecklist';
 import { getTargetProgress } from '@/lib/targets';
 import SubmitButton from '@/components/SubmitButton';
 import DateField from '@/components/DateField';
@@ -58,12 +59,16 @@ export default async function AgentReviewPage({ params, searchParams }) {
 
   const adminCli = createAdminClient();
 
-  // Newcomer 4-week KPI — shown during (and just after) the first month.
+  // Newcomer 4-week program — shown during (and just after) the first month.
+  // Checklist from Marwan's weekly-targets sheet + supporting activity numbers.
   let newcomer = null;
   if (agent.joined_on && currentWeek(agent.joined_on) <= 6) {
     const config = await getOnboardingConfig(adminCli);
-    const weeks = await computeNewcomerProgress(adminCli, { agentId: agent.id, joinedOn: agent.joined_on, config });
-    newcomer = { config, weeks, week: currentWeek(agent.joined_on) };
+    const [program, weeks] = await Promise.all([
+      computeProgramProgress(adminCli, { agentId: agent.id, joinedOn: agent.joined_on }),
+      computeNewcomerProgress(adminCli, { agentId: agent.id, joinedOn: agent.joined_on, config }),
+    ]);
+    newcomer = { config, program, weeks, week: currentWeek(agent.joined_on) };
   }
 
   // Auto-counted evidence for THIS quarter — real actions to rate against.
@@ -106,44 +111,54 @@ export default async function AgentReviewPage({ params, searchParams }) {
       {ok ? <div className="alert ok">{ok}</div> : null}
       {error ? <div className="alert error">{error}</div> : null}
 
-      {/* Newcomer 4-week KPI (first month) */}
+      {/* Newcomer 4-week program (first month) — weekly-targets checklist */}
       {newcomer ? (
         <div className="card" style={{ borderColor: 'var(--gold)' }}>
           <div className="spread">
-            <h3 style={{ margin: 0 }}>🌱 Newcomer 4-week KPI</h3>
+            <h3 style={{ margin: 0 }}>🌱 Newcomer 4-week program</h3>
             <span className="small muted">
               Joined {formatDate(agent.joined_on)} · {newcomer.week > 4 ? 'first month complete' : `week ${newcomer.week} of 4`}
             </span>
           </div>
           <p className="small muted" style={{ marginTop: 4 }}>
-            Targets/week — {newcomer.config.weekly_leads} leads worked · {newcomer.config.weekly_followups} follow-ups done · respond to new leads in ≤ {newcomer.config.target_response_min} min.
-            <Link className="small" href="/reviews" style={{ marginLeft: 6 }}>Edit targets →</Link>
+            The agent ticks items on their <strong>🌱 My Program</strong> page; you can tick/untick anything here.
+            ⚙️ items count themselves from CRM activity.
           </p>
-          <div style={{ overflowX: 'auto' }}>
-            <table>
-              <thead>
-                <tr><th>Week</th><th>Leads worked</th><th>Follow-ups done</th><th>Avg response</th></tr>
-              </thead>
-              <tbody>
-                {newcomer.weeks.map((w) => {
-                  const cell = (ok) => (ok == null ? 'var(--muted)' : ok ? '#16a34a' : '#dc2626');
-                  return (
-                    <tr key={w.week}>
-                      <td className="small">
-                        <strong>Week {w.week}</strong>
-                        <div className="small muted">{formatDate(w.from.toISOString().slice(0, 10))}</div>
-                      </td>
-                      <td style={{ color: cell(w.leadsOk), fontWeight: 700 }}>{w.leadsWorked} <span className="small muted" style={{ fontWeight: 500 }}>/ {newcomer.config.weekly_leads}</span></td>
-                      <td style={{ color: cell(w.followupsOk), fontWeight: 700 }}>{w.followupsDone} <span className="small muted" style={{ fontWeight: 500 }}>/ {newcomer.config.weekly_followups}</span></td>
-                      <td style={{ color: cell(w.responseOk), fontWeight: 700 }}>
-                        {w.avgResponseMin == null ? <span className="small muted">—</span> : <>{w.avgResponseMin}m <span className="small muted" style={{ fontWeight: 500 }}>/ ≤{newcomer.config.target_response_min}m</span></>}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <OnboardingChecklist
+            weeks={newcomer.program}
+            userId={agent.id}
+            back={`/reviews/${agent.id}`}
+            canToggle
+            currentWeek={newcomer.week}
+          />
+          <details style={{ marginTop: 10 }}>
+            <summary className="small muted">Supporting numbers (leads worked · follow-ups · response speed)</summary>
+            <div style={{ overflowX: 'auto', marginTop: 8 }}>
+              <table>
+                <thead>
+                  <tr><th>Week</th><th>Leads worked</th><th>Follow-ups done</th><th>Avg response</th></tr>
+                </thead>
+                <tbody>
+                  {newcomer.weeks.map((w) => {
+                    const cell = (ok) => (ok == null ? 'var(--muted)' : ok ? '#16a34a' : '#dc2626');
+                    return (
+                      <tr key={w.week}>
+                        <td className="small">
+                          <strong>Week {w.week}</strong>
+                          <div className="small muted">{formatDate(w.from.toISOString().slice(0, 10))}</div>
+                        </td>
+                        <td style={{ color: cell(w.leadsOk), fontWeight: 700 }}>{w.leadsWorked} <span className="small muted" style={{ fontWeight: 500 }}>/ {newcomer.config.weekly_leads}</span></td>
+                        <td style={{ color: cell(w.followupsOk), fontWeight: 700 }}>{w.followupsDone} <span className="small muted" style={{ fontWeight: 500 }}>/ {newcomer.config.weekly_followups}</span></td>
+                        <td style={{ color: cell(w.responseOk), fontWeight: 700 }}>
+                          {w.avgResponseMin == null ? <span className="small muted">—</span> : <>{w.avgResponseMin}m <span className="small muted" style={{ fontWeight: 500 }}>/ ≤{newcomer.config.target_response_min}m</span></>}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </details>
         </div>
       ) : null}
 

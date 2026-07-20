@@ -9,6 +9,7 @@ import { computeCommission } from '@/lib/commission';
 import { sendPushToUser } from '@/lib/push';
 import { notify, notifyManagement, resolveNotifications } from '@/lib/notify';
 import { pickAgentForLead } from '@/lib/routing';
+import { isRealContact } from '@/lib/contact';
 import { logEvent } from '@/lib/audit';
 import { ACTIVITY_LABELS, STATUS_LABELS, QUAL_LABELS } from '@/lib/format';
 
@@ -172,22 +173,6 @@ export async function createLead(formData) {
   redirect('/leads/' + data.id + '?ok=' + encodeURIComponent('Lead created.'));
 }
 
-// Phrases that mean the client was NOT actually reached — no answer, voicemail,
-// or the agent only sent a message. If the call note reads like any of these,
-// the lead does not auto-advance to "Contacted".
-const NO_CONTACT_RX = new RegExp(
-  [
-    "(no|didn'?t|did not|does ?n'?t|not)\\s*(answer|ans\\b|pick|reply|respon)",
-    'no-?answer', 'unreach', 'not reachable', 'switch(ed)?\\s?off', 'phone (was )?off',
-    'voice\\s?mail', '\\bvm\\b', 'line busy', 'busy tone', 'rang out', 'no pick\\s?up',
-    'wrong number', 'invalid number', 'number (is )?(wrong|invalid|off)',
-    'left (a )?(message|voicemail)', '(sent|dropped|shot) (him |her |them )?(a )?(message|msg|text|sms|whats?app)',
-    "whats?app(ed)?( (sent|msg|message))?", '\\bmessaged\\b', '\\btexted\\b',
-    'لم يرد', 'ما رد', 'مغلق',
-  ].join('|'),
-  'i'
-);
-
 export async function addActivity(formData) {
   const { user, profile, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
@@ -212,7 +197,7 @@ export async function addActivity(formData) {
   const isCall = type === 'call' || type === 'call_update';
   const isFaceToFace = type === 'meeting' || type === 'viewing';
   if (isCall || isFaceToFace) {
-    const talked = isFaceToFace || (body && !NO_CONTACT_RX.test(body));
+    const talked = isFaceToFace || isRealContact(body);
     if (talked) {
       const { data: cur } = await supabase.from('leads').select('status').eq('id', leadId).single();
       if (cur?.status === 'new') {

@@ -2,7 +2,73 @@
 // auto-measure leads worked, follow-ups done, and response speed to new leads,
 // week by week, against the editable onboarding_config targets.
 
+import { isRealContact } from '@/lib/contact';
+
 export const ONBOARDING_WEEKS = 4;
+
+// ---------------------------------------------------------------------------
+// The fixed 4-week newcomer program (Marwan's "Weekly targets as part of KPI"
+// sheet, verbatim). Items without `auto` are manual ticks (agent ticks, admin
+// can untick). `auto` items are counted from CRM data:
+//   conversations — calls logged where the client actually responded
+//   meetings      — 🤝 meeting activities logged
+//   eoi           — leads moved to Negotiation (EOI / booking-ready)
+// ---------------------------------------------------------------------------
+export const ONBOARDING_PROGRAM = [
+  {
+    week: 1,
+    items: [
+      { key: 'w1_niche', label: 'Select your Niche (Buyer Profile) — we can help you pick one' },
+      { key: 'w1_dev_list', label: 'Submit list of developers and ready + under-construction communities matching your niche' },
+      { key: 'w1_report', label: 'Submit report for 2 completed communities & 2 under-construction developments matching your niche' },
+      { key: 'w1_proposal', label: 'Submit proposal for end user and investor within your niche' },
+      { key: 'w1_list2', label: 'Call and list 2 off-plan properties in under-construction communities in your niche' },
+      { key: 'w1_prospects', label: 'Find 2 prospects from the company’s existing leads pool matching your niche' },
+      { key: 'w1_conv', label: 'Generate minimum 1 interest / buyer conversation from cold calls', auto: 'conversations', target: 1 },
+      { key: 'w1_crm', label: 'Complete CRM onboarding — know how to add your leads and projects' },
+      { key: 'w1_social', label: 'Create IG / TikTok / YT & LinkedIn accounts + 1 introductory post on each' },
+    ],
+  },
+  {
+    week: 2,
+    items: [
+      { key: 'w2_master', label: 'Submit report for 5 upcoming master communities in Dubai matching your niche (future launch potential)' },
+      { key: 'w2_list2', label: 'Call and list 2 off-plan properties in communities matching your niche' },
+      { key: 'w2_shortlist', label: 'Shortlist 2 prospects from the company’s existing leads pool matching your niche' },
+      { key: 'w2_conv', label: 'Generate minimum 2 interest / buyer conversations from cold calls', auto: 'conversations', target: 2 },
+      { key: 'w2_meeting', label: 'Schedule at least 1 potential client meeting', auto: 'meetings', target: 1 },
+      { key: 'w2_referral', label: 'Sign at least 1 referral contract for referral leads' },
+      { key: 'w2_video', label: 'Shoot 1 video — rough is fine, the goal is to nail the content flow' },
+      { key: 'w2_linkedin', label: 'Create 1 LinkedIn post' },
+    ],
+  },
+  {
+    week: 3,
+    items: [
+      { key: 'w3_list2', label: 'Call and list 2 off-plan properties in communities matching your niche' },
+      { key: 'w3_shortlist', label: 'Shortlist 2 prospects from the company’s existing leads pool matching your niche' },
+      { key: 'w3_conv', label: 'Generate minimum 3 interest / buyer conversations from cold calls', auto: 'conversations', target: 3 },
+      { key: 'w3_meeting', label: 'Schedule at least 1 potential new client meeting', auto: 'meetings', target: 1 },
+      { key: 'w3_referral', label: 'Sign at least 1 referral contract for referral leads' },
+      { key: 'w3_video', label: 'Shoot 1 video to post on social media' },
+      { key: 'w3_linkedin', label: 'Create 1 LinkedIn post' },
+    ],
+  },
+  {
+    week: 4,
+    items: [
+      { key: 'w4_list2', label: 'Call and list 2 off-plan properties in communities matching your niche' },
+      { key: 'w4_shortlist', label: 'Shortlist 2 prospects from the company’s existing leads pool matching your niche' },
+      { key: 'w4_conv', label: 'Generate minimum 4 interest / buyer conversations from cold calls', auto: 'conversations', target: 4 },
+      { key: 'w4_meeting', label: 'Schedule at least 2 potential new client meetings', auto: 'meetings', target: 2 },
+      { key: 'w4_referral', label: 'Sign at least 1 referral contract for referral leads' },
+      { key: 'w4_campaign', label: 'A whole video scripted / roughly edited — pitching new investors for a campaign within your niche' },
+      { key: 'w4_post', label: 'Shoot 1 video / 1 post and publish them on social platforms' },
+      { key: 'w4_linkedin', label: 'Create 1 LinkedIn post' },
+      { key: 'w4_eoi', label: 'Move 2 buyers to EOI / booking-ready stage (pipeline for month 2)', auto: 'eoi', target: 2 },
+    ],
+  },
+];
 
 // Default targets if the config row isn't there yet (pre-migration 0028).
 export const DEFAULT_ONBOARDING = { weekly_leads: 10, weekly_followups: 15, target_response_min: 30 };
@@ -35,6 +101,68 @@ export async function getOnboardingConfig(admin) {
   } catch (e) {
     return DEFAULT_ONBOARDING;
   }
+}
+
+// Checklist progress for the fixed program: per week, manual items merged with
+// their ticks and auto items counted from real CRM data.
+export async function computeProgramProgress(admin, { agentId, joinedOn }) {
+  const windows = weekWindows(joinedOn);
+  const overallFrom = windows[0].from.toISOString();
+  const overallTo = windows[windows.length - 1].to.toISOString();
+
+  const [actsRes, audRes, ticksRes] = await Promise.all([
+    admin
+      .from('lead_activities')
+      .select('type, body, created_at')
+      .eq('agent_id', agentId)
+      .gte('created_at', overallFrom)
+      .lt('created_at', overallTo),
+    admin
+      .from('audit_events')
+      .select('action, detail, created_at')
+      .eq('user_id', agentId)
+      .eq('action', 'status_change')
+      .gte('created_at', overallFrom)
+      .lt('created_at', overallTo)
+      .then((r) => r, () => ({ data: [] })),
+    admin
+      .from('onboarding_ticks')
+      .select('item_key, checked_at, checked_by, checker:profiles!onboarding_ticks_checked_by_fkey(full_name)')
+      .eq('user_id', agentId)
+      .then((r) => r, () => ({ data: [] })),
+  ]);
+
+  const acts = actsRes.data || [];
+  const auds = (audRes && audRes.data) || [];
+  const ticks = new Map((((ticksRes && ticksRes.data) || [])).map((t) => [t.item_key, t]));
+
+  const countAuto = (kind, from, to) => {
+    const inWin = (ts) => {
+      const t = new Date(ts).getTime();
+      return t >= from && t < to;
+    };
+    if (kind === 'conversations')
+      return acts.filter((a) => (a.type === 'call' || a.type === 'call_update') && inWin(a.created_at) && isRealContact(a.body)).length;
+    if (kind === 'meetings') return acts.filter((a) => a.type === 'meeting' && inWin(a.created_at)).length;
+    if (kind === 'eoi') return auds.filter((e) => inWin(e.created_at) && /→\s*Negotiation/.test(e.detail || '')).length;
+    return 0;
+  };
+
+  return ONBOARDING_PROGRAM.map((wk, i) => {
+    const win = windows[i];
+    const from = win.from.getTime();
+    const to = win.to.getTime();
+    const items = wk.items.map((item) => {
+      if (item.auto) {
+        const count = countAuto(item.auto, from, to);
+        return { ...item, count, done: count >= item.target };
+      }
+      const tick = ticks.get(item.key) || null;
+      return { ...item, done: !!tick, tick };
+    });
+    const done = items.filter((it) => it.done).length;
+    return { week: wk.week, from: win.from, to: win.to, items, done, total: items.length, pct: Math.round((done / items.length) * 100) };
+  });
 }
 
 // Per-week auto stats for a newcomer. Reads the data we already record:
