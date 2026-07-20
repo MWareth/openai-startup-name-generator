@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { requireUser, hasStaffAccess, hasMarketingAccess, canRouteLeads, canCarryLeads } from '@/lib/auth';
+import { createAdminClient } from '@/lib/supabase/admin';
 import SubmitButton from '@/components/SubmitButton';
 import {
   QUAL_LABELS,
@@ -57,9 +58,17 @@ export default async function LeadDetail({ params, searchParams }) {
 
   const { data: followups } = await supabase
     .from('lead_followups')
-    .select('*')
+    .select('*, creator:profiles!lead_followups_created_by_fkey(full_name)')
     .eq('lead_id', lead.id)
     .order('due_on', { ascending: true });
+
+  // Status/qualification changes & contact edits for the record — read with the
+  // service role (audit RLS is admin-only) so every viewer sees who did what.
+  const { data: leadAudit } = await createAdminClient()
+    .from('audit_events')
+    .select('id, action, detail, created_at, user:profiles(full_name)')
+    .eq('lead_id', lead.id)
+    .then((r) => r, () => ({ data: [] }));
 
   // Lead progress stepper, driven by the lead's real Status through the sales
   // pipeline (New → Contacted → Viewing → Negotiation → Closed). The stage the
@@ -96,7 +105,28 @@ export default async function LeadDetail({ params, searchParams }) {
       kind: 'fu_done',
       data: f,
     })),
+    // Status / qualification changes & contact edits, with who did them.
+    // (followup set/done audit rows are skipped — the follow-up entries above
+    // already cover those.)
+    ...(leadAudit || [])
+      .filter((e) => ['status_change', 'qual_change', 'contact_edit'].includes(e.action))
+      .map((e) => ({
+        key: `au-${e.id}`,
+        when: new Date(e.created_at).getTime(),
+        kind: 'audit',
+        data: e,
+      })),
   ].sort((a, b) => b.when - a.when);
+
+  // Who completed a follow-up isn't stored on the row itself — recover it from
+  // the matching audit event (same lead, within 2 minutes of done_at).
+  const fuDoneBy = (f) => {
+    const t = new Date(f.done_at).getTime();
+    const hit = (leadAudit || []).find(
+      (e) => e.action === 'followup_done' && Math.abs(new Date(e.created_at).getTime() - t) < 2 * 60 * 1000
+    );
+    return hit?.user?.full_name || null;
+  };
 
   // Times shown in Dubai time, e.g. "3:42 pm".
   const fmtTime = (ts) =>
@@ -126,10 +156,19 @@ export default async function LeadDetail({ params, searchParams }) {
     }
     if (item.kind === 'fu_scheduled') {
       const f = item.data;
-      return { key: item.key, icon: '📅', title: 'Follow-up scheduled', whenLabel: `${formatDate(f.created_at)} · ${fmtTime(f.created_at)}`, note: `Due ${fmtDue(f)}${f.note ? ' — ' + f.note : ''}` };
+      return { key: item.key, icon: '📅', title: 'Follow-up scheduled', whenLabel: `${formatDate(f.created_at)} · ${fmtTime(f.created_at)}`, note: `Due ${fmtDue(f)}${f.note ? ' — ' + f.note : ''}`, by: f.creator?.full_name };
+    }
+    if (item.kind === 'audit') {
+      const e = item.data;
+      const meta = {
+        status_change: { icon: '🔀', title: 'Status change' },
+        qual_change: { icon: '🌡️', title: 'Qualification change' },
+        contact_edit: { icon: '✏️', title: 'Details edited' },
+      }[e.action] || { icon: '•', title: 'Update' };
+      return { key: item.key, icon: meta.icon, title: meta.title, whenLabel: `${formatDate(e.created_at)} · ${fmtTime(e.created_at)}`, note: e.detail || '', by: e.user?.full_name };
     }
     const f = item.data;
-    return { key: item.key, icon: '✅', title: 'Follow-up done', whenLabel: `${formatDate(f.done_at)} · ${fmtTime(f.done_at)}`, note: `Was due ${fmtDue(f)}` };
+    return { key: item.key, icon: '✅', title: 'Follow-up done', whenLabel: `${formatDate(f.done_at)} · ${fmtTime(f.done_at)}`, note: `Was due ${fmtDue(f)}`, by: fuDoneBy(f) };
   });
 
   // Reassign targets (non-selling admins like Zoheb excluded, Marketing never
