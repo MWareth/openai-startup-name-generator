@@ -32,6 +32,7 @@ export default async function LeadDetail({ params, searchParams }) {
   const error = searchParams?.error;
   const ok = searchParams?.ok;
   const today = new Date().toISOString().slice(0, 10);
+  const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
 
   const { data: lead } = await supabase
     .from('leads')
@@ -328,7 +329,7 @@ export default async function LeadDetail({ params, searchParams }) {
                 </div>
                 <div className="field">
                   <label>Date</label>
-                  <DateField name="occurred_on" defaultValue={today} />
+                  <DateField name="occurred_on" defaultValue={today} min={weekAgo} max={today} />
                 </div>
               </div>
               <div className="field">
@@ -337,7 +338,7 @@ export default async function LeadDetail({ params, searchParams }) {
               </div>
               <div className="field">
                 <label>Set next follow-up — date &amp; time (optional)</label>
-                <input type="datetime-local" name="next_follow_up" />
+                <input type="datetime-local" name="next_follow_up" min={`${today}T00:00`} />
               </div>
               <SubmitButton className="btn small" pendingLabel="Saving…">Add activity</SubmitButton>
             </form>

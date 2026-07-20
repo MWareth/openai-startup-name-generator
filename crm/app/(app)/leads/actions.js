@@ -179,11 +179,28 @@ export async function addActivity(formData) {
   const type = String(formData.get('type') || 'note');
   const body = String(formData.get('body') || '').trim();
 
+  // Date rules (validated before anything is saved): the activity date must be
+  // today or within the past 7 days — never in the future; a follow-up must be
+  // today or later — never in the past.
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const weekAgoStr = new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10);
+  const occurredOn = String(formData.get('occurred_on') || todayStr).slice(0, 10);
+  if (occurredOn > todayStr) {
+    redirect(`/leads/${leadId}?error=` + encodeURIComponent('The activity date can’t be in the future — use the follow-up field for upcoming actions.'));
+  }
+  if (occurredOn < weekAgoStr) {
+    redirect(`/leads/${leadId}?error=` + encodeURIComponent('The activity date must be within the past 7 days.'));
+  }
+  const fuRaw = emptyToNull(formData.get('next_follow_up'));
+  if (fuRaw && fuRaw.slice(0, 10) < todayStr) {
+    redirect(`/leads/${leadId}?error=` + encodeURIComponent('The follow-up must be today or in the future.'));
+  }
+
   const { error } = await supabase.from('lead_activities').insert({
     lead_id: leadId,
     agent_id: user.id,
     type,
-    occurred_on: String(formData.get('occurred_on') || new Date().toISOString().slice(0, 10)),
+    occurred_on: occurredOn,
     body,
   });
 
