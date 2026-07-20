@@ -235,6 +235,11 @@ export async function addActivity(formData) {
   await resolveNotifications({ userId: user.id, leadId, types: ['lead_assigned', 'lead_sla', 'deal_docs'] });
   await resolveNotifications({ userId: user.id, types: ['update_leads'] });
 
+  // The update IS the follow-up: logging any activity completes the pending
+  // follow-ups that were due today or earlier, so they vanish from the
+  // dashboard without a separate "Done" tick. Future ones stay scheduled.
+  await autoCompleteDueFollowUps(supabase, user, leadId, todayStr);
+
   // Optionally schedule a follow-up from the same form.
   const nextFollowUp = emptyToNull(formData.get('next_follow_up'));
   if (nextFollowUp) {
@@ -273,12 +278,39 @@ async function syncNextFollowUp(supabase, leadId) {
   await supabase.from('leads').update({ next_follow_up: next }).eq('id', leadId);
 }
 
+// Marks pending follow-ups due today or earlier as done. Called when an
+// activity is logged or a new follow-up is scheduled — in both cases the old
+// due follow-up has been actioned or superseded, so it shouldn't keep ringing
+// on the dashboard. Runs BEFORE any new follow-up row is inserted so a fresh
+// "due today" follow-up isn't swallowed by the very action that created it.
+async function autoCompleteDueFollowUps(supabase, user, leadId, todayStr) {
+  const { data: due } = await supabase
+    .from('lead_followups')
+    .select('id')
+    .eq('lead_id', leadId)
+    .eq('done', false)
+    .lte('due_on', todayStr);
+  if (!due || !due.length) return;
+  const { error } = await supabase
+    .from('lead_followups')
+    .update({ done: true, done_at: new Date().toISOString() })
+    .eq('lead_id', leadId)
+    .eq('done', false)
+    .lte('due_on', todayStr);
+  if (error) return; // best-effort: never block the activity log itself
+  await logEvent({ userId: user.id, action: 'followup_done', leadId, detail: 'Auto — update logged on the lead' });
+  await syncNextFollowUp(supabase, leadId);
+}
+
 export async function addFollowUp(formData) {
   const { user, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
   const due_on = emptyToNull(formData.get('due_on'));
   if (!due_on) redirect(`/leads/${leadId}?error=` + encodeURIComponent('Pick a follow-up date.'));
   const note = String(formData.get('note') || '').trim();
+  // Scheduling a new follow-up supersedes whatever was already due — complete
+  // the pending ones due today or earlier before inserting the new date.
+  await autoCompleteDueFollowUps(supabase, user, leadId, new Date().toISOString().slice(0, 10));
   const { error } = await supabase.from('lead_followups').insert({
     lead_id: leadId,
     due_on,
