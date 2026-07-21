@@ -159,6 +159,16 @@
   .tile .cap .yr{font-family:var(--mono);font-size:12px;opacity:.85}
   @media(max-width:720px){.tiles{grid-template-columns:1fr}}
 
+  /* gallery masonry */
+  .masonry{columns:3 300px;column-gap:16px}
+  @media(max-width:640px){.masonry{columns:2 160px}}
+  .mitem{break-inside:avoid;margin:0 0 16px;position:relative;overflow:hidden;border-radius:3px;border:1px solid var(--line);background:var(--panel-2);cursor:pointer}
+  .mitem img{width:100%;display:block;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+  .mitem:hover img{transform:scale(1.04)}
+  .mitem .mtag{position:absolute;top:12px;left:12px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#fff;mix-blend-mode:difference}
+  .mitem .mcap{position:absolute;left:0;right:0;bottom:0;padding:32px 14px 12px;color:#fff;font-family:var(--mono);font-size:11.5px;letter-spacing:.03em;background:linear-gradient(transparent,rgba(0,0,0,.62));opacity:0;transition:opacity .25s}
+  .mitem:hover .mcap{opacity:1}
+
   /* index + hover preview */
   .rows{border-top:1px solid var(--line)}
   .row{display:grid;grid-template-columns:40px 1fr auto;gap:20px;align-items:center;padding:clamp(20px,2.6vw,34px) 4px;border-bottom:1px solid var(--line);transition:padding-left .3s;position:relative}
@@ -286,15 +296,18 @@
   <section id="work" class="band full">
     <div class="head reveal">
       <div><div class="lbl"><b>02</b> Selected work</div><h2>Recent frames</h2></div>
-      <a class="btn btn-2" href="#index" data-h>See full index →</a>
+      <a class="btn btn-2" href="#gallery" data-h>See the full gallery →</a>
     </div>
     <div class="tiles reveal" id="tiles"></div>
   </section>
 
-  <!-- INDEX -->
-  <section id="index" class="band full">
-    <div class="head reveal"><div><div class="lbl"><b>03</b> Index</div><h2>Everything, in order</h2></div></div>
-    <div class="rows reveal" id="rows"></div>
+  <!-- GALLERY -->
+  <section id="gallery" class="band full">
+    <div class="head reveal">
+      <div><div class="lbl"><b>03</b> Gallery</div><h2>The full set</h2></div>
+      <p style="color:var(--mut);max-width:360px;margin:0">Hospitality, restaurants, interiors &amp; spaces across Dubai.</p>
+    </div>
+    <div class="masonry reveal" id="masonry"></div>
   </section>
 
   <!-- STUDIO -->
@@ -400,58 +413,72 @@
   const one = words.map(w => `<b>${w}<span class="s"> ✦ </span></b>`).join('');
   document.getElementById('marq').innerHTML = one + one + one + one;
 
-  const g = h => `linear-gradient(150deg,hsl(${h} 14% 40%),hsl(${h} 18% 18%))`;
-
-  // work tiles (auto-load img/work-N.jpg over gradient placeholder)
-  const work = [
-    ['01','Il Borro — Private Dining','2019','Hospitality · Interiors','21/8',222,true],
-    ['02','Renaissance Downtown','2019','Interiors · Lounge','16/10',205,false],
-    ['03','Suite Interiors','2019','Hospitality','16/10',18,false],
-    ['04','InterContinental — Poolside','2019','Hospitality','16/10',32,false],
-    ['05','Beach Cabanas','2019','Hospitality','16/10',260,false]
+  /* ══════════════════════════════════════════════════════════════════
+     PHOTOS — this single list controls all the images on the site.
+       • REORDER these lines to reorder the site.
+           - The FIRST 5 appear in "Selected work" up top.
+           - The very first one is the big wide feature.
+           - The rest fill the "Gallery" below.
+       • RENAME a caption: change the middle text.
+       • REPLACE a photo: drop a new image into img/ with the SAME name
+         (e.g. overwrite img/photo-03.jpg) — nothing else to change.
+       • ADD a photo: add a line here + put img/<name>.jpg in the folder.
+     Format:  ['file name in img/', 'Caption', 'Tag']
+     ══════════════════════════════════════════════════════════════════ */
+  const PHOTOS = [
+    ['photo-01', 'Il Borro — Private Dining', 'Hospitality'],
+    ['photo-02', 'Renaissance Downtown — Lounge', 'Interiors'],
+    ['photo-03', 'Rooftop Dining', 'Restaurants'],
+    ['photo-04', 'InterContinental — Poolside', 'Hospitality'],
+    ['photo-05', 'Suite', 'Interiors'],
+    ['photo-06', 'Renaissance — City View', 'Interiors'],
+    ['photo-07', 'Skyline Dining', 'Restaurants'],
+    ['photo-08', 'InterContinental — Cabanas', 'Hospitality'],
+    ['photo-09', 'Penthouse Dining', 'Interiors'],
+    ['photo-10', 'The Dining Room', 'Restaurants'],
+    ['photo-11', 'Terrace Dining', 'Restaurants'],
+    ['photo-12', 'Suite — Living', 'Interiors'],
+    ['photo-13', 'InterContinental — Grounds', 'Hospitality'],
+    ['photo-14', 'The Lounge', 'Restaurants'],
+    ['photo-15', 'Suite — Bedroom', 'Interiors'],
+    ['photo-16', 'City Residence', 'Interiors'],
+    ['photo-17', 'Kitchen & Dining', 'Interiors'],
+    ['photo-18', 'Dining Nook', 'Interiors'],
+    ['photo-19', 'Il Borro — Terrace', 'Hospitality'],
+    ['photo-20', 'Open-Plan Living', 'Interiors'],
+    ['photo-21', 'Modern Kitchen', 'Interiors'],
+    ['photo-22', 'Bedroom — Palm View', 'Interiors'],
+    ['photo-23', 'Kitchen', 'Interiors'],
+    ['photo-24', 'Still Life — Summer', 'Lifestyle'],
+    ['photo-25', 'Lifestyle — Colour', 'Lifestyle'],
+    ['photo-26', 'Il Borro — Signage', 'Hospitality'],
+    ['photo-27', 'Il Borro — Arrival', 'Hospitality'],
   ];
-  document.getElementById('tiles').innerHTML = work.map(([n,title,yr,cat,ar,h,wide]) =>
-    `<div class="tile ${wide?'wide':''}" data-h>
-       <div class="media" data-key="work-${+n}" style="aspect-ratio:${ar};background-image:${g(h)}">img/work-${+n}.jpg</div>
-       <div class="top"><span>${n} / ${cat}</span><span>${yr}</span></div>
-       <div class="cap"><h3>${title}</h3><span class="yr">${yr}</span></div>
+
+  // Selected work — first 5 (the first one is the wide feature)
+  document.getElementById('tiles').innerHTML = PHOTOS.slice(0,5).map((p,i) =>
+    `<div class="tile ${i===0?'wide':''}" data-h>
+       <div class="media" data-key="${p[0]}" style="aspect-ratio:${i===0?'21/8':'16/10'}"></div>
+       <div class="top"><span>${String(i+1).padStart(2,'0')} / ${p[2]}</span><span>2019</span></div>
+       <div class="cap"><h3>${p[1]}</h3><span class="yr">${p[2]}</span></div>
      </div>`).join('');
 
-  // index rows
-  const idx = [
-    ['01','Il Borro — Private Dining','Hospitality, Interiors','2019',222],
-    ['02','Renaissance Downtown','Interiors, Lounge','2019',205],
-    ['03','Suite Interiors','Hospitality','2019',18],
-    ['04','InterContinental — Poolside','Hospitality','2019',32],
-    ['05','Beach Cabanas','Hospitality','2019',260],
-    ['06','Il Borro — Bistro','Hospitality','2019',42]
-  ];
-  document.getElementById('rows').innerHTML = idx.map(([n,t,c,y,h]) =>
-    `<div class="row" data-h data-key="work-${+n}" data-hue="${h}" data-title="${t}">
-       <span class="n">${n}</span><span class="t">${t}</span><span class="c">${c} — ${y}</span></div>`).join('');
+  // Gallery — the rest, as a masonry of real images (lazy-loaded)
+  document.getElementById('masonry').innerHTML = PHOTOS.slice(5).map(p =>
+    `<figure class="mitem" data-h>
+       <img src="img/${p[0]}.jpg" loading="lazy" decoding="async" alt="${p[1]}">
+       <span class="mtag">${p[2]}</span><figcaption class="mcap">${p[1]}</figcaption>
+     </figure>`).join('');
 
-  // try to load real images over placeholders; remember which exist for the preview
-  const loaded = {};
-  document.querySelectorAll('[data-key]').forEach(el => {
-    const key = el.dataset.key, url = 'img/'+key+'.jpg';
-    const im = new Image();
-    im.onload = () => { loaded[key] = url; if (el.classList.contains('media')){ el.style.backgroundImage = `url(${url})`; el.textContent=''; } };
-    im.src = url;
+  // Fill the "Selected work" tile backgrounds (cover) from img/<key>.jpg
+  document.querySelectorAll('.tile .media[data-key]').forEach(el => {
+    const url = 'img/' + el.dataset.key + '.jpg';
+    const im = new Image(); im.onload = () => { el.style.backgroundImage = `url(${url})`; }; im.src = url;
   });
 
-  // hover-to-preview on index rows
+  // (hover-preview kept defined for the cursor code; unused now that the gallery shows images)
   const preview = document.getElementById('preview');
-  const pfill = preview.querySelector('.fill');
   let pv = false;
-  document.querySelectorAll('.row').forEach(row => {
-    row.addEventListener('mouseenter', () => {
-      const url = loaded[row.dataset.key];
-      pfill.style.backgroundImage = url ? `url(${url})` : g(row.dataset.hue);
-      pfill.textContent = url ? '' : row.dataset.title;
-      preview.classList.add('show'); pv = true;
-    });
-    row.addEventListener('mouseleave', () => { preview.classList.remove('show'); pv = false; });
-  });
 
   // custom cursor + preview follow
   const cursor = document.getElementById('cursor');

@@ -20,16 +20,27 @@ SVG is best (crisp at any size). PNG works too — just name them `logo-light.pn
 and change the two `'img/logo-'+k+'.svg'` references in the script to `.png`.
 Until they exist, the "Marwan Wareth" text wordmark shows — nothing breaks.
 
-## Add your photos
-Drop these into `img/`. They auto-load over the placeholders.
+## Photos — one list controls everything
+All images are driven by a single **`PHOTOS`** list near the bottom of `index.html`
+(search for `const PHOTOS`). Each line is:
+```js
+['photo-03', 'Rooftop Dining', 'Restaurants'],   // file in img/ , caption , tag
+```
+- **Reorder the site** → reorder the lines. The **first 5** show in *Selected work*
+  (the very first is the big wide feature); the rest fill the *Gallery*.
+- **Rename a caption** → edit the middle text.
+- **Replace a photo** → drop a new image into `img/` with the **same name**
+  (e.g. overwrite `img/photo-03.jpg`). Nothing else to change.
+- **Add a photo** → add a line to the list + put `img/<name>.jpg` in the folder.
 
-| File | Where it shows |
+The photos currently in `img/` are named `photo-01.jpg … photo-27.jpg`.
+Keep new images web-sized (long edge ~2000px, ~200–800 KB) — or just send them to
+me and I'll pull, compress and place them from your Drive.
+
+| Other files | Where it shows |
 |------|----------------|
-| `img/work-1.jpg … work-5.jpg` | "Recent frames" work grid + the hover-preview in the Index |
-| `img/reel-cover.jpg` *(optional)* | Poster image behind the showreel play button |
+| `img/reel-cover.jpg` *(optional)* | Poster behind the showreel play button |
 | `img/og.jpg` | Social-share preview (WhatsApp / LinkedIn), 1200×630 |
-
-Tip: `work-1.jpg` is the big wide featured tile — use a strong landscape image.
 
 ## Add your showreel
 In `index.html`, find the `#reel` section, un-comment the `<iframe>` line and set its `src`
