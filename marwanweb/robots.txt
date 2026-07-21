@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-# Replace YOURDOMAIN with your real domain once hosted
-Sitemap: https://YOURDOMAIN/sitemap.xml
+Sitemap: https://www.marwanwareth.com/sitemap.xml
