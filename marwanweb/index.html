@@ -404,11 +404,11 @@
 
   // work tiles (auto-load img/work-N.jpg over gradient placeholder)
   const work = [
-    ['01','Editorial','2026','Photography · Direction','21/8',222,true],
-    ['02','Cityscape','2026','Photography','16/10',205,false],
-    ['03','Portrait series','2025','Photography','16/10',18,false],
-    ['04','Brand film','2025','Direction · Edit','16/10',32,false],
-    ['05','Product story','2025','Art Direction','16/10',260,false]
+    ['01','Il Borro — Private Dining','2019','Hospitality · Interiors','21/8',222,true],
+    ['02','Renaissance Downtown','2019','Interiors · Lounge','16/10',205,false],
+    ['03','Suite Interiors','2019','Hospitality','16/10',18,false],
+    ['04','InterContinental — Poolside','2019','Hospitality','16/10',32,false],
+    ['05','Beach Cabanas','2019','Hospitality','16/10',260,false]
   ];
   document.getElementById('tiles').innerHTML = work.map(([n,title,yr,cat,ar,h,wide]) =>
     `<div class="tile ${wide?'wide':''}" data-h>
@@ -419,12 +419,12 @@
 
   // index rows
   const idx = [
-    ['01','Editorial','Photography, Direction','2026',222],
-    ['02','Cityscape','Photography','2026',205],
-    ['03','Portrait series','Photography','2025',18],
-    ['04','Brand film','Direction, Edit','2025',32],
-    ['05','Product story','Art Direction','2025',260],
-    ['06','Golden hour','Photography','2025',42]
+    ['01','Il Borro — Private Dining','Hospitality, Interiors','2019',222],
+    ['02','Renaissance Downtown','Interiors, Lounge','2019',205],
+    ['03','Suite Interiors','Hospitality','2019',18],
+    ['04','InterContinental — Poolside','Hospitality','2019',32],
+    ['05','Beach Cabanas','Hospitality','2019',260],
+    ['06','Il Borro — Bistro','Hospitality','2019',42]
   ];
   document.getElementById('rows').innerHTML = idx.map(([n,t,c,y,h]) =>
     `<div class="row" data-h data-key="work-${+n}" data-hue="${h}" data-title="${t}">
