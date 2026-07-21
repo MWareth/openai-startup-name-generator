@@ -1,0 +1,12 @@
+# Netlify config for Marwan Wareth's portfolio site.
+# The site lives in the marwanweb/ folder (static HTML — no build step).
+[build]
+  publish = "marwanweb"
+  command = ""
+
+# Redirect the apex domain to www (canonical is https://www.marwanwareth.com/)
+[[redirects]]
+  from = "https://marwanwareth.com/*"
+  to = "https://www.marwanwareth.com/:splat"
+  status = 301
+  force = true
