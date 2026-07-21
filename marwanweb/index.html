@@ -92,8 +92,7 @@
   .nav{display:flex;align-items:center;justify-content:space-between;height:82px}
   .brand{font-weight:600;font-size:16px;letter-spacing:-.02em;display:flex;align-items:center}
   .brand em{color:var(--mut);font-style:normal}
-  .logo-img[hidden]{display:none}
-  .logo-img:not([hidden]){height:26px;width:auto;display:block}
+  .mwmark{height:19px;width:auto;margin-right:11px;color:var(--ink);overflow:visible}
   .nav .links{display:flex;gap:34px;align-items:center;font-family:var(--mono);font-size:13px}
   .nav .links a{color:var(--mut);transition:color .2s}
   .nav .links a:hover,.nav .links a.act{color:var(--ink)}
@@ -237,9 +236,12 @@
 
   <header id="hdr">
     <div class="full nav">
-      <a class="brand" href="#top" data-h>
-        <img class="logo-img" id="logoImg" alt="Marwan Wareth" hidden>
-        <span id="wordmark">Marwan Wareth <em>— Dubai</em></span>
+      <a class="brand" href="#top" data-h aria-label="Marwan Wareth — home">
+        <svg class="mwmark" viewBox="0 0 232 118" fill="none" aria-hidden="true">
+          <path d="M12 112 L34 8 L64 84 L94 8 L116 112" stroke="currentColor" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="6"/>
+          <path d="M120 8 L142 112 L172 36 L202 112 L224 8" stroke="currentColor" stroke-width="21" stroke-linejoin="miter" stroke-miterlimit="6"/>
+        </svg>
+        <span>Marwan Wareth <em>— Dubai</em></span>
       </a>
       <nav class="links">
         <a href="#reel" data-h>Showreel</a>
@@ -391,17 +393,8 @@
     document.querySelectorAll('[data-wa]').forEach(a => a.href = link);
   }
 
-  // Logo auto-swap: dark logo on light skins, light (white) logo on Noir.
-  // Drop img/logo-dark.svg + img/logo-light.svg to activate; falls back to wordmark.
-  const logoImg = document.getElementById('logoImg');
-  const wordmark = document.getElementById('wordmark');
-  const logos = {};
-  ['dark','light'].forEach(k => { const i = new Image(); i.onload = () => { logos[k] = 'img/logo-'+k+'.svg'; applyLogo(); }; i.src = 'img/logo-'+k+'.svg'; });
-  function applyLogo(){
-    const want = site.dataset.skin === 'noir' ? 'light' : 'dark';
-    const src = logos[want] || logos.light || logos.dark;
-    if (src){ logoImg.src = src; logoImg.hidden = false; wordmark.hidden = true; }
-  }
+  // Logo is an inline SVG monogram in the header — it recolours itself for any
+  // skin via currentColor, so nothing to load here.
 
   // role rotator
   const rots = document.querySelectorAll('.hero .rot span');
