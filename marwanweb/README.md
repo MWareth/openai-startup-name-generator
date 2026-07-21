@@ -1,50 +1,49 @@
-# Marwan Abdulwareth — Portfolio & Showreel (`marwanweb`)
+# Marwan Wareth — Portfolio (`marwanweb`)
 
-A clean, modern, minimal portfolio site — **Artist · Broker · Creative Director**.
-**One file, no dependencies, no Wix, no monthly fees.** Everything you own and can edit yourself.
+Personal site for **Marwan Wareth — Creative Director & Visual Artist**, Dubai.
+**One file, no dependencies, no Wix, no monthly fees.** Fully yours to edit and host free.
 
-- `index.html` — the entire site (HTML + CSS + JS in one file).
-- `img/` — drop your photos here; they appear automatically.
+- `index.html` — the entire site (HTML + CSS + JS in one file). Style: **Noir** (dark).
+- `img/` — drop your photos, logo and reel poster here; they appear automatically.
 - `manifest.json` — home-screen / PWA metadata.
 
-## Add your photos (this is all you do)
-Drop these files into `img/`. They auto-load — until they exist, tasteful placeholders show and **nothing breaks**.
+## Switch the style
+The site ships in **Noir**. To try the other looks, open `index.html` and change one attribute:
+`<div class="site" data-skin="noir" ...>` → `data-skin="mono"` or `data-skin="signal"`.
 
-| File | Where it shows | Ideal size |
-|------|----------------|-----------|
-| `img/marwan.jpg` | Big hero portrait | ~1000×1250 (4:5, portrait) |
-| `img/artist.jpg` | "Marwan the Artist" card | ~1200×750 (16:10) |
-| `img/broker.jpg` | "Marwan the Broker" card | ~1200×750 (16:10) |
-| `img/director.jpg` | "Creative Director" card | ~1200×750 (16:10) |
-| `img/photo-1.jpg … photo-6.jpg` | Photography gallery | any size (portrait looks best) |
-| `img/reel-cover.jpg` *(optional)* | Poster behind the showreel play button | 1920×1080 (16:9) |
-| `img/og.jpg` | Social-share preview (WhatsApp/LinkedIn) | 1200×630 |
+## Your logo
+Drop **two files** in `img/` and the header swaps them automatically per style:
+- `img/logo-light.svg` — your **white** logo (used on Noir / dark)
+- `img/logo-dark.svg` — a **dark** version (used on Mono / Signal / light)
 
-You can grab your existing images straight off your Wix site (right-click → Save image), rename them
-to the names above, and drop them in `img/`. Done.
+SVG is best (crisp at any size). PNG works too — just name them `logo-light.png` / `logo-dark.png`
+and change the two `'img/logo-'+k+'.svg'` references in the script to `.png`.
+Until they exist, the "Marwan Wareth" text wordmark shows — nothing breaks.
 
-## Add your showreel video
-In `index.html`, find the `#showreel` section and un-comment the `<iframe>` line, setting its `src`
-to your YouTube or Vimeo embed URL (e.g. `https://www.youtube.com/embed/XXXXXXXX`). Delete the
-`reel-poster` div once the video is in. (Optional: drop `img/reel-cover.jpg` for a poster image first.)
+## Add your photos
+Drop these into `img/`. They auto-load over the placeholders.
+
+| File | Where it shows |
+|------|----------------|
+| `img/work-1.jpg … work-5.jpg` | "Recent frames" work grid + the hover-preview in the Index |
+| `img/reel-cover.jpg` *(optional)* | Poster image behind the showreel play button |
+| `img/og.jpg` | Social-share preview (WhatsApp / LinkedIn), 1200×630 |
+
+Tip: `work-1.jpg` is the big wide featured tile — use a strong landscape image.
+
+## Add your showreel
+In `index.html`, find the `#reel` section, un-comment the `<iframe>` line and set its `src`
+to your YouTube/Vimeo embed URL, then delete the `.play` + `.meta` divs.
 
 ## Edit the words
-Everything is plain text inside `index.html` — just search for the phrase you want to change:
-- **Name / roles** — the `#top`/hero `<h1>` and the `.roles` rotator (Artist / Broker / Creative Director).
-- **Three sides of Marwan** — the three `<article class="card">` blocks under `#worlds`.
-- **Your story** — the `#bio` section.
-- **Contact links** — the `#contact` section. Set your real **WhatsApp** (`https://wa.me/9715XXXXXXXX`)
-  and **LinkedIn** URLs where you see `href="#"`.
+Plain text in `index.html` — search for what you want to change:
+- **Name / roles** — the hero `<h1>` and the `.rot` rotator.
+- **Studio / bio** — the `#studio` section.
+- **Subjects** — the `.scat` blocks under `#shoot`.
+- **Work titles** — the `work` and `idx` arrays in the script.
+- **Contact links** — the `#contact` section (set real Instagram / WhatsApp / LinkedIn).
 
-## Preview it locally
-Just open `index.html` in a browser — that's it. Or serve the folder:
-```bash
-cd marwanweb && python3 -m http.server 8080   # then open http://localhost:8080
-```
-
-## Host it free
-- **Netlify** (drag-and-drop the `marwanweb` folder) — free, custom domain supported.
-- **GitHub Pages** — publish this folder, or point a custom domain (e.g. `marwanabdulwareth.com`) at it.
-- **Cloudflare Pages / Vercel** — also free and instant.
-
-No credits, no lock-in. If you buy a domain later, any of the above will connect it in minutes.
+## Preview & host
+Open `index.html` in a browser, or serve it: `cd marwanweb && python3 -m http.server 8080`.
+Host free on **Netlify** (drag the folder), **GitHub Pages**, **Cloudflare Pages** or **Vercel** —
+custom domain (e.g. `marwanwareth.com`) supported on all of them.
