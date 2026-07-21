@@ -1,0 +1,12 @@
+{
+  "name": "Marwan Abdulwareth",
+  "short_name": "Marwan",
+  "description": "Marwan Abdulwareth — Dubai-based founder & marketer.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FBFAF8",
+  "theme_color": "#17140F",
+  "icons": [
+    { "src": "img/marwan.jpg", "sizes": "512x512", "type": "image/jpeg" }
+  ]
+}
