@@ -263,6 +263,7 @@
     <textarea id="contacts" rows="6" spellcheck="false" placeholder="Sara Ahmed, 050 123 4567
 Omar K, +971 55 987 6543
 Fatima, 0521234567"></textarea>
+    <div><button class="btn btn-ghost" id="loadMbr" type="button">Reload District One owners (114)</button></div>
     <p class="hint">UAE numbers starting with 05 are converted to +971 automatically. Other countries: paste the full number with country code.</p>
   </section>
 
@@ -303,6 +304,8 @@ Fatima, 0521234567"></textarea>
     }
   ];
 
+
+  var MBR_LIST = "Soufian, +971529151123\nMassimo, +971565463293\nAleksandr, +971585965717\nMenad, +971585005104\nYacine, +971543597953\nBallav, +971507092584\nVladimir, +971522527152\nManjit, +971553085750\nGofurjon, +971561777907\nBasel, +971562223985\nRoula, +971556556422\nAdamu, +971506177790\nRanyodh, +971575988555\nJaskaran, +971524606618\nLinna, +971504625168\nOlivia, +971585265102\nHala, +971555732207\nAdnan, +971585523188\nOlga, +971541234463\nFeisal, +971521027612\nMohamed, +971558146073\nAliya, +971564188852\nFedor, +971543687080\nYuan, +971565110854\nMariam, +971503982776\nAmira, +971503670571\nFiras, +971504589939\nNisrine, +971508973972\nAntal, +971527058688\nOuyang, +971559670447\nWang, +971588086197\nMwaffak, +971506463662\nHuang, +971552743249\nNordine, +971585392692\nMaati, +971585600970\nLidia, +971506376914\nYuri, +971501085645\nViera, +971527281693\nYaser, +971506363661\nSpyridon, +971585275060\nNusrat, +971543532186\nNaoual, +971589003077\nMohammed, +971505198007\nClaudia, +971585438913\nFelipe, +971588222436\nAmarjit, +971562781363\nAdams, +971555533349\nVadim, +971508213207\nElena, +971509109502\nAnguel, +971554771571\nAnna, +971502100023\nDavid, +971544113509\nEbrahim, +971559900608\nTamara, +971556636340\nHailei, +971505508950\nYuying, +971566608688\nKashif, +971551786762\nZhiqing, +971585879346\nLeo, +971565917811\nKimberly, +971554426390\nAlli, +971507659747\nHassan, +971563558882\nMustapha, +971529586728\nJohannes, +971506703569\nAisha, +971589929992\nMohammed, +971563729502\nChirag, +971585841016\nMarina, +971507377102\nOxana, +971565263273\nJean, +971529807887\nSergey, +971574351351\nLars, +971585783214\nAziz, +971504270303\nSaif, +971507910011\nNeveen, +971505267619\nAlfatih, +971501438215\nSaeed, +971588888202\nShabana, +971501785657\nPan, +971585107937\nSamir, +971559908104\nSayed, +971504559114\nYunchao, +971553449786\nPeter, +971558005160\nMohammed, +971556040014\nYuqing, +971509100369\nLiliia, +971585988301\nLubna, +971503535939\nEmir, +971585455511\nMaria, +971565775979\nAws, +971564911014\nThomas, +971508842209\nAlexandra, +971504553704\nAnca, +971552355489\nRoman, +971585428423\nDavid, +971506528974\nQian, +971552804056\nZhou, +971528889549\nLiu, +971566943236\nKrishan, +971528535353\nDaniele, +971506760077\nChang, +971503848469\nDongze, +971525102270\nSaman, +971504280418\nMadjid, +971543879856\nAiqing, +971502073681\nJoon, +971581881037\nBas, +971543239494\nMohammed, +971585657444\nPooya, +971503771215\nFerenc, +971504357060\nAlisa, +971508438788\nYoussef, +971585190145\nSamina, +96566113282\nHong, +8613632508192";
 
   var LS = {
     template: "mbr-wa-template",
@@ -478,6 +481,13 @@ Fatima, 0521234567"></textarea>
   // ---- wiring ----------------------------------------------------------
   $template.value = load(LS.template, PRESETS[0].text);
   $contacts.value = load(LS.contacts, "");
+  if (!$contacts.value.trim()) { $contacts.value = MBR_LIST; save(LS.contacts, MBR_LIST); }
+  document.getElementById("loadMbr").addEventListener("click", function () {
+    if ($contacts.value.trim() && !window.confirm("Replace the current contact list with the 114 District One owners?")) return;
+    $contacts.value = MBR_LIST;
+    save(LS.contacts, MBR_LIST);
+    render();
+  });
 
   $template.addEventListener("input", function () {
     save(LS.template, $template.value);
