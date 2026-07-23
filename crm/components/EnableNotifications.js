@@ -35,13 +35,16 @@ export default function EnableNotifications({ vapidPublicKey }) {
         setStatus('idle');
         return;
       }
-      const reg = await navigator.serviceWorker.register('/sw.js');
-      await navigator.serviceWorker.ready;
+      // iOS Safari voids the tap-gesture after any await — if the permission
+      // prompt isn't the FIRST thing we ask for, iPhones silently deny without
+      // ever showing it. So: permission first, service worker after.
       const perm = await Notification.requestPermission();
       if (perm !== 'granted') {
         setStatus('denied');
         return;
       }
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),

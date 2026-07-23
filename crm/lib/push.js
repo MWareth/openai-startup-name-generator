@@ -34,7 +34,13 @@ export async function sendPushDiag(userId, payload) {
     try {
       // Cap each send at 10s so an unreachable push endpoint can't hang the page.
       await Promise.race([
-        webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, body),
+        webpush.sendNotification(
+          { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
+          body,
+          // High urgency wakes locked iPhones; 1h TTL — a lead alert older
+          // than that is stale anyway.
+          { TTL: 3600, urgency: 'high' }
+        ),
         new Promise((_, reject) => setTimeout(() => reject(new Error('timed out reaching the push service')), 10000)),
       ]);
       sent += 1;
@@ -66,7 +72,8 @@ export async function sendPushToUser(userId, payload) {
         try {
           await webpush.sendNotification(
             { endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } },
-            body
+            body,
+            { TTL: 3600, urgency: 'high' }
           );
         } catch (e) {
           // Expired/invalid subscription — drop it.
