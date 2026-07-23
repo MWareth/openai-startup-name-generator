@@ -110,7 +110,7 @@ export default async function LeadDetail({ params, searchParams }) {
     // (followup set/done audit rows are skipped — the follow-up entries above
     // already cover those.)
     ...(leadAudit || [])
-      .filter((e) => ['status_change', 'qual_change', 'contact_edit'].includes(e.action))
+      .filter((e) => ['status_change', 'qual_change', 'contact_edit', 'reassigned'].includes(e.action))
       .map((e) => ({
         key: `au-${e.id}`,
         when: new Date(e.created_at).getTime(),
@@ -165,6 +165,7 @@ export default async function LeadDetail({ params, searchParams }) {
         status_change: { icon: '🔀', title: 'Status change' },
         qual_change: { icon: '🌡️', title: 'Qualification change' },
         contact_edit: { icon: '✏️', title: 'Details edited' },
+        reassigned: { icon: '🔁', title: 'Reassigned' },
       }[e.action] || { icon: '•', title: 'Update' };
       return { key: item.key, icon: meta.icon, title: meta.title, whenLabel: `${formatDate(e.created_at)} · ${fmtTime(e.created_at)}`, note: e.detail || '', by: e.user?.full_name };
     }

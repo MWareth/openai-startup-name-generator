@@ -1,9 +1,9 @@
-import { requireStaff } from '@/lib/auth';
+import { requireStaff, canCarryLeads } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import Avatar from '@/components/Avatar';
 import MoneyInput from '@/components/MoneyInput';
 import { ROLE_LABELS, pct, formatDate, PROPERTY_TYPES } from '@/lib/format';
-import { setUserTeam, assignTest, resetTest, remindUpdateLeads, saveRouting } from './actions';
+import { setUserTeam, assignTest, resetTest, remindUpdateLeads, saveRouting, transferLeads } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -125,6 +125,44 @@ export default async function TeamsPage({ searchParams }) {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* ---- Transfer a whole lead book (offboarding / rebalancing) ---- */}
+      <div className="card">
+        <h2 style={{ marginTop: 0 }}>🔁 Transfer all leads</h2>
+        <p className="small muted" style={{ marginTop: 0 }}>
+          Moves <strong>every</strong> lead from one member&apos;s book to another&apos;s — for offboarding or
+          rebalancing. Each lead&apos;s timeline records the hand-over, and the receiver gets notified.
+        </p>
+        <form action={transferLeads} className="row" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+          <label className="small muted" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            From
+            <select name="from_id" required defaultValue="">
+              <option value="" disabled>Pick member…</option>
+              {(profiles || [])
+                .filter((p) => p.role === 'agent' || p.role === 'admin')
+                .map((p) => (
+                  <option key={p.id} value={p.id}>{p.full_name || p.email}</option>
+                ))}
+            </select>
+          </label>
+          <span style={{ paddingBottom: 8 }}>→</span>
+          <label className="small muted" style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            To
+            <select name="to_id" required defaultValue="">
+              <option value="" disabled>Pick member…</option>
+              {(profiles || [])
+                .filter((p) => (p.role === 'agent' || p.role === 'admin') && canCarryLeads(p))
+                .map((p) => (
+                  <option key={p.id} value={p.id}>{p.full_name || p.email}</option>
+                ))}
+            </select>
+          </label>
+          <label className="small" style={{ display: 'flex', gap: 6, alignItems: 'center', paddingBottom: 8 }}>
+            <input type="checkbox" required /> I&apos;m sure
+          </label>
+          <button className="btn small" type="submit">Transfer</button>
+        </form>
       </div>
 
       {/* ---- Lead routing rules (campaigns → the right agent, auto-rotated) ---- */}

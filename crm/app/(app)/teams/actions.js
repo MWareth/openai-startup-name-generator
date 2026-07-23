@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { requireStaff } from '@/lib/auth';
+import { requireStaff, canCarryLeads } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { notify } from '@/lib/notify';
 
@@ -116,6 +116,69 @@ export async function remindUpdateLeads(formData) {
   });
   revalidatePath('/teams');
   redirect('/teams?ok=' + encodeURIComponent('Reminder sent — the member was notified by app and email.'));
+}
+
+// Move EVERY lead from one member's book to another's (offboarding/rebalance).
+// Writes a "reassigned" audit entry on each lead so its timeline shows the
+// hand-over, and notifies the receiver (informational — clears on view).
+export async function transferLeads(formData) {
+  const { user, profile } = await requireStaff();
+  const fromId = String(formData.get('from_id') || '');
+  const toId = String(formData.get('to_id') || '');
+  if (!fromId || !toId) redirect('/teams?error=' + encodeURIComponent('Pick both members.'));
+  if (fromId === toId) redirect('/teams?error=' + encodeURIComponent('Pick two different members.'));
+
+  const admin = createAdminClient();
+  const { data: people } = await admin
+    .from('profiles')
+    .select('id, full_name, email, role')
+    .in('id', [fromId, toId]);
+  const fromP = (people || []).find((p) => p.id === fromId);
+  const toP = (people || []).find((p) => p.id === toId);
+  if (!fromP || !toP) redirect('/teams?error=' + encodeURIComponent('Member not found.'));
+  if (!canCarryLeads(toP)) {
+    redirect('/teams?error=' + encodeURIComponent(`${toP.full_name || 'That member'} can't carry leads.`));
+  }
+
+  const { data: leads } = await admin.from('leads').select('id').eq('assigned_agent_id', fromId);
+  if (!leads || !leads.length) {
+    redirect('/teams?ok=' + encodeURIComponent(`${fromP.full_name || 'That member'} has no leads to transfer.`));
+  }
+
+  const { error } = await admin
+    .from('leads')
+    .update({ assigned_agent_id: toId })
+    .eq('assigned_agent_id', fromId);
+  if (error) redirect('/teams?error=' + encodeURIComponent(error.message));
+
+  // One audit row per lead — shows as 🔁 on each lead's timeline. Tolerated if
+  // the audit table isn't migrated yet (0027); the transfer itself already ran.
+  const detail = `${fromP.full_name || fromP.email} → ${toP.full_name || toP.email} (book transfer)`;
+  try {
+    await admin
+      .from('audit_events')
+      .insert(leads.map((l) => ({ user_id: user.id, action: 'reassigned', lead_id: l.id, detail })));
+  } catch (e) {
+    // no-op
+  }
+
+  if (toId !== user.id) {
+    await notify({
+      userId: toId,
+      type: 'book_transfer',
+      title: `${leads.length} lead${leads.length > 1 ? 's' : ''} transferred to you`,
+      body: `${profile?.full_name || 'A manager'} moved ${fromP.full_name || 'a member'}’s lead book (${leads.length}) into yours.`,
+      link: '/leads',
+      cta: 'See my leads',
+    });
+  }
+
+  revalidatePath('/teams');
+  revalidatePath('/leads');
+  revalidatePath('/dashboard');
+  redirect('/teams?ok=' + encodeURIComponent(
+    `Transferred ${leads.length} lead${leads.length > 1 ? 's' : ''} from ${fromP.full_name || 'member'} to ${toP.full_name || 'member'}. ✅`
+  ));
 }
 
 // Assign a user to a team. Allowed for staff only (admin + support + oversight);
