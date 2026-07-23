@@ -6,6 +6,7 @@ import { updateMyProfile } from './actions';
 import { changeMyPassword } from '../../set-password/actions';
 import EnableNotifications from '@/components/EnableNotifications';
 import TestPushButton from '@/components/TestPushButton';
+import PushDevices from '@/components/PushDevices';
 import { sendTestPush } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -101,6 +102,7 @@ export default async function ProfilePage({ searchParams }) {
         <div style={{ marginTop: 10 }}>
           <TestPushButton action={sendTestPush} />
         </div>
+        <PushDevices />
         <details className="small muted" style={{ marginTop: 12 }}>
           <summary>Not getting notifications? Read this</summary>
           <div className="stack" style={{ gap: 8, marginTop: 8 }}>

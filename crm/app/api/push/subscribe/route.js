@@ -14,10 +14,15 @@ export async function POST(request) {
   }
 
   const admin = createAdminClient();
-  const { error } = await admin.from('push_subscriptions').upsert(
-    { user_id: user.id, endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth },
-    { onConflict: 'endpoint' }
-  );
+  const row = { user_id: user.id, endpoint: sub.endpoint, p256dh: sub.keys.p256dh, auth: sub.keys.auth };
+  // Device label for the profile "registered devices" list. Tolerated if the
+  // ua column isn't migrated yet (0036) — retry without it.
+  if (typeof sub.ua === 'string' && sub.ua) row.ua = sub.ua.slice(0, 300);
+  let { error } = await admin.from('push_subscriptions').upsert(row, { onConflict: 'endpoint' });
+  if (error && /ua/.test(error.message || '')) {
+    delete row.ua;
+    ({ error } = await admin.from('push_subscriptions').upsert(row, { onConflict: 'endpoint' }));
+  }
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   return NextResponse.json({ ok: true });
 }

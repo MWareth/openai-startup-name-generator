@@ -52,10 +52,11 @@ export default function EnableNotifications({ vapidPublicKey }) {
       const res = await fetch('/api/push/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(sub),
+        body: JSON.stringify({ ...sub.toJSON(), ua: navigator.userAgent }),
       });
       if (!res.ok) throw new Error('Could not save subscription');
       setStatus('subscribed');
+      window.dispatchEvent(new Event('push-changed'));
     } catch (e) {
       alert('Could not enable notifications: ' + (e?.message || e));
       setStatus('idle');
@@ -76,6 +77,7 @@ export default function EnableNotifications({ vapidPublicKey }) {
         await sub.unsubscribe();
       }
       setStatus('idle');
+      window.dispatchEvent(new Event('push-changed'));
     } catch (e) {
       setStatus('subscribed');
     }
