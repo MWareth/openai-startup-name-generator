@@ -10,6 +10,12 @@ export const dynamic = 'force-dynamic';
 // Marketing feedback report: what actually happened to the leads the campaigns
 // brought in — day by day, source by source, and lead by lead with the agents'
 // own notes. Visible to staff + marketing (no money data shown).
+//
+// Scope: ONLINE-CAMPAIGN leads only — source says Online Campaign (or legacy
+// "Website") or names a paid/social platform. Portal subscriptions (Bayut,
+// Property Finder) and self-generated leads (Cold Call, Referral, Walk-in)
+// are not marketing-campaign traffic and stay out of this report.
+const ONLINE_SOURCE_RX = /campaign|website|instagram|insta\b|facebook|\bfb\b|\bmeta\b|google|tiktok|snapchat|youtube/i;
 
 const PERIODS = [
   { key: 'today', label: 'Today' },
@@ -65,7 +71,7 @@ export default async function MarketingReportPage({ searchParams }) {
     .order('created_at', { ascending: false });
   if (end) leadsQ = leadsQ.lt('created_at', end.toISOString());
   const { data: leads } = await leadsQ;
-  const cohort = leads || [];
+  const cohort = (leads || []).filter((l) => ONLINE_SOURCE_RX.test(l.source || ''));
 
   // Everything the team did on this cohort (any date — the lead belongs to the
   // period it arrived in, even if it was worked later).
@@ -128,8 +134,9 @@ export default async function MarketingReportPage({ searchParams }) {
         <PrintButton />
       </div>
       <p className="muted small" style={{ marginTop: 0 }}>
-        What happened to the leads after they came in — {periodLabel.toLowerCase()}. Response times, quality,
-        outcomes and the agents&apos; own words, by day and by source.
+        Online-campaign leads only (Online Campaign, Instagram, Meta, Google, TikTok…) — portals and
+        self-generated leads are excluded. What happened after they came in, {periodLabel.toLowerCase()}:
+        response times, quality, outcomes and the agents&apos; own words, by day and by source.
       </p>
 
       <div className="row no-print" style={{ gap: 6, flexWrap: 'wrap' }}>

@@ -72,7 +72,7 @@ export default async function NewLeadPage({ searchParams }) {
               <option value="Referral" />
               <option value="Bayut" />
               <option value="Property Finder" />
-              <option value="Website" />
+              <option value="Online Campaign" />
               <option value="WhatsApp" />
               <option value="Walk-in" />
             </datalist>

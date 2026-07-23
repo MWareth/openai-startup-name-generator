@@ -259,7 +259,7 @@ export default async function LeadDetail({ params, searchParams }) {
                   <input name="source" defaultValue={lead.source || ''} list="lead-source-options" autoComplete="off" />
                   <datalist id="lead-source-options">
                     <option value="Cold Call" /><option value="Instagram" /><option value="Referral" />
-                    <option value="Bayut" /><option value="Property Finder" /><option value="Website" />
+                    <option value="Bayut" /><option value="Property Finder" /><option value="Online Campaign" />
                     <option value="WhatsApp" /><option value="Walk-in" />
                   </datalist>
                 </div>

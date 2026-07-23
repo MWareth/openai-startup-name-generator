@@ -49,7 +49,7 @@ export async function POST(request) {
   const name = val(body, ['name', 'full_name', 'fullName', 'Name', 'lead_name']);
   const phone = val(body, ['phone', 'phone_number', 'phoneNumber', 'mobile', 'Phone', 'contact']);
   const email = val(body, ['email', 'Email', 'email_address', 'emailAddress']);
-  const source = val(body, ['source', 'Source', 'platform', 'channel']) || 'Website';
+  const source = val(body, ['source', 'Source', 'platform', 'channel']) || 'Online Campaign';
   const message = val(body, ['message', 'note', 'notes', 'comments', 'Message', 'enquiry']);
   const budgetRaw = val(body, ['budget', 'Budget']);
   const community = val(body, ['community', 'area', 'Community', 'location']);
