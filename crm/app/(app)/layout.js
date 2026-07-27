@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { requireUser, hasAdminAccess, hasStaffAccess, hasMarketingAccess } from '@/lib/auth';
 import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import NavLink from '@/components/NavLink';
+import NavGroup from '@/components/NavGroup';
 import Avatar from '@/components/Avatar';
 import PresenceTracker from '@/components/PresenceTracker';
 import Sidebar from '@/components/Sidebar';
@@ -51,6 +52,7 @@ export default async function AppLayout({ children }) {
           <img src="/logo.png" alt="Bullish Team — Bridges & Allies" style={{ width: 185, maxWidth: '100%', height: 'auto' }} />
         </div>
         <nav className="nav">
+          {/* Daily drivers — always visible, never buried. */}
           <NavLink href="/dashboard">Dashboard</NavLink>
           <NavLink href="/notifications">
             🔔 Notifications
@@ -62,26 +64,47 @@ export default async function AppLayout({ children }) {
           <NavLink href="/projects">Projects</NavLink>
           <NavLink href="/content">🎬 Content Studio</NavLink>
           <NavLink href="/proposal">Proposal</NavLink>
-          {/* Money / agent-only tabs — hidden from Marketing. */}
-          {!isMarketing ? <NavLink href="/leaderboard">Leaderboard</NavLink> : null}
-          {!isMarketing ? <NavLink href="/cold-calls">Cold Calls</NavLink> : null}
-          {!isMarketing ? <NavLink href="/targets">My Targets</NavLink> : null}
-          {!isMarketing ? <NavLink href="/training">Training</NavLink> : null}
-          {profile?.role === 'agent' && profile?.joined_on && currentWeek(profile.joined_on) <= 6 ? (
-            <NavLink href="/onboarding">🌱 My Program</NavLink>
+
+          {/* Everything else lives in a group that opens itself when you're in it. */}
+          {!isMarketing ? (
+            <NavGroup
+              label="My performance"
+              hrefs={['/leaderboard', '/cold-calls', '/targets', '/training', '/onboarding']}
+            >
+              <NavLink href="/leaderboard">Leaderboard</NavLink>
+              <NavLink href="/cold-calls">Cold Calls</NavLink>
+              <NavLink href="/targets">My Targets</NavLink>
+              <NavLink href="/training">Training</NavLink>
+              {profile?.role === 'agent' && profile?.joined_on && currentWeek(profile.joined_on) <= 6 ? (
+                <NavLink href="/onboarding">🌱 My Program</NavLink>
+              ) : null}
+            </NavGroup>
           ) : null}
-          <NavLink href="/profile">My Profile</NavLink>
-          {isStaff ? <NavLink href="/commission">Commission</NavLink> : null}
-          {isStaff ? <NavLink href="/teams">Teams</NavLink> : null}
-          {isStaff ? <NavLink href="/presence">Presence</NavLink> : null}
-          {isStaff || isMarketing ? <NavLink href="/marketing-report">📣 Marketing Report</NavLink> : null}
-          {isAdmin ? <NavLink href="/activity">Activity log</NavLink> : null}
-          {isAdmin ? <NavLink href="/one-on-one">📋 1:1 Report</NavLink> : null}
-          {isAdmin ? <NavLink href="/reviews">KPIs</NavLink> : null}
-          {isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
+
+          {isStaff || isMarketing ? (
+            <NavGroup
+              label="Reports"
+              hrefs={['/marketing-report', '/one-on-one', '/reviews', '/activity']}
+            >
+              {isStaff || isMarketing ? <NavLink href="/marketing-report">📣 Marketing Report</NavLink> : null}
+              {isAdmin ? <NavLink href="/one-on-one">📋 1:1 Report</NavLink> : null}
+              {isAdmin ? <NavLink href="/reviews">KPIs</NavLink> : null}
+              {isAdmin ? <NavLink href="/activity">Activity log</NavLink> : null}
+            </NavGroup>
+          ) : null}
+
+          {isStaff ? (
+            <NavGroup label="Manage" hrefs={['/teams', '/commission', '/presence', '/admin']}>
+              <NavLink href="/teams">Teams</NavLink>
+              <NavLink href="/commission">Commission</NavLink>
+              <NavLink href="/presence">Presence</NavLink>
+              {isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
+            </NavGroup>
+          ) : null}
         </nav>
         <div className="sidebar-foot">
-          <div className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
+          {/* The avatar block IS the profile link now — one less tab in the menu. */}
+          <Link href="/profile" className="row" style={{ gap: 8, flexWrap: 'nowrap', color: 'inherit', textDecoration: 'none' }}>
             <Avatar url={profile?.avatar_url} name={name} size="md" />
             <div style={{ minWidth: 0 }}>
               <div className="small" style={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>{name}</div>
@@ -89,8 +112,9 @@ export default async function AppLayout({ children }) {
                 {ROLE_LABELS[profile?.role] || profile?.role}
                 {profile?.role === 'agent' ? ` · ${SENIORITY_NAMES[profile?.seniority] || profile?.seniority}` : ''}
               </div>
+              <div className="small" style={{ color: 'var(--gold, var(--brand))' }}>My Profile →</div>
             </div>
-          </div>
+          </Link>
           <form action="/auth/signout" method="post" style={{ marginTop: 10 }}>
             <button className="btn ghost small" type="submit">Sign out</button>
           </form>
