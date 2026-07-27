@@ -58,6 +58,12 @@ export default async function ProjectNamesPage({ searchParams }) {
                 <p className="small muted" style={{ margin: '2px 0 0' }}>
                   {g.variants.length} spellings · {g.total} lead{g.total === 1 ? '' : 's'} in total
                 </p>
+                {g.hasTypo ? (
+                  <p className="small" style={{ margin: '4px 0 0', color: 'var(--amber, var(--gold))' }}>
+                    ✏️ Includes a near-match (one letter different, e.g. Lyvia / Livia) — double-check
+                    these really are the same project before merging.
+                  </p>
+                ) : null}
               </div>
             </div>
 
