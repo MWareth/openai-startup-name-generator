@@ -20,17 +20,30 @@ const SORTS = [
   { v: 'name_desc', l: 'Name: Z → A' },
   { v: 'budget_high', l: 'Budget: high → low' },
   { v: 'budget_low', l: 'Budget: low → high' },
+  { v: 'project', l: 'Project: A → Z' },
 ];
 
-export default function LeadFilters({ agents, values, names = [] }) {
+export default function LeadFilters({ agents, values, names = [], projects = [] }) {
   const router = useRouter();
   const [name, setName] = useState(values.name || '');
+  const [project, setProject] = useState(values.project || '');
   const timer = useRef(null);
+  const projTimer = useRef(null);
 
-  // Keep the local box in sync when the URL changes elsewhere (e.g. Clear).
+  // Keep the local boxes in sync when the URL changes elsewhere (e.g. Clear).
   useEffect(() => {
     setName(values.name || '');
   }, [values.name]);
+  useEffect(() => {
+    setProject(values.project || '');
+  }, [values.project]);
+
+  // Project box: type to search or pick from the list; debounced like the name.
+  function onProjectChange(val) {
+    setProject(val);
+    if (projTimer.current) clearTimeout(projTimer.current);
+    projTimer.current = setTimeout(() => buildAndPush({ ...values, name, project: val }, true), 350);
+  }
 
   function buildAndPush(nextValues, replace = false) {
     const params = new URLSearchParams();
@@ -63,7 +76,9 @@ export default function LeadFilters({ agents, values, names = [] }) {
 
   function clearAll() {
     if (timer.current) clearTimeout(timer.current);
+    if (projTimer.current) clearTimeout(projTimer.current);
     setName('');
+    setProject('');
     router.push('/leads');
   }
 
@@ -102,6 +117,28 @@ export default function LeadFilters({ agents, values, names = [] }) {
               <option key={a.id} value={a.id}>{a.full_name}</option>
             ))}
           </select>
+        </div>
+        <div style={{ minWidth: 170, flex: '1 1 170px' }}>
+          <label>Project</label>
+          <input
+            type="search"
+            placeholder="All projects — type or pick"
+            value={project}
+            list="lead-project-options"
+            autoComplete="off"
+            onChange={(e) => onProjectChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                if (projTimer.current) clearTimeout(projTimer.current);
+                buildAndPush({ ...values, name, project });
+              }
+            }}
+          />
+          <datalist id="lead-project-options">
+            {projects.map((p) => (
+              <option key={p} value={p} />
+            ))}
+          </datalist>
         </div>
         <div style={cell}>
           <label>Type</label>

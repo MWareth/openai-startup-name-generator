@@ -16,6 +16,7 @@ export default async function LeadsPage({ searchParams }) {
     agent: searchParams?.agent || '',
     type: searchParams?.type || '',
     beds: searchParams?.beds || '',
+    project: searchParams?.project || '',
     qual: searchParams?.qual || '',
     status: searchParams?.status || '',
     budget: searchParams?.budget || '',
@@ -55,6 +56,7 @@ export default async function LeadsPage({ searchParams }) {
     if (values.name) q = q.ilike('name', `%${values.name}%`);
     if (values.agent) q = q.eq('assigned_agent_id', values.agent);
     if (values.type) q = q.eq('property_type', values.type);
+    if (values.project) q = q.ilike('property_interest', `%${values.project}%`);
     if (values.beds) q = q.eq('bedrooms', values.beds);
     if (values.qual) q = q.eq('qualification', values.qual);
     if (values.status) q = q.eq('status', values.status);
@@ -83,6 +85,9 @@ export default async function LeadsPage({ searchParams }) {
       case 'budget_low':
         q = q.order('budget', { ascending: true, nullsFirst: false });
         break;
+      case 'project':
+        q = q.order('property_interest', { ascending: true, nullsFirst: false });
+        break;
       default:
         q = q.order('updated_at', { ascending: false });
     }
@@ -100,6 +105,19 @@ export default async function LeadsPage({ searchParams }) {
     .select('name')
     .order('name', { ascending: true });
   const names = [...new Set((nameRows || []).map((r) => r.name).filter(Boolean))];
+
+  // Project options for the filter: every project already on a lead, plus the
+  // directory, so agents can pick a name instead of guessing the spelling.
+  const [{ data: projectRows }, { data: dirProjects }] = await Promise.all([
+    supabase.from('leads').select('property_interest'),
+    supabase.from('projects').select('name').then((r) => r, () => ({ data: [] })),
+  ]);
+  const projects = [
+    ...new Set([
+      ...(projectRows || []).map((r) => r.property_interest),
+      ...(dirProjects || []).map((r) => r.name),
+    ].map((s) => (s || '').trim()).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b));
 
   return (
     <div className="stack">
@@ -127,7 +145,7 @@ export default async function LeadsPage({ searchParams }) {
         </div>
       </div>
 
-      <LeadFilters agents={agents || []} values={values} names={names} />
+      <LeadFilters agents={agents || []} values={values} names={names} projects={projects} />
 
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         {leads && leads.length ? (
