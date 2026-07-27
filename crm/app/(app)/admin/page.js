@@ -97,7 +97,10 @@ export default async function AdminPage({ searchParams }) {
     <div className="stack">
       <div className="spread">
         <h1>Admin</h1>
-        <Link className="btn secondary small" href="/admin/areas">Manage areas &amp; buildings</Link>
+        <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+          <Link className="btn secondary small" href="/admin/projects">🏗️ Project names</Link>
+          <Link className="btn secondary small" href="/admin/areas">Manage areas &amp; buildings</Link>
+        </div>
       </div>
       {ok ? <div className="alert ok">{ok}</div> : null}
       {error ? <div className="alert error">{error}</div> : null}

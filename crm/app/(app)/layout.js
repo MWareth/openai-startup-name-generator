@@ -98,6 +98,7 @@ export default async function AppLayout({ children }) {
               <NavLink href="/teams">Teams</NavLink>
               <NavLink href="/commission">Commission</NavLink>
               <NavLink href="/presence">Presence</NavLink>
+              <NavLink href="/admin/projects">🏗️ Project names</NavLink>
               {isAdmin ? <NavLink href="/admin">Admin</NavLink> : null}
             </NavGroup>
           ) : null}
