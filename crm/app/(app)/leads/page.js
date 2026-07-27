@@ -29,48 +29,70 @@ export default async function LeadsPage({ searchParams }) {
     .in('role', ['agent', 'admin'])
     .order('full_name');
 
-  let q = supabase
-    .from('leads')
-    .select(
-      '*, assigned:profiles!leads_assigned_agent_id_fkey(full_name), suggested:profiles!leads_suggested_agent_id_fkey(full_name)'
-    );
+  // Fake / spam leads are hidden from everyone's working list. Staff can pull
+  // them up with ?fake=1 to review or un-flag; they stay in the DB either way
+  // so the marketing report can still count them.
+  const showingFake = isAdmin && searchParams?.fake === '1';
 
-  if (values.name) q = q.ilike('name', `%${values.name}%`);
-  if (values.agent) q = q.eq('assigned_agent_id', values.agent);
-  if (values.type) q = q.eq('property_type', values.type);
-  if (values.beds) q = q.eq('bedrooms', values.beds);
-  if (values.qual) q = q.eq('qualification', values.qual);
-  if (values.status) q = q.eq('status', values.status);
+  // Built as a function so the whole query can be re-run without the is_fake
+  // filter if migration 0037 hasn't been applied — the Leads list must never
+  // break over an optional column.
+  const buildQuery = (withFakeFilter) => {
+    let q = supabase
+      .from('leads')
+      .select(
+        '*, assigned:profiles!leads_assigned_agent_id_fkey(full_name), suggested:profiles!leads_suggested_agent_id_fkey(full_name)'
+      );
+    if (withFakeFilter) {
+      if (showingFake) q = q.eq('is_fake', true);
+      else q = q.or('is_fake.is.null,is_fake.eq.false');
+    }
+    return applyFilters(q);
+  };
 
-  if (values.budget === 'lt1m') q = q.lt('budget', 1000000);
-  else if (values.budget === '1-2m') q = q.gte('budget', 1000000).lt('budget', 2000000);
-  else if (values.budget === '2-5m') q = q.gte('budget', 2000000).lt('budget', 5000000);
-  else if (values.budget === '5m+') q = q.gte('budget', 5000000);
+  const applyFilters = (q0) => {
+    let q = q0;
+    if (values.name) q = q.ilike('name', `%${values.name}%`);
+    if (values.agent) q = q.eq('assigned_agent_id', values.agent);
+    if (values.type) q = q.eq('property_type', values.type);
+    if (values.beds) q = q.eq('bedrooms', values.beds);
+    if (values.qual) q = q.eq('qualification', values.qual);
+    if (values.status) q = q.eq('status', values.status);
 
-  switch (values.sort) {
-    case 'new':
-      q = q.order('created_at', { ascending: false });
-      break;
-    case 'old':
-      q = q.order('created_at', { ascending: true });
-      break;
-    case 'name':
-      q = q.order('name', { ascending: true });
-      break;
-    case 'name_desc':
-      q = q.order('name', { ascending: false });
-      break;
-    case 'budget_high':
-      q = q.order('budget', { ascending: false, nullsFirst: false });
-      break;
-    case 'budget_low':
-      q = q.order('budget', { ascending: true, nullsFirst: false });
-      break;
-    default:
-      q = q.order('updated_at', { ascending: false });
+    if (values.budget === 'lt1m') q = q.lt('budget', 1000000);
+    else if (values.budget === '1-2m') q = q.gte('budget', 1000000).lt('budget', 2000000);
+    else if (values.budget === '2-5m') q = q.gte('budget', 2000000).lt('budget', 5000000);
+    else if (values.budget === '5m+') q = q.gte('budget', 5000000);
+
+    switch (values.sort) {
+      case 'new':
+        q = q.order('created_at', { ascending: false });
+        break;
+      case 'old':
+        q = q.order('created_at', { ascending: true });
+        break;
+      case 'name':
+        q = q.order('name', { ascending: true });
+        break;
+      case 'name_desc':
+        q = q.order('name', { ascending: false });
+        break;
+      case 'budget_high':
+        q = q.order('budget', { ascending: false, nullsFirst: false });
+        break;
+      case 'budget_low':
+        q = q.order('budget', { ascending: true, nullsFirst: false });
+        break;
+      default:
+        q = q.order('updated_at', { ascending: false });
+    }
+    return q;
+  };
+
+  let { data: leads, error: leadsErr } = await buildQuery(true);
+  if (leadsErr && /is_fake/.test(leadsErr.message || '')) {
+    ({ data: leads } = await buildQuery(false)); // migration 0037 not applied yet
   }
-
-  const { data: leads } = await q;
 
   // Distinct client names (visible to this user) for the search autocomplete.
   const { data: nameRows } = await supabase
@@ -85,12 +107,23 @@ export default async function LeadsPage({ searchParams }) {
       {error ? <div className="alert error">{error}</div> : null}
       <div className="spread">
         <div>
-          <h1>Leads</h1>
-          <p className="muted">{isAdmin ? 'All leads across the team.' : 'Leads assigned to you.'}</p>
+          <h1>{showingFake ? '🚫 Fake / spam leads' : 'Leads'}</h1>
+          <p className="muted">
+            {showingFake
+              ? 'Flagged as junk and hidden from the working list — still counted in the marketing report.'
+              : isAdmin ? 'All leads across the team.' : 'Leads assigned to you.'}
+          </p>
         </div>
         <div className="row" style={{ gap: 8 }}>
-          <Link className="btn secondary" href="/leads/paste">📋 Paste lead</Link>
-          <Link className="btn" href="/leads/new">+ New lead</Link>
+          {showingFake ? (
+            <Link className="btn secondary" href="/leads">← Back to leads</Link>
+          ) : (
+            <>
+              {isAdmin ? <Link className="btn secondary" href="/leads?fake=1">🚫 Fake / spam</Link> : null}
+              <Link className="btn secondary" href="/leads/paste">📋 Paste lead</Link>
+              <Link className="btn" href="/leads/new">+ New lead</Link>
+            </>
+          )}
         </div>
       </div>
 

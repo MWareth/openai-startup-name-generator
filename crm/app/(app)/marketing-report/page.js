@@ -66,11 +66,21 @@ export default async function MarketingReportPage({ searchParams }) {
 
   let leadsQ = admin
     .from('leads')
-    .select('id, name, source, status, qualification, budget, property_type, created_at, assigned_at, assigned:profiles!leads_assigned_agent_id_fkey(full_name)')
+    .select('id, name, source, status, qualification, budget, property_type, created_at, assigned_at, is_fake, assigned:profiles!leads_assigned_agent_id_fkey(full_name)')
     .gte('created_at', start.toISOString())
     .order('created_at', { ascending: false });
   if (end) leadsQ = leadsQ.lt('created_at', end.toISOString());
-  const { data: leads } = await leadsQ;
+  let { data: leads, error: leadsErr } = await leadsQ;
+  if (leadsErr && /is_fake/.test(leadsErr.message || '')) {
+    // Migration 0037 not applied yet — fall back to the pre-fake-flag columns.
+    let retry = admin
+      .from('leads')
+      .select('id, name, source, status, qualification, budget, property_type, created_at, assigned_at, assigned:profiles!leads_assigned_agent_id_fkey(full_name)')
+      .gte('created_at', start.toISOString())
+      .order('created_at', { ascending: false });
+    if (end) retry = retry.lt('created_at', end.toISOString());
+    ({ data: leads } = await retry);
+  }
   const cohort = (leads || []).filter((l) => ONLINE_SOURCE_RX.test(l.source || ''));
 
   // Everything the team did on this cohort (any date — the lead belongs to the
@@ -100,6 +110,9 @@ export default async function MarketingReportPage({ searchParams }) {
     return { ...l, acts, contacted: acts.length > 0, respMin, meetings, lastNote: noted || null };
   });
 
+  // Fake / spam leads are hidden from the Leads list but MUST stay visible
+  // here — the junk rate is the most important quality signal marketing gets.
+  const fakes = rows.filter((r) => r.is_fake);
   const contacted = rows.filter((r) => r.contacted);
   const respTimes = rows.map((r) => r.respMin).filter((m) => m != null);
   const avgResp = respTimes.length ? Math.round(respTimes.reduce((a, b) => a + b, 0) / respTimes.length) : null;
@@ -162,26 +175,36 @@ export default async function MarketingReportPage({ searchParams }) {
         <Stat label="Meetings / viewings" value={rows.reduce((s, r) => s + r.meetings, 0)} />
         <Stat label="Won / Lost" value={`${count((r) => r.status === 'won')} / ${count((r) => r.status === 'lost')}`} />
       </div>
+      <div className="card stat" style={{ borderColor: fakes.length ? 'var(--red)' : undefined }}>
+        <span className="muted small">🚫 Fake / spam (flagged by the team — hidden from Leads, counted here)</span>
+        <span className="value" style={{ fontSize: '1.5rem', color: fakes.length ? 'var(--red)' : undefined }}>
+          {fakes.length} ({pctOf(fakes.length)}% of leads in)
+        </span>
+      </div>
 
       {/* Day-by-day */}
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         <div style={{ padding: '14px 16px 0' }}><h3 style={{ margin: 0 }}>📆 Day by day</h3></div>
         <table>
           <thead>
-            <tr><th>Day</th><th>Leads in</th><th>Contacted</th><th>Hot</th><th>Meetings</th><th>Lost</th></tr>
+            <tr><th>Day</th><th>Leads in</th><th>Contacted</th><th>Hot</th><th>Meetings</th><th>🚫 Fake</th><th>Lost</th></tr>
           </thead>
           <tbody>
-            {days.length ? days.map(([d, list]) => (
-              <tr key={d}>
-                <td>{formatDate(d)}</td>
-                <td>{list.length}</td>
-                <td>{list.filter((r) => r.contacted).length}</td>
-                <td>{list.filter((r) => r.qualification === 'hot').length}</td>
-                <td>{list.reduce((s, r) => s + r.meetings, 0)}</td>
-                <td>{list.filter((r) => r.status === 'lost').length}</td>
-              </tr>
-            )) : (
-              <tr><td colSpan={6} className="muted small">No leads in this period.</td></tr>
+            {days.length ? days.map(([d, list]) => {
+              const fake = list.filter((r) => r.is_fake).length;
+              return (
+                <tr key={d}>
+                  <td>{formatDate(d)}</td>
+                  <td>{list.length}</td>
+                  <td>{list.filter((r) => r.contacted).length}</td>
+                  <td>{list.filter((r) => r.qualification === 'hot').length}</td>
+                  <td>{list.reduce((s, r) => s + r.meetings, 0)}</td>
+                  <td style={{ color: fake ? 'var(--red)' : undefined }}>{fake}</td>
+                  <td>{list.filter((r) => r.status === 'lost').length}</td>
+                </tr>
+              );
+            }) : (
+              <tr><td colSpan={7} className="muted small">No leads in this period.</td></tr>
             )}
           </tbody>
         </table>
@@ -195,11 +218,12 @@ export default async function MarketingReportPage({ searchParams }) {
         </div>
         <table>
           <thead>
-            <tr><th>Source</th><th>Leads</th><th>Contacted</th><th>Hot</th><th>Avg response</th><th>Meetings</th><th>Won</th><th>Lost</th></tr>
+            <tr><th>Source</th><th>Leads</th><th>Contacted</th><th>Hot</th><th>Avg response</th><th>Meetings</th><th>🚫 Fake</th><th>Won</th><th>Lost</th></tr>
           </thead>
           <tbody>
             {sources.length ? sources.map(([s, list]) => {
               const resp = list.map((r) => r.respMin).filter((m) => m != null);
+              const fake = list.filter((r) => r.is_fake).length;
               return (
                 <tr key={s}>
                   <td><strong>{s}</strong></td>
@@ -208,12 +232,15 @@ export default async function MarketingReportPage({ searchParams }) {
                   <td>{list.filter((r) => r.qualification === 'hot').length}</td>
                   <td>{fmtMins(resp.length ? Math.round(resp.reduce((a, b) => a + b, 0) / resp.length) : null)}</td>
                   <td>{list.reduce((sum, r) => sum + r.meetings, 0)}</td>
+                  <td style={{ color: fake ? 'var(--red)' : undefined, fontWeight: fake ? 600 : undefined }}>
+                    {fake ? `${fake} (${Math.round((fake / list.length) * 100)}%)` : '0'}
+                  </td>
                   <td>{list.filter((r) => r.status === 'won').length}</td>
                   <td>{list.filter((r) => r.status === 'lost').length}</td>
                 </tr>
               );
             }) : (
-              <tr><td colSpan={8} className="muted small">No leads in this period.</td></tr>
+              <tr><td colSpan={9} className="muted small">No leads in this period.</td></tr>
             )}
           </tbody>
         </table>
@@ -230,6 +257,9 @@ export default async function MarketingReportPage({ searchParams }) {
             <div key={r.id} style={{ borderBottom: '1px solid var(--border)', paddingBottom: 10 }}>
               <div className="row" style={{ gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
                 <Link href={`/leads/${r.id}`}><strong>{r.name}</strong></Link>
+                {r.is_fake ? (
+                  <span className="badge" style={{ background: 'var(--red)', color: '#fff' }}>🚫 Fake</span>
+                ) : null}
                 {qualBadge(r.qualification)}
                 <span className="badge status">{STATUS_LABELS[r.status] || r.status}</span>
                 <span className="small muted">

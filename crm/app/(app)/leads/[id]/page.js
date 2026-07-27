@@ -13,7 +13,7 @@ import {
   waLink,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
-import { addActivity, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon, markLeadFake } from '../actions';
+import { addActivity, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon, markLeadFake, unmarkLeadFake } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
 import DealMoneyFields from '@/components/DealMoneyFields';
@@ -301,7 +301,15 @@ export default async function LeadDetail({ params, searchParams }) {
               propertyType={lead.property_type}
               bedrooms={lead.bedrooms}
             />
-            {lead.status !== 'lost' ? (
+            {lead.is_fake ? (
+              <form action={unmarkLeadFake} style={{ marginTop: 10 }}>
+                <input type="hidden" name="lead_id" value={lead.id} />
+                <p className="small" style={{ color: 'var(--red)', margin: '0 0 6px' }}>
+                  🚫 Flagged as fake / spam — hidden from the Leads list, still counted in the marketing report.
+                </p>
+                <button className="btn ghost small" type="submit">↩️ Not fake — restore to Leads</button>
+              </form>
+            ) : lead.status !== 'lost' ? (
               <form action={markLeadFake} style={{ marginTop: 10 }}>
                 <input type="hidden" name="lead_id" value={lead.id} />
                 <button className="btn ghost small" type="submit" style={{ borderColor: 'var(--red)', color: 'var(--red)' }}>

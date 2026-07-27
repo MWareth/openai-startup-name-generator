@@ -533,14 +533,16 @@ export async function logMessage(prevState, formData) {
   return { ok: 'Message note added.' };
 }
 
-// Flag a lead as fake / spam: move it to Lost and drop a note. Any agent (on
-// their own lead), marketing, or admin can do this — RLS governs who can update.
+// Flag a lead as fake / spam: hide it from the working Leads list, move it to
+// Lost and drop a note. The row is KEPT so the marketing report can show
+// management how much junk each campaign produced. Any agent (on their own
+// lead), marketing, or admin can do this — RLS governs who can update.
 export async function markLeadFake(formData) {
   const { user, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
   const { error } = await writeTolerant(
     (p) => supabase.from('leads').update(p).eq('id', leadId),
-    { status: 'lost' }
+    { status: 'lost', is_fake: true, fake_flagged_at: new Date().toISOString(), fake_flagged_by: user.id }
   );
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   await supabase.from('lead_activities').insert({
@@ -550,9 +552,27 @@ export async function markLeadFake(formData) {
     occurred_on: new Date().toISOString().slice(0, 10),
     body: '🚫 Flagged as fake / spam',
   });
+  await logEvent({ userId: user.id, action: 'status_change', leadId, detail: 'Flagged as fake / spam — hidden from Leads' });
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/leads');
-  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Flagged as fake — moved to Lost.'));
+  revalidatePath('/marketing-report');
+  redirect('/leads?ok=' + encodeURIComponent('Flagged as fake — hidden from Leads, still counted in the marketing report.'));
+}
+
+// Undo a fake flag (mis-flagged lead): back into the working list as Contacted.
+export async function unmarkLeadFake(formData) {
+  const { user, supabase } = await requireUser();
+  const leadId = String(formData.get('lead_id'));
+  const { error } = await writeTolerant(
+    (p) => supabase.from('leads').update(p).eq('id', leadId),
+    { status: 'active', is_fake: false, fake_flagged_at: null, fake_flagged_by: null }
+  );
+  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  await logEvent({ userId: user.id, action: 'status_change', leadId, detail: 'Fake flag removed — back in Leads' });
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath('/leads');
+  revalidatePath('/marketing-report');
+  redirect(`/leads/${leadId}?ok=` + encodeURIComponent('Fake flag removed — the lead is back in the list.'));
 }
 
 export async function suggestReassign(formData) {
