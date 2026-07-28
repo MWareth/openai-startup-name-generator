@@ -39,7 +39,10 @@ Yield basis: Net Rental ÷ **Total** cost incl. fees (178,160 ÷ 2,928,856 = 6.1
 
 ---
 
-## PROJECT 1 — Villa Del Garda
+## FORMAT REFERENCE EXAMPLE — Villa Del Garda
+
+> Not one of the three client projects. This is a worked example of the table format,
+> field list, and math conventions to replicate. Keep the structure, swap the content.
 
 | | |
 |---|---|
@@ -84,6 +87,12 @@ airport transfers.
 1 BR / 728 sqft — should read `1 Bedroom`.
 
 ---
+
+---
+
+# The three client projects
+
+## PROJECT 1 — _awaiting batch_
 
 ## PROJECT 2 — _awaiting batch_
 
