@@ -138,6 +138,7 @@ export default async function LeadsPage({ searchParams }) {
           ) : (
             <>
               {isAdmin ? <Link className="btn secondary" href="/leads?fake=1">🚫 Fake / spam</Link> : null}
+              {isAdmin ? <Link className="btn secondary" href="/leads/import">⬆️ Import</Link> : null}
               <Link className="btn secondary" href="/leads/paste">📋 Paste lead</Link>
               <Link className="btn" href="/leads/new">+ New lead</Link>
             </>
