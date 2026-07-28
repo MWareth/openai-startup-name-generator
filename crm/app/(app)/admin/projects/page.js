@@ -24,8 +24,10 @@ export default async function ProjectNamesPage({ searchParams }) {
   }
   const groups = groupProjectNames([...counts.entries()].map(([name, count]) => ({ name, count })));
 
-  const dupes = groups.filter((g) => g.variants.length > 1);
-  const clean = groups.filter((g) => g.variants.length === 1);
+  // Anything needing a decision: real duplicates, plus single names carrying
+  // junk ("Property Type: …") that just need tidying.
+  const dupes = groups.filter((g) => g.variants.length > 1 || g.needsTidy);
+  const clean = groups.filter((g) => g.variants.length === 1 && !g.needsTidy);
   const blank = (rows || []).filter((r) => !String(r.property_interest || '').trim()).length;
 
   return (
@@ -56,8 +58,23 @@ export default async function ProjectNamesPage({ searchParams }) {
               <div>
                 <h3 style={{ margin: 0 }}>{g.suggested}</h3>
                 <p className="small muted" style={{ margin: '2px 0 0' }}>
-                  {g.variants.length} spellings · {g.total} lead{g.total === 1 ? '' : 's'} in total
+                  {g.needsTidy
+                    ? `Name needs tidying · ${g.total} lead${g.total === 1 ? '' : 's'}`
+                    : `${g.variants.length} spellings · ${g.total} lead${g.total === 1 ? '' : 's'} in total`}
                 </p>
+                {g.needsTidy ? (
+                  <p className="small" style={{ margin: '4px 0 0', color: 'var(--muted)' }}>
+                    🧹 The stored name carries extra text (a label, a bracket or an address). Renaming it
+                    to <strong>{g.suggested}</strong> doesn&apos;t merge anything.
+                  </p>
+                ) : null}
+                {g.needsConfirm ? (
+                  <p className="small" style={{ margin: '4px 0 0', color: 'var(--amber, var(--gold))' }}>
+                    ❓ One name sits inside the other (e.g. “Nad Al Sheba” inside “Nad Al Sheba Gardens”).
+                    That&apos;s usually the same project with an extra qualifier — but it can be two real
+                    projects. <strong>Confirm before merging.</strong>
+                  </p>
+                ) : null}
                 {g.hasTypo ? (
                   <p className="small" style={{ margin: '4px 0 0', color: 'var(--amber, var(--gold))' }}>
                     ✏️ Includes a near-match (one letter different, e.g. Lyvia / Livia) — double-check
@@ -91,7 +108,7 @@ export default async function ProjectNamesPage({ searchParams }) {
                   {g.variants.map((v) => <option key={v.name} value={v.name} />)}
                 </datalist>
               </label>
-              <button className="btn" type="submit">Merge</button>
+              <button className="btn" type="submit">{g.needsTidy ? "Rename" : "Merge"}</button>
             </div>
           </form>
         ))

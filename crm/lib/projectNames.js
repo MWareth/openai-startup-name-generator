@@ -12,10 +12,25 @@ const NOISE = [
   'building', 'project', 'phase', 'by', 'the', 'at', 'dubai', 'uae',
 ];
 
+// Strip the junk that portals and agents wrap around a project name, keeping
+// the name itself:
+//   "Property Type: Samana Greenfield"              \u2192 "Samana Greenfield"
+//   "Nad Al Sheba (Apartment)"                      \u2192 "Nad Al Sheba"
+//   "Sobha Central, Sheikh Zayed Road (Apartment)"  \u2192 "Sobha Central"
+// The part before the first comma is the project; what follows is the address.
+export function tidyProjectName(raw) {
+  return String(raw || '')
+    .replace(/^\s*(property\s*type|type|project|building|development)\s*[:\-]\s*/i, '')
+    .replace(/\([^)]*\)/g, ' ')       // parenthetical qualifiers
+    .split(',')[0]                     // drop the address tail
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // Comparison key: lowercase, strip punctuation/accents, drop noise words and
 // trailing phase numbers, then sort what's left so word order doesn't matter.
 export function projectKey(raw) {
-  const cleaned = String(raw || '')
+  const cleaned = tidyProjectName(raw)
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -34,7 +49,7 @@ export function projectKey(raw) {
 // these — the sorted key would make "Sobha Selis" and "Sobha Solis" look far
 // apart just because the alphabetical order flips.
 export function projectFlat(raw) {
-  const cleaned = String(raw || '')
+  const cleaned = tidyProjectName(raw)
     .toLowerCase()
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
@@ -87,6 +102,18 @@ function isLikelyTypo(a, b) {
   return editDistance(a, b) <= limit;
 }
 
+// Is one name wholly contained in the other, on a word boundary?
+// "nad al sheba" ⊂ "nad al sheba gardens", "south square" ⊂ "south square dubai
+// south". That usually means the same project with an extra qualifier — but it
+// can also be two real projects ("Sobha Central" vs "Sobha Central Park"), so
+// these are only ever SUGGESTED, never merged without the user confirming.
+function isContained(a, b) {
+  if (!a || !b || a === b) return false;
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+  if (short.split(' ').length < 2) return false; // one-word names are too loose
+  return long === short || long.startsWith(short + ' ') || long.endsWith(' ' + short) || long.includes(' ' + short + ' ');
+}
+
 // Group raw names (each { name, count }) by comparison key. Returns groups
 // sorted by total leads, each with a suggested master name: the shortest
 // variant (the base project name), tidied to title case.
@@ -108,14 +135,23 @@ export function groupProjectNames(rows) {
   const merged = [...byKey.values()].sort((a, b) => b.total - a.total);
   const kept = [];
   for (const g of merged) {
-    const host = kept.find((k) => isLikelyTypo(k.flat, g.flat));
-    if (host) {
-      host.variants.push(...g.variants);
-      host.total += g.total;
-      host.hasTypo = true;
-    } else {
-      kept.push(g);
+    const typoHost = kept.find((k) => isLikelyTypo(k.flat, g.flat));
+    if (typoHost) {
+      typoHost.variants.push(...g.variants);
+      typoHost.total += g.total;
+      typoHost.hasTypo = true;
+      continue;
     }
+    const nearHost = kept.find((k) => isContained(k.flat, g.flat));
+    if (nearHost) {
+      nearHost.variants.push(...g.variants);
+      nearHost.total += g.total;
+      nearHost.needsConfirm = true;
+      // Keep the shorter name as the group's identity — it's the base project.
+      if (g.flat.length < nearHost.flat.length) nearHost.flat = g.flat;
+      continue;
+    }
+    kept.push(g);
   }
 
   return kept
@@ -123,12 +159,24 @@ export function groupProjectNames(rows) {
       const variants = g.variants.sort((a, b) => b.count - a.count || a.name.length - b.name.length);
       // Suggested master: the shortest variant (base name, no unit-type
       // suffix), title-cased. Keeps an already-tidy name exactly as typed.
-      const shortest = [...variants].sort((a, b) => a.name.length - b.name.length)[0].name;
+      // Base the suggestion on the shortest variant with its wrapper junk
+      // removed ("Property Type: X (Apartment)" → "X"). For a contained match
+      // ("Nad Al Sheba" inside "Nad Al Sheba Gardens") the longer name is
+      // usually the real project and the short one is the area, so there we go
+      // with whichever spelling the team actually used most.
+      const shortest = tidyProjectName(
+        g.needsConfirm
+          ? variants[0].name
+          : [...variants].sort((a, b) => tidyProjectName(a.name).length - tidyProjectName(b.name).length)[0].name
+      );
       // Keep the agent's own casing when it's already mixed-case (it may hold
       // real branding like "DAMAC"); only tidy all-lower / ALL-CAPS names.
       const messyCase = shortest === shortest.toLowerCase() || shortest === shortest.toUpperCase();
       const suggested = messyCase ? titleCase(shortest) : shortest;
-      return { ...g, variants, suggested };
+      // A single-variant group still needs attention if its stored name carries
+      // junk ("Property Type: …") — that's a rename, not a merge.
+      const needsTidy = variants.length === 1 && variants[0].name !== suggested;
+      return { ...g, variants, suggested, needsTidy };
     })
     .sort((a, b) => b.variants.length - a.variants.length || b.total - a.total);
 }
