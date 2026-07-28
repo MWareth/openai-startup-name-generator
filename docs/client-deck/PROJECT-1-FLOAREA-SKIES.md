@@ -1,6 +1,32 @@
 # PROJECT 1 — **Floareá Skies** by Mashriq Elite Developments
 ### Slide content, formatted to the reference template
 
+> ## ✅ CONFIRMED from developer sales offer S 611 (18 July 2026)
+> The 1-bedroom figures below are no longer estimates. They come from a live sales offer for
+> **unit FS 611** and supersede the earlier research-based numbers.
+>
+> | | Confirmed | Earlier estimate (wrong) |
+> |---|---|---|
+> | Unit | FS 611 · 6th floor · pool view · parking 01 | — |
+> | Type | 1 BR Type D | — |
+> | Size | **837.54 sqft** (678.34 suite + 159.20 balcony) | 717 sqft |
+> | Price | **AED 1,154,000** | AED 1,050,000 |
+> | DLD 4% | **46,160 — PAYABLE, not waived** | assumed waived |
+> | Admin fee | **AED 4,000** | AED 5,250 |
+> | Total | **AED 1,204,160** | AED 1,055,250 |
+> | Price/sqft | **AED 1,378** | AED 1,464 |
+> | Payment plan | **20% booking · 5% Dec 2026 · 5% Jun 2027 · 70% completion** | 50/50 |
+> | Completion | **Q1 2028** | Q3–Q4 2027 |
+> | Net yield (modelled) | **5.7%** | 6.2% |
+>
+> **What this changed in the deck:** Floareá is no longer the yield leader — it is now the
+> *largest unit, earliest handover, least capital before keys* option. The 4% DLD is payable,
+> which alone added AED 46,160 to the all-in cost. The 70% completion payment is the largest
+> of the three and normally the point a mortgage is drawn.
+>
+> Due at booking, all in: **AED 280,960** (20% + DLD + admin). Only AED 115,400 falls due
+> across the following eighteen months.
+
 **Sources:** the two attached PDFs — *Floarea Skies Brochure* (40pp) and *Floarea Skies
 Deliverables* — plus the pricing research already in `PROPERTY-COMPARE.md` (July 2026).
 The brochure carries **no price list, no unit sizes, no total unit count and no handover
@@ -60,9 +86,9 @@ Studio, 1 & 2 bedroom residences — **Starting Price CONFIRM**
 | Types | Studio · 1 Bedroom · 2 Bedroom |
 | Building Configuration | **G + 4P + 19 floors** |
 | Total Units | **192** — CONFIRM (not in brochure) |
-| Delivery / Completion | **Q3–Q4 2027** — CONFIRM (not in brochure) |
+| Delivery / Completion | **Q1 2028** — confirmed on sales offer S 611 |
 | Service Charge | **CONFIRM** — not published. JVC towers typically AED 12–16/sqft |
-| Payment Plan | **50 / 50, investor-friendly** (brochure). Prior research also shows a 20/30/50 option with 10% booking — CONFIRM which are live |
+| Payment Plan | **30 / 70** — 20% booking · 5% Dec 2026 · 5% Jun 2027 · 70% completion (confirmed) |
 
 **Key features (brochure, verbatim list):** prime location adjacent to JVC entry/exit ·
 upcoming Metro Station (Purple Line) · designer lobby · striking elevation · spacious
@@ -115,31 +141,46 @@ living room mirror · bedroom decor mirror piece · study room furniture · chan
 
 ## SLIDE 4 — Price to be paid + rental return
 
-**Modelled on the entry 1 BR — 717 sqft at AED 1,050,000. CONFIRM both on the price list.**
+**Confirmed — unit FS 611, 1 BR Type D, 837.54 sqft, from sales offer S 611 (18 Jul 2026).**
 
-**PRICE TO BE PAID — For a 717 SQFT 1 BR : €244,755**
+**PRICE TO BE PAID — For an 837.54 SQFT 1 BR : €269,001**
 
-| 1 Bedroom | AED | EURO |
+| 1 Bedroom · Type D | AED | EURO |
 |---|---:|---:|
-| Unit Price | 1,050,000 | €244,755 |
-| DLD Registration Fee 4% | **WAIVED** (42,000 / €9,790) | — |
-| Admin Fee | 5,250 | €1,224 |
-| Avg Price / Sqft | 1,464 | €341 |
-| **Total** | **1,055,250** | **€245,979** |
+| Unit Price | 1,154,000 | €269,001 |
+| DLD Registration Fee 4% | 46,160 | €10,760 |
+| Admin Fee | 4,000 | €932 |
+| Avg Price / Sqft | 1,378 | €321 |
+| **Total** | **1,204,160** | **€280,690** |
+
+**PAYMENT SCHEDULE**
+
+| Description | % | Due | AED |
+|---|---:|---|---:|
+| Down payment | 20% | On booking | 230,800 |
+| 1st instalment | 5% | 1 Dec 2026 | 57,700 |
+| 2nd instalment | 5% | 1 Jun 2027 | 57,700 |
+| On completion | 70% | Q1 2028 | 807,800 |
+| **Total** | **100%** | | **1,154,000** |
+
+Due at booking including DLD and admin: **AED 280,960**.
 
 **RENTAL RETURN SCENARIO**
 
 | | AED | EURO |
 |---|---:|---:|
-| Avg Gross Rental Estimate | 75,000 | €17,483 |
-| Unit Size | 717 SQFT | — |
-| Service Charge | 10,038 | €2,340 |
-| Net Rental Estimate | 64,962 | €15,143 |
-| **Net Rental Yield** | **6.2%** | |
+| Avg Gross Rental Estimate | 80,000 | €18,648 |
+| Unit Size | 837.54 SQFT | — |
+| Service Charge | 11,726 | €2,733 |
+| Net Rental Estimate | 68,274 | €15,915 |
+| **Net Rental Yield** | **5.7%** | |
 
 **Conventions — identical across all three projects so they compare:**
-FX 1 EUR = 4.29 AED · admin fee held at AED 5,250 · net yield = Net Rental ÷ **Total** cost
-including fees (64,962 ÷ 1,055,250 = 6.2%)
+FX 1 EUR = 4.29 AED · net yield = Net Rental ÷ **Total** cost including fees
+(68,274 ÷ 1,204,160 = 5.7%)
+
+Still estimated on this page: service charge (AED 14/sqft, unpublished) and gross rent
+(AED 80,000, mid of the JVC 1BR range of 74–86k).
 
 ### ⚠️ Assumptions and switches
 1. **The 4% DLD waiver is the single biggest lever on this slide.** Prior research says

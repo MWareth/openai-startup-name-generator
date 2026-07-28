@@ -155,15 +155,24 @@ figure online is the *earlier* Celesto Tower project, not Celesto 4 — do not c
 |---|---|---|---|
 | Location | JVC | City of Arabia | DLRC / Wadi Al Safa 5 |
 | Developer | Mashriq Elite | BEYOND (OMNIYAT) | Al Tarrad |
-| Handover | **Q3–Q4 2027** | Q1 2029 | Q4 2028 |
+| Handover | **Q1 2028** | Q1 2029 | Q4 2028 |
 | Total units | **192** | 272 | 414 |
-| 1BR size | 717 sqft | **750–762 sqft** | 550–598 sqft |
-| 1BR all-in | AED 1,055,250 | AED 1,045,250 | **~837,250 (est)** |
-| Price/sqft | 1,464 | **1,333** | 1,454 (est) |
-| Net yield | **6.2%** | 6.1% | 6.2% (studio 6.6%) |
-| Capital pre-handover | 50% | **40%** | 50%, 1%/month |
+| 1BR size | **837.54 sqft** | 750–762 sqft | 550–598 sqft |
+| 1BR all-in | AED 1,204,160 | AED 1,045,250 | **~837,250 (est)** |
+| Price/sqft | 1,378 | **1,333** | 1,454 (est) |
+| Net yield | 5.7% | 6.1% | **6.2% (studio 6.6%)** |
+| Capital pre-handover | **30%** | 40% | 50%, 1%/month |
 | Furnished | **Yes** | No | **Yes** |
-| DLD 4% | **Waived (confirm)** | Payable | Confirm |
+| DLD 4% | Payable (confirmed) | Payable | Confirm |
+
+Floareá's row is from sales offer S 611 (18 Jul 2026) — confirmed, not estimated.
+
+## Two-bedroom
+| | Floareá | Arancia | Celesto 4 |
+|---|---|---|---|
+| Size | to confirm | 1,100–1,179 sqft | 852–1,070 sqft |
+| Price from | **price list needed** | AED 2,100,000 | **price list needed** |
+| Units of type | to confirm | to confirm | 72 of 414 |
 
 **Three genuinely different propositions, not a ranking:**
 - **Floareá** — income starts soonest (2027), fitted, proven JVC leasing market. Boutique developer risk.
@@ -175,9 +184,9 @@ figure online is the *earlier* Celesto Tower project, not Celesto 4 — do not c
 ## Data still needed
 | Project | Outstanding |
 |---|---|
-| Floareá Skies | price list + sizes · DLD waiver status · service charge · unit count · handover · kitchen spec |
-| Arancia | service charge · confirm 1BR entry (1.0M vs 1.1M) · drive times · handover quarter |
-| Celesto 4 | **1BR/2BR price list** · service charge · DLD status · Celesto 1–3 delivery record |
+| Floareá Skies | **2 BR price list + sizes** · service charge · unit count · kitchen spec · is FS 611 still available (1 BR now confirmed) |
+| Arancia | service charge · confirm 1BR entry (1.0M vs 1.1M) · **2 BR sizes** · drive times · handover quarter · **render files (pasted images can't be read — send as attachments)** |
+| Celesto 4 | **1BR + 2BR price list** · service charge · DLD status · Celesto 1–3 delivery record |
 
 **Common to all three: service charge in writing.** It moves net yield 0.7–1.0 points and is
 unpublished for every one of them.

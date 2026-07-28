@@ -1,4 +1,4 @@
-/* Builds the 21-slide Dubai off-plan comparison deck as a .pptx
+/* Builds the 23-slide Dubai off-plan comparison deck as a .pptx
    Run: node build-pptx.js   (from docs/client-deck/) */
 
 const pptxgen = require('pptxgenjs');
@@ -24,13 +24,16 @@ pres.author = 'Marwan Wareth';
 pres.title = 'Three Projects, One Decision — Dubai Off-Plan Comparison';
 
 /* ---------- helpers ---------- */
+let SLIDE_N = 0;
 function newSlide() {
   const s = pres.addSlide();
   s.background = { color: GROUND };
+  s.__n = ++SLIDE_N;
   return s;
 }
 
-function chrome(s, n, hue, name, sub) {
+function chrome(s, hue, name, sub) {
+  const n = s.__n;
   if (name) {
     s.addShape(pres.ShapeType.rect, { x: MX, y: 0.42, w: 0.075, h: 0.24, fill: { color: hue } });
     s.addText(
@@ -236,7 +239,7 @@ function cards(s, y, h, items) {
     });
     x += 4.1;
   });
-  chrome(s, 1);
+  chrome(s);
 }
 
 /* 2 — the brief */
@@ -265,7 +268,7 @@ function cards(s, y, h, items) {
   statRow(s, 5.35, [
     { v: '3', l: 'Projects' }, { v: '3', l: 'Communities' }, { v: '18', u: 'months', l: 'Handover spread' }
   ]);
-  chrome(s, 2);
+  chrome(s);
 }
 
 /* 3 — at a glance */
@@ -280,13 +283,14 @@ function cards(s, y, h, items) {
     rows: [
       ['Community', 'JVC', 'City of Arabia', 'DLRC'],
       ['Developer', 'Mashriq Elite', 'BEYOND · OMNIYAT', 'Al Tarrad'],
-      ['Handover', g('Q3–Q4 2027'), 'Q1 2029', 'Q4 2028'],
+      ['Handover', g('Q1 2028'), 'Q1 2029', 'Q4 2028'],
       ['Units in building', g('192'), '272', '414'],
-      ['1 BR size', '717 sqft', g('750–762 sqft'), '550–598 sqft'],
-      ['1 BR all-in cost', 'AED 1,055,250', 'AED 1,045,250', g('≈837,250  est')],
-      ['Price per sqft', 'AED 1,464', g('AED 1,333'), 'AED 1,454  est'],
-      ['Net rental yield', g('6.2%'), '6.1%', '6.2%  est'],
-      ['Capital in before keys', '50%', g('40%'), '50%'],
+      ['1 BR size', g('837 sqft'), '750–762 sqft', '550–598 sqft'],
+      ['1 BR all-in cost', 'AED 1,204,160', 'AED 1,045,250', g('≈837,250  est')],
+      ['Price per sqft', 'AED 1,378', g('AED 1,333'), 'AED 1,454  est'],
+      ['Net rental yield', '5.7%', '6.1%', g('6.2%  est')],
+      ['Capital in before keys', g('30%'), '40%', '50%'],
+      ['4% DLD fee', 'Payable', 'Payable', 'To confirm'],
       ['Furnished on handover', g('Yes'), 'No', g('Yes')],
       ['Metro', 'Purple Line, future', '—', g('Blue Line, 1 min')],
       ['To DXB airport', '35 min', 'To confirm', g('18 min')]
@@ -294,11 +298,46 @@ function cards(s, y, h, items) {
   });
   s.addText([
     { text: 'Green', options: { bold: true, color: VERDICT } },
-    { text: " marks the strongest of the three on that row. The 4% DLD position differs per project and is confirmed on each project's own slide. Figures subject to change — verify on the current price list and SPA. Not financial advice.", options: {} }
+    { text: " marks the strongest of the three on that row. Floareá's figures come from a live sales offer (unit FS 611, 18 July 2026); Arancia and Celesto are published or estimated and still to be confirmed on a price list. Not financial advice.", options: {} }
   ], {
     x: MX, y: 6.0, w: CW, h: 0.5, fontFace: BODY, fontSize: 9, color: INK3, margin: 0, valign: 'top'
   });
-  chrome(s, 3);
+  chrome(s);
+}
+
+/* 3b — two bedrooms */
+{
+  const s = newSlide();
+  eyebrow(s, 'If the brief moves up a size', 0.94);
+  heading(s, 'The two-bedroom picture', 1.28, 32);
+  s.addText('Only one of the three has a published two-bedroom price today. Sizes are confirmed for all three, so the comparison still holds shape — the two missing prices are being requested.', {
+    x: MX, y: 2.06, w: 9.4, h: 0.6, fontFace: BODY, fontSize: 12, color: INK2, margin: 0, valign: 'top'
+  });
+  const req = (t) => ({ t: t, c: INK3 });
+  tbl(s, {
+    x: MX, y: 2.72, w: CW, colW: [3.3, 2.92, 2.92, 2.92], rowH: 0.315, size: 10.5,
+    head: ['2 Bedroom', 'Floareá Skies', 'Arancia', 'Celesto 4'],
+    rows: [
+      ['Offered', 'Yes', 'Yes', 'Yes'],
+      ['Size', req('To confirm'), { t: '1,100–1,179 sqft', c: VERDICT, b: true }, '852–1,070 sqft'],
+      ['Units of this type', req('To confirm'), req('To confirm'), '72 of 414'],
+      ['Price from', req('Price list requested'), 'AED 2,100,000', req('Price list requested')],
+      ['Price per sqft', '—', '≈ AED 1,850', '—'],
+      ['Payment plan', '30 / 70', '40 / 60', '50 / 50, 1% monthly'],
+      ['Handover', { t: 'Q1 2028', c: VERDICT, b: true }, 'Q1 2029', 'Q4 2028']
+    ]
+  });
+  callout(s, {
+    x: MX, y: 5.42, w: 6.0, h: 1.15, size: 10.5,
+    rich: [{ text: "What Arancia's 2 BR tells you. ", options: { bold: true, color: INK } },
+           { text: 'AED 2.1M for 1,100–1,179 sqft is around AED 1,850/sqft — well above its own one-bedroom at 1,333. The two-bedroom is priced as the family product, not as two one-beds.', options: {} }]
+  });
+  callout(s, {
+    x: 7.0, y: 5.42, w: 5.68, h: 1.15, size: 10.5,
+    rich: [{ text: 'Needed to finish this slide. ', options: { bold: true, color: 'E0A45C' } },
+           { text: 'Two-bedroom price lists for Floareá Skies and Celesto 4, plus Floareá 2 BR sizes and unit counts per type. One sales offer per project is enough — same format as FS 611.', options: {} }]
+  });
+  chrome(s);
 }
 
 /* 4 — capital exposure */
@@ -313,9 +352,9 @@ function cards(s, y, h, items) {
      to read Floareá → Arancia → Celesto down the slide */
   const CATS = ['Celesto 4', 'Arancia', 'Floareá Skies'];
   s.addChart(pres.ChartType.bar, [
-    { name: 'Down payment / booking', labels: CATS, values: [20, 10, 10] },
-    { name: 'During construction', labels: CATS, values: [30, 30, 40] },
-    { name: 'On handover', labels: CATS, values: [50, 60, 50] }
+    { name: 'Down payment / booking', labels: CATS, values: [20, 10, 20] },
+    { name: 'During construction', labels: CATS, values: [30, 30, 10] },
+    { name: 'On handover', labels: CATS, values: [50, 60, 70] }
   ], {
     x: MX - 0.1, y: 2.7, w: CW + 0.1, h: 2.5,
     barDir: 'bar', barGrouping: 'stacked', barGapWidthPct: 58,
@@ -334,17 +373,17 @@ function cards(s, y, h, items) {
     x: MX, y: 5.42, w: 6.0, colW: [2.1, 1.3, 1.3, 1.3], rowH: 0.3, size: 10.5,
     head: ['Project', 'Before keys', 'On handover', 'Shape'],
     rows: [
-      ['Floareá Skies', '50%', '50%', 'Milestone'],
-      ['Arancia', { t: '40%', c: VERDICT, b: true }, '60%', 'Milestone'],
-      ['Celesto 4', '50%', '50%', { t: '1% monthly', c: VERDICT, b: true }]
+      ['Floareá Skies', { t: '30%', c: VERDICT, b: true }, '70%', 'Milestone'],
+      ['Arancia', '40%', '60%', 'Milestone'],
+      ['Celesto 4', '50%', { t: '50%', c: VERDICT, b: true }, { t: '1% monthly', c: VERDICT, b: true }]
     ]
   });
   callout(s, {
     x: 7.0, y: 5.42, w: 5.68, h: 1.32, size: 10.5,
-    rich: [{ text: 'The shape matters as much as the split. ', options: { bold: true, color: INK } },
-           { text: "Arancia asks the least before handover at 40%. But Celesto's 1% a month for 30 months is the only plan a client can fund out of monthly income rather than capital — for most buyers that is the easier cheque to write.", options: {} }]
+    rich: [{ text: 'Two different kinds of easy. ', options: { bold: true, color: INK } },
+           { text: "Floareá asks the least before keys — 30%, of which 20% is the booking. It also carries the largest payment at the end: 70% on completion, usually the point a mortgage is drawn. Celesto's 1% a month is the opposite trade.", options: {} }]
   });
-  chrome(s, 4);
+  chrome(s);
 }
 
 /* 5 — Floareá title */
@@ -357,13 +396,13 @@ function cards(s, y, h, items) {
     tagline: 'A life painted in pastel horizons',
     meta: 'Developer · Mashriq Elite Developments        Handover · Q3–Q4 2027        From · AED 1,050,000'
   });
-  chrome(s, 5);
+  chrome(s);
 }
 
 /* 6 — Floareá developer */
 {
   const s = newSlide();
-  chrome(s, 6, FLO, 'Floareá Skies', '· Mashriq Elite');
+  chrome(s, FLO, 'Floareá Skies', '· Mashriq Elite');
   eyebrow(s, 'The developer', 1.14, FLO);
   s.addText('Mashriq Elite\nDevelopments', {
     x: MX, y: 1.5, w: 5.2, h: 1.5, fontFace: HEAD, fontSize: 34, bold: true,
@@ -385,13 +424,13 @@ function cards(s, y, h, items) {
     rich: [{ text: 'Said plainly: ', options: { bold: true, color: INK } },
            { text: 'this is a boutique developer, not a Binghatti or an EMAAR. The upside is a small building and negotiable terms. The risk is depth of delivery record — mitigated by verifying the escrow account, RERA registration and construction-linked SPA milestones.', options: {} }]
   });
-  chrome(s, 6, FLO, 'Floareá Skies', '· Mashriq Elite');
+  chrome(s, FLO, 'Floareá Skies', '· Mashriq Elite');
 }
 
 /* 7 — Floareá overview */
 {
   const s = newSlide();
-  chrome(s, 7, FLO, 'Floareá Skies', '· JVC');
+  chrome(s, FLO, 'Floareá Skies', '· JVC');
   eyebrow(s, 'The project', 1.14, FLO);
   s.addText("Adjacent to JVC's entry and exit, with a Purple Line metro station coming", {
     x: MX, y: 1.48, w: 5.5, h: 0.8, fontFace: HEAD, fontSize: 17, bold: true,
@@ -403,7 +442,7 @@ function cards(s, y, h, items) {
     rows: [
       ['Location', 'Jumeirah Village Circle'], ['Types', 'Studio · 1 BR · 2 BR'],
       ['Configuration', 'G + 4P + 19 floors'], ['Total units', '192  (confirm)'],
-      ['Handover', 'Q3–Q4 2027  (confirm)'], ['Payment plan', '50 / 50'],
+      ['Handover', 'Q1 2028'], ['Payment plan', '30 / 70 · 20% on booking'],
       ['Service charge', 'To confirm']
     ]
   });
@@ -423,7 +462,7 @@ function cards(s, y, h, items) {
 /* 8 — Floareá deliverables */
 {
   const s = newSlide();
-  chrome(s, 8, FLO, 'Floareá Skies', "· What's included");
+  chrome(s, FLO, 'Floareá Skies', "· What's included");
   eyebrow(s, 'Deliverables', 1.14, FLO);
   heading(s, "It arrives fitted — that's the whole argument", 1.5, 28);
   cards(s, 2.42, 3.0, [
@@ -456,17 +495,17 @@ function cards(s, y, h, items) {
 /* 9 — Floareá price */
 {
   const s = newSlide();
-  chrome(s, 9, FLO, 'Floareá Skies', '· 1 BR, 717 sqft');
+  chrome(s, FLO, 'Floareá Skies', '· Unit FS 611 · 1 BR, 837.54 sqft');
   caption(s, 'Price to be paid', MX, 1.14, 6.0);
   tbl(s, {
     x: MX, y: 1.5, w: 6.0, colW: [2.9, 1.55, 1.55], rowH: 0.315, size: 10.5,
-    head: ['1 Bedroom · 717 sqft', 'AED', 'EURO'],
+    head: ['1 Bedroom · Type D · 837.54 sqft', 'AED', 'EURO'],
     rows: [
-      ['Unit price', '1,050,000', '€244,755'],
-      ['DLD registration fee 4%', { t: 'Waived', c: VERDICT, b: true }, '—'],
-      ['Admin fee', '5,250', '€1,224'],
-      ['Average price / sqft', '1,464', '€341'],
-      [{ t: 'Total', total: true }, { t: '1,055,250', total: true }, { t: '€245,979', total: true }]
+      ['Unit price', '1,154,000', '€269,001'],
+      ['DLD registration fee 4%', '46,160', '€10,760'],
+      ['Admin fee', '4,000', '€932'],
+      ['Average price / sqft', '1,378', '€321'],
+      [{ t: 'Total', total: true }, { t: '1,204,160', total: true }, { t: '€280,690', total: true }]
     ]
   });
   caption(s, 'Rental return scenario', 7.0, 1.14, 5.68);
@@ -474,28 +513,70 @@ function cards(s, y, h, items) {
     x: 7.0, y: 1.5, w: 5.68, colW: [2.88, 1.4, 1.4], rowH: 0.315, size: 10.5,
     head: ['Annual', 'AED', 'EURO'],
     rows: [
-      ['Average gross rental estimate', '75,000', '€17,483'],
-      ['Unit size', '717 sqft', '—'],
-      ['Service charge', '10,038', '€2,340'],
-      ['Net rental estimate', '64,962', '€15,143'],
-      [{ t: 'Net rental yield', total: true }, { t: '6.2%', total: true }, { t: '', total: true }]
+      ['Average gross rental estimate', '80,000', '€18,648'],
+      ['Unit size', '837.54 sqft', '—'],
+      ['Service charge', '11,726', '€2,733'],
+      ['Net rental estimate', '68,274', '€15,915'],
+      [{ t: 'Net rental yield', total: true }, { t: '5.7%', total: true }, { t: '', total: true }]
     ]
   });
   callout(s, {
     x: MX, y: 3.6, w: 6.0, h: 1.0, size: 10.5,
-    rich: [{ text: 'The DLD waiver is the biggest lever on this page. ', options: { bold: true, color: INK } },
-           { text: 'If it is not live on the current price list, the total becomes AED 1,097,250 and the net yield falls to 5.9%.', options: {} }]
+    rich: [{ text: 'These are real numbers, not a "from" price. ', options: { bold: true, color: INK } },
+           { text: "Everything above is taken from the developer's sales offer for unit FS 611 dated 18 July 2026 — a specific 6th-floor pool-view apartment with one parking bay.", options: {} }]
   });
   callout(s, {
     x: 7.0, y: 3.6, w: 5.68, h: 1.0, size: 10.5,
-    rich: [{ text: 'Assumptions. ', options: { bold: true, color: INK } },
-           { text: "Service charge modelled at AED 14/sqft — unpublished. Gross rent is the conservative end of the JVC 1BR range of AED 74–86k.", options: {} }]
+    rich: [{ text: 'The two estimates. ', options: { bold: true, color: INK } },
+           { text: "Service charge at AED 14/sqft is modelled, not published. Gross rent of AED 80,000 is mid-range for a JVC 1BR — the range is 74–86k.", options: {} }]
   });
   statRow(s, 5.05, [
-    { v: '2027', l: 'Handover · earliest' }, { v: '192', l: 'Units · fewest' },
-    { v: '50%', l: 'Capital before keys' }, { v: 'Fitted', l: 'On handover' }
+    { v: 'Q1 2028', l: 'Handover · earliest' }, { v: '837', u: 'sqft', l: 'Largest 1 BR' },
+    { v: '30%', l: 'Capital before keys · least' }, { v: 'Fitted', l: 'On handover' }
   ], FLO);
   disclaimer(s, 'FX 1 EUR = 4.29 AED. Net yield is net rental divided by total cost including fees. Figures subject to change — verify on the price list and SPA. Not financial advice.');
+}
+
+/* Floareá — sales offer & payment schedule */
+{
+  const s = newSlide();
+  chrome(s, FLO, 'Floareá Skies', '· Sales offer S 611 · 18 July 2026');
+  eyebrow(s, 'The actual schedule', 1.14, FLO);
+  tbl(s, {
+    x: MX, y: 1.5, w: 6.0, colW: [1.9, 0.85, 1.65, 1.6], rowH: 0.315, size: 10.5,
+    head: ['Description', '%', 'Due', 'AED'],
+    rows: [
+      ['Down payment', '20%', 'On booking', '230,800'],
+      ['1st instalment', '5%', '1 Dec 2026', '57,700'],
+      ['2nd instalment', '5%', '1 Jun 2027', '57,700'],
+      ['On completion', '70%', 'Q1 2028', '807,800'],
+      [{ t: 'Total', total: true }, { t: '100%', total: true }, { t: '', total: true }, { t: '1,154,000', total: true }]
+    ]
+  });
+  tbl(s, {
+    x: MX, y: 3.58, w: 6.0, colW: [1.9, 0.85, 1.65, 1.6], rowH: 0.315, size: 10.5,
+    head: ['Government & admin fees', '%', 'Due', 'AED'],
+    rows: [
+      ['DLD fee', '4%', 'Booking date', '46,160'],
+      ['Admin fee', '—', 'Booking date', '4,000'],
+      [{ t: 'Due at booking, all in', total: true }, { t: '', total: true }, { t: '', total: true }, { t: '280,960', total: true }]
+    ]
+  });
+  callout(s, {
+    x: MX, y: 5.08, w: 6.0, h: 1.15, size: 10.5,
+    rich: [{ text: 'What the client writes on day one: AED 280,960. ', options: { bold: true, color: INK } },
+           { text: 'The 20% deposit plus DLD and admin, all due at booking. After that only AED 115,400 falls due across the next eighteen months.', options: {} }]
+  });
+  eyebrow(s, 'Unit FS 611 · 1 Bedroom Type D', 1.14, FLO, 7.0, 5.68);
+  s.addImage({ data: img('floarea-floorplan.jpg'), x: 7.0, y: 1.5, w: 5.68, h: 4.01 });
+  tbl(s, {
+    x: 7.0, y: 5.68, w: 5.68, colW: [2.3, 3.38], rowH: 0.3, size: 10.5,
+    head: ['Unit detail', 'Value'],
+    rows: [
+      ['Unit / floor / parking', 'FS 611 · 6th floor · 01'],
+      ['Total area', '678.34 suite + 159.20 balcony = 837.54 sqft']
+    ]
+  });
 }
 
 /* 10 — Arancia title */
@@ -509,13 +590,13 @@ function cards(s, y, h, items) {
     tagline: 'Citrus courtyards, one kilometre of green',
     meta: 'Developer · BEYOND · OMNIYAT Group        Handover · Q1 2029        From · AED 1,000,000'
   });
-  chrome(s, 10);
+  chrome(s);
 }
 
 /* 11 — Arancia developer */
 {
   const s = newSlide();
-  chrome(s, 11, ARA, 'Arancia', '· BEYOND · OMNIYAT');
+  chrome(s, ARA, 'Arancia', '· BEYOND · OMNIYAT');
   eyebrow(s, 'The developer', 1.14, ARA);
   s.addText('BEYOND', {
     x: MX, y: 1.5, w: 5.2, h: 0.9, fontFace: HEAD, fontSize: 40, bold: true, color: INK, margin: 0, valign: 'top'
@@ -544,7 +625,7 @@ function cards(s, y, h, items) {
 /* 12 — Arancia overview */
 {
   const s = newSlide();
-  chrome(s, 12, ARA, 'Arancia', '· City of Arabia');
+  chrome(s, ARA, 'Arancia', '· City of Arabia');
   eyebrow(s, 'The project', 1.14, ARA);
   s.addText('Three low-rise buildings around a central green valley, inside a AED 4bn masterplan', {
     x: MX, y: 1.48, w: 5.5, h: 0.8, fontFace: HEAD, fontSize: 17, bold: true, color: INK, margin: 0, valign: 'top', lineSpacingMultiple: 1.1
@@ -590,7 +671,7 @@ function cards(s, y, h, items) {
 /* 13 — Arancia price */
 {
   const s = newSlide();
-  chrome(s, 13, ARA, 'Arancia', '· 1 BR, 750 sqft');
+  chrome(s, ARA, 'Arancia', '· 1 BR, 750 sqft');
   caption(s, 'Price to be paid', MX, 1.14, 6.0);
   tbl(s, {
     x: MX, y: 1.5, w: 6.0, colW: [2.9, 1.55, 1.55], rowH: 0.315, size: 10.5,
@@ -641,13 +722,13 @@ function cards(s, y, h, items) {
     title: 'Celesto Tower 4', size: 58,
     meta: 'Developer · Al Tarrad Development        Handover · Q4 2028        From · AED 540,000'
   });
-  chrome(s, 14);
+  chrome(s);
 }
 
 /* 15 — Celesto developer */
 {
   const s = newSlide();
-  chrome(s, 15, CEL, 'Celesto Tower 4', '· Al Tarrad');
+  chrome(s, CEL, 'Celesto Tower 4', '· Al Tarrad');
   eyebrow(s, 'The developer', 1.14, CEL);
   s.addText('Al Tarrad\nDevelopment', {
     x: MX, y: 1.5, w: 5.2, h: 1.5, fontFace: HEAD, fontSize: 34, bold: true, color: INK, margin: 0, valign: 'top', lineSpacingMultiple: 0.95
@@ -671,7 +752,7 @@ function cards(s, y, h, items) {
 /* 16 — Celesto overview */
 {
   const s = newSlide();
-  chrome(s, 16, CEL, 'Celesto Tower 4', '· DLRC');
+  chrome(s, CEL, 'Celesto Tower 4', '· DLRC');
   eyebrow(s, 'The project', 1.14, CEL);
   s.addText('One minute from a Blue Line metro station, eighteen from Downtown, DIFC and the airport', {
     x: MX, y: 1.48, w: 5.5, h: 0.8, fontFace: HEAD, fontSize: 17, bold: true, color: INK, margin: 0, valign: 'top', lineSpacingMultiple: 1.1
@@ -707,7 +788,7 @@ function cards(s, y, h, items) {
 /* 17 — Celesto price */
 {
   const s = newSlide();
-  chrome(s, 17, CEL, 'Celesto Tower 4', '· Studio & 1 BR');
+  chrome(s, CEL, 'Celesto Tower 4', '· Studio & 1 BR');
   caption(s, 'Studio · 326 sqft · confirmed entry price', MX, 1.14, 6.0);
   tbl(s, {
     x: MX, y: 1.5, w: 6.0, colW: [2.9, 1.55, 1.55], rowH: 0.3, size: 10.5,
@@ -765,8 +846,8 @@ function cards(s, y, h, items) {
     { hue: FLO, title: 'Floareá Skies', kicker: 'The catch', bullets: [
       'Boutique developer with a thin delivery record — the real risk on this deal',
       "JVC is Dubai's most crowded pipeline: 16,800–22,000 units to 2028, so rents may soften 5–10% at handover",
-      '50% lands as a single bullet payment on handover day',
-      'No view premium — a yield play, not an address',
+      '70% falls due on completion — the largest single payment of the three, usually the point a mortgage is drawn',
+      'Highest all-in cost of the three at AED 1.2M, and the lowest modelled net yield at 5.7%',
       'Service charge unpublished on a heavily amenitised rooftop'
     ] },
     { hue: ARA, title: 'Arancia', kicker: 'The catch', bullets: [
@@ -784,7 +865,7 @@ function cards(s, y, h, items) {
       'Least established developer; record on Celesto 1–3 unverified'
     ] }
   ]);
-  chrome(s, 18);
+  chrome(s);
 }
 
 /* 19 — the decision */
@@ -796,12 +877,12 @@ function cards(s, y, h, items) {
     x: MX, y: 2.02, w: 10, h: 0.36, fontFace: BODY, fontSize: 12, color: INK2, margin: 0, valign: 'middle'
   });
   const rows = [
-    { hue: FLO, q: "“I want rent coming in as soon as possible, and I don't want to furnish it.”", a: 'Floareá Skies',
-      why: 'Q3–Q4 2027 — eighteen months earlier than Arancia. Arrives fitted, into a proven leasing market.' },
-    { hue: ARA, q: '“I can wait. I want the best-built asset and the strongest name behind it.”', a: 'Arancia',
-      why: "OMNIYAT's premium brand, the largest one-bedroom, the lowest price per foot." },
-    { hue: CEL, q: '“I want the smallest cheque, paid monthly, in the best-connected spot.”', a: 'Celesto Tower 4',
-      why: 'Lowest entry by a wide margin, 1% a month for 30 months, metro at one minute.' }
+    { hue: FLO, q: '“I want the biggest apartment, the earliest keys, and the least tied up until then.”', a: 'Floareá Skies',
+      why: 'Q1 2028, 837 sqft, only 30% before handover. The trade is a lower yield and a 70% completion payment.' },
+    { hue: ARA, q: '“I can wait. I want the strongest name behind it and the cheapest land per foot.”', a: 'Arancia',
+      why: "OMNIYAT's premium brand at AED 1,333/sqft, and the only true community product." },
+    { hue: CEL, q: '“I want the smallest cheque, paid monthly, and the best yield.”', a: 'Celesto Tower 4',
+      why: 'Lowest entry by a wide margin, 1% a month for 30 months, strongest modelled yield.' }
   ];
   rows.forEach((r, i) => {
     const y = 2.6 + i * 1.06;
@@ -825,12 +906,12 @@ function cards(s, y, h, items) {
   });
   callout(s, {
     x: MX, y: 5.86, w: CW, h: 0.94, size: 11,
-    rich: [{ text: 'My read, for a yield-first buyer at this budget: ', options: { bold: true, color: INK } },
-           { text: 'Floareá Skies — it starts earning in 2027, arrives fitted, has the fewest neighbours to compete with at 192 units, and posts the strongest net yield. ', options: {} },
-           { text: 'What would change my answer: ', options: { bold: true, color: INK } },
-           { text: "if the 4% DLD waiver isn't live, or if the client can wait until 2029, Arancia takes it on developer strength and price per foot.", options: {} }]
+    rich: [{ text: 'My read, and it changed once the real Floareá numbers came in: ', options: { bold: true, color: INK } },
+           { text: 'on a live sales offer Floareá prices at AED 1.2M all-in for 837 sqft — the largest unit and the earliest keys, but the lowest modelled yield at 5.7%. For a yield-first buyer the answer is now Celesto 4, subject to its price list. For space, earliest handover and least capital tied up, it is Floareá. ', options: {} },
+           { text: 'What would change it again: ', options: { bold: true, color: INK } },
+           { text: "Celesto's 1BR price is unconfirmed — above AED 900,000 its yield advantage largely disappears and Arancia takes it.", options: {} }]
   });
-  chrome(s, 19);
+  chrome(s);
 }
 
 /* 20 — next steps */
@@ -867,7 +948,7 @@ function cards(s, y, h, items) {
     x: 8.4, y: 4.1, w: 4.28, h: 1.2, size: 10.5,
     rich: [{ text: 'Add your phone, email and Instagram handle here before sending — this is the slide the client screenshots.', options: {} }]
   });
-  chrome(s, 20);
+  chrome(s);
   disclaimer(s, 'All figures developer- and broker-published and subject to change. For information only — not financial advice. Verify on the current price list and SPA.');
 }
 
@@ -878,15 +959,16 @@ function cards(s, y, h, items) {
   heading(s, 'Verify before you present', 1.28, 30);
   cards(s, 2.16, 3.5, [
     { hue: FLO, title: 'Floareá Skies', bullets: [
-      'Price list and exact sizes — the 1,050,000 / 717 sqft basis is research, not brochure',
-      'Is the 4% DLD waiver still live? Worth 0.3 pts of yield',
+      '1 BR now confirmed from sales offer FS 611 — price, size, plan, fees, Q1 2028',
+      '2 BR price list and sizes — needed',
       'Service charge per sqft in writing',
-      'Total unit count (192?) and handover quarter',
-      'Which plan is live: 50/50 or 20/30/50',
-      'Kitchen spec — blank on the deliverables sheet'
+      'Total unit count (192?) — not in the brochure',
+      'Kitchen spec — blank on the deliverables sheet',
+      'Is FS 611 still available, or an indicative unit?'
     ] },
     { hue: ARA, title: 'Arancia', bullets: [
       'Service charge per sqft — at AED 25 the yield drops to ~5.4%',
+      '2 BR: confirm the AED 2.1M and get sizes per unit type',
       "1BR entry: AED 1.0M on portals vs 1.1M on BEYOND's own site",
       'Drive times to Dubai Mall and DXB — unverified, so omitted',
       'Handover quarter: Q1 2029 dominant, Q2 2029 also cited',
@@ -906,7 +988,7 @@ function cards(s, y, h, items) {
     rich: [{ text: 'Common to all three: get the service charge in writing. ', options: { bold: true, color: INK } },
            { text: 'It is unpublished for every one of them and moves net yield 0.7–1.0 points — enough to reorder the comparison table on slide 3.', options: {} }]
   });
-  chrome(s, 21);
+  chrome(s);
 }
 
 pres.writeFile({ fileName: path.join(__dirname, 'Three-Projects-One-Decision.pptx') })
