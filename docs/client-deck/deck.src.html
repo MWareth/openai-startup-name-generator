@@ -1,0 +1,1233 @@
+<title>Three Projects, One Decision — Dubai Off-Plan Comparison</title>
+
+<style>
+:root{
+  --ground:#0F1412; --surface:#171E1B; --surface-2:#202A26; --surface-3:#2A3531;
+  --ink:#F3F0E8; --ink-2:#A7B0AB; --ink-3:#79837E;
+  --rule:rgba(243,240,232,.14); --rule-2:rgba(243,240,232,.07);
+  --verdict:#7BE08A; --verdict-dim:rgba(123,224,138,.13);
+  --p-flo:#B04862; --p-ara:#B08A25; --p-cel:#3A8FBF;
+  --scrim:linear-gradient(180deg,rgba(9,13,11,.62) 0%,rgba(9,13,11,.44) 42%,rgba(9,13,11,.90) 100%);
+  --shadow:0 1.4cqw 4cqw rgba(0,0,0,.42);
+}
+@media (prefers-color-scheme: light){
+  :root{
+    --ground:#F4F2EB; --surface:#FFFFFF; --surface-2:#F0EDE4; --surface-3:#E6E2D6;
+    --ink:#131816; --ink-2:#4E5854; --ink-3:#7C8682;
+    --rule:rgba(19,24,22,.16); --rule-2:rgba(19,24,22,.07);
+    --verdict:#1F7A3D; --verdict-dim:rgba(31,122,61,.11);
+    --p-flo:#96324B; --p-ara:#8A6A17; --p-cel:#1A6E9E;
+    --scrim:linear-gradient(180deg,rgba(12,16,14,.50) 0%,rgba(12,16,14,.34) 42%,rgba(12,16,14,.82) 100%);
+    --shadow:0 1cqw 3cqw rgba(40,36,28,.16);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#0F1412; --surface:#171E1B; --surface-2:#202A26; --surface-3:#2A3531;
+  --ink:#F3F0E8; --ink-2:#A7B0AB; --ink-3:#79837E;
+  --rule:rgba(243,240,232,.14); --rule-2:rgba(243,240,232,.07);
+  --verdict:#7BE08A; --verdict-dim:rgba(123,224,138,.13);
+  --p-flo:#B04862; --p-ara:#B08A25; --p-cel:#3A8FBF;
+  --scrim:linear-gradient(180deg,rgba(9,13,11,.62) 0%,rgba(9,13,11,.44) 42%,rgba(9,13,11,.90) 100%);
+  --shadow:0 1.4cqw 4cqw rgba(0,0,0,.42);
+}
+:root[data-theme="light"]{
+  --ground:#F4F2EB; --surface:#FFFFFF; --surface-2:#F0EDE4; --surface-3:#E6E2D6;
+  --ink:#131816; --ink-2:#4E5854; --ink-3:#7C8682;
+  --rule:rgba(19,24,22,.16); --rule-2:rgba(19,24,22,.07);
+  --verdict:#1F7A3D; --verdict-dim:rgba(31,122,61,.11);
+  --p-flo:#96324B; --p-ara:#8A6A17; --p-cel:#1A6E9E;
+  --scrim:linear-gradient(180deg,rgba(12,16,14,.50) 0%,rgba(12,16,14,.34) 42%,rgba(12,16,14,.82) 100%);
+  --shadow:0 1cqw 3cqw rgba(40,36,28,.16);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---------- stage ---------- */
+.stage{max-width:1580px; margin:0 auto; padding:2vh 2vw 8vh}
+.slide{
+  position:relative; width:100%; aspect-ratio:16/9; container-type:inline-size;
+  background:var(--surface); overflow:hidden; display:none;
+  box-shadow:var(--shadow); border-radius:.3cqw;
+}
+.slide.is-on{display:block}
+.pad{position:absolute; inset:0; padding:5.2cqw 5.6cqw 5.6cqw}
+
+/* ---------- persistent chrome ---------- */
+.chip{
+  position:absolute; top:3cqw; left:3.4cqw; z-index:6;
+  display:flex; align-items:center; gap:.7cqw;
+  font-size:1.02cqw; font-weight:700; letter-spacing:.02em; color:var(--ink);
+}
+.chip i{width:.62cqw; height:1.5cqw; border-radius:.1cqw; background:var(--hue,var(--verdict)); display:block}
+.chip s{text-decoration:none; color:var(--ink-2); font-weight:500}
+.credit{
+  position:absolute; bottom:2.7cqw; left:3.4cqw; z-index:6;
+  font-size:.86cqw; color:var(--ink-3); letter-spacing:.05em;
+}
+.count{
+  position:absolute; bottom:2.7cqw; right:3.4cqw; z-index:6;
+  font-size:.86cqw; color:var(--ink-3); letter-spacing:.1em; font-variant-numeric:tabular-nums;
+}
+.disc{
+  position:absolute; bottom:2.7cqw; left:50%; transform:translateX(-50%); z-index:6;
+  font-size:.72cqw; color:var(--ink-3); text-align:center; max-width:52cqw; line-height:1.45;
+}
+
+/* ---------- type ---------- */
+.eyebrow{
+  font-size:.84cqw; text-transform:uppercase; letter-spacing:.2em;
+  color:var(--ink-3); font-weight:600; margin:0 0 1.6cqw;
+}
+.eyebrow.hue{color:var(--hue)}
+h1{font-size:7.6cqw; line-height:.93; letter-spacing:-.035em; font-weight:800; margin:0; text-wrap:balance}
+h1 em{font-style:normal; font-weight:300; letter-spacing:-.02em}
+h2{font-size:3.5cqw; line-height:1.04; letter-spacing:-.028em; font-weight:800; margin:0 0 1.8cqw; text-wrap:balance}
+h3{font-size:1.34cqw; line-height:1.25; letter-spacing:-.01em; font-weight:700; margin:0 0 .9cqw}
+p{font-size:1.08cqw; line-height:1.62; color:var(--ink-2); margin:0 0 1cqw; max-width:44cqw}
+p.lead{font-size:1.32cqw; line-height:1.55; color:var(--ink); max-width:46cqw}
+strong{color:var(--ink); font-weight:700}
+.num{font-variant-numeric:tabular-nums}
+
+/* ---------- cover / project title ---------- */
+.cover{position:absolute; inset:0}
+.cover .bg{position:absolute; inset:0; background-size:cover; background-position:center; transform:scale(1.02)}
+.cover .bg::after{content:""; position:absolute; inset:0; background:var(--scrim)}
+.cover .wash{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(80cqw 50cqw at 78% 12%, color-mix(in oklab, var(--hue) 34%, transparent), transparent 62%),
+    linear-gradient(155deg,#121815 0%,#1a2320 55%,#0d1210 100%);
+}
+:root[data-theme="light"] .cover .wash,
+html:not([data-theme="dark"]) .cover .wash{}
+.cover .txt{position:absolute; left:5.6cqw; bottom:8.4cqw; right:5.6cqw; z-index:4}
+.cover h1{color:#F7F5EE; text-shadow:0 .2cqw 2cqw rgba(0,0,0,.5)}
+.cover .eyebrow{color:rgba(247,245,238,.8)}
+.cover .meta{
+  display:flex; gap:2.6cqw; align-items:baseline; margin-top:2.2cqw;
+  font-size:1.05cqw; color:rgba(247,245,238,.9); flex-wrap:wrap;
+}
+.cover .meta b{color:#F7F5EE}
+.opener{
+  position:absolute; inset:0;
+  background:
+    radial-gradient(76cqw 46cqw at 72% 4%, rgba(255,255,255,.055), transparent 66%),
+    linear-gradient(168deg, #141B18 0%, #0C1210 58%, #080B0A 100%);
+}
+.opener::after{
+  content:""; position:absolute; inset:0;
+  background:repeating-linear-gradient(90deg, rgba(255,255,255,.022) 0 1px, transparent 1px 5.4cqw);
+}
+.tri{position:absolute; bottom:0; left:0; right:0; height:.34cqw; display:flex; z-index:3}
+.tri span{flex:1}
+.swatch{display:inline-block; width:.5cqw; height:.5cqw; border-radius:50%; margin-right:.5cqw; vertical-align:.08em}
+.tagline{
+  font-size:1.12cqw; font-weight:300; letter-spacing:.09em; text-transform:uppercase;
+  color:rgba(247,245,238,.68); margin-top:1.5cqw;
+}
+
+/* ---------- generic grids ---------- */
+.two{
+  display:grid; grid-template-columns:1fr 1fr; grid-template-rows:minmax(0,1fr);
+  gap:4cqw; height:100%; align-items:stretch;
+}
+.two.tight{gap:3cqw}
+.two.w60{grid-template-columns:1.15fr 1fr}
+.two.w40{grid-template-columns:1fr 1.25fr}
+.two.top{grid-template-rows:auto; align-items:start; height:auto}
+.col{min-width:0; min-height:0}
+
+/* ---------- fact table (reference-deck style) ---------- */
+table{width:100%; border-collapse:collapse; font-size:1cqw}
+th,td{text-align:left; padding:.82cqw .9cqw; border:1px solid var(--rule); vertical-align:middle}
+thead th{
+  font-size:.78cqw; text-transform:uppercase; letter-spacing:.14em;
+  color:var(--ink-3); font-weight:700; background:var(--surface-2);
+}
+td.n,th.n{text-align:right; font-variant-numeric:tabular-nums}
+tbody tr:nth-child(even) td{background:var(--rule-2)}
+tr.total td{font-weight:800; color:var(--ink); background:var(--surface-2)}
+td.k{color:var(--ink-2)}
+caption{
+  caption-side:top; text-align:left; font-size:.92cqw; font-weight:700;
+  letter-spacing:.13em; text-transform:uppercase; color:var(--ink);
+  padding:0 0 .9cqw; border:0;
+}
+.tbl-wrap{overflow-x:auto}
+table.dense{font-size:.94cqw}
+table.dense th,table.dense td{padding:.5cqw .8cqw}
+.tblnote{font-size:.82cqw; color:var(--ink-3); margin:.9cqw 0 0; max-width:none; line-height:1.5}
+
+/* ---------- key/value strip ---------- */
+.kv{display:grid; grid-template-columns:auto 1fr; gap:0; font-size:1cqw; border-top:1px solid var(--rule)}
+.kv dt,.kv dd{padding:.72cqw .9cqw; margin:0; border-bottom:1px solid var(--rule)}
+.kv dt{color:var(--ink-2); white-space:nowrap; padding-right:2.4cqw}
+.kv dd{font-weight:600; text-align:right; font-variant-numeric:tabular-nums}
+
+/* ---------- image grid ---------- */
+.grid-img{
+  display:grid; grid-template-columns:1fr 1fr;
+  grid-template-rows:minmax(0,1.15fr) minmax(0,1fr);
+  gap:.7cqw; height:100%; min-height:0;
+}
+.grid-img figure{margin:0; overflow:hidden; border-radius:.24cqw; background:var(--surface-2); min-height:0; min-width:0}
+.grid-img img{width:100%; height:100%; object-fit:cover; display:block}
+.grid-img .wide{grid-column:1 / -1}
+.slot{
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  border:1px dashed var(--rule); border-radius:.24cqw; color:var(--ink-3);
+  font-size:.86cqw; padding:1.4cqw; line-height:1.5;
+}
+
+/* ---------- pills / marks ---------- */
+.pill{
+  display:inline-flex; align-items:center; gap:.4cqw; padding:.24cqw .7cqw;
+  border-radius:2cqw; font-size:.8cqw; font-weight:700; letter-spacing:.04em;
+  background:var(--surface-2); color:var(--ink-2); border:1px solid var(--rule);
+}
+.pill.best{background:var(--verdict-dim); color:var(--verdict); border-color:color-mix(in oklab,var(--verdict) 40%,transparent)}
+.mark{color:var(--verdict); font-weight:800; white-space:nowrap}
+.mark::before{content:"▲ "; font-size:.72em; vertical-align:.08em}
+.warn{color:var(--ink); font-weight:700}
+.est{
+  font-size:.72cqw; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-3); font-weight:700;
+}
+
+/* ---------- payment chart ---------- */
+.chart{display:flex; flex-direction:column; gap:1.5cqw; margin-top:.6cqw}
+.track{display:grid; grid-template-columns:11cqw 1fr; align-items:center; gap:1.2cqw}
+.track .nm{font-size:1cqw; font-weight:700; display:flex; align-items:center; gap:.6cqw}
+.track .nm i{width:.5cqw; height:1.2cqw; border-radius:.08cqw; background:var(--hue)}
+.bars{display:flex; height:3.1cqw; background:var(--surface-2); border-radius:.2cqw; overflow:hidden}
+.bars span{
+  position:relative; display:flex; align-items:center; justify-content:center;
+  font-size:.82cqw; font-weight:700; color:#0E1210;
+  box-shadow:inset -2px 0 0 var(--surface), inset 2px 0 0 var(--surface);
+  transition:filter .12s ease;
+}
+.bars span:first-child{box-shadow:inset -2px 0 0 var(--surface)}
+.bars span:last-child{box-shadow:inset 2px 0 0 var(--surface)}
+.bars span:hover{filter:brightness(1.12)}
+.s1{background:var(--hue)}
+.s2{background:color-mix(in oklab, var(--hue) 62%, var(--surface-3))}
+.s3{background:color-mix(in oklab, var(--hue) 26%, var(--surface-3)); color:var(--ink)}
+.axis{
+  display:grid; grid-template-columns:11cqw 1fr; gap:1.2cqw;
+  font-size:.8cqw; color:var(--ink-3); margin-top:-.5cqw;
+}
+.axis .ticks{display:flex; justify-content:space-between; border-top:1px solid var(--rule); padding-top:.4cqw}
+.gridlines{
+  position:relative;
+  background-image:repeating-linear-gradient(90deg, var(--rule-2) 0 1px, transparent 1px 25%);
+}
+.legend{display:flex; gap:1.8cqw; flex-wrap:wrap; font-size:.88cqw; color:var(--ink-2); margin-top:.4cqw}
+.legend span{display:flex; align-items:center; gap:.5cqw}
+.legend i{width:1.3cqw; height:.8cqw; border-radius:.1cqw; display:block; box-shadow:inset 0 0 0 1px var(--rule)}
+.legend .l1 i{background:var(--hue)}
+.legend .l2 i{background:color-mix(in oklab, var(--hue) 62%, var(--surface-3))}
+.legend .l3 i{background:color-mix(in oklab, var(--hue) 26%, var(--surface-3))}
+
+/* ---------- cards ---------- */
+.cards{display:grid; grid-template-columns:repeat(3,1fr); gap:1.6cqw}
+.card{
+  border:1px solid var(--rule); border-radius:.3cqw; padding:1.6cqw 1.5cqw;
+  background:var(--surface-2); border-top:.28cqw solid var(--hue);
+  display:flex; flex-direction:column; gap:.7cqw; min-width:0;
+}
+.card h3{margin:0; font-size:1.24cqw}
+.card ul{margin:0; padding-left:1.2cqw; font-size:.94cqw; line-height:1.55; color:var(--ink-2)}
+.card ul li{margin-bottom:.42cqw}
+.card ul li::marker{color:var(--hue)}
+.card .hd{font-size:.76cqw; text-transform:uppercase; letter-spacing:.15em; color:var(--ink-3); font-weight:700}
+
+/* ---------- decision rows ---------- */
+.dec{display:flex; flex-direction:column; gap:1cqw}
+.dec .row{
+  display:grid; grid-template-columns:1fr auto 15cqw; align-items:center; gap:1.6cqw;
+  border:1px solid var(--rule); border-left:.3cqw solid var(--hue);
+  border-radius:.26cqw; padding:1.1cqw 1.4cqw; background:var(--surface-2);
+}
+.dec .q{font-size:1.14cqw; color:var(--ink)}
+.dec .a{font-size:1.24cqw; font-weight:800; color:var(--hue); text-align:right}
+.dec .why{font-size:.86cqw; color:var(--ink-3); line-height:1.45}
+
+/* ---------- big stat ---------- */
+.stats{display:grid; grid-template-columns:repeat(3,1fr); gap:1.4cqw; margin-top:1.2cqw}
+.stat{border-top:1px solid var(--rule); padding-top:.9cqw}
+.stat b{display:block; font-size:2.6cqw; font-weight:800; letter-spacing:-.03em; font-variant-numeric:tabular-nums; line-height:1}
+.stat s{display:block; text-decoration:none; font-size:.82cqw; color:var(--ink-3); text-transform:uppercase; letter-spacing:.12em; margin-top:.5cqw}
+
+/* ---------- notes / flags ---------- */
+.flag{
+  border-left:.24cqw solid var(--hue); background:var(--surface-2);
+  padding:1cqw 1.3cqw; border-radius:0 .24cqw .24cqw 0; font-size:.94cqw;
+  color:var(--ink-2); line-height:1.55;
+}
+.flag b{color:var(--ink)}
+.internal{--hue:#C9822E}
+.internal .pad{background:repeating-linear-gradient(135deg,transparent,transparent 14px,var(--rule-2) 14px,var(--rule-2) 28px)}
+
+/* ---------- nav ---------- */
+.nav{
+  position:fixed; bottom:0; left:0; right:0; z-index:40;
+  display:flex; align-items:center; justify-content:center; gap:14px;
+  padding:10px 16px; background:color-mix(in oklab,var(--ground) 88%, transparent);
+  backdrop-filter:blur(8px); border-top:1px solid var(--rule);
+}
+.nav button{
+  font:inherit; font-size:13px; font-weight:600; color:var(--ink);
+  background:var(--surface-2); border:1px solid var(--rule); border-radius:6px;
+  padding:6px 12px; cursor:pointer;
+}
+.nav button:hover{background:var(--surface-3)}
+.nav button:focus-visible{outline:2px solid var(--verdict); outline-offset:2px}
+.dots{display:flex; gap:5px; flex-wrap:wrap; max-width:52vw; justify-content:center}
+.dots b{
+  width:8px; height:8px; border-radius:50%; background:var(--rule);
+  cursor:pointer; border:0; padding:0; display:block;
+}
+.dots b.on{background:var(--verdict); transform:scale(1.25)}
+.nav .pos{font-size:12px; color:var(--ink-3); font-variant-numeric:tabular-nums; letter-spacing:.08em; min-width:52px; text-align:center}
+.tip{
+  position:fixed; z-index:60; pointer-events:none; opacity:0;
+  background:var(--surface-3); color:var(--ink); border:1px solid var(--rule);
+  border-radius:5px; padding:6px 9px; font-size:12px; line-height:1.4;
+  box-shadow:0 6px 18px rgba(0,0,0,.28); transition:opacity .1s ease; max-width:220px;
+}
+.tip.on{opacity:1}
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important; animation:none !important}}
+
+/* ---------- print → PDF ---------- */
+@media print{
+  @page{size:297mm 167mm; margin:0}
+  body{background:#fff}
+  .nav,.tip{display:none !important}
+  .stage{max-width:none; margin:0; padding:0}
+  .slide{display:block !important; break-after:page; page-break-after:always; box-shadow:none; border-radius:0}
+}
+</style>
+
+<div class="stage" id="stage">
+
+<!-- 1 — TITLE -->
+<section class="slide is-on" style="--hue:var(--verdict)">
+  <div class="cover">
+    <div class="opener"></div>
+    <div class="tri">
+      <span style="background:var(--p-flo)"></span>
+      <span style="background:var(--p-ara)"></span>
+      <span style="background:var(--p-cel)"></span>
+    </div>
+    <div class="txt">
+      <p class="eyebrow">Dubai off-plan · investment comparison · July 2026</p>
+      <h1>Three projects.<br><em>One decision.</em></h1>
+      <div class="meta">
+        <span><span class="swatch" style="background:var(--p-flo)"></span><b>Floareá Skies</b> · JVC · 2027</span>
+        <span><span class="swatch" style="background:var(--p-ara)"></span><b>Arancia</b> · City of Arabia · 2029</span>
+        <span><span class="swatch" style="background:var(--p-cel)"></span><b>Celesto Tower 4</b> · DLRC · 2028</span>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">01</p>
+</section>
+
+<!-- 2 — THE BRIEF -->
+<section class="slide" style="--hue:var(--verdict)">
+  <div class="pad">
+    <div class="two w60">
+      <div class="col">
+        <p class="eyebrow">The brief</p>
+        <h2>What we're solving for</h2>
+        <p class="lead">One buyer, roughly AED 1M of capital, looking for an off-plan
+          one-bedroom that earns. Three shortlisted projects that answer it in three
+          completely different ways.</p>
+        <div class="flag"><b>Edit this slide before you present.</b> Replace the budget,
+          unit type and priority order with the client's own words — the rest of the deck
+          holds up whatever you put here.</div>
+      </div>
+      <div class="col">
+        <dl class="kv">
+          <dt>Budget</dt><dd>≈ AED 1,000,000</dd>
+          <dt>Unit type</dt><dd>1 Bedroom</dd>
+          <dt>Purchase stage</dt><dd>Off-plan</dd>
+          <dt>Priority 1</dt><dd>Net rental yield</dd>
+          <dt>Priority 2</dt><dd>Time to first rent</dd>
+          <dt>Priority 3</dt><dd>Capital exposed before handover</dd>
+          <dt>Priority 4</dt><dd>Resale liquidity</dd>
+        </dl>
+        <div class="stats">
+          <div class="stat"><b>3</b><s>Projects</s></div>
+          <div class="stat"><b>3</b><s>Communities</s></div>
+          <div class="stat"><b>18<span style="font-size:.5em">mo</span></b><s>Handover spread</s></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">02</p>
+</section>
+
+<!-- 3 — AT A GLANCE -->
+<section class="slide" style="--hue:var(--verdict)">
+  <div class="pad">
+    <p class="eyebrow">Head to head</p>
+    <h2 style="margin-bottom:1.4cqw">The three, side by side</h2>
+    <div class="tbl-wrap">
+      <table class="dense">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th class="n"><span style="color:var(--p-flo)">●</span> Floareá Skies</th>
+            <th class="n"><span style="color:var(--p-ara)">●</span> Arancia</th>
+            <th class="n"><span style="color:var(--p-cel)">●</span> Celesto 4</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="k">Community</td><td class="n">JVC</td><td class="n">City of Arabia</td><td class="n">DLRC</td></tr>
+          <tr><td class="k">Developer</td><td class="n">Mashriq Elite</td><td class="n">BEYOND · OMNIYAT</td><td class="n">Al Tarrad</td></tr>
+          <tr><td class="k">Handover</td><td class="n"><span class="mark">Q3–Q4 2027</span></td><td class="n">Q1 2029</td><td class="n">Q4 2028</td></tr>
+          <tr><td class="k">Units in building</td><td class="n"><span class="mark">192</span></td><td class="n">272</td><td class="n">414</td></tr>
+          <tr><td class="k">1 BR size</td><td class="n">717 sqft</td><td class="n"><span class="mark">750–762 sqft</span></td><td class="n">550–598 sqft</td></tr>
+          <tr><td class="k">1 BR all-in cost</td><td class="n">AED 1,055,250</td><td class="n">AED 1,045,250</td><td class="n"><span class="mark">≈837,250</span> <span class="est">est</span></td></tr>
+          <tr><td class="k">Price per sqft</td><td class="n">AED 1,464</td><td class="n"><span class="mark">AED 1,333</span></td><td class="n">AED 1,454 <span class="est">est</span></td></tr>
+          <tr><td class="k">Net rental yield</td><td class="n"><span class="mark">6.2%</span></td><td class="n">6.1%</td><td class="n">6.2% <span class="est">est</span></td></tr>
+          <tr><td class="k">Capital in before keys</td><td class="n">50%</td><td class="n"><span class="mark">40%</span></td><td class="n">50%</td></tr>
+          <tr><td class="k">Furnished on handover</td><td class="n"><span class="mark">Yes</span></td><td class="n">No</td><td class="n"><span class="mark">Yes</span></td></tr>
+          <tr><td class="k">Metro</td><td class="n">Purple Line, future</td><td class="n">—</td><td class="n"><span class="mark">Blue Line, 1 min</span></td></tr>
+          <tr><td class="k">To DXB airport</td><td class="n">35 min</td><td class="n">To confirm</td><td class="n"><span class="mark">18 min</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="tblnote"><span class="mark" style="font-weight:700">green</span> marks the strongest of the
+      three on that row. The 4% DLD position differs per project and is confirmed on each project's own
+      slide. Figures subject to change — verify on the current price list and SPA. Not financial advice.</p>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">03</p>
+</section>
+
+<!-- 4 — PAYMENT / CAPITAL -->
+<section class="slide" style="--hue:var(--verdict)">
+  <div class="pad">
+    <p class="eyebrow">Where your money sits, and when</p>
+    <h2 style="margin-bottom:.6cqw">Capital exposure before you hold keys</h2>
+    <p style="max-width:64cqw; margin-bottom:2cqw">Each bar is 100% of the purchase price. The question
+      that matters isn't the headline split — it's how much is out of your pocket before the
+      asset can earn anything.</p>
+
+    <div class="chart">
+      <div class="track" style="--hue:var(--p-flo)">
+        <div class="nm"><i></i>Floareá Skies</div>
+        <div class="bars" role="img" aria-label="Floarea Skies: 10 percent down payment, 40 percent during construction, 50 percent on handover Q4 2027">
+          <span class="s1" style="width:10%" data-tip="Booking deposit — 10%">10%</span>
+          <span class="s2" style="width:40%" data-tip="During construction to 2027 — 40%">40%</span>
+          <span class="s3" style="width:50%" data-tip="On handover, Q3–Q4 2027 — 50%">50% on handover · 2027</span>
+        </div>
+      </div>
+      <div class="track" style="--hue:var(--p-ara)">
+        <div class="nm"><i></i>Arancia</div>
+        <div class="bars" role="img" aria-label="Arancia: 10 percent booking, 10 percent August 2026, 20 percent across four instalments to 2028, 60 percent on handover Q1 2029">
+          <span class="s1" style="width:10%" data-tip="Booking — 10%">10%</span>
+          <span class="s2" style="width:30%" data-tip="10% Aug 2026 plus 4 × 5% to Sept 2028 — 30%">30%</span>
+          <span class="s3" style="width:60%" data-tip="On handover, Q1 2029 — 60%">60% on handover · 2029</span>
+        </div>
+      </div>
+      <div class="track" style="--hue:var(--p-cel)">
+        <div class="nm"><i></i>Celesto 4</div>
+        <div class="bars" role="img" aria-label="Celesto 4: 20 percent down payment, 30 percent as 1 percent monthly for 30 months, 50 percent on handover Q4 2028">
+          <span class="s1" style="width:20%" data-tip="Down payment — 20%">20%</span>
+          <span class="s2" style="width:30%" data-tip="1% monthly × 30 months — 30%">30% · 1%/month</span>
+          <span class="s3" style="width:50%" data-tip="On handover, Q4 2028 — 50%">50% on handover · 2028</span>
+        </div>
+      </div>
+      <div class="axis"><div></div><div class="ticks"><span>0%</span><span>100% of purchase price</span></div></div>
+      <div class="legend" style="--hue:var(--p-cel)">
+        <span class="l1"><i></i>Down payment / booking</span>
+        <span class="l2"><i></i>During construction</span>
+        <span class="l3"><i></i>On handover</span>
+      </div>
+    </div>
+
+    <div class="two tight top" style="margin-top:2.4cqw; align-items:start">
+      <div class="col">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Project</th><th class="n">Before keys</th><th class="n">On handover</th><th class="n">Instalment shape</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Floareá Skies</td><td class="n">50%</td><td class="n">50%</td><td class="n">Milestone</td></tr>
+              <tr><td class="k">Arancia</td><td class="n"><span class="mark">40%</span></td><td class="n">60%</td><td class="n">Milestone</td></tr>
+              <tr><td class="k">Celesto 4</td><td class="n">50%</td><td class="n">50%</td><td class="n"><span class="mark">1% monthly × 30</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col">
+        <div class="flag" style="--hue:var(--p-cel)"><b>The shape matters as much as the split.</b>
+          Arancia asks the least before handover at 40%. But Celesto's 1% a month for 30 months is
+          the only plan a client can fund out of monthly income rather than capital — for most
+          buyers that is the easier cheque to write, even though the total before keys is higher.</div>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">04</p>
+</section>
+
+<!-- 5 — FLOAREA TITLE -->
+<section class="slide" style="--hue:var(--p-flo)">
+  <div class="cover">
+    <div class="bg" style="background-image:url('{{IMG:floarea-hero.jpg}}')"></div>
+    <div class="txt">
+      <p class="eyebrow">High end apartments · Jumeirah Village Circle</p>
+      <h1>Floareá <em>Skies</em></h1>
+      <p class="tagline">A life painted in pastel horizons</p>
+      <div class="meta">
+        <span>Developer · <b>Mashriq Elite Developments</b></span>
+        <span>Handover · <b>Q3–Q4 2027</b></span>
+        <span>From · <b>AED 1,050,000</b></span>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">05</p>
+</section>
+
+<!-- 6 — FLOAREA DEVELOPER -->
+<section class="slide" style="--hue:var(--p-flo)">
+  <div class="chip"><i></i>Floareá Skies <s>· Mashriq Elite</s></div>
+  <div class="pad" style="padding-top:9cqw">
+    <div class="two w40">
+      <div class="col">
+        <p class="eyebrow hue">The developer</p>
+        <h2>Mashriq Elite<br>Developments</h2>
+        <div class="stats" style="grid-template-columns:1fr 1fr">
+          <div class="stat"><b>20<span style="font-size:.5em">+ yrs</span></b><s>Group history</s></div>
+          <div class="stat"><b>4th</b><s>Venture</s></div>
+        </div>
+      </div>
+      <div class="col">
+        <p>The property arm of <strong>Al Mashriq Group</strong> — a diversified house with over
+          two decades across real estate, project development and telecommunications, and a
+          network spanning the UAE, United States, Europe, Singapore and Saudi Arabia. Design,
+          architecture and delivery sit under one roof in their own design centre.</p>
+        <p>Floareá Skies is their fourth venture, positioned as the project that sets their
+          benchmark. The record is short but real: a project launched September 2023 was
+          <strong>handed over in August 2025</strong>, with further launches in June 2024 and
+          February 2025, and announced chapters in Dubai Islands and Dubailand.</p>
+        <div class="flag"><b>Said plainly:</b> this is a boutique developer, not a Binghatti or
+          an EMAAR. The upside is a small building and negotiable terms. The risk is depth of
+          delivery record — mitigated by verifying the escrow account, RERA registration and
+          construction-linked SPA milestones.</div>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">06</p>
+</section>
+
+<!-- 7 — FLOAREA OVERVIEW -->
+<section class="slide" style="--hue:var(--p-flo)">
+  <div class="chip"><i></i>Floareá Skies <s>· JVC</s></div>
+  <div class="pad" style="padding-top:8.4cqw">
+    <div class="two w40" style="gap:3cqw">
+      <div class="col">
+        <p class="eyebrow hue">The project</p>
+        <h3 style="font-size:1.5cqw; margin-bottom:1.2cqw">Adjacent to JVC's entry and exit, with a
+          Purple Line metro station coming</h3>
+        <dl class="kv">
+          <dt>Location</dt><dd>Jumeirah Village Circle</dd>
+          <dt>Types</dt><dd>Studio · 1 BR · 2 BR</dd>
+          <dt>Configuration</dt><dd>G + 4P + 19 floors</dd>
+          <dt>Total units</dt><dd>192 <span class="est">confirm</span></dd>
+          <dt>Handover</dt><dd>Q3–Q4 2027 <span class="est">confirm</span></dd>
+          <dt>Payment plan</dt><dd>50 / 50</dd>
+          <dt>Service charge</dt><dd class="est" style="font-size:.8cqw">To confirm</dd>
+        </dl>
+        <p style="font-size:.94cqw; margin-top:1.2cqw; max-width:none"><strong>Amenities.</strong>
+          Rooftop infinity pool · organic pool · sunken lounge · floating meditation deck · gym ·
+          mini golf · ground-floor retail</p>
+        <p style="font-size:.94cqw; max-width:none"><strong>Drive times.</strong>
+          Internet City &amp; Media City 10 · Miracle Garden 5 · Marina, Burj Al Arab, Mall of the
+          Emirates 15 · Downtown &amp; Dubai Mall 25 · DXB 35</p>
+      </div>
+      <div class="col">
+        <div class="grid-img">
+          <figure class="wide"><img src="{{IMG:floarea-pool.jpg}}" alt="Rooftop infinity pool at Floarea Skies with planted green wall"></figure>
+          <figure><img src="{{IMG:floarea-living.jpg}}" alt="Living room interior at Floarea Skies"></figure>
+          <figure><img src="{{IMG:floarea-bedroom.jpg}}" alt="Bedroom interior at Floarea Skies"></figure>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">07</p>
+</section>
+
+<!-- 8 — FLOAREA INCLUDED -->
+<section class="slide" style="--hue:var(--p-flo)">
+  <div class="chip"><i></i>Floareá Skies <s>· What's included</s></div>
+  <div class="pad" style="padding-top:8.4cqw">
+    <p class="eyebrow hue">Deliverables</p>
+    <h2 style="margin-bottom:1.6cqw">It arrives fitted — that's the whole argument</h2>
+    <div class="cards">
+      <div class="card">
+        <span class="hd">Included</span>
+        <ul>
+          <li>Decorative wall cladding — tile and wood-textured panels, in bedroom, living room and studio</li>
+          <li>Dresser console wall with mirror</li>
+          <li>Glass wardrobes — glass and wooden in the bedroom</li>
+          <li>Living room wall console with bookshelf</li>
+          <li>Complete bathroom fittings, vanity, LED-lit mirror</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="hd">Smart home</span>
+        <ul>
+          <li>Alexa-integrated home system</li>
+          <li>Smart switch panels</li>
+          <li>AC thermostats</li>
+          <li><strong>Curtains — provision only.</strong> Conduit and electrical point supplied; the smart curtains themselves are not</li>
+        </ul>
+      </div>
+      <div class="card" style="--hue:var(--ink-3)">
+        <span class="hd">Not included</span>
+        <ul>
+          <li>Living room mirror</li>
+          <li>Bedroom decor mirror piece</li>
+          <li>Study room furniture</li>
+          <li>Chandeliers</li>
+          <li>Wallpaper</li>
+        </ul>
+      </div>
+    </div>
+    <div class="flag" style="margin-top:1.8cqw">A fitted unit leases faster and rents higher in JVC's
+      young-professional tenant pool — it is the strongest single reason to choose this project over
+      Arancia. <b>Note the kitchen specification is blank on the developer's own deliverables sheet</b>
+      and needs to be confirmed in writing.</div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">08</p>
+</section>
+
+<!-- 9 — FLOAREA PRICE -->
+<section class="slide" style="--hue:var(--p-flo)">
+  <div class="chip"><i></i>Floareá Skies <s>· 1 BR, 717 sqft</s></div>
+  <div class="pad" style="padding-top:8cqw">
+    <div class="two tight top" style="align-items:start">
+      <div class="col">
+        <div class="tbl-wrap">
+          <table>
+            <caption>Price to be paid</caption>
+            <thead><tr><th>1 Bedroom · 717 sqft</th><th class="n">AED</th><th class="n">EURO</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Unit price</td><td class="n">1,050,000</td><td class="n">€244,755</td></tr>
+              <tr><td class="k">DLD registration fee 4%</td><td class="n"><span class="mark">Waived</span></td><td class="n">—</td></tr>
+              <tr><td class="k">Admin fee</td><td class="n">5,250</td><td class="n">€1,224</td></tr>
+              <tr><td class="k">Average price / sqft</td><td class="n">1,464</td><td class="n">€341</td></tr>
+              <tr class="total"><td>Total</td><td class="n">1,055,250</td><td class="n">€245,979</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col">
+        <div class="tbl-wrap">
+          <table>
+            <caption>Rental return scenario</caption>
+            <thead><tr><th>Annual</th><th class="n">AED</th><th class="n">EURO</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Average gross rental estimate</td><td class="n">75,000</td><td class="n">€17,483</td></tr>
+              <tr><td class="k">Unit size</td><td class="n">717 sqft</td><td class="n">—</td></tr>
+              <tr><td class="k">Service charge</td><td class="n">10,038</td><td class="n">€2,340</td></tr>
+              <tr><td class="k">Net rental estimate</td><td class="n">64,962</td><td class="n">€15,143</td></tr>
+              <tr class="total"><td>Net rental yield</td><td class="n">6.2%</td><td class="n"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="two tight top" style="margin-top:2cqw; align-items:start">
+      <div class="col"><div class="flag"><b>The DLD waiver is the biggest lever on this page.</b>
+        If it is not live on the current price list, the total becomes AED 1,097,250 and the net
+        yield falls to 5.9%.</div></div>
+      <div class="col"><div class="flag" style="--hue:var(--ink-3)"><b>Assumptions.</b>
+        Service charge modelled at AED 14/sqft — unpublished, and the rooftop pool and meditation
+        deck argue for the top of JVC's 12–16 range. Gross rent is the conservative end of the
+        JVC 1BR range of AED 74–86k.</div></div>
+    </div>
+    <div class="stats" style="grid-template-columns:repeat(4,1fr); margin-top:2.6cqw">
+      <div class="stat"><b>2027</b><s>Handover · earliest of three</s></div>
+      <div class="stat"><b>192</b><s>Units in building · fewest</s></div>
+      <div class="stat"><b>50%</b><s>Capital before keys</s></div>
+      <div class="stat"><b>Fitted</b><s>Furnished on handover</s></div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">09</p>
+  <p class="disc">FX 1 EUR = 4.29 AED. Net yield is net rental divided by total cost including fees. Figures subject to change — verify on the price list and SPA. Not financial advice.</p>
+</section>
+
+<!-- 10 — ARANCIA TITLE -->
+<section class="slide" style="--hue:var(--p-ara)">
+  <div class="cover">
+    <div class="wash"></div>
+    <div class="txt">
+      <p class="eyebrow">Garden residences · City of Arabia</p>
+      <h1>Arancia <em>at The Yards</em></h1>
+      <p class="tagline">Citrus courtyards, one kilometre of green</p>
+      <div class="meta">
+        <span>Developer · <b>BEYOND · OMNIYAT Group</b></span>
+        <span>Handover · <b>Q1 2029</b></span>
+        <span>From · <b>AED 1,000,000</b></span>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">10</p>
+</section>
+
+<!-- 11 — ARANCIA DEVELOPER -->
+<section class="slide" style="--hue:var(--p-ara)">
+  <div class="chip"><i></i>Arancia <s>· BEYOND · OMNIYAT</s></div>
+  <div class="pad" style="padding-top:9cqw">
+    <div class="two w40">
+      <div class="col">
+        <p class="eyebrow hue">The developer</p>
+        <h2>BEYOND</h2>
+        <p style="font-size:1cqw">The premium residential brand of <strong>OMNIYAT Group</strong>,
+          founded in Dubai in 2005 — the group behind the city's ultra-prime waterfront portfolio.</p>
+        <div class="stats" style="grid-template-columns:1fr 1fr">
+          <div class="stat"><b>AED 4<span style="font-size:.5em">bn</span></b><s>Masterplan value</s></div>
+          <div class="stat"><b>70%</b><s>Open landscape</s></div>
+        </div>
+      </div>
+      <div class="col">
+        <p><strong>The Yards</strong> is BEYOND's master-planned destination in City of Arabia:
+          2.3 million sqft of gross floor area, 1,560 residences, organised along a one-kilometre
+          green spine, with 70% of the total area given to open landscape. Mediterranean-inspired,
+          with its own school, clinic, mosque, farm, gardens and retail — a complete community
+          rather than an apartment block with a pool.</p>
+        <p><strong>Arancia is the first cluster to launch</strong> inside it: 272 residences across
+          three low-rise buildings, G+6 and G+7, arranged around a central green valley.</p>
+        <div class="flag"><b>Both sides of being early.</b> Your client buys at first-phase pricing
+          into a community that will still be building around them for years. That is the upside
+          and the risk in the same sentence — and the reason the handover is 2029.</div>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">11</p>
+</section>
+
+<!-- 12 — ARANCIA OVERVIEW -->
+<section class="slide" style="--hue:var(--p-ara)">
+  <div class="chip"><i></i>Arancia <s>· City of Arabia</s></div>
+  <div class="pad" style="padding-top:8.4cqw">
+    <div class="two w40" style="gap:3cqw">
+      <div class="col">
+        <p class="eyebrow hue">The project</p>
+        <h3 style="font-size:1.5cqw; margin-bottom:1.2cqw">Three low-rise buildings around a central
+          green valley, inside a AED 4bn masterplan</h3>
+        <dl class="kv">
+          <dt>Location</dt><dd>City of Arabia, Dubailand</dd>
+          <dt>Types</dt><dd>1 · 2 · 3 Bedrooms</dd>
+          <dt>Buildings</dt><dd>3 low-rise, G+6 / G+7</dd>
+          <dt>Total units</dt><dd>272 in phase · 1,560 masterplan</dd>
+          <dt>Handover</dt><dd>Q1 2029</dd>
+          <dt>Ceiling height</dt><dd>3.1 m</dd>
+          <dt>Payment plan</dt><dd>40 / 60</dd>
+          <dt>Service charge</dt><dd class="est" style="font-size:.8cqw">To confirm</dd>
+        </dl>
+      </div>
+      <div class="col">
+        <div class="tbl-wrap" style="margin-bottom:1.4cqw">
+          <table>
+            <caption>Price ladder</caption>
+            <thead><tr><th>Type</th><th class="n">Size</th><th class="n">From</th></tr></thead>
+            <tbody>
+              <tr><td class="k">1 Bed</td><td class="n">750–762 sqft</td><td class="n">AED 1,000,000</td></tr>
+              <tr><td class="k">2 Beds</td><td class="n">1,100–1,179 sqft</td><td class="n">AED 2,100,000</td></tr>
+              <tr><td class="k">3 Beds</td><td class="n">1,700–1,751 sqft</td><td class="n">AED 3,370,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p style="font-size:.94cqw; max-width:none"><strong>In-unit.</strong> Private terraces to every
+          residence · 3.1 m ceilings · floor-to-ceiling thermally insulated glazing · courtyard views</p>
+        <p style="font-size:.94cqw; max-width:none"><strong>Amenities.</strong> Lagoon pool · lounge pool
+          with lap pool · gyms · spa · cinema room · kids' club · yoga areas · sports court ·
+          amphitheatre · orchard gardens · farm</p>
+        <div class="slot" style="margin-top:1cqw">Render slot — send me the five Arancia
+          images as files and I'll drop them in here as a photo grid</div>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">12</p>
+</section>
+
+<!-- 13 — ARANCIA PRICE -->
+<section class="slide" style="--hue:var(--p-ara)">
+  <div class="chip"><i></i>Arancia <s>· 1 BR, 750 sqft</s></div>
+  <div class="pad" style="padding-top:8cqw">
+    <div class="two tight top" style="align-items:start">
+      <div class="col">
+        <div class="tbl-wrap">
+          <table>
+            <caption>Price to be paid</caption>
+            <thead><tr><th>1 Bedroom · 750 sqft</th><th class="n">AED</th><th class="n">EURO</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Unit price</td><td class="n">1,000,000</td><td class="n">€233,100</td></tr>
+              <tr><td class="k">DLD registration fee 4%</td><td class="n">40,000</td><td class="n">€9,324</td></tr>
+              <tr><td class="k">Admin fee</td><td class="n">5,250</td><td class="n">€1,224</td></tr>
+              <tr><td class="k">Average price / sqft</td><td class="n"><span class="mark">1,333</span></td><td class="n">€311</td></tr>
+              <tr class="total"><td>Total</td><td class="n">1,045,250</td><td class="n">€243,648</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col">
+        <div class="tbl-wrap">
+          <table>
+            <caption>Rental return scenario</caption>
+            <thead><tr><th>Annual</th><th class="n">AED</th><th class="n">EURO</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Average gross rental estimate</td><td class="n">75,000</td><td class="n">€17,483</td></tr>
+              <tr><td class="k">Unit size</td><td class="n">750 sqft</td><td class="n">—</td></tr>
+              <tr><td class="k">Service charge</td><td class="n">11,250</td><td class="n">€2,622</td></tr>
+              <tr><td class="k">Net rental estimate</td><td class="n">63,750</td><td class="n">€14,860</td></tr>
+              <tr class="total"><td>Net rental yield</td><td class="n">6.1%</td><td class="n"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="two tight top" style="margin-top:2cqw; align-items:start">
+      <div class="col"><div class="flag"><b>Cheapest land per foot of the three.</b>
+        AED 1,333/sqft buys the largest one-bedroom in the comparison — 750 sqft against
+        Celesto's 550. On size and price per foot, this is the best value on the table.</div></div>
+      <div class="col"><div class="flag" style="--hue:var(--ink-3)"><b>Assumptions.</b>
+        Service charge modelled at AED 14/sqft — unpublished, and the amenity load here is heavy.
+        At AED 25/sqft the net yield falls to roughly 5.4%. Gross rent is a conservative market
+        estimate for a rent four years out.</div></div>
+    </div>
+    <div class="stats" style="grid-template-columns:repeat(4,1fr); margin-top:2.6cqw">
+      <div class="stat"><b>2029</b><s>Handover · longest wait</s></div>
+      <div class="stat"><b>272</b><s>Units in phase</s></div>
+      <div class="stat"><b>40%</b><s>Capital before keys · least</s></div>
+      <div class="stat"><b>750<span style="font-size:.42em"> sqft</span></b><s>Largest 1 BR of three</s></div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">13</p>
+  <p class="disc">FX 1 EUR = 4.29 AED. Net yield is net rental divided by total cost including fees. Figures subject to change — verify on the price list and SPA. Not financial advice.</p>
+</section>
+
+<!-- 14 — CELESTO TITLE -->
+<section class="slide" style="--hue:var(--p-cel)">
+  <div class="cover">
+    <div class="bg" style="background-image:url('{{IMG:celesto-hero.jpg}}')"></div>
+    <div class="txt">
+      <p class="eyebrow">High end apartments · Dubailand Residence Complex</p>
+      <h1>Celesto <em>Tower 4</em></h1>
+      <div class="meta">
+        <span>Developer · <b>Al Tarrad Development</b></span>
+        <span>Handover · <b>Q4 2028</b></span>
+        <span>From · <b>AED 540,000</b></span>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">14</p>
+</section>
+
+<!-- 15 — CELESTO DEVELOPER -->
+<section class="slide" style="--hue:var(--p-cel)">
+  <div class="chip"><i></i>Celesto Tower 4 <s>· Al Tarrad</s></div>
+  <div class="pad" style="padding-top:9cqw">
+    <div class="two w40">
+      <div class="col">
+        <p class="eyebrow hue">The developer</p>
+        <h2>Al Tarrad<br>Development</h2>
+        <div class="stats" style="grid-template-columns:1fr 1fr">
+          <div class="stat"><b>4th</b><s>In the series</s></div>
+          <div class="stat"><b>99.99%</b><s>Of allowed GFA used</s></div>
+        </div>
+      </div>
+      <div class="col">
+        <p>Al Tarrad runs a focused, repeatable formula: mid-rise residential towers in Dubailand
+          aimed at the investor and entry end-user market — fully furnished, smart-home fitted,
+          priced below the city's mid-market. <strong>Celesto 4 is the fourth in a numbered
+          series</strong>, which tells you the model works well enough to keep running.</p>
+        <p>The submitted design package is itself a confidence signal: a full climate and solar
+          study, site accessibility and land-use analysis, verified area calculations against
+          permitted GFA, a reconciled unit matrix and complete floor plans. Residential GFA comes
+          in at 22,309.05 sqm against an allowed 22,311.00.</p>
+        <div class="flag"><b>Be straight about what that number means.</b> The developer has taken
+          essentially every square metre the plot allows. That is efficient — and it is why there
+          are 414 units here. Density is the deal: it drives the low entry price and it drives the
+          competition at handover. Both, not one.</div>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">15</p>
+</section>
+
+<!-- 16 — CELESTO OVERVIEW -->
+<section class="slide" style="--hue:var(--p-cel)">
+  <div class="chip"><i></i>Celesto Tower 4 <s>· DLRC</s></div>
+  <div class="pad" style="padding-top:8.4cqw">
+    <div class="two w40" style="gap:3cqw">
+      <div class="col">
+        <p class="eyebrow hue">The project</p>
+        <h3 style="font-size:1.5cqw; margin-bottom:1.2cqw">One minute from a Blue Line metro station,
+          eighteen from Downtown, DIFC and the airport</h3>
+        <dl class="kv">
+          <dt>Location</dt><dd>DLRC, Wadi Al Safa 5</dd>
+          <dt>Types</dt><dd>Studio · 1 BHK · 2 BHK</dd>
+          <dt>Configuration</dt><dd>3B + G + M + 3P + 21 floors</dd>
+          <dt>Total units</dt><dd>414</dd>
+          <dt>Handover</dt><dd>Q4 2028</dd>
+          <dt>Parking</dt><dd>1 space per apartment</dd>
+          <dt>Furnishing</dt><dd>Fully furnished, smart home</dd>
+          <dt>Service charge</dt><dd class="est" style="font-size:.8cqw">To confirm</dd>
+        </dl>
+        <p style="font-size:.94cqw; margin-top:1.2cqw; max-width:none"><strong>Amenities.</strong>
+          Indoor and outdoor gym · indoor and outdoor kids play areas · adults and kids pools ·
+          sauna and jacuzzi · BBQ area · yoga area · outdoor cinema · zen garden · ground-floor retail</p>
+      </div>
+      <div class="col">
+        <div class="tbl-wrap" style="margin-bottom:1.2cqw">
+          <table>
+            <caption>Unit mix</caption>
+            <thead><tr><th>Type</th><th class="n">Size incl. balcony</th><th class="n">Units</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Studio · A–D</td><td class="n">326–363 sqft</td><td class="n">162</td></tr>
+              <tr><td class="k">1 BHK · A–C</td><td class="n">550–598 sqft</td><td class="n">180</td></tr>
+              <tr><td class="k">2 BHK · A–D</td><td class="n">852–1,070 sqft</td><td class="n">72</td></tr>
+              <tr class="total"><td>Total</td><td class="n"></td><td class="n">414</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <figure style="margin:0; border-radius:.24cqw; overflow:hidden">
+          <img src="{{IMG:celesto-night.jpg}}" alt="Celesto Tower 4 at night, lit balcony bands above the retail podium" style="width:100%; display:block">
+        </figure>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">16</p>
+</section>
+
+<!-- 17 — CELESTO PRICE -->
+<section class="slide" style="--hue:var(--p-cel)">
+  <div class="chip"><i></i>Celesto Tower 4 <s>· Studio &amp; 1 BR</s></div>
+  <div class="pad" style="padding-top:8cqw">
+    <div class="two tight top" style="align-items:start">
+      <div class="col">
+        <div class="tbl-wrap">
+          <table>
+            <caption>Studio · 326 sqft · confirmed entry price</caption>
+            <thead><tr><th>Studio</th><th class="n">AED</th><th class="n">EURO</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Unit price</td><td class="n">540,000</td><td class="n">€125,874</td></tr>
+              <tr><td class="k">DLD registration fee 4%</td><td class="n">21,600</td><td class="n">€5,035</td></tr>
+              <tr><td class="k">Admin fee</td><td class="n">5,250</td><td class="n">€1,224</td></tr>
+              <tr><td class="k">Average price / sqft</td><td class="n">1,657</td><td class="n">€386</td></tr>
+              <tr class="total"><td>Total</td><td class="n">566,850</td><td class="n">€132,133</td></tr>
+              <tr><td class="k">Net rental estimate</td><td class="n">37,439</td><td class="n">€8,727</td></tr>
+              <tr class="total"><td>Net rental yield</td><td class="n"><span class="mark">6.6%</span></td><td class="n"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col">
+        <div class="tbl-wrap">
+          <table>
+            <caption>1 Bedroom · 550 sqft · price estimated</caption>
+            <thead><tr><th>1 Bedroom</th><th class="n">AED</th><th class="n">EURO</th></tr></thead>
+            <tbody>
+              <tr><td class="k">Unit price <span class="est">estimate</span></td><td class="n">≈800,000</td><td class="n">€186,480</td></tr>
+              <tr><td class="k">DLD registration fee 4%</td><td class="n">32,000</td><td class="n">€7,459</td></tr>
+              <tr><td class="k">Admin fee</td><td class="n">5,250</td><td class="n">€1,224</td></tr>
+              <tr><td class="k">Average price / sqft</td><td class="n">1,454</td><td class="n">€339</td></tr>
+              <tr class="total"><td>Total</td><td class="n">837,250</td><td class="n">€195,163</td></tr>
+              <tr><td class="k">Net rental estimate</td><td class="n">52,295</td><td class="n">€12,190</td></tr>
+              <tr class="total"><td>Net rental yield</td><td class="n">6.2%</td><td class="n"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="two tight top" style="margin-top:1.8cqw; align-items:start">
+      <div class="col"><div class="flag" style="--hue:#C9822E"><b>The 1BR price is not confirmed.</b>
+        Only the AED 540,000 studio entry is published. The AED 823,000 figure circulating online
+        belongs to <b>Celesto Tower</b> — the earlier 272-unit, Q4 2027 project — and the two are
+        constantly conflated. Replace this column from the price list before presenting.</div></div>
+      <div class="col"><div class="flag" style="--hue:var(--ink-3)"><b>Read the price per foot, not the ticket.</b>
+        At AED 1,454/sqft this is level with Floareá's 1,464. The low entry price comes from a
+        smaller apartment, not a discount — the client will work that out at the viewing, so say
+        it first.</div></div>
+    </div>
+    <div class="stats" style="grid-template-columns:repeat(4,1fr); margin-top:2.2cqw">
+      <div class="stat"><b>2028</b><s>Handover</s></div>
+      <div class="stat"><b>414</b><s>Units in building · most</s></div>
+      <div class="stat"><b>1%<span style="font-size:.42em"> /month</span></b><s>For 30 months</s></div>
+      <div class="stat"><b>1<span style="font-size:.42em"> min</span></b><s>To Blue Line metro</s></div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">17</p>
+  <p class="disc">FX 1 EUR = 4.29 AED. Service charge modelled at AED 14/sqft. Net yield is net rental divided by total cost including fees. Not financial advice.</p>
+</section>
+
+<!-- 18 — TRADE-OFFS -->
+<section class="slide" style="--hue:var(--verdict)">
+  <div class="pad">
+    <p class="eyebrow">What each one costs you</p>
+    <h2 style="margin-bottom:.6cqw">No project here is perfect</h2>
+    <p style="max-width:60cqw; margin-bottom:2cqw">Every option has a real weakness. These are the
+      ones worth knowing before signing, not after.</p>
+    <div class="cards">
+      <div class="card" style="--hue:var(--p-flo)">
+        <h3>Floareá Skies</h3>
+        <span class="hd">The catch</span>
+        <ul>
+          <li><strong>Boutique developer</strong> with a thin delivery record — the real risk on this deal</li>
+          <li>JVC is Dubai's most crowded pipeline: 16,800–22,000 units to 2028, so rents may soften 5–10% right at handover</li>
+          <li>50% lands as a single bullet payment on handover day</li>
+          <li>No view premium — this is a yield play, not an address</li>
+          <li>Service charge unpublished on a heavily amenitised rooftop</li>
+        </ul>
+      </div>
+      <div class="card" style="--hue:var(--p-ara)">
+        <h3>Arancia</h3>
+        <span class="hd">The catch</span>
+        <ul>
+          <li><strong>Q1 2029 handover</strong> — the longest wait. Four years before a dirham of rent</li>
+          <li>1,560 units across the masterplan: your client's resale competes with the developer's own later phases at newer stock</li>
+          <li>Inland City of Arabia — resale depends on the community delivering as drawn</li>
+          <li>Not furnished, unlike the other two</li>
+          <li>Heaviest amenity load of the three with no published service charge</li>
+        </ul>
+      </div>
+      <div class="card" style="--hue:var(--p-cel)">
+        <h3>Celesto Tower 4</h3>
+        <span class="hd">The catch</span>
+        <ul>
+          <li><strong>414 units in one building</strong> — more than double Floareá. At handover the 1BR competes with 179 identical neighbours</li>
+          <li>39% of the building is studios — investor-heavy, higher churn, weaker owner-occupier base at resale</li>
+          <li>The 1BR is small at 550 sqft; price per foot is not cheap</li>
+          <li>One parking space per apartment, no resident surplus</li>
+          <li>Least established developer, delivery record on Celesto 1–3 unverified</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">18</p>
+</section>
+
+<!-- 19 — THE DECISION -->
+<section class="slide" style="--hue:var(--verdict)">
+  <div class="pad">
+    <p class="eyebrow">The decision</p>
+    <h2 style="margin-bottom:.6cqw">Three different propositions, not a ranking</h2>
+    <p style="max-width:62cqw; margin-bottom:2cqw">The numbers land close enough that they don't
+      decide this. What decides it is which of these three sentences sounds most like you.</p>
+    <div class="dec">
+      <div class="row" style="--hue:var(--p-flo)">
+        <div class="q">“I want rent coming in as soon as possible, and I don't want to furnish it.”</div>
+        <div class="a">Floareá Skies</div>
+        <div class="why">Q3–Q4 2027 — eighteen months earlier than Arancia. Arrives fitted, into JVC's proven leasing market.</div>
+      </div>
+      <div class="row" style="--hue:var(--p-ara)">
+        <div class="q">“I can wait. I want the best-built asset and the strongest name behind it.”</div>
+        <div class="a">Arancia</div>
+        <div class="why">OMNIYAT's premium brand, the largest one-bedroom, the lowest price per foot, and the only true community product.</div>
+      </div>
+      <div class="row" style="--hue:var(--p-cel)">
+        <div class="q">“I want the smallest cheque, paid monthly, in the best-connected spot.”</div>
+        <div class="a">Celesto Tower 4</div>
+        <div class="why">Lowest entry by a wide margin, 1% a month for 30 months, Blue Line metro at one minute and 18 minutes to DXB.</div>
+      </div>
+    </div>
+    <div class="flag" style="margin-top:2cqw"><b>My read, for a yield-first buyer at this budget:</b>
+      Floareá Skies — it starts earning in 2027, arrives fitted, has the fewest neighbours to
+      compete with at 192 units, and posts the strongest net yield of the three.
+      <b>What would change my answer:</b> if the 4% DLD waiver isn't live, or if the client can
+      wait until 2029, Arancia takes it on developer strength and price per foot.</div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">19</p>
+</section>
+
+<!-- 20 — NEXT STEPS -->
+<section class="slide" style="--hue:var(--verdict)">
+  <div class="pad">
+    <div class="two w60">
+      <div class="col">
+        <p class="eyebrow">Next steps</p>
+        <h2>Where we go from here</h2>
+        <div class="dec" style="gap:.8cqw; margin-top:1.4cqw">
+          <div class="row" style="grid-template-columns:1fr; padding:.9cqw 1.2cqw">
+            <div class="q">Shortlist one, and I'll pull live availability and the current price list the same day.</div>
+          </div>
+          <div class="row" style="grid-template-columns:1fr; padding:.9cqw 1.2cqw">
+            <div class="q">I'll get the service charge in writing on your pick — it moves net yield up to a full point.</div>
+          </div>
+          <div class="row" style="grid-template-columns:1fr; padding:.9cqw 1.2cqw">
+            <div class="q">Escrow account and RERA registration verified before any deposit moves.</div>
+          </div>
+          <div class="row" style="grid-template-columns:1fr; padding:.9cqw 1.2cqw">
+            <div class="q">Site visit or sales-centre walkthrough arranged for the two you like most.</div>
+          </div>
+        </div>
+      </div>
+      <div class="col" style="display:flex; flex-direction:column; justify-content:flex-end">
+        <p class="eyebrow">Your broker</p>
+        <h3 style="font-size:2.4cqw; letter-spacing:-.02em; margin-bottom:.4cqw">Marwan Wareth</h3>
+        <p style="font-size:1.05cqw; margin-bottom:2cqw">Dubai off-plan residential</p>
+        <div class="flag" style="--hue:var(--ink-3)">Add your phone, email and Instagram handle here
+          before sending — this is the slide the client screenshots.</div>
+      </div>
+    </div>
+  </div>
+  <p class="credit">Marwan Wareth</p>
+  <p class="count">20</p>
+  <p class="disc">All figures developer- and broker-published and subject to change. For information only — not financial advice. Verify on the current price list and SPA.</p>
+</section>
+
+<!-- 21 — INTERNAL -->
+<section class="slide internal">
+  <div class="pad">
+    <p class="eyebrow" style="color:var(--hue)">Internal — remove before sending to the client</p>
+    <h2 style="margin-bottom:1.6cqw">Verify before you present</h2>
+    <div class="cards">
+      <div class="card" style="--hue:var(--p-flo)">
+        <h3>Floareá Skies</h3>
+        <ul>
+          <li>Price list and exact sizes — the 1,050,000 / 717 sqft basis is research, not brochure</li>
+          <li><strong>Is the 4% DLD waiver still live?</strong> Worth 0.3 pts of yield</li>
+          <li>Service charge per sqft in writing</li>
+          <li>Total unit count (192?) and handover quarter — neither is in the brochure</li>
+          <li>Which plan is live: 50/50 or 20/30/50</li>
+          <li>Kitchen spec — blank on the deliverables sheet</li>
+          <li>Brochure says 4th venture; earlier research said 5th</li>
+        </ul>
+      </div>
+      <div class="card" style="--hue:var(--p-ara)">
+        <h3>Arancia</h3>
+        <ul>
+          <li>Service charge per sqft — at AED 25 the yield drops to ~5.4%</li>
+          <li>1BR entry: AED 1.0M on portals vs 1.1M on BEYOND's own site</li>
+          <li>Drive times to Dubai Mall and DXB — unverified, so omitted from the deck</li>
+          <li>Handover quarter: Q1 2029 dominant, Q2 2029 also cited</li>
+          <li>Spelling — it is <strong>Arancia</strong>, not Anarcia</li>
+        </ul>
+      </div>
+      <div class="card" style="--hue:var(--p-cel)">
+        <h3>Celesto Tower 4</h3>
+        <ul>
+          <li><strong>1BR and 2BR price list — the blocker</strong></li>
+          <li>Service charge per sqft</li>
+          <li>Is the 4% DLD payable or waived? AED 32k of difference</li>
+          <li>Al Tarrad's delivery record on Celesto 1–3</li>
+          <li>Escrow and RERA/DDA registration</li>
+          <li>Confirm 21 residential floors — one portal says 20</li>
+          <li>Itemised list of what "fully furnished" includes</li>
+        </ul>
+      </div>
+    </div>
+    <div class="flag" style="margin-top:1.8cqw"><b>Common to all three: get the service charge in
+      writing.</b> It is unpublished for every one of them and moves net yield 0.7–1.0 points —
+      enough to reorder the comparison table on slide 3.</div>
+  </div>
+  <p class="count">21</p>
+</section>
+
+</div>
+
+<nav class="nav">
+  <button type="button" id="prev" aria-label="Previous slide">← Prev</button>
+  <span class="pos" id="pos">1 / 21</span>
+  <button type="button" id="next" aria-label="Next slide">Next →</button>
+  <div class="dots" id="dots"></div>
+  <button type="button" id="theme" aria-label="Toggle light and dark">◐ Theme</button>
+  <button type="button" id="printer" aria-label="Print or save as PDF">⎘ PDF</button>
+</nav>
+<div class="tip" id="tip" role="status"></div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var dots = document.getElementById('dots');
+  var pos = document.getElementById('pos');
+  var i = 0;
+
+  slides.forEach(function(s, n){
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'dots-b';
+    b.setAttribute('aria-label', 'Go to slide ' + (n+1));
+    var wrap = document.createElement('b');
+    wrap.setAttribute('role','button');
+    wrap.tabIndex = 0;
+    wrap.addEventListener('click', function(){ go(n); });
+    wrap.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(n); } });
+    dots.appendChild(wrap);
+  });
+  var dotEls = Array.prototype.slice.call(dots.children);
+
+  function go(n){
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach(function(s, k){ s.classList.toggle('is-on', k === i); });
+    dotEls.forEach(function(d, k){ d.classList.toggle('on', k === i); });
+    pos.textContent = (i + 1) + ' / ' + slides.length;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  document.getElementById('prev').addEventListener('click', function(){ go(i - 1); });
+  document.getElementById('next').addEventListener('click', function(){ go(i + 1); });
+  document.getElementById('printer').addEventListener('click', function(){ window.print(); });
+
+  document.getElementById('theme').addEventListener('click', function(){
+    var cur = document.documentElement.getAttribute('data-theme');
+    if(!cur){
+      cur = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    if(e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' '){ e.preventDefault(); go(i + 1); }
+    else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ e.preventDefault(); go(i - 1); }
+    else if(e.key === 'Home'){ e.preventDefault(); go(0); }
+    else if(e.key === 'End'){ e.preventDefault(); go(slides.length - 1); }
+  });
+
+  /* hover tooltips on the payment bars */
+  var tip = document.getElementById('tip');
+  document.querySelectorAll('.bars span[data-tip]').forEach(function(el){
+    el.addEventListener('mouseenter', function(){
+      tip.textContent = el.getAttribute('data-tip');
+      tip.classList.add('on');
+    });
+    el.addEventListener('mousemove', function(ev){
+      tip.style.left = Math.min(window.innerWidth - 240, ev.clientX + 14) + 'px';
+      tip.style.top = (ev.clientY + 16) + 'px';
+    });
+    el.addEventListener('mouseleave', function(){ tip.classList.remove('on'); });
+  });
+
+  go(0);
+})();
+</script>
