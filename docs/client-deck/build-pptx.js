@@ -859,11 +859,13 @@ function cards(s, y, h, items) {
     });
   });
   callout(s, {
-    x: MX, y: 5.86, w: CW, h: 0.94, size: 11,
-    rich: [{ text: 'My read, on the confirmed prices: ', options: { bold: true, color: INK } },
-           { text: 'yield-first, it is Celesto 4 at 6.8% on the smallest cheque. Floareá sits in the middle at 5.7% with the earliest keys and the biggest apartment. Arancia at AED 1.45M is the premium play — the strongest rent and name at 5.2%, bought for the address, not the yield. ', options: {} },
-           { text: 'Still open: ', options: { bold: true, color: INK } },
-           { text: "Celesto's price is an estimate; Arancia's service charge is unpublished.", options: {} }]
+    x: MX, y: 5.76, w: CW, h: 1.08, size: 10.5,
+    rich: [{ text: 'My recommendation: Floareá Skies. ', options: { bold: true, color: FLO } },
+           { text: 'It is the only project where every figure is confirmed by the developer in writing — and the most complete buy of the three: the largest one-bedroom at 837 sqft, delivered fully fitted, the earliest keys at Q1 2028, and just 30% before handover. Your rent starts in JVC\u2019s proven market a year ahead of the others, and the developer is open on price. ', options: {} },
+           { text: 'Celesto', options: { bold: true, color: CEL } },
+           { text: ' is the smart smaller cheque at 6.8%; ', options: {} },
+           { text: 'Arancia', options: { bold: true, color: ARA } },
+           { text: ' the five-year address play — both strong second choices.', options: {} }]
   });
   chrome(s);
 }
