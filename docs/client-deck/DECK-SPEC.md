@@ -135,12 +135,49 @@ balconies overlooking the courtyard.
 **Positioning angle this supports:** community/lifestyle and greenery — the opposite of
 the sea-view tower pitch. Worth making that contrast explicit in the head-to-head.
 
-## PROJECT 3 — _awaiting batch_
+## PROJECT 3 — **Tarrad Celesto Tower 4** by Al Tarrad Development
+
+**Slide content written up: [`PROJECT-3-CELESTO-4.md`](PROJECT-3-CELESTO-4.md)** ·
+images in [`img/celesto/`](img/celesto/README.md)
+
+DLRC / Wadi Al Safa 5 · 3B+G+M+3P+21 floors · **414 units** (162 studio / 180 1BR / 72 2BR) ·
+Q4 2028 · from AED 540,000 (studio) · 50/50 with 1% monthly × 30 · fully furnished ·
+1 min to Blue Line metro · 18 min to Downtown/DIFC/DXB
+
+🚩 **Blocker: no 1BR price.** Only the studio entry (AED 540–560k) is public. The AED 823,000
+figure online is the *earlier* Celesto Tower project, not Celesto 4 — do not carry it across.
 
 ---
 
-## Data needed per project (to fill the template)
-Location · developer · unit types + bedroom counts · total units · delivery date ·
-service charge per sqft · price ladder by bedroom · payment plan % split ·
-location highlights / drive times · the one priced unit (type, sqft, unit price,
-avg price/sqft) · avg gross rental estimate
+# Cross-project comparison (the head-to-head slide)
+
+| | Floareá Skies | Arancia | Celesto 4 |
+|---|---|---|---|
+| Location | JVC | City of Arabia | DLRC / Wadi Al Safa 5 |
+| Developer | Mashriq Elite | BEYOND (OMNIYAT) | Al Tarrad |
+| Handover | **Q3–Q4 2027** | Q1 2029 | Q4 2028 |
+| Total units | **192** | 272 | 414 |
+| 1BR size | 717 sqft | **750–762 sqft** | 550–598 sqft |
+| 1BR all-in | AED 1,055,250 | AED 1,045,250 | **~837,250 (est)** |
+| Price/sqft | 1,464 | **1,333** | 1,454 (est) |
+| Net yield | **6.2%** | 6.1% | 6.2% (studio 6.6%) |
+| Capital pre-handover | 50% | **40%** | 50%, 1%/month |
+| Furnished | **Yes** | No | **Yes** |
+| DLD 4% | **Waived (confirm)** | Payable | Confirm |
+
+**Three genuinely different propositions, not a ranking:**
+- **Floareá** — income starts soonest (2027), fitted, proven JVC leasing market. Boutique developer risk.
+- **Arancia** — best developer and the only real community product. Longest wait.
+- **Celesto 4** — cheapest entry, gentlest payment plan, best transport. Highest density by far.
+
+---
+
+## Data still needed
+| Project | Outstanding |
+|---|---|
+| Floareá Skies | price list + sizes · DLD waiver status · service charge · unit count · handover · kitchen spec |
+| Arancia | service charge · confirm 1BR entry (1.0M vs 1.1M) · drive times · handover quarter |
+| Celesto 4 | **1BR/2BR price list** · service charge · DLD status · Celesto 1–3 delivery record |
+
+**Common to all three: service charge in writing.** It moves net yield 0.7–1.0 points and is
+unpublished for every one of them.
