@@ -7,6 +7,7 @@ import { changeMyPassword } from '../../set-password/actions';
 import EnableNotifications from '@/components/EnableNotifications';
 import TestPushButton from '@/components/TestPushButton';
 import PushDevices from '@/components/PushDevices';
+import ThemeSwitcher from '@/components/ThemeSwitcher';
 import { sendTestPush } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -93,6 +94,15 @@ export default async function ProfilePage({ searchParams }) {
 
           <button className="btn" type="submit">Save my profile</button>
         </form>
+      </div>
+
+      {/* Appearance */}
+      <div className="card">
+        <h3>🎨 Appearance</h3>
+        <p className="small muted" style={{ marginTop: 0 }}>
+          Choose how the CRM looks for you. Everyone picks their own — it doesn&apos;t affect the team.
+        </p>
+        <ThemeSwitcher current={profile?.theme || 'light'} />
       </div>
 
       {/* Notifications */}

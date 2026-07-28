@@ -4,6 +4,7 @@ import { requireUser, hasAdminAccess, hasStaffAccess, hasMarketingAccess } from 
 import { ROLE_LABELS, SENIORITY_NAMES } from '@/lib/format';
 import NavLink from '@/components/NavLink';
 import NavGroup from '@/components/NavGroup';
+import ThemeApply from '@/components/ThemeApply';
 import Avatar from '@/components/Avatar';
 import PresenceTracker from '@/components/PresenceTracker';
 import Sidebar from '@/components/Sidebar';
@@ -46,6 +47,9 @@ export default async function AppLayout({ children }) {
 
   return (
     <div className="shell">
+      {/* The member's chosen theme, applied before anything paints so there's
+          no flash of the wrong colours. */}
+      <ThemeApply theme={profile?.theme || 'light'} />
       <Sidebar>
         <div className="brand" style={{ padding: '0 0 14px' }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}

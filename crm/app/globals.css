@@ -14,6 +14,49 @@
   --red: #dc2626;
   --radius: 12px;
   --shadow: 0 1px 3px rgba(14, 32, 56, 0.06);
+  --input-bg: #ffffff;
+  --lift: 0 6px 18px rgba(14, 32, 56, 0.10);
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   Themes — each member picks one on their Profile page and it's stored on
+   their profile, so it follows them to any device. Every colour below is a
+   token override; no component styles are duplicated.
+   ========================================================================== */
+
+/* Dark — neutral near-black, for evening work and OLED phones. */
+[data-theme='dark'] {
+  --bg: #0f1319;
+  --panel: #171d26;
+  --panel-2: #212a37;
+  --border: #2c3644;
+  --text: #e7ecf3;
+  --muted: #98a5b8;
+  --brand: #2e5090;        /* readable behind white button text */
+  --brand-2: #3a63ae;
+  --gold: #d9b95c;
+  --gold-2: #c2a14d;
+  --input-bg: #121821;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --lift: 0 8px 22px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+
+/* Blue — the house navy, lighter and calmer than plain white. */
+[data-theme='blue'] {
+  --bg: #eef4fd;
+  --panel: #ffffff;
+  --panel-2: #dfeafa;
+  --border: #c2d8f2;
+  --text: #10243f;
+  --muted: #5a7191;
+  --brand: #1c4e9c;
+  --brand-2: #17417f;
+  --input-bg: #ffffff;
+  --shadow: 0 1px 3px rgba(16, 36, 63, 0.08);
+  --lift: 0 6px 18px rgba(16, 36, 63, 0.14);
+  color-scheme: light;
 }
 
 * { box-sizing: border-box; }
@@ -263,8 +306,8 @@ p { margin: 0 0 10px; }
 /* Stat cards lift on hover — they read as "live numbers", not static paper. */
 .card.stat:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(14, 32, 56, 0.10);
-  border-color: #cfd8e5;
+  box-shadow: var(--lift);
+  border-color: var(--muted);
 }
 .stat { display: flex; flex-direction: column; gap: 4px; }
 .stat .value {
@@ -304,7 +347,7 @@ p { margin: 0 0 10px; }
 label { display: block; font-size: 0.82rem; color: var(--muted); margin: 0 0 5px; }
 input, select, textarea {
   width: 100%;
-  background: #fff;
+  background: var(--input-bg);
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--text);
@@ -556,3 +599,20 @@ tbody tr:hover { background: var(--panel-2); }
   }
   .nav a:hover { padding-left: 12px; }
 }
+
+/* Dark theme: the status chips are light by design, so soften them here rather
+   than leaving bright blocks on a dark card. */
+[data-theme='dark'] .badge.hot { background: #4a1f1f; color: #ff9c9c; }
+[data-theme='dark'] .badge.warm { background: #4a3a17; color: #f5c96a; }
+[data-theme='dark'] .badge.cold { background: #1c3050; color: #8ec0ff; }
+[data-theme='dark'] .badge.won { background: #14402a; color: #6fe0a4; }
+[data-theme='dark'] .badge.lost { background: #4a1f1f; color: #ff9c9c; }
+[data-theme='dark'] .badge.status, [data-theme='dark'] .badge.role {
+  background: var(--panel-2); color: var(--muted);
+}
+[data-theme='dark'] .skeleton {
+  background: linear-gradient(90deg, var(--panel-2) 25%, #2b3646 50%, var(--panel-2) 75%);
+  background-size: 200% 100%;
+}
+/* The logo is drawn for a light background — lift it slightly in dark mode. */
+[data-theme='dark'] .brand img, [data-theme='dark'] .mobile-logo { filter: brightness(1.6) contrast(1.05); }

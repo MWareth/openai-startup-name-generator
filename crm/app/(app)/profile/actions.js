@@ -73,3 +73,18 @@ export async function updateMyProfile(formData) {
   revalidatePath('/leaderboard');
   redirect('/profile?ok=1');
 }
+
+// Save the member's colour theme. Called from the Profile page switcher, which
+// has already applied the look locally — this makes it stick across devices.
+// Returns rather than redirects, so the page doesn't jump while you're picking.
+export async function saveTheme(theme) {
+  const { user } = await requireUser();
+  const value = ['light', 'dark', 'blue'].includes(theme) ? theme : 'light';
+  const admin = createAdminClient();
+  const { error } = await admin.from('profiles').update({ theme: value }).eq('id', user.id);
+  // Before migration 0038 the column doesn't exist — the choice still applies
+  // for this session, it just won't persist.
+  if (error) return { ok: false, error: error.message };
+  revalidatePath('/', 'layout');
+  return { ok: true };
+}
