@@ -92,8 +92,42 @@ airport transfers.
 
 # The three client projects
 
-## PROJECT 1 — _awaiting batch_
+## PROJECT 1 — _awaiting data_
+Brochure link `eddy.pro/pdf/7374005` is blocked by this environment's egress policy
+(proxy 403 on CONNECT — not retryable). Need screenshots or the numbers pasted in.
 
-## PROJECT 2 — _awaiting batch_
+## PROJECT 2 — Anarcia
+
+**Data: awaiting.** Renders received (5).
+
+### Visual character (from renders — use for the deck's art direction)
+Low-to-mid-rise garden community, not a tower. Warm sand/limestone and brick façades,
+timber slat screens, deep planted balconies, terraced rooftop greenery. Buildings frame
+large landscaped courtyards with citrus groves (orange + lemon trees), fountains, water
+features, curved seating terraces and lawns. Palette is warm neutral — cream, sand,
+travertine, pale oak, with green accents.
+
+Interiors: soft-modern, light and airy. Full-height glazing to balconies, cream/oak
+palette, marble-veined backsplashes and counters, sculptural pendant lighting, curved
+furniture, stone-look large-format floor tiles. Bedrooms open directly to planted
+balconies overlooking the courtyard.
+
+### Render set (5) — mapped to the 5-image grid on the overview slide
+1. Living + dining, ring pendants, terrace beyond — **hero interior**
+2. Living + kitchen, green velvet sofa, marble backsplash — second interior
+3. Bedroom with planted balcony
+4. Balcony view over courtyard with citrus grove + fountain
+5. Golden-hour courtyard view between buildings — **hero exterior**
+
+**Positioning angle this supports:** community/lifestyle and greenery — the opposite of
+the sea-view tower pitch. Worth making that contrast explicit in the head-to-head.
 
 ## PROJECT 3 — _awaiting batch_
+
+---
+
+## Data needed per project (to fill the template)
+Location · developer · unit types + bedroom counts · total units · delivery date ·
+service charge per sqft · price ladder by bedroom · payment plan % split ·
+location highlights / drive times · the one priced unit (type, sqft, unit price,
+avg price/sqft) · avg gross rental estimate
