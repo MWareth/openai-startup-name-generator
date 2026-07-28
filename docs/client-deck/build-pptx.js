@@ -310,32 +310,36 @@ function cards(s, y, h, items) {
   const s = newSlide();
   eyebrow(s, 'If the brief moves up a size', 0.94);
   heading(s, 'The two-bedroom picture', 1.28, 32);
-  s.addText('Only one of the three has a published two-bedroom price today. Sizes are confirmed for all three, so the comparison still holds shape — the two missing prices are being requested.', {
-    x: MX, y: 2.06, w: 9.4, h: 0.6, fontFace: BODY, fontSize: 12, color: INK2, margin: 0, valign: 'top'
+  s.addText('All three quote a two-bedroom, and the spread is wide — AED 780,000 between the cheapest and the dearest before a single fee is added.', {
+    x: MX, y: 2.06, w: 9.8, h: 0.4, fontFace: BODY, fontSize: 12, color: INK2, margin: 0, valign: 'top'
   });
   const req = (t) => ({ t: t, c: INK3 });
+  const g2 = (t) => ({ t: t, c: VERDICT, b: true });
   tbl(s, {
-    x: MX, y: 2.72, w: CW, colW: [3.3, 2.92, 2.92, 2.92], rowH: 0.315, size: 10.5,
+    x: MX, y: 2.56, w: CW, colW: [3.3, 2.92, 2.92, 2.92], rowH: 0.278, size: 10.5,
     head: ['2 Bedroom', 'Floareá Skies', 'Arancia', 'Celesto 4'],
     rows: [
-      ['Offered', 'Yes', 'Yes', 'Yes'],
-      ['Size', req('To confirm'), { t: '1,100–1,179 sqft', c: VERDICT, b: true }, '852–1,070 sqft'],
+      ['Price from', 'AED 1,900,000', 'AED 2,100,000', g2('AED 1,320,000')],
+      ['Size', req('To confirm'), '1,100–1,179 sqft', '852–1,070 sqft'],
+      ['Price per sqft', req('To confirm'), 'AED 1,909', g2('AED 1,550')],
+      ['Step-up vs own 1 BR / sqft', req('To confirm'), '+43%', g2('+7%')],
+      ['DLD 4%', '76,000', '84,000', '52,800'],
+      ['Admin fee', '4,000', '5,250  est', '5,250  est'],
+      [{ t: 'All-in cost', total: true }, { t: 'AED 1,980,000', total: true }, { t: 'AED 2,189,250', total: true }, { t: 'AED 1,378,050', total: true, c: VERDICT }],
       ['Units of this type', req('To confirm'), req('To confirm'), '72 of 414'],
-      ['Price from', req('Price list requested'), 'AED 2,100,000', req('Price list requested')],
-      ['Price per sqft', '—', '≈ AED 1,850', '—'],
-      ['Payment plan', '30 / 70', '40 / 60', '50 / 50, 1% monthly'],
-      ['Handover', { t: 'Q1 2028', c: VERDICT, b: true }, 'Q1 2029', 'Q4 2028']
+      ['Payment plan', g2('30 / 70'), '40 / 60', '50 / 50, 1% monthly'],
+      ['Handover', g2('Q1 2028'), 'Q1 2029', 'Q4 2028']
     ]
   });
   callout(s, {
-    x: MX, y: 5.42, w: 6.0, h: 1.15, size: 10.5,
-    rich: [{ text: "What Arancia's 2 BR tells you. ", options: { bold: true, color: INK } },
-           { text: 'AED 2.1M for 1,100–1,179 sqft is around AED 1,850/sqft — well above its own one-bedroom at 1,333. The two-bedroom is priced as the family product, not as two one-beds.', options: {} }]
+    x: MX, y: 5.72, w: 6.0, h: 1.12, size: 10,
+    rich: [{ text: 'The number worth saying out loud. ', options: { bold: true, color: INK } },
+           { text: "Celesto's two-bedroom is 851.64 sqft — within fourteen square feet of Floareá's ONE-bedroom at 837.54. Same floor area, an extra bedroom, for AED 173,890 more all-in.", options: {} }]
   });
   callout(s, {
-    x: 7.0, y: 5.42, w: 5.68, h: 1.15, size: 10.5,
-    rich: [{ text: 'Needed to finish this slide. ', options: { bold: true, color: 'E0A45C' } },
-           { text: 'Two-bedroom price lists for Floareá Skies and Celesto 4, plus Floareá 2 BR sizes and unit counts per type. One sales offer per project is enough — same format as FS 611.', options: {} }]
+    x: 7.0, y: 5.72, w: 5.68, h: 1.12, size: 10,
+    rich: [{ text: 'How each prices the step up. ', options: { bold: true, color: INK } },
+           { text: 'Arancia charges 43% more per sqft for its two-bedroom than its one-bedroom. Celesto charges 7%. Arancia is the better 1 BR buy; Celesto is by far the better 2 BR buy.', options: {} }]
   });
   chrome(s);
 }
