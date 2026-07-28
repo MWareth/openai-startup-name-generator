@@ -157,11 +157,16 @@ figure online is the *earlier* Celesto Tower project, not Celesto 4 — do not c
 | Developer | Mashriq Elite | BEYOND (OMNIYAT) | Al Tarrad |
 | Handover | **Q1 2028** | Q1 2029 | Q4 2028 |
 | Total units | **192** | 272 | 414 |
-| 1BR size | **837.54 sqft** | 750–762 sqft | 550–598 sqft |
-| 1BR all-in | AED 1,204,160 | AED 1,045,250 | **~837,250 (est)** |
-| Price/sqft | 1,378 | **1,333** | 1,454 (est) |
-| Net yield | 5.6% | 6.1% | **6.4% (studio 6.7%)** |
-| Service charge/sqft | AED 15 (published) | **unpublished** | AED 12 (Celesto Tower) |
+| 1BR size | **837.54 sqft** | 750–762 sqft | 590–650 sqft (was 550–598 on the developer floor plans — reconcile) |
+| 1BR all-in | AED 1,204,360 | AED 1,044,200 | **AED 836,200 (est)** |
+| Price/sqft | 1,378 | **1,333** | 1,356 (est) |
+| Annual rent | 80,000 | **90,000** | 68,000 |
+| Service charge/sqft | AED 14 | AED 15 (modelled) | **AED 12** |
+| Net return, annual | 68,274 | **78,750** | 60,920 |
+| Net yield | 5.7% | **7.5%** | 7.3% |
+
+Admin fee AED 4,200 on all three. Net return = rent − service charge;
+yield = net return ÷ total cost incl. DLD and admin.
 | Capital pre-handover | **30%** | 40% | 50%, 1%/month |
 | Furnished | **Yes** | No | **Yes** |
 | DLD 4% | Payable (confirmed) | Payable | Confirm |
