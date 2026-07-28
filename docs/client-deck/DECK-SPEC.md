@@ -96,9 +96,14 @@ airport transfers.
 Brochure link `eddy.pro/pdf/7374005` is blocked by this environment's egress policy
 (proxy 403 on CONNECT — not retryable). Need screenshots or the numbers pasted in.
 
-## PROJECT 2 — Anarcia
+## PROJECT 2 — Anarcia → correct name **Arancia at The Yards** by BEYOND (OMNIYAT)
 
-**Data: awaiting.** Renders received (5).
+**Slide content written up: [`PROJECT-2-ANARCIA.md`](PROJECT-2-ANARCIA.md)** — all four slides,
+sourced from public data (not the brochure). Service charge and gross rent are flagged
+ASSUMED there and must be replaced from the price list.
+
+City of Arabia, Dubailand · 272 units, 3 low-rise G+6/G+7 · 1–3 BR · Q1 2029 ·
+1BR from AED 1,000,000 (750–762 sqft) · 40/60 payment plan
 
 ### Visual character (from renders — use for the deck's art direction)
 Low-to-mid-rise garden community, not a tower. Warm sand/limestone and brick façades,
