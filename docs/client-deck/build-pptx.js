@@ -278,7 +278,7 @@ function cards(s, y, h, items) {
   heading(s, 'The three, side by side', 1.28, 32);
   const g = (t) => ({ t: t, c: VERDICT, b: true });
   tbl(s, {
-    x: MX, y: 2.16, w: CW, colW: [3.3, 2.92, 2.92, 2.92], rowH: 0.278, size: 10.5,
+    x: MX, y: 2.02, w: CW, colW: [3.3, 2.92, 2.92, 2.92], rowH: 0.258, size: 10,
     head: ['Metric', 'Floareá Skies', 'Arancia', 'Celesto 4'],
     rows: [
       ['Community', 'JVC', 'City of Arabia', 'DLRC'],
@@ -288,7 +288,8 @@ function cards(s, y, h, items) {
       ['1 BR size', g('837 sqft'), '750–762 sqft', '550–598 sqft'],
       ['1 BR all-in cost', 'AED 1,204,160', 'AED 1,045,250', g('≈837,250  est')],
       ['Price per sqft', 'AED 1,378', g('AED 1,333'), 'AED 1,454  est'],
-      ['Net rental yield', '5.7%', '6.1%', g('6.2%  est')],
+      ['Net rental yield', '5.6%', '6.1%', g('6.4%  est')],
+      ['Service charge / sqft', 'AED 15', 'To confirm', g('AED 12')],
       ['Capital in before keys', g('30%'), '40%', '50%'],
       ['4% DLD fee', 'Payable', 'Payable', 'To confirm'],
       ['Furnished on handover', g('Yes'), 'No', g('Yes')],
@@ -300,7 +301,7 @@ function cards(s, y, h, items) {
     { text: 'Green', options: { bold: true, color: VERDICT } },
     { text: " marks the strongest of the three on that row. Floareá's figures come from a live sales offer (unit FS 611, 18 July 2026); Arancia and Celesto are published or estimated and still to be confirmed on a price list. Not financial advice.", options: {} }
   ], {
-    x: MX, y: 6.0, w: CW, h: 0.5, fontFace: BODY, fontSize: 9, color: INK3, margin: 0, valign: 'top'
+    x: MX, y: 6.02, w: CW, h: 0.5, fontFace: BODY, fontSize: 8.5, color: INK3, margin: 0, valign: 'top'
   });
   chrome(s);
 }
@@ -447,7 +448,7 @@ function cards(s, y, h, items) {
       ['Location', 'Jumeirah Village Circle'], ['Types', 'Studio · 1 BR · 2 BR'],
       ['Configuration', 'G + 4P + 19 floors'], ['Total units', '192  (confirm)'],
       ['Handover', 'Q1 2028'], ['Payment plan', '30 / 70 · 20% on booking'],
-      ['Service charge', 'To confirm']
+      ['Service charge', 'AED 15 / sqft']
     ]
   });
   s.addText([
@@ -519,9 +520,9 @@ function cards(s, y, h, items) {
     rows: [
       ['Average gross rental estimate', '80,000', '€18,648'],
       ['Unit size', '837.54 sqft', '—'],
-      ['Service charge', '11,726', '€2,733'],
-      ['Net rental estimate', '68,274', '€15,915'],
-      [{ t: 'Net rental yield', total: true }, { t: '5.7%', total: true }, { t: '', total: true }]
+      ['Service charge · AED 15/sqft', '12,563', '€2,928'],
+      ['Net rental estimate', '67,437', '€15,720'],
+      [{ t: 'Net rental yield', total: true }, { t: '5.6%', total: true }, { t: '', total: true }]
     ]
   });
   callout(s, {
@@ -531,8 +532,8 @@ function cards(s, y, h, items) {
   });
   callout(s, {
     x: 7.0, y: 3.6, w: 5.68, h: 1.0, size: 10.5,
-    rich: [{ text: 'The two estimates. ', options: { bold: true, color: INK } },
-           { text: "Service charge at AED 14/sqft is modelled, not published. Gross rent of AED 80,000 is mid-range for a JVC 1BR — the range is 74–86k.", options: {} }]
+    rich: [{ text: 'One estimate left. ', options: { bold: true, color: INK } },
+           { text: "The service charge is published at AED 15/sqft. Only the rent is modelled: AED 80,000 is mid-range for a JVC 1BR, where the range is 74–86k.", options: {} }]
   });
   statRow(s, 5.05, [
     { v: 'Q1 2028', l: 'Handover · earliest' }, { v: '837', u: 'sqft', l: 'Largest 1 BR' },
@@ -707,8 +708,8 @@ function cards(s, y, h, items) {
   });
   callout(s, {
     x: 7.0, y: 3.6, w: 5.68, h: 1.0, size: 10.5,
-    rich: [{ text: 'Assumptions. ', options: { bold: true, color: INK } },
-           { text: 'Service charge modelled at AED 14/sqft — unpublished, and the amenity load is heavy. At AED 25/sqft the net yield falls to roughly 5.4%.', options: {} }]
+    rich: [{ text: 'The one still unpublished. ', options: { bold: true, color: 'E0A45C' } },
+           { text: 'Arancia is the only one of the three with no service charge on record, so AED 15/sqft is modelled — matching Floareá. Its amenity and landscape load is the heaviest, so the real figure could be higher: at AED 25/sqft the yield falls to ~5.4%.', options: {} }]
   });
   statRow(s, 5.05, [
     { v: '2029', l: 'Handover · longest wait' }, { v: '272', l: 'Units in phase' },
@@ -768,7 +769,7 @@ function cards(s, y, h, items) {
       ['Location', 'DLRC, Wadi Al Safa 5'], ['Types', 'Studio · 1 BHK · 2 BHK'],
       ['Configuration', '3B + G + M + 3P + 21 floors'], ['Total units', '414'],
       ['Handover', 'Q4 2028'], ['Parking', '1 space per apartment'],
-      ['Furnishing', 'Fully furnished, smart home'], ['Service charge', 'To confirm']
+      ['Furnishing', 'Fully furnished, smart home'], ['Service charge', 'AED 12 / sqft (confirm)']
     ]
   });
   s.addText([
@@ -803,8 +804,8 @@ function cards(s, y, h, items) {
       ['Admin fee', '5,250', '€1,224'],
       ['Average price / sqft', '1,657', '€386'],
       [{ t: 'Total', total: true }, { t: '566,850', total: true }, { t: '€132,133', total: true }],
-      ['Net rental estimate', '37,439', '€8,727'],
-      [{ t: 'Net rental yield', total: true }, { t: '6.6%', total: true, c: VERDICT }, { t: '', total: true }]
+      ['Net rental estimate', '38,090', '€8,879'],
+      [{ t: 'Net rental yield', total: true }, { t: '6.7%', total: true, c: VERDICT }, { t: '', total: true }]
     ]
   });
   caption(s, '1 Bedroom · 550 sqft · price estimated', 7.0, 1.14, 5.68);
@@ -817,8 +818,8 @@ function cards(s, y, h, items) {
       ['Admin fee', '5,250', '€1,224'],
       ['Average price / sqft', '1,454', '€339'],
       [{ t: 'Total', total: true }, { t: '837,250', total: true }, { t: '€195,163', total: true }],
-      ['Net rental estimate', '52,295', '€12,190'],
-      [{ t: 'Net rental yield', total: true }, { t: '6.2%', total: true }, { t: '', total: true }]
+      ['Net rental estimate', '53,396', '€12,447'],
+      [{ t: 'Net rental yield', total: true }, { t: '6.4%', total: true }, { t: '', total: true }]
     ]
   });
   callout(s, {
@@ -835,7 +836,7 @@ function cards(s, y, h, items) {
     { v: '2028', l: 'Handover' }, { v: '414', l: 'Units · most' },
     { v: '1%', u: '/month', l: 'For 30 months' }, { v: '1', u: 'min', l: 'To Blue Line metro' }
   ], CEL);
-  disclaimer(s, 'FX 1 EUR = 4.29 AED. Service charge modelled at AED 14/sqft. Net yield is net rental divided by total cost including fees. Not financial advice.');
+  disclaimer(s, 'FX 1 EUR = 4.29 AED. Service charge AED 12/sqft, published for Celesto Tower — confirm for Celesto 4. Net yield is net rental divided by total cost including fees. Not financial advice.');
 }
 
 /* 18 — trade-offs */
@@ -852,14 +853,14 @@ function cards(s, y, h, items) {
       "JVC is Dubai's most crowded pipeline: 16,800–22,000 units to 2028, so rents may soften 5–10% at handover",
       '70% falls due on completion — the largest single payment of the three, usually the point a mortgage is drawn',
       'Highest all-in cost of the three at AED 1.2M, and the lowest modelled net yield at 5.7%',
-      'Service charge unpublished on a heavily amenitised rooftop'
+      'Service charge is the highest of the three at AED 15/sqft — the rooftop pool and meditation deck cost something to run'
     ] },
     { hue: ARA, title: 'Arancia', kicker: 'The catch', bullets: [
       'Q1 2029 handover — the longest wait. Four years before a dirham of rent',
       "1,560 units across the masterplan: resale competes with the developer's own later phases",
       'Inland City of Arabia — resale depends on the community delivering as drawn',
       'Not furnished, unlike the other two',
-      'Heaviest amenity load with no published service charge'
+      'The only one with no published service charge, and the heaviest amenity and landscape load'
     ] },
     { hue: CEL, title: 'Celesto Tower 4', kicker: 'The catch', bullets: [
       '414 units in one building — at handover the 1BR competes with 179 identical neighbours',
@@ -911,7 +912,7 @@ function cards(s, y, h, items) {
   callout(s, {
     x: MX, y: 5.86, w: CW, h: 0.94, size: 11,
     rich: [{ text: 'My read, and it changed once the real Floareá numbers came in: ', options: { bold: true, color: INK } },
-           { text: 'on a live sales offer Floareá prices at AED 1.2M all-in for 837 sqft — the largest unit and the earliest keys, but the lowest modelled yield at 5.7%. For a yield-first buyer the answer is now Celesto 4, subject to its price list. For space, earliest handover and least capital tied up, it is Floareá. ', options: {} },
+           { text: 'on a live sales offer Floareá prices at AED 1.2M all-in for 837 sqft — the largest unit and the earliest keys, but the lowest yield at 5.6%. For a yield-first buyer the answer is now Celesto 4, and its lead widened once the published service charges came in (12/sqft against 15). For space, earliest handover and least capital tied up, it is Floareá. ', options: {} },
            { text: 'What would change it again: ', options: { bold: true, color: INK } },
            { text: "Celesto's 1BR price is unconfirmed — above AED 900,000 its yield advantage largely disappears and Arancia takes it.", options: {} }]
   });
@@ -965,13 +966,13 @@ function cards(s, y, h, items) {
     { hue: FLO, title: 'Floareá Skies', bullets: [
       '1 BR now confirmed from sales offer FS 611 — price, size, plan, fees, Q1 2028',
       '2 BR price list and sizes — needed',
-      'Service charge per sqft in writing',
+      'Service charge AED 15/sqft published — confirm in writing',
       'Total unit count (192?) — not in the brochure',
       'Kitchen spec — blank on the deliverables sheet',
       'Is FS 611 still available, or an indicative unit?'
     ] },
     { hue: ARA, title: 'Arancia', bullets: [
-      'Service charge per sqft — at AED 25 the yield drops to ~5.4%',
+      'Service charge — the only one unpublished. At AED 25 the yield drops to ~5.4%',
       '2 BR: confirm the AED 2.1M and get sizes per unit type',
       "1BR entry: AED 1.0M on portals vs 1.1M on BEYOND's own site",
       'Drive times to Dubai Mall and DXB — unverified, so omitted',
@@ -979,8 +980,8 @@ function cards(s, y, h, items) {
       'Spelling — it is Arancia, not Anarcia'
     ] },
     { hue: CEL, title: 'Celesto Tower 4', bullets: [
-      '1BR and 2BR price list — the blocker',
-      'Service charge per sqft',
+      '1BR price list — still the blocker (2BR confirmed at 1.32M)',
+      "Service charge — AED 12/sqft is Celesto Tower's rate; confirm for Celesto 4",
       'Is the 4% DLD payable or waived? AED 32k of difference',
       "Al Tarrad's delivery record on Celesto 1–3",
       'Escrow and RERA/DDA registration',

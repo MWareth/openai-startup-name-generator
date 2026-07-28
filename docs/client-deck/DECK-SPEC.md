@@ -160,7 +160,8 @@ figure online is the *earlier* Celesto Tower project, not Celesto 4 — do not c
 | 1BR size | **837.54 sqft** | 750–762 sqft | 550–598 sqft |
 | 1BR all-in | AED 1,204,160 | AED 1,045,250 | **~837,250 (est)** |
 | Price/sqft | 1,378 | **1,333** | 1,454 (est) |
-| Net yield | 5.7% | 6.1% | **6.2% (studio 6.6%)** |
+| Net yield | 5.6% | 6.1% | **6.4% (studio 6.7%)** |
+| Service charge/sqft | AED 15 (published) | **unpublished** | AED 12 (Celesto Tower) |
 | Capital pre-handover | **30%** | 40% | 50%, 1%/month |
 | Furnished | **Yes** | No | **Yes** |
 | DLD 4% | Payable (confirmed) | Payable | Confirm |
