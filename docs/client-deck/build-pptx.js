@@ -518,7 +518,7 @@ function cards(s, y, h, items) {
     x: 7.0, y: 1.5, w: 5.68, colW: [2.88, 1.4, 1.4], rowH: 0.315, size: 10.5,
     head: ['Annual', 'AED', 'EURO'],
     rows: [
-      ['Average gross rental estimate', '80,000', '€18,648'],
+      ['Average gross rental', '80,000', '€18,648'],
       ['Unit size', '837.54 sqft', '—'],
       ['Service charge · AED 15/sqft', '12,563', '€2,928'],
       ['Net rental estimate', '67,437', '€15,720'],
@@ -532,8 +532,8 @@ function cards(s, y, h, items) {
   });
   callout(s, {
     x: 7.0, y: 3.6, w: 5.68, h: 1.0, size: 10.5,
-    rich: [{ text: 'One estimate left. ', options: { bold: true, color: INK } },
-           { text: "The service charge is published at AED 15/sqft. Only the rent is modelled: AED 80,000 is mid-range for a JVC 1BR, where the range is 74–86k.", options: {} }]
+    rich: [{ text: 'Nothing on this page is an estimate. ', options: { bold: true, color: INK } },
+           { text: "Price, fees and plan come from the sales offer; the service charge is published at AED 15/sqft; the rent is confirmed at AED 80,000. Floareá is the only one of the three where every line is evidenced.", options: {} }]
   });
   statRow(s, 5.05, [
     { v: 'Q1 2028', l: 'Handover · earliest' }, { v: '837', u: 'sqft', l: 'Largest 1 BR' },
@@ -966,7 +966,7 @@ function cards(s, y, h, items) {
     { hue: FLO, title: 'Floareá Skies', bullets: [
       '1 BR now confirmed from sales offer FS 611 — price, size, plan, fees, Q1 2028',
       '2 BR price list and sizes — needed',
-      'Service charge AED 15/sqft published — confirm in writing',
+      'Service charge AED 15/sqft published, rent confirmed at 80k — 1 BR fully evidenced',
       'Total unit count (192?) — not in the brochure',
       'Kitchen spec — blank on the deliverables sheet',
       'Is FS 611 still available, or an indicative unit?'
