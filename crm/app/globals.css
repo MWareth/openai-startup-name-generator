@@ -258,9 +258,20 @@ p { margin: 0 0 10px; }
   border-radius: var(--radius);
   padding: 18px;
   box-shadow: var(--shadow);
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+}
+/* Stat cards lift on hover — they read as "live numbers", not static paper. */
+.card.stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(14, 32, 56, 0.10);
+  border-color: #cfd8e5;
 }
 .stat { display: flex; flex-direction: column; gap: 4px; }
-.stat .value { font-size: 1.6rem; font-weight: 700; }
+.stat .value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums; /* digits stop jittering as they change */
+}
 
 /* Buttons */
 .btn {
@@ -273,9 +284,15 @@ p { margin: 0 0 10px; }
   font-size: 0.92rem;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.08s ease, box-shadow 0.15s ease;
 }
-.btn:hover { background: var(--brand-2); text-decoration: none; }
-.btn:disabled { opacity: 0.6; cursor: progress; }
+.btn:hover { background: var(--brand-2); text-decoration: none; box-shadow: 0 2px 8px rgba(14, 32, 56, 0.16); }
+.btn:active { transform: scale(0.97); box-shadow: none; }  /* real press feedback */
+.btn:disabled { opacity: 0.6; cursor: progress; transform: none; }
+.btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
 .btn.secondary { background: var(--panel-2); color: var(--text); border: 1px solid var(--border); }
 .btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); }
 .btn.gold { background: var(--gold); color: #1a1407; }
@@ -456,3 +473,86 @@ input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity
 
 /* Locked (read-only) contact fields for agents */
 input.locked, .locked { background: var(--panel-2); color: var(--muted); cursor: not-allowed; }
+
+/* ==========================================================================
+   Motion layer — makes the app feel responsive rather than static.
+   Everything here respects prefers-reduced-motion (see the bottom of the file).
+   ========================================================================== */
+
+/* Content fades up on navigation, so pages arrive instead of snapping in. */
+.content > * { animation: rise 0.28s ease both; }
+@keyframes rise {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Stagger the cards in a stack so a dashboard assembles itself. */
+.stack > * { animation: rise 0.32s ease both; }
+.stack > *:nth-child(1) { animation-delay: 0.02s; }
+.stack > *:nth-child(2) { animation-delay: 0.06s; }
+.stack > *:nth-child(3) { animation-delay: 0.10s; }
+.stack > *:nth-child(4) { animation-delay: 0.14s; }
+.stack > *:nth-child(5) { animation-delay: 0.18s; }
+.stack > *:nth-child(n+6) { animation-delay: 0.20s; }
+
+/* Table rows: clearer hover, and a sticky header so long lead lists keep
+   their column names while you scroll. */
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--panel);
+  z-index: 1;
+}
+tbody tr { transition: background 0.12s ease; }
+tbody tr:hover { background: var(--panel-2); }
+
+/* Nav items slide slightly toward the content on hover. */
+.nav a { transition: background 0.15s ease, padding-left 0.15s ease, color 0.15s ease; }
+.nav a:hover { padding-left: 16px; }
+
+/* Alerts arrive rather than shoving the layout. */
+.alert { animation: slideDown 0.25s ease both; }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Unread bell count pulses so a new lead is noticeable without a sound. */
+.bell-count { animation: pulse 2s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.12); }
+}
+
+/* Badges lift a touch on hover — signals they're meaningful, not decoration. */
+.badge { transition: transform 0.12s ease; }
+.badge:hover { transform: translateY(-1px); }
+
+/* Skeleton placeholders for loading.js files: shimmer instead of a blank page. */
+.skeleton {
+  background: linear-gradient(90deg, var(--panel-2) 25%, #e6ebf2 50%, var(--panel-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius: 8px;
+  height: 14px;
+}
+.skeleton.title { height: 24px; width: 40%; }
+.skeleton.card-block { height: 90px; }
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to   { background-position: -200% 0; }
+}
+
+/* Progress bars animate to their value instead of appearing at it. */
+.bar > span { transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Respect the OS setting: no motion for people who asked for none. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .nav a:hover { padding-left: 12px; }
+}

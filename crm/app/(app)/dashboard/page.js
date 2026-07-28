@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import CountUp from '@/components/CountUp';
 import { redirect } from 'next/navigation';
 import { requireUser, hasAdminAccess } from '@/lib/auth';
 import { getTargetProgress } from '@/lib/targets';
@@ -119,7 +120,7 @@ export default async function Dashboard() {
           </div>
           <div className="row" style={{ gap: 14, alignItems: 'center' }}>
             <div style={{ textAlign: 'center' }}>
-              <div className="value" style={{ fontSize: '1.8rem', lineHeight: 1 }}>{myColdThisMonth}</div>
+              <div className="value" style={{ fontSize: '1.8rem', lineHeight: 1 }}><CountUp value={myColdThisMonth} /></div>
               <div className="small muted">this month</div>
             </div>
             <Link className="btn secondary small" href="/cold-calls">Leaderboard →</Link>
@@ -129,7 +130,7 @@ export default async function Dashboard() {
 
       {/* Performance */}
       <div className="grid grid-3">
-        <div className="card stat"><span className="muted small">Open leads</span><span className="value">{open.length}</span></div>
+        <div className="card stat"><span className="muted small">Open leads</span><span className="value"><CountUp value={open.length} /></span></div>
         <div className="card stat"><span className="muted small">Sales this month</span><span className="value" style={{ fontSize: '1.4rem' }}>{aed(monthValue)}</span></div>
         <div className="card stat"><span className="muted small">Leaderboard rank</span><span className="value">{rank ? `#${rank}` : '—'}{teamCount ? <span className="small muted"> / {teamCount}</span> : null}</span></div>
       </div>
@@ -310,9 +311,9 @@ async function AdminDashboard({ supabase, name }) {
       <h1>{greetingNow()}, {name?.split(' ')[0] || 'there'} 👋</h1>
       <MotivationCard />
       <div className="grid grid-3">
-        <div className="card stat"><span className="muted small">Agents</span><span className="value">{agentCount ?? 0}</span></div>
-        <div className="card stat"><span className="muted small">Leads</span><span className="value">{leadCount ?? 0}</span></div>
-        <div className="card stat"><span className="muted small">Deals closed — {qShort}</span><span className="value">{quartersDeals[curQ]}</span></div>
+        <div className="card stat"><span className="muted small">Agents</span><span className="value"><CountUp value={agentCount ?? 0} /></span></div>
+        <div className="card stat"><span className="muted small">Leads</span><span className="value"><CountUp value={leadCount ?? 0} /></span></div>
+        <div className="card stat"><span className="muted small">Deals closed — {qShort}</span><span className="value"><CountUp value={quartersDeals[curQ]} /></span></div>
         <div className="card stat" style={{ borderColor: 'var(--brand)' }}><span className="muted small">Sales value — {qLabels[curQ]}</span><span className="value">{aed(quarters[curQ])}</span></div>
         <div className="card stat"><span className="muted small">Company commission — {qShort}</span><span className="value">{aed(quartersCompany[curQ])}</span></div>
       </div>
