@@ -170,8 +170,14 @@ Floareá's row is from sales offer S 611 (18 Jul 2026) — confirmed, not estima
 ## Two-bedroom
 | | Floareá | Arancia | Celesto 4 |
 |---|---|---|---|
-| Size | to confirm | 1,100–1,179 sqft | 852–1,070 sqft |
-| Price from | **price list needed** | AED 2,100,000 | **price list needed** |
+| Price from | AED 1,900,000 | AED 2,100,000 | **AED 1,320,000** |
+| Size | **size needed** | 1,100–1,179 sqft | 852–1,070 sqft |
+| Price/sqft | needs size | 1,909 | **1,550** |
+| Step-up vs own 1BR/sqft | needs size | +43% | **+7%** |
+| All-in (price + 4% DLD + admin) | 1,980,000 | 2,189,250 | **1,378,050** |
+
+**Key finding:** Celesto's 2BR is 851.64 sqft — 14 sqft larger than Floareá's *1BR* (837.54)
+for AED 173,890 more all-in. Same footprint, extra bedroom.
 | Units of type | to confirm | to confirm | 72 of 414 |
 
 **Three genuinely different propositions, not a ranking:**
@@ -184,9 +190,9 @@ Floareá's row is from sales offer S 611 (18 Jul 2026) — confirmed, not estima
 ## Data still needed
 | Project | Outstanding |
 |---|---|
-| Floareá Skies | **2 BR price list + sizes** · service charge · unit count · kitchen spec · is FS 611 still available (1 BR now confirmed) |
+| Floareá Skies | **2 BR sizes (price confirmed at 1.9M)** · service charge · unit count · kitchen spec · is FS 611 still available (1 BR now confirmed) |
 | Arancia | service charge · confirm 1BR entry (1.0M vs 1.1M) · **2 BR sizes** · drive times · handover quarter · **render files (pasted images can't be read — send as attachments)** |
-| Celesto 4 | **1BR + 2BR price list** · service charge · DLD status · Celesto 1–3 delivery record |
+| Celesto 4 | **1BR price list (2BR confirmed at 1.32M)** · service charge · DLD status · Celesto 1–3 delivery record |
 
 **Common to all three: service charge in writing.** It moves net yield 0.7–1.0 points and is
 unpublished for every one of them.
