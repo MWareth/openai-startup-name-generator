@@ -92,9 +92,17 @@ airport transfers.
 
 # The three client projects
 
-## PROJECT 1 — _awaiting data_
-Brochure link `eddy.pro/pdf/7374005` is blocked by this environment's egress policy
-(proxy 403 on CONNECT — not retryable). Need screenshots or the numbers pasted in.
+## PROJECT 1 — **Floareá Skies** by Mashriq Elite Developments
+
+**Slide content written up: [`PROJECT-1-FLOAREA-SKIES.md`](PROJECT-1-FLOAREA-SKIES.md)**
+Sourced from the attached brochure + deliverables PDFs. **17 renders extracted** to
+[`img/floarea/`](img/floarea/README.md).
+
+JVC Dubai · Studio/1BR/2BR · G+4P+19 floors · 192 units (CONFIRM) · Q3–Q4 2027 (CONFIRM) ·
+1BR from AED 1,050,000 / 717 sqft (CONFIRM — not in brochure) · 50/50 payment plan ·
+fully fitted · 4% DLD waiver (CONFIRM)
+
+_(The `eddy.pro/pdf/7374005` link was blocked by egress policy; superseded by the attached PDFs.)_
 
 ## PROJECT 2 — Anarcia → correct name **Arancia at The Yards** by BEYOND (OMNIYAT)
 
