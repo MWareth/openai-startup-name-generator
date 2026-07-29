@@ -610,3 +610,42 @@ export async function refreshVideoStatus(formData) {
   }
   redirect('/content/videos?ok=' + encodeURIComponent('Still rendering — check again in a minute.'));
 }
+
+// Record where a person's in-browser avatar take was uploaded, and tell the
+// admins there's one to review. The file itself went straight from the browser
+// to Storage — a two-minute video is far bigger than a server action can take.
+export async function saveAvatarRecording(path) {
+  const { user, profile } = await requireUser();
+  const clean = String(path || '');
+  // A person may only ever claim a file inside their own folder.
+  if (!clean.startsWith(`${user.id}/`)) return { ok: false, error: 'Invalid recording path.' };
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from('avatar_profiles')
+    .upsert(
+      { user_id: user.id, recording_path: clean, recorded_at: new Date().toISOString() },
+      { onConflict: 'user_id' }
+    );
+  if (error) {
+    const missing = /recording_path|recorded_at/.test(error.message || '');
+    return { ok: false, error: missing ? 'Run migration 0041_avatar_recordings.sql first.' : error.message };
+  }
+
+  const { data: mgrs } = await admin.from('profiles').select('id').in('role', ['admin', 'director', 'c_suite']);
+  for (const m of mgrs || []) {
+    if (m.id === user.id) continue;
+    await notify({
+      userId: m.id,
+      type: 'avatar_recording',
+      title: `🎥 ${profile?.full_name || 'An agent'} sent their avatar recording`,
+      body: 'Ready to review and set up with the avatar provider.',
+      link: '/content/avatar',
+      email: false,
+    });
+  }
+
+  revalidatePath('/content/avatar');
+  revalidatePath('/content');
+  return { ok: true };
+}

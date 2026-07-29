@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireUser } from '@/lib/auth';
 import CopyButton from '@/components/CopyButton';
 import { giveAvatarConsent } from '../actions';
+import AvatarRecorder from '@/components/AvatarRecorder';
 
 export const dynamic = 'force-dynamic';
 
@@ -93,7 +94,19 @@ export default async function AvatarStudioPage({ searchParams }) {
         </div>
       ) : null}
 
-      {/* Step 2 — the recording guide (always visible once consented, for reference) */}
+      {/* Step 2 — record right here, with the script over the camera. */}
+      {consented && !ready ? (
+        <div className="card">
+          <h3 style={{ marginTop: 0 }}>Step 2 · Record it here</h3>
+          <p className="muted" style={{ marginTop: 0 }}>
+            Camera and teleprompter in one — on your phone or your laptop. The script scrolls over the
+            picture so you keep looking at the lens. Nothing to upload or send afterwards.
+          </p>
+          <AvatarRecorder userId={user.id} paragraphs={READ_PARAGRAPHS} />
+        </div>
+      ) : null}
+
+      {/* Prefer to film it properly on a phone and send the file? Still works. */}
       {consented && !ready ? (
         <>
           <div className="card">
