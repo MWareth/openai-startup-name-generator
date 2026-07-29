@@ -81,6 +81,21 @@ export default async function MarketingReportPage({ searchParams }) {
     if (end) retry = retry.lt('created_at', end.toISOString());
     ({ data: leads } = await retry);
   }
+
+  // Spam purged after a week (migration 0039) lives on as an anonymous tally —
+  // source and dates only. Folding it back in here means the junk rate for a
+  // past period stays correct even though the leads themselves are gone, so
+  // the purge never quietly makes a bad campaign look clean.
+  let purgedSpam = [];
+  {
+    let q = admin
+      .from('spam_archive')
+      .select('lead_id, source, property_type, lead_created_at, flagged_at')
+      .gte('lead_created_at', start.toISOString());
+    if (end) q = q.lt('lead_created_at', end.toISOString());
+    const { data } = await q;   // table absent until 0039 is run -> null -> []
+    purgedSpam = data || [];
+  }
   const cohort = (leads || []).filter((l) => ONLINE_SOURCE_RX.test(l.source || ''));
 
   // Everything the team did on this cohort (any date — the lead belongs to the
@@ -100,7 +115,7 @@ export default async function MarketingReportPage({ searchParams }) {
   }
 
   // Per-lead derived facts.
-  const rows = cohort.map((l) => {
+  const liveRows = cohort.map((l) => {
     const acts = actByLead.get(l.id) || [];
     const first = acts[0] || null;
     const noted = [...acts].reverse().find((a) => (a.body || '').trim());
@@ -110,8 +125,33 @@ export default async function MarketingReportPage({ searchParams }) {
     return { ...l, acts, contacted: acts.length > 0, respMin, meetings, lastNote: noted || null };
   });
 
+  // Purged spam, shaped like a lead row so every tally below counts it exactly
+  // as it did before the purge. No contact details survive — there is nothing
+  // to link to and no agent note to show.
+  const purgedRows = purgedSpam
+    .filter((s) => ONLINE_SOURCE_RX.test(s.source || ''))
+    .map((s) => ({
+      id: `purged-${s.lead_id}`,
+      name: 'Purged spam',
+      source: s.source,
+      property_type: s.property_type,
+      status: 'lost',
+      qualification: 'cold',
+      created_at: s.lead_created_at,
+      is_fake: true,
+      purged: true,
+      acts: [],
+      contacted: false,
+      respMin: null,
+      meetings: 0,
+      lastNote: null,
+      assigned: null,
+      budget: null,
+    }));
+
   // Fake / spam leads are hidden from the Leads list but MUST stay visible
   // here — the junk rate is the most important quality signal marketing gets.
+  const rows = [...liveRows, ...purgedRows];
   const fakes = rows.filter((r) => r.is_fake);
   const contacted = rows.filter((r) => r.contacted);
   const respTimes = rows.map((r) => r.respMin).filter((m) => m != null);
@@ -176,7 +216,10 @@ export default async function MarketingReportPage({ searchParams }) {
         <Stat label="Won / Lost" value={`${count((r) => r.status === 'won')} / ${count((r) => r.status === 'lost')}`} />
       </div>
       <div className="card stat" style={{ borderColor: fakes.length ? 'var(--red)' : undefined }}>
-        <span className="muted small">🚫 Fake / spam (flagged by the team — hidden from Leads, counted here)</span>
+        <span className="muted small">
+          🚫 Fake / spam (flagged by the team — hidden from Leads, counted here).
+          Deleted from the system a week after flagging; the count stays.
+        </span>
         <span className="value" style={{ fontSize: '1.5rem', color: fakes.length ? 'var(--red)' : undefined }}>
           {fakes.length} ({pctOf(fakes.length)}% of leads in)
         </span>
@@ -256,9 +299,16 @@ export default async function MarketingReportPage({ searchParams }) {
           {rows.length ? rows.map((r) => (
             <div key={r.id} style={{ borderBottom: '1px solid var(--border)', paddingBottom: 10 }}>
               <div className="row" style={{ gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                <Link href={`/leads/${r.id}`}><strong>{r.name}</strong></Link>
+                {r.purged
+                  ? <strong className="muted">{r.name}</strong>
+                  : <Link href={`/leads/${r.id}`}><strong>{r.name}</strong></Link>}
                 {r.is_fake ? (
                   <span className="badge" style={{ background: 'var(--red)', color: '#fff' }}>🚫 Fake</span>
+                ) : null}
+                {r.purged ? (
+                  <span className="badge status" title="Deleted from the system a week after it was flagged — only the count remains">
+                    🗑️ deleted
+                  </span>
                 ) : null}
                 {qualBadge(r.qualification)}
                 <span className="badge status">{STATUS_LABELS[r.status] || r.status}</span>

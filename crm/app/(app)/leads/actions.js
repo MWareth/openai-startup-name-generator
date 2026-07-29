@@ -556,7 +556,7 @@ export async function markLeadFake(formData) {
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/leads');
   revalidatePath('/marketing-report');
-  redirect('/leads?ok=' + encodeURIComponent('Flagged as fake — hidden from Leads, still counted in the marketing report.'));
+  redirect('/leads?ok=' + encodeURIComponent('Flagged as fake — hidden from Leads and deleted in 7 days. It stays counted in the marketing report.'));
 }
 
 // Undo a fake flag (mis-flagged lead): back into the working list as Contacted.
