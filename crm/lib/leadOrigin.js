@@ -8,24 +8,28 @@ export const ORIGINS = [
   {
     id: 'campaign',
     label: 'Online campaign',
+    tab: 'Campaign leads',
     icon: '🌐',
     hint: 'Came in from paid ads or social — marketing generated it.',
   },
   {
     id: 'follow_up',
     label: 'Follow-up',
+    tab: 'Follow Ups',
     icon: '🔁',
     hint: 'Re-engaged from the existing database — an old enquiry, past client or dormant contact.',
   },
   {
     id: 'cold_call',
     label: 'Cold call',
+    tab: 'Cold Leads',
     icon: '📞',
     hint: 'Brand-new conversation the agent started themselves.',
   },
   {
     id: 'other',
     label: 'Other',
+    tab: 'Other leads',
     icon: '📋',
     hint: 'Portal subscription, referral, walk-in — anything else.',
   },

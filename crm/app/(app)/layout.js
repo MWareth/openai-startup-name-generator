@@ -64,11 +64,11 @@ export default async function AppLayout({ children }) {
               <span className="badge" style={{ background: 'var(--gold)', color: '#1a1407', marginLeft: 6 }}>{unread}</span>
             ) : null}
           </NavLink>
-          <NavLink href="/leads">Leads</NavLink>
-          {/* Same list, pre-filtered by how the lead was generated — so the
-              outbound work doesn't get lost among the campaign leads. */}
-          <NavLink href="/leads?origin=follow_up">🔁 Follow-ups</NavLink>
-          <NavLink href="/leads?origin=cold_call">📞 Cold call leads</NavLink>
+          {/* Recent Leads is the whole book. The two below are views onto it,
+              filtered by the tag set on the row or when the lead was added. */}
+          <NavLink href="/leads">Recent Leads</NavLink>
+          <NavLink href="/leads?origin=follow_up">🔁 Follow Ups</NavLink>
+          <NavLink href="/leads?origin=cold_call">📞 Cold Leads</NavLink>
           <NavLink href="/projects">Projects</NavLink>
           <NavLink href="/content">🎬 Content Studio</NavLink>
           <NavLink href="/proposal">Proposal</NavLink>

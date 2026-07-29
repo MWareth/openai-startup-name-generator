@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { requireUser, canRouteLeads } from '@/lib/auth';
 import { QUAL_LABELS, STATUS_LABELS, formatDate } from '@/lib/format';
 import LeadFilters from '@/components/LeadFilters';
-import { originMeta } from '@/lib/leadOrigin';
+import { originMeta, deriveOrigin } from '@/lib/leadOrigin';
+import OriginPicker from '@/components/OriginPicker';
 
 export const dynamic = 'force-dynamic';
 
@@ -135,14 +136,16 @@ export default async function LeadsPage({ searchParams }) {
       <div className="spread">
         <div>
           <h1>
-            {showingFake ? '🚫 Fake / spam leads' : activeOrigin ? `${activeOrigin.icon} ${activeOrigin.label} leads` : 'Leads'}
+            {showingFake ? '🚫 Fake / spam leads' : activeOrigin ? `${activeOrigin.icon} ${activeOrigin.tab}` : 'Recent Leads'}
           </h1>
           <p className="muted">
             {showingFake
               ? 'Flagged as junk and hidden from the working list — still counted in the marketing report.'
               : activeOrigin
-                ? `${activeOrigin.hint}${isAdmin ? '' : ' Assigned to you.'}`
-                : isAdmin ? 'All leads across the team.' : 'Leads assigned to you.'}
+                ? `${activeOrigin.hint} Tagged from Recent Leads or when the lead is added.`
+                : isAdmin
+                  ? 'Every lead across the team. Tag one as a follow-up or a cold lead with the “Type of lead” column.'
+                  : 'Every lead assigned to you. Tag one as a follow-up or a cold lead with the “Type of lead” column.'}
           </p>
         </div>
         <div className="row" style={{ gap: 8 }}>
@@ -170,6 +173,7 @@ export default async function LeadsPage({ searchParams }) {
                 <th>Name</th>
                 <th>Qual</th>
                 <th>Status</th>
+                <th>Type of lead</th>
                 <th>Type</th>
                 <th>Bedrooms</th>
                 <th>Project</th>
@@ -189,6 +193,7 @@ export default async function LeadsPage({ searchParams }) {
                   </td>
                   <td><span className={`badge ${l.qualification}`}>{QUAL_LABELS[l.qualification]}</span></td>
                   <td><span className={`badge ${l.status === 'won' ? 'won' : l.status === 'lost' ? 'lost' : 'status'}`}>{STATUS_LABELS[l.status]}</span></td>
+                  <td><OriginPicker leadId={l.id} value={l.origin || deriveOrigin(l.source)} /></td>
                   <td className="small">{l.property_type || <span className="muted">—</span>}</td>
                   <td className="small">{l.bedrooms || <span className="muted">—</span>}</td>
                   <td className="small">{l.property_interest || <span className="muted">—</span>}</td>

@@ -787,3 +787,23 @@ function emptyToNull(v) {
   const s = String(v ?? '').trim();
   return s === '' ? null : s;
 }
+
+// Mark a lead as a follow-up / cold lead straight from the Recent Leads list.
+// This is the tagging step: every lead lands in Recent, and this is how it gets
+// pulled into the Follow Ups or Cold Leads tab without opening it.
+export async function setLeadOrigin(formData) {
+  const { supabase } = await requireUser();
+  const leadId = String(formData.get('lead_id'));
+  const picked = String(formData.get('origin') || '').trim();
+  if (!ORIGIN_IDS.includes(picked)) return { ok: false };
+
+  const { error } = await supabase.from('leads').update({ origin: picked }).eq('id', leadId);
+  if (error) {
+    // Migration 0040 not applied — say so instead of silently doing nothing.
+    return { ok: false, error: /origin/.test(error.message || '') ? 'Run migration 0040_lead_origin.sql first.' : error.message };
+  }
+  revalidatePath('/leads');
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath('/cold-calls');
+  return { ok: true };
+}
