@@ -13,6 +13,7 @@ import {
   waLink,
   DEAL_PROPERTY_TYPES,
 } from '@/lib/format';
+import { ORIGINS, deriveOrigin } from '@/lib/leadOrigin';
 import { addActivity, updateLeadDetails, deleteLead, suggestReassign, logDeal, markLeadWon, markLeadFake, unmarkLeadFake } from '../actions';
 import DictateField from '@/components/DictateField';
 import TranslateButton from '@/components/TranslateButton';
@@ -251,6 +252,20 @@ export default async function LeadDetail({ params, searchParams }) {
                 </div>
                 <div className="field"><label>Email</label>
                   <input name="email" type="email" defaultValue={lead.email || ''} readOnly={lockField(lead.email)} className={lockField(lead.email) ? 'locked' : undefined} />
+                </div>
+              </div>
+              <div className="field">
+                <label>How the lead was generated</label>
+                <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+                  {ORIGINS.map((o) => (
+                    <label key={o.id} title={o.hint} className="badge status"
+                      style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 11px', fontSize: '0.88rem' }}>
+                      <input type="radio" name="origin" value={o.id}
+                        defaultChecked={(lead.origin || deriveOrigin(lead.source)) === o.id}
+                        style={{ width: 'auto', margin: 0 }} />
+                      {o.icon} {o.label}
+                    </label>
+                  ))}
                 </div>
               </div>
               <div className="form-grid">

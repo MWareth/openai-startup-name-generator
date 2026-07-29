@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireUser, canRouteLeads } from '@/lib/auth';
 import { QUAL_LABELS, STATUS_LABELS, formatDate } from '@/lib/format';
 import LeadFilters from '@/components/LeadFilters';
+import { originMeta } from '@/lib/leadOrigin';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +22,7 @@ export default async function LeadsPage({ searchParams }) {
     status: searchParams?.status || '',
     budget: searchParams?.budget || '',
     sort: searchParams?.sort || 'recent',
+    origin: searchParams?.origin || '',
   };
 
   // Agents (and the selling owner) for the Agent filter dropdown.
@@ -34,11 +36,12 @@ export default async function LeadsPage({ searchParams }) {
   // them up with ?fake=1 to review or un-flag; they stay in the DB either way
   // so the marketing report can still count them.
   const showingFake = isAdmin && searchParams?.fake === '1';
+  const activeOrigin = originMeta(searchParams?.origin || '');
 
   // Built as a function so the whole query can be re-run without the is_fake
   // filter if migration 0037 hasn't been applied — the Leads list must never
   // break over an optional column.
-  const buildQuery = (withFakeFilter) => {
+  const buildQuery = (withFakeFilter, withOrigin = true) => {
     let q = supabase
       .from('leads')
       .select(
@@ -48,11 +51,12 @@ export default async function LeadsPage({ searchParams }) {
       if (showingFake) q = q.eq('is_fake', true);
       else q = q.or('is_fake.is.null,is_fake.eq.false');
     }
-    return applyFilters(q);
+    return applyFilters(q, withOrigin);
   };
 
-  const applyFilters = (q0) => {
+  const applyFilters = (q0, withOrigin = true) => {
     let q = q0;
+    if (withOrigin && values.origin) q = q.eq('origin', values.origin);
     if (values.name) q = q.ilike('name', `%${values.name}%`);
     if (values.agent) q = q.eq('assigned_agent_id', values.agent);
     if (values.type) q = q.eq('property_type', values.type);
@@ -96,7 +100,12 @@ export default async function LeadsPage({ searchParams }) {
 
   let { data: leads, error: leadsErr } = await buildQuery(true);
   if (leadsErr && /is_fake/.test(leadsErr.message || '')) {
-    ({ data: leads } = await buildQuery(false)); // migration 0037 not applied yet
+    ({ data: leads, error: leadsErr } = await buildQuery(false)); // migration 0037 not applied yet
+  }
+  if (leadsErr && /origin/.test(leadsErr.message || '')) {
+    // migration 0040 not applied yet — show the unfiltered list rather than an error
+    ({ data: leads, error: leadsErr } = await buildQuery(true, false));
+    if (leadsErr) ({ data: leads } = await buildQuery(false, false));
   }
 
   // Distinct client names (visible to this user) for the search autocomplete.
@@ -125,11 +134,15 @@ export default async function LeadsPage({ searchParams }) {
       {error ? <div className="alert error">{error}</div> : null}
       <div className="spread">
         <div>
-          <h1>{showingFake ? '🚫 Fake / spam leads' : 'Leads'}</h1>
+          <h1>
+            {showingFake ? '🚫 Fake / spam leads' : activeOrigin ? `${activeOrigin.icon} ${activeOrigin.label} leads` : 'Leads'}
+          </h1>
           <p className="muted">
             {showingFake
               ? 'Flagged as junk and hidden from the working list — still counted in the marketing report.'
-              : isAdmin ? 'All leads across the team.' : 'Leads assigned to you.'}
+              : activeOrigin
+                ? `${activeOrigin.hint}${isAdmin ? '' : ' Assigned to you.'}`
+                : isAdmin ? 'All leads across the team.' : 'Leads assigned to you.'}
           </p>
         </div>
         <div className="row" style={{ gap: 8 }}>

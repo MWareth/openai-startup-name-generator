@@ -79,7 +79,8 @@ export default function LeadFilters({ agents, values, names = [], projects = [] 
     if (projTimer.current) clearTimeout(projTimer.current);
     setName('');
     setProject('');
-    router.push('/leads');
+    // Clear the filters but stay on the current tab (Cold calls / Follow-ups).
+    router.push(values.origin ? `/leads?origin=${values.origin}` : '/leads');
   }
 
   const bind = (key) => ({

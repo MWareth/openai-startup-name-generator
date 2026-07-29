@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { ORIGIN_IDS, deriveOrigin } from '@/lib/leadOrigin';
 import { redirect } from 'next/navigation';
 import { requireUser, requireStaff, hasAdminAccess, hasStaffAccess, canRouteLeads, STAFF_ROLES } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
@@ -98,6 +99,11 @@ export async function createLead(formData) {
   let source = emptyToNull(formData.get('source'));
   if (source && source.trim().toLowerCase() === 'cold call') source = 'Cold Call';
 
+  // How the lead was generated. Chosen on the form; falls back to a guess from
+  // the source text if the field is missing (older form, or an API intake).
+  const pickedOrigin = String(formData.get('origin') || '').trim();
+  const origin = ORIGIN_IDS.includes(pickedOrigin) ? pickedOrigin : deriveOrigin(source);
+
   // Auto-routing: match the Teams-page rules on budget + property type.
   if (autoRoute) {
     const routed = await pickAgentForLead(createAdminClient(), {
@@ -108,6 +114,7 @@ export async function createLead(formData) {
   }
 
   const insert = {
+    origin,
     name,
     phone,
     email,
@@ -433,8 +440,12 @@ export async function updateLeadDetails(formData) {
   let source = emptyToNull(formData.get('source'));
   if (source && source.trim().toLowerCase() === 'cold call') source = 'Cold Call';
   const budgetRaw = String(formData.get('budget') || '').trim();
+  // Origin is only in the payload when the form actually offered it, so a form
+  // without the field can never blank out an existing value.
+  const pickedOrigin = String(formData.get('origin') || '').trim();
 
   const desired = {
+    ...(ORIGIN_IDS.includes(pickedOrigin) ? { origin: pickedOrigin } : {}),
     name: name || null,
     phone: emptyToNull(formData.get('phone')),
     email: emptyToNull(formData.get('email')),

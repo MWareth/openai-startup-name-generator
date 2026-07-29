@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { requireUser, hasStaffAccess, canCarryLeads } from '@/lib/auth';
 import { PROPERTY_TYPES, BEDROOM_OPTIONS } from '@/lib/format';
 import SubmitButton from '@/components/SubmitButton';
+import { ORIGINS } from '@/lib/leadOrigin';
 import MoneyInput from '@/components/MoneyInput';
 import { createLead } from '../actions';
 
@@ -62,6 +63,29 @@ export default async function NewLeadPage({ searchParams }) {
             <input id="email" name="email" type="email" />
           </div>
         </div>
+        {/* How the lead was generated. Drives the Cold calls / Follow-ups tabs
+            and the contest, so it is asked explicitly rather than guessed from
+            the source text. */}
+        <div className="field">
+          <label>How did you get this lead?</label>
+          <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+            {ORIGINS.map((o, i) => (
+              <label
+                key={o.id}
+                title={o.hint}
+                className="badge status"
+                style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', fontSize: '0.9rem' }}
+              >
+                <input type="radio" name="origin" value={o.id} defaultChecked={i === 0} style={{ width: 'auto', margin: 0 }} />
+                {o.icon} {o.label}
+              </label>
+            ))}
+          </div>
+          <p className="small muted" style={{ margin: '6px 0 0' }}>
+            Cold calls and follow-ups both count towards the cold-call contest.
+          </p>
+        </div>
+
         <div className="form-grid">
           <div className="field">
             <label htmlFor="source">Source</label>

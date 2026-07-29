@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { requireUser } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { SELF_GENERATED } from '@/lib/leadOrigin';
 import Avatar from '@/components/Avatar';
 
 export const dynamic = 'force-dynamic';
@@ -20,11 +21,26 @@ export default async function ColdCallsPage() {
   // Aggregate across all agents (service role) — only counts/names are shown,
   // which is the whole point of a public contest board.
   const admin = createAdminClient();
-  const { data: coldLeads } = await admin
+  // Score on origin (migration 0040), not an exact match on the source text —
+  // "cold call", "Cold-Call" or a stray space used to score nothing at all.
+  // Cold calls and follow-ups are both the agent's own effort, so both count;
+  // they stay in separate columns so working old leads can't be mistaken for
+  // starting new conversations.
+  let { data: coldLeads, error: originErr } = await admin
     .from('leads')
-    .select('id, created_by')
-    .eq('source', 'Cold Call')
+    .select('id, created_by, origin')
+    .in('origin', SELF_GENERATED)
     .gte('created_at', monthStart);
+  const originReady = !originErr;
+  if (originErr) {
+    // Migration 0040 not applied yet — fall back to the old source match.
+    const { data } = await admin
+      .from('leads')
+      .select('id, created_by')
+      .eq('source', 'Cold Call')
+      .gte('created_at', monthStart);
+    coldLeads = (data || []).map((l) => ({ ...l, origin: 'cold_call' }));
+  }
 
   const ids = (coldLeads || []).map((l) => l.id);
   let metSet = new Set();
@@ -36,8 +52,10 @@ export default async function ColdCallsPage() {
   const byAgent = {};
   for (const l of coldLeads || []) {
     const a = l.created_by || 'unknown';
-    byAgent[a] ||= { agent_id: a, cold: 0, meetings: 0 };
-    byAgent[a].cold += 1;
+    byAgent[a] ||= { agent_id: a, cold: 0, followUp: 0, total: 0, meetings: 0 };
+    if (l.origin === 'follow_up') byAgent[a].followUp += 1;
+    else byAgent[a].cold += 1;
+    byAgent[a].total += 1;
     if (metSet.has(l.id)) byAgent[a].meetings += 1;
   }
 
@@ -50,9 +68,11 @@ export default async function ColdCallsPage() {
 
   const board = Object.values(byAgent)
     .map((r) => ({ ...r, full_name: profilesById[r.agent_id]?.full_name || '—', avatar_url: profilesById[r.agent_id]?.avatar_url }))
-    .sort((a, b) => b.cold - a.cold || b.meetings - a.meetings);
+    .sort((a, b) => b.total - a.total || b.cold - a.cold || b.meetings - a.meetings);
 
   const totalCold = board.reduce((s, r) => s + r.cold, 0);
+  const totalFollowUp = board.reduce((s, r) => s + r.followUp, 0);
+  const totalSelf = totalCold + totalFollowUp;
   const totalMeetings = board.reduce((s, r) => s + r.meetings, 0);
 
   return (
@@ -60,13 +80,27 @@ export default async function ColdCallsPage() {
       <div>
         <h1>📞 Cold-call contest</h1>
         <p className="muted">
-          New conversations win deals. Add every cold-call lead (source = <strong>Cold Call</strong>) — most leads
-          and most meetings booked this month takes the crown. {monthLabel}.
+          New conversations win deals. Every lead you add as a <strong>📞 cold call</strong> or a{' '}
+          <strong>🔁 follow-up</strong> scores — they are counted separately so starting a new
+          conversation is never confused with working an old one. Ranked on the combined total,
+          then meetings booked. {monthLabel}.
         </p>
       </div>
 
+      {!originReady ? (
+        <div className="alert" style={{ background: '#fde4e4', border: '1px solid var(--red)', color: '#7f1d1d', padding: '10px 14px', borderRadius: 10 }}>
+          <strong>⚠️ Scoring on the old source text.</strong> Run migration{' '}
+          <code>0040_lead_origin.sql</code> to score on lead origin — until then only leads whose
+          source is exactly “Cold Call” count, and follow-ups don&apos;t count at all.
+        </div>
+      ) : null}
+
       <div className="grid grid-2">
-        <div className="card stat"><span className="muted small">Team cold leads — {monthLabel}</span><span className="value">{totalCold}</span></div>
+        <div className="card stat">
+          <span className="muted small">Team self-generated leads — {monthLabel}</span>
+          <span className="value">{totalSelf}</span>
+          <span className="small muted">📞 {totalCold} cold · 🔁 {totalFollowUp} follow-up</span>
+        </div>
         <div className="card stat"><span className="muted small">Meetings booked from them</span><span className="value">{totalMeetings}</span></div>
       </div>
 
@@ -77,14 +111,16 @@ export default async function ColdCallsPage() {
               <tr>
                 <th>#</th>
                 <th>Agent</th>
-                <th className="right">Cold leads</th>
+                <th className="right">📞 Cold</th>
+                <th className="right">🔁 Follow-up</th>
+                <th className="right">Total</th>
                 <th className="right">Meetings</th>
                 <th className="right">Conversion</th>
               </tr>
             </thead>
             <tbody>
               {board.map((r, i) => {
-                const conv = r.cold > 0 ? Math.round((r.meetings / r.cold) * 100) : 0;
+                const conv = r.total > 0 ? Math.round((r.meetings / r.total) * 100) : 0;
                 const isMe = r.agent_id === user.id;
                 return (
                   <tr key={r.agent_id} style={isMe ? { background: 'var(--panel-2)' } : undefined}>
@@ -96,7 +132,9 @@ export default async function ColdCallsPage() {
                         {isMe ? <span className="badge role">You</span> : null}
                       </span>
                     </td>
-                    <td className="right" style={{ fontWeight: 600 }}>{r.cold}</td>
+                    <td className="right">{r.cold}</td>
+                    <td className="right">{r.followUp}</td>
+                    <td className="right" style={{ fontWeight: 700 }}>{r.total}</td>
                     <td className="right">{r.meetings}</td>
                     <td className="right small muted">{conv}%</td>
                   </tr>
@@ -106,7 +144,7 @@ export default async function ColdCallsPage() {
           </table>
         </div>
       ) : (
-        <div className="card muted">No cold-call leads added yet this month. Add one with source “Cold Call” and you’ll top the board! 🚀</div>
+        <div className="card muted">No self-generated leads yet this month. Add a lead and pick 📞 Cold call or 🔁 Follow-up — you’ll top the board! 🚀</div>
       )}
     </div>
   );

@@ -65,6 +65,10 @@ export default async function AppLayout({ children }) {
             ) : null}
           </NavLink>
           <NavLink href="/leads">Leads</NavLink>
+          {/* Same list, pre-filtered by how the lead was generated — so the
+              outbound work doesn't get lost among the campaign leads. */}
+          <NavLink href="/leads?origin=follow_up">🔁 Follow-ups</NavLink>
+          <NavLink href="/leads?origin=cold_call">📞 Cold call leads</NavLink>
           <NavLink href="/projects">Projects</NavLink>
           <NavLink href="/content">🎬 Content Studio</NavLink>
           <NavLink href="/proposal">Proposal</NavLink>
