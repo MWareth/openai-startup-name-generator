@@ -157,7 +157,7 @@ p { margin: 0 0 10px; }
 .nav-group[open] > summary::after { transform: rotate(90deg); }
 .nav-group-items { display: flex; flex-direction: column; gap: 2px; }
 .sidebar-foot { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
-.content { flex: 1; padding: 28px 32px; max-width: 1100px; }
+.content { flex: 1; padding: 28px 32px; max-width: 1500px; }
 /* Mobile drawer chrome — hidden on desktop, shown in the phone media query. */
 .mobile-bar, .hamburger, .sidebar-close, .sidebar-backdrop { display: none; }
 
@@ -616,3 +616,31 @@ tbody tr:hover { background: var(--panel-2); }
 }
 /* The logo is drawn for a light background — lift it slightly in dark mode. */
 [data-theme='dark'] .brand img, [data-theme='dark'] .mobile-logo { filter: brightness(1.6) contrast(1.05); }
+
+/* Confirmation toast — fixed at the top so it's seen wherever you are in a
+   long list, rather than next to the row that triggered it. */
+.lead-toast {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 11px 18px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(14, 32, 56, 0.18);
+  animation: toastIn 0.22s ease both;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, -10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+@media (max-width: 640px) {
+  .lead-toast { left: 12px; right: 12px; transform: none; white-space: normal; text-align: center; }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: none; }
+  }
+}

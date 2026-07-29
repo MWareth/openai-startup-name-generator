@@ -103,10 +103,14 @@ export default async function LeadsPage({ searchParams }) {
   if (leadsErr && /is_fake/.test(leadsErr.message || '')) {
     ({ data: leads, error: leadsErr } = await buildQuery(false)); // migration 0037 not applied yet
   }
+  // Migration 0040 not applied yet. The filter could not be applied, so the
+  // ONLY honest answer for a filtered tab is an empty list: falling back to the
+  // unfiltered query would show every lead under a "Follow Ups" heading, which
+  // reads as "these are all follow-ups" and is worse than showing nothing.
+  let originUnavailable = false;
   if (leadsErr && /origin/.test(leadsErr.message || '')) {
-    // migration 0040 not applied yet — show the unfiltered list rather than an error
-    ({ data: leads, error: leadsErr } = await buildQuery(true, false));
-    if (leadsErr) ({ data: leads } = await buildQuery(false, false));
+    originUnavailable = true;
+    leads = [];
   }
 
   // Distinct client names (visible to this user) for the search autocomplete.
@@ -162,6 +166,14 @@ export default async function LeadsPage({ searchParams }) {
         </div>
       </div>
 
+      {originUnavailable ? (
+        <div className="alert" style={{ background: '#fde4e4', border: '1px solid var(--red)', color: '#7f1d1d', padding: '10px 14px', borderRadius: 10 }}>
+          <strong>⚠️ Lead types are not set up yet.</strong> Run migration{' '}
+          <code>0040_lead_origin.sql</code> to switch this on. Showing nothing rather than
+          every lead, which would look like they were all {activeOrigin?.tab?.toLowerCase() || 'tagged'}.
+        </div>
+      ) : null}
+
       <LeadFilters agents={agents || []} values={values} names={names} projects={projects} />
 
       <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
@@ -193,7 +205,7 @@ export default async function LeadsPage({ searchParams }) {
                   </td>
                   <td><span className={`badge ${l.qualification}`}>{QUAL_LABELS[l.qualification]}</span></td>
                   <td><span className={`badge ${l.status === 'won' ? 'won' : l.status === 'lost' ? 'lost' : 'status'}`}>{STATUS_LABELS[l.status]}</span></td>
-                  <td><OriginPicker leadId={l.id} value={l.origin || deriveOrigin(l.source)} /></td>
+                  <td><OriginPicker leadId={l.id} leadName={l.name} value={l.origin || deriveOrigin(l.source)} /></td>
                   <td className="small">{l.property_type || <span className="muted">—</span>}</td>
                   <td className="small">{l.bedrooms || <span className="muted">—</span>}</td>
                   <td className="small">{l.property_interest || <span className="muted">—</span>}</td>
@@ -206,8 +218,19 @@ export default async function LeadsPage({ searchParams }) {
           </table>
         ) : (
           <div style={{ padding: 24 }} className="muted">
-            No leads match these filters. <Link href="/leads">Clear filters</Link> or{' '}
-            <Link href="/leads/new">add a lead</Link>.
+            {activeOrigin && !originUnavailable ? (
+              <>
+                Nothing here yet. A lead appears in {activeOrigin.tab} once it&apos;s tagged{' '}
+                <strong>{activeOrigin.icon} {activeOrigin.label}</strong> — set that in the{' '}
+                “Type of lead” column on <Link href="/leads">Recent Leads</Link>, or when you{' '}
+                <Link href="/leads/new">add the lead</Link>.
+              </>
+            ) : (
+              <>
+                No leads match these filters. <Link href="/leads">Clear filters</Link> or{' '}
+                <Link href="/leads/new">add a lead</Link>.
+              </>
+            )}
           </div>
         )}
       </div>

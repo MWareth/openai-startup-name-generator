@@ -66,9 +66,11 @@ export default async function AppLayout({ children }) {
           </NavLink>
           {/* Recent Leads is the whole book. The two below are views onto it,
               filtered by the tag set on the row or when the lead was added. */}
-          <NavLink href="/leads">Recent Leads</NavLink>
-          <NavLink href="/leads?origin=follow_up">🔁 Follow Ups</NavLink>
-          <NavLink href="/leads?origin=cold_call">📞 Cold Leads</NavLink>
+          <NavGroup label="Leads" hrefs={['/leads']} defaultOpen>
+            <NavLink href="/leads">Recent Leads</NavLink>
+            <NavLink href="/leads?origin=follow_up">🔁 Follow Ups</NavLink>
+            <NavLink href="/leads?origin=cold_call">📞 Cold Leads</NavLink>
+          </NavGroup>
           <NavLink href="/projects">Projects</NavLink>
           <NavLink href="/content">🎬 Content Studio</NavLink>
           <NavLink href="/proposal">Proposal</NavLink>
