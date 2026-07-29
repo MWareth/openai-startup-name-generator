@@ -69,14 +69,16 @@ export default async function NewLeadPage({ searchParams }) {
         <div className="field">
           <label>How did you get this lead?</label>
           <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
-            {ORIGINS.map((o, i) => (
+            {ORIGINS.map((o) => (
               <label
                 key={o.id}
                 title={o.hint}
                 className="badge status"
                 style={{ cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', fontSize: '0.9rem' }}
               >
-                <input type="radio" name="origin" value={o.id} defaultChecked={i === 0} style={{ width: 'auto', margin: 0 }} />
+                {/* Defaults to Other, never Campaign: an agent who doesn't
+                    think about this field shouldn't silently credit marketing. */}
+                <input type="radio" name="origin" value={o.id} defaultChecked={o.id === 'other'} style={{ width: 'auto', margin: 0 }} />
                 {o.icon} {o.label}
               </label>
             ))}
