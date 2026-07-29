@@ -21,11 +21,32 @@ function periodStart(key) {
   return new Date(now.getTime() - 30 * 86400000);
 }
 
-function Stat({ label, value, warn }) {
+// `hint` explains how a number is worked out (shown on hover over the label).
+// `leads` turns the number into a drill-down: the names appear on hover and
+// expand into links straight to each lead.
+function Stat({ label, value, warn, hint, leads }) {
+  const names = leads && leads.length ? leads.map((l) => l.name).join(', ') : null;
   return (
     <div>
-      <div className="small muted">{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 700, color: warn ? '#dc2626' : undefined }}>{value}</div>
+      <div className="small muted" title={hint || undefined} style={hint ? { cursor: 'help', borderBottom: '1px dotted var(--border)', display: 'inline-block' } : undefined}>
+        {label}{hint ? ' ⓘ' : ''}
+      </div>
+      <div style={{ fontSize: 22, fontWeight: 700, color: warn ? '#dc2626' : undefined }} title={names || undefined}>
+        {value}
+      </div>
+      {leads && leads.length ? (
+        <details className="small" style={{ marginTop: 2 }}>
+          <summary className="muted" style={{ cursor: 'pointer' }}>Which ones?</summary>
+          <ul style={{ margin: '6px 0 0 16px', lineHeight: 1.8, padding: 0 }}>
+            {leads.map((l) => (
+              <li key={l.id}>
+                <Link href={`/leads/${l.id}`}>{l.name}</Link>
+                {l.note ? <span className="muted"> — {l.note}</span> : null}
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </div>
   );
 }
@@ -76,6 +97,7 @@ export default async function OneOnOnePage({ searchParams }) {
       const assignedInPeriod = leads.filter((l) => l.assigned_at && new Date(l.assigned_at).getTime() >= startDate.getTime());
       let avgResponseMin = null;
       let neverActioned = 0;
+      const neverActionedLeads = [];
       if (assignedInPeriod.length) {
         const ids = assignedInPeriod.map((l) => l.id);
         const { data: firstActs } = await admin
@@ -91,8 +113,10 @@ export default async function OneOnOnePage({ searchParams }) {
         const times = [];
         for (const l of assignedInPeriod) {
           const first = firstByLead[l.id];
-          if (first == null) neverActioned += 1;
-          else {
+          if (first == null) {
+            neverActioned += 1;
+            neverActionedLeads.push({ id: l.id, name: l.name, note: `assigned ${formatDate(l.assigned_at)}` });
+          } else {
             const mins = (first - new Date(l.assigned_at).getTime()) / 60000;
             if (mins >= 0) times.push(mins);
           }
@@ -131,7 +155,7 @@ export default async function OneOnOnePage({ searchParams }) {
       if (deals.length) points.push(`✅ ${deals.length} deal${deals.length === 1 ? '' : 's'} closed (${aed(dealGross)} gross) — celebrate, then ask what made them close.`);
       if (!points.length) points.push('Numbers look healthy — use the time for pipeline strategy and blockers.');
 
-      report = { agent, stats, leads, open, stale, overdue, byStatus, avgResponseMin, neverActioned, slaNudges, myTotal, teamAvg, deals, dealGross, points };
+      report = { agent, stats, leads, open, stale, overdue, byStatus, avgResponseMin, neverActioned, neverActionedLeads, slaNudges, myTotal, teamAvg, deals, dealGross, points };
     }
   }
 
@@ -214,8 +238,19 @@ export default async function OneOnOnePage({ searchParams }) {
           <div className="card">
             <h3 style={{ marginTop: 0 }}>Response speed (new leads this period)</h3>
             <div className="row" style={{ gap: 18, flexWrap: 'wrap' }}>
-              <Stat label="Avg first response" value={report.avgResponseMin == null ? '—' : `${report.avgResponseMin} min`} warn={report.avgResponseMin != null && report.avgResponseMin > 30} />
-              <Stat label="Still not actioned" value={report.neverActioned} warn={report.neverActioned > 0} />
+              <Stat
+                label="Avg first response"
+                value={report.avgResponseMin == null ? '—' : `${report.avgResponseMin} min`}
+                warn={report.avgResponseMin != null && report.avgResponseMin > 30}
+                hint="For each lead assigned in this period: the time from it landing with the agent to their FIRST logged activity on it (call, note, meeting — whichever came first), averaged. Measured from when the activity was logged in the CRM, so late logging reads as a slow response. Leads never touched are excluded here and counted under 'Still not actioned'."
+              />
+              <Stat
+                label="Still not actioned"
+                value={report.neverActioned}
+                warn={report.neverActioned > 0}
+                hint="Leads assigned in this period with no logged activity at all yet. They are excluded from the average above, so a low average never hides an untouched lead."
+                leads={report.neverActionedLeads}
+              />
               <Stat label="SLA nudges (20-min)" value={report.slaNudges} warn={report.slaNudges > 0} />
             </div>
           </div>
@@ -229,7 +264,13 @@ export default async function OneOnOnePage({ searchParams }) {
                 <Stat key={s} label={STATUS_LABELS[s] || s} value={n} />
               ))}
               <Stat label="Stale 7+ days (open)" value={report.stale.length} warn={report.stale.length > 0} />
-              <Stat label="Overdue follow-ups" value={report.overdue.length} warn={report.overdue.length > 0} />
+              <Stat
+                label="Overdue follow-ups"
+                value={report.overdue.length}
+                warn={report.overdue.length > 0}
+                hint="Open leads whose scheduled follow-up date has passed. Logging any activity on a lead automatically closes the follow-ups due that day or earlier, so these are the leads where nothing has been logged since the date fell due."
+                leads={report.overdue.map((l) => ({ id: l.id, name: l.name, note: `due ${formatDate(l.next_follow_up)}` }))}
+              />
             </div>
             {report.stale.length ? (
               <details style={{ marginTop: 10 }}>
