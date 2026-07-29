@@ -158,6 +158,23 @@ export default async function MarketingReportPage({ searchParams }) {
   // here — the junk rate is the most important quality signal marketing gets.
   const rows = [...liveRows, ...purgedRows];
   const fakes = rows.filter((r) => r.is_fake);
+
+  // Spam is counted from EVERY source, not just campaign traffic. The rest of
+  // this report is deliberately campaign-only, but scoping the junk counter the
+  // same way meant a lead flagged as spam from a portal, a referral or a blank
+  // source simply vanished from the report — the team flags it, nothing appears.
+  // Junk is junk whoever sent it, so the counter below covers all of it.
+  const purgedAny = purgedSpam.map((x) => ({
+    source: x.source, created_at: x.lead_created_at, is_fake: true, purged: true,
+  }));
+  const spamAll = [...(leads || []).filter((l) => l.is_fake), ...purgedAny];
+  const spamOffCampaign = Math.max(0, spamAll.length - fakes.length);
+  const totalInPeriod = (leads || []).length + purgedAny.length;
+  const spamPct = totalInPeriod ? Math.round((spamAll.length / totalInPeriod) * 100) : 0;
+  const spamBySource = [...spamAll.reduce((m, x) => {
+    const k = (x.source || '').trim() || 'No source';
+    return m.set(k, (m.get(k) || 0) + 1);
+  }, new Map())].sort((a, b) => b[1] - a[1]);
   const contacted = rows.filter((r) => r.contacted);
   const respTimes = rows.map((r) => r.respMin).filter((m) => m != null);
   const avgResp = respTimes.length ? Math.round(respTimes.reduce((a, b) => a + b, 0) / respTimes.length) : null;
@@ -230,12 +247,28 @@ export default async function MarketingReportPage({ searchParams }) {
 
       <div className="card stat" style={{ borderColor: fakes.length ? 'var(--red)' : undefined }}>
         <span className="muted small">
-          🚫 Fake / spam (flagged by the team — hidden from Leads, counted here).
-          Deleted from the system a week after flagging; the count stays.
+          🚫 Fake / spam — every flagged lead in this period, from <strong>all</strong> sources
+          (the rest of this report is campaign-only). Hidden from Leads straight away and
+          deleted from the system a week after flagging; the count stays.
         </span>
-        <span className="value" style={{ fontSize: '1.5rem', color: fakes.length ? 'var(--red)' : undefined }}>
-          {spamTrackingOff ? 'Not tracked' : `${fakes.length} (${pctOf(fakes.length)}% of leads in)`}
+        <span className="value" style={{ fontSize: '1.5rem', color: spamAll.length ? 'var(--red)' : undefined }}>
+          {spamTrackingOff ? 'Not tracked' : `${spamAll.length} (${spamPct}% of all ${totalInPeriod} leads in)`}
         </span>
+        {!spamTrackingOff && spamAll.length ? (
+          <span className="small muted">
+            {fakes.length} from online campaigns
+            {spamOffCampaign ? ` · ${spamOffCampaign} from other sources (portals, referrals, walk-ins)` : ''}
+          </span>
+        ) : null}
+        {!spamTrackingOff && spamBySource.length ? (
+          <div className="row" style={{ gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
+            {spamBySource.map(([src, n]) => (
+              <span key={src} className="badge status" title={`${n} flagged as spam from ${src}`}>
+                {src}: {n}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {/* Day-by-day */}
