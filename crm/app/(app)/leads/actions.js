@@ -540,11 +540,25 @@ export async function logMessage(prevState, formData) {
 export async function markLeadFake(formData) {
   const { user, supabase } = await requireUser();
   const leadId = String(formData.get('lead_id'));
-  const { error } = await writeTolerant(
-    (p) => supabase.from('leads').update(p).eq('id', leadId),
-    { status: 'lost', is_fake: true, fake_flagged_at: new Date().toISOString(), fake_flagged_by: user.id }
-  );
-  if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+  // Deliberately NOT writeTolerant: if the is_fake column is missing, dropping
+  // it would leave the lead merely "lost" while still reporting success — the
+  // flag would look applied but the lead would stay in the list and never reach
+  // the marketing report. A missing column has to be loud.
+  const { error } = await supabase
+    .from('leads')
+    .update({ status: 'lost', is_fake: true, fake_flagged_at: new Date().toISOString(), fake_flagged_by: user.id })
+    .eq('id', leadId);
+  if (error) {
+    const missing = /is_fake|fake_flagged/.test(error.message || '');
+    redirect(
+      `/leads/${leadId}?error=` +
+        encodeURIComponent(
+          missing
+            ? 'Spam tracking is not set up yet — run migration 0037_fake_leads.sql. The lead was NOT flagged.'
+            : error.message
+        )
+    );
+  }
   await supabase.from('lead_activities').insert({
     lead_id: leadId,
     agent_id: user.id,

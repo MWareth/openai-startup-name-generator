@@ -71,7 +71,12 @@ export default async function MarketingReportPage({ searchParams }) {
     .order('created_at', { ascending: false });
   if (end) leadsQ = leadsQ.lt('created_at', end.toISOString());
   let { data: leads, error: leadsErr } = await leadsQ;
+  // When the column is missing the report still renders, but it must SAY the
+  // spam count is unavailable — silently showing "0 fake" reads as "no junk"
+  // and is worse than showing nothing.
+  let spamTrackingOff = false;
   if (leadsErr && /is_fake/.test(leadsErr.message || '')) {
+    spamTrackingOff = true;
     // Migration 0037 not applied yet — fall back to the pre-fake-flag columns.
     let retry = admin
       .from('leads')
@@ -215,13 +220,21 @@ export default async function MarketingReportPage({ searchParams }) {
         <Stat label="Meetings / viewings" value={rows.reduce((s, r) => s + r.meetings, 0)} />
         <Stat label="Won / Lost" value={`${count((r) => r.status === 'won')} / ${count((r) => r.status === 'lost')}`} />
       </div>
+      {spamTrackingOff ? (
+        <div className="alert" style={{ background: '#fde4e4', border: '1px solid var(--red)', color: '#7f1d1d', padding: '10px 14px', borderRadius: 10 }}>
+          <strong>⚠️ Spam tracking is not set up.</strong> Leads flagged as fake are only being
+          marked “Lost” — they stay in the Leads list and are not counted below. Run migration{' '}
+          <code>0037_fake_leads.sql</code> to switch it on.
+        </div>
+      ) : null}
+
       <div className="card stat" style={{ borderColor: fakes.length ? 'var(--red)' : undefined }}>
         <span className="muted small">
           🚫 Fake / spam (flagged by the team — hidden from Leads, counted here).
           Deleted from the system a week after flagging; the count stays.
         </span>
         <span className="value" style={{ fontSize: '1.5rem', color: fakes.length ? 'var(--red)' : undefined }}>
-          {fakes.length} ({pctOf(fakes.length)}% of leads in)
+          {spamTrackingOff ? 'Not tracked' : `${fakes.length} (${pctOf(fakes.length)}% of leads in)`}
         </span>
       </div>
 
