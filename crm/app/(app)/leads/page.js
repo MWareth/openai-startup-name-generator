@@ -22,7 +22,7 @@ export default async function LeadsPage({ searchParams }) {
     qual: searchParams?.qual || '',
     status: searchParams?.status || '',
     budget: searchParams?.budget || '',
-    sort: searchParams?.sort || 'recent',
+    sort: searchParams?.sort || 'new',
     origin: searchParams?.origin || '',
   };
 
