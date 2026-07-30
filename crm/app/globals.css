@@ -731,3 +731,58 @@ tbody tr:hover { background: var(--panel-2); }
   .content { padding: 20px 18px; }
   .brand img { max-width: 100%; }
 }
+
+/* ==========================================================================
+   Desktop: tuck the menu away, like the drawer on a phone. The choice is
+   remembered, and restored before first paint so it never flashes open.
+   ========================================================================== */
+.menu-collapse,
+.menu-reopen { display: none; }
+
+@media (min-width: 761px) {
+  /* "Hide menu" sits at the bottom of the sidebar, under the profile block. */
+  .menu-collapse {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    padding: 7px 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .menu-collapse:hover { background: var(--panel-2); color: var(--text); }
+
+  /* Collapsed: the column goes away entirely and the page gets the full width. */
+  .menu-collapsed .sidebar { display: none; }
+  .menu-collapsed .content {
+    max-width: none;
+    padding-left: 64px; /* room for the floating ☰ so it never covers a heading */
+  }
+
+  /* The way back in — fixed, so it's there however far you've scrolled. */
+  .menu-collapsed .menu-reopen {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 45;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    box-shadow: var(--shadow);
+  }
+  .menu-collapsed .menu-reopen:hover { background: var(--panel-2); }
+}
