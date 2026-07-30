@@ -134,6 +134,9 @@ export default async function LeadDetail({ params, searchParams }) {
   const fmtTime = (ts) =>
     new Intl.DateTimeFormat('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Asia/Dubai' }).format(new Date(ts));
 
+  // Still outstanding — these are the ones worth putting in a calendar.
+  const pendingFollowups = (followups || []).filter((f) => !f.done);
+
   // Follow-up due date, with the calling time if one was set.
   const fmtDue = (f) => {
     if (f.due_at) return `${formatDate(f.due_on)} · ${fmtTime(f.due_at)}`;
@@ -386,6 +389,35 @@ export default async function LeadDetail({ params, searchParams }) {
               <SubmitButton className="btn small" pendingLabel="Saving…">Add activity</SubmitButton>
             </form>
           </div>
+
+          {/* Pending follow-ups, right where they're set — the calendar button
+              used to live only down in the timeline, where nobody found it. */}
+          {pendingFollowups.length ? (
+            <div className="card">
+              <h3 style={{ marginTop: 0 }}>📅 Next follow-up</h3>
+              <div className="stack" style={{ gap: 10 }}>
+                {pendingFollowups.map((f) => (
+                  <div key={f.id} className="spread" style={{ gap: 10, flexWrap: 'wrap' }}>
+                    <div>
+                      <strong>{fmtDue(f)}</strong>
+                      {f.note ? <div className="small muted">{f.note}</div> : null}
+                    </div>
+                    <a
+                      className="btn secondary small"
+                      href={`/api/followups/${f.id}/ics`}
+                      title="Adds a real event with a 30-minute reminder to Outlook, Google or Apple Calendar — and to your phone"
+                    >
+                      📅 Add to calendar
+                    </a>
+                  </div>
+                ))}
+              </div>
+              <p className="small muted" style={{ margin: '10px 0 0' }}>
+                Rescheduled it? Tap again — your calendar updates the same event rather than
+                adding a second one.
+              </p>
+            </div>
+          ) : null}
 
         </div>
       </div>
