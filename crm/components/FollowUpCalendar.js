@@ -142,9 +142,11 @@ export default function FollowUpCalendar({ leads = [], agents = [], showAgentFil
                       <a
                         className="small"
                         href={l.ics}
-                        title="Add this follow-up to Outlook, Google or Apple Calendar, with a 30-minute reminder"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Opens Google Calendar with this follow-up filled in — just press Save"
                       >
-                        📅 Calendar
+                        📅 Google Calendar
                       </a>
                     ) : null}
                   </span>

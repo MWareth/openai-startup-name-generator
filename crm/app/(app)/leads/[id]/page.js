@@ -236,11 +236,13 @@ export default async function LeadDetail({ params, searchParams }) {
                   {r.icsHref ? (
                     <a
                       className="btn ghost small"
-                      href={r.icsHref}
+                      href={`${r.icsHref}?to=google`}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{ marginTop: 6, display: 'inline-block' }}
-                      title="Adds a real event with a 30-minute reminder to Outlook, Google or Apple Calendar — and to your phone"
+                      title="Opens Google Calendar with the event filled in"
                     >
-                      📅 Add to calendar
+                      📅 Add to Google Calendar
                     </a>
                   ) : null}
                   {r.by ? <div className="small muted" style={{ marginTop: 2 }}>{r.by}</div> : null}
@@ -402,13 +404,33 @@ export default async function LeadDetail({ params, searchParams }) {
                       <strong>{fmtDue(f)}</strong>
                       {f.note ? <div className="small muted">{f.note}</div> : null}
                     </div>
-                    <a
-                      className="btn secondary small"
-                      href={`/api/followups/${f.id}/ics`}
-                      title="Adds a real event with a 30-minute reminder to Outlook, Google or Apple Calendar — and to your phone"
-                    >
-                      📅 Add to calendar
-                    </a>
+                    <span className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
+                      <a
+                        className="btn small"
+                        href={`/api/followups/${f.id}/ics?to=google`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Opens Google Calendar with the event filled in — just press Save"
+                      >
+                        📅 Add to Google Calendar
+                      </a>
+                      <a
+                        className="btn ghost small"
+                        href={`/api/followups/${f.id}/ics?to=outlook`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Opens Outlook on the web with the event filled in"
+                      >
+                        Outlook
+                      </a>
+                      <a
+                        className="btn ghost small"
+                        href={`/api/followups/${f.id}/ics`}
+                        title="Download the event file — the only option that sets the 30-minute reminder itself"
+                      >
+                        ⬇️ .ics
+                      </a>
+                    </span>
                   </div>
                 ))}
               </div>

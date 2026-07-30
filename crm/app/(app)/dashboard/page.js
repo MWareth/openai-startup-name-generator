@@ -77,7 +77,7 @@ export default async function Dashboard() {
       lead_id: f.lead_id,
       name: f.lead?.name || 'Lead',
       date: f.due_on,
-      ics: `/api/followups/${f.id}/ics`,
+      ics: `/api/followups/${f.id}/ics?to=google`,
     }));
   const hotQuiet = open.filter((l) => l.qualification === 'hot' && daysSince(l.updated_at) >= 3);
   const aboutToReturn = open

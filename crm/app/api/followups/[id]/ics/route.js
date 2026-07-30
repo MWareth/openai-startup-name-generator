@@ -1,11 +1,15 @@
 import { requireUser } from '@/lib/auth';
 import { buildFollowUpIcs, followUpStart } from '@/lib/ics';
+import { googleCalendarUrl, outlookCalendarUrl } from '@/lib/calendarLinks';
 
 export const dynamic = 'force-dynamic';
 
-// Downloads one follow-up as a calendar event. Read through the caller's own
-// client, so RLS decides whether they may see this lead — an agent can't pull
-// someone else's follow-up by guessing an id.
+// One follow-up as a calendar event. ?to=google / ?to=outlook redirect to a
+// pre-filled event in that web calendar (one tap to save, nothing downloaded);
+// with no ?to it returns the .ics file, which is the only form that carries a
+// guaranteed reminder. Read through the caller's own client, so RLS decides
+// whether they may see this lead — an agent can't pull someone else's
+// follow-up by guessing an id.
 export async function GET(request, { params }) {
   const { supabase } = await requireUser();
   const id = params?.id;
@@ -40,14 +44,27 @@ export async function GET(request, { params }) {
     .filter((l) => l !== null)
     .join('\n');
 
+  const start = followUpStart(f.due_on, f.due_at);
+  const end = new Date(start.getTime() + 30 * 60000);
+  const title = `Follow up: ${lead.name || 'lead'}`;
+
+  // Hand off to a web calendar instead of downloading a file.
+  const to = (url.searchParams.get('to') || '').toLowerCase();
+  if (to === 'google' || to === 'outlook') {
+    const target = to === 'google'
+      ? googleCalendarUrl({ start, end, title, description: details })
+      : outlookCalendarUrl({ start, end, title, description: details });
+    return Response.redirect(target, 302);
+  }
+
   const body = buildFollowUpIcs({
     // Stable per follow-up, so adding it twice updates the event instead of
     // leaving two copies in the calendar.
     uid: `followup-${f.id}@bullish-crm`,
-    start: followUpStart(f.due_on, f.due_at),
+    start,
     minutes: 30,
     alarmMinutes,
-    title: `Follow up: ${lead.name || 'lead'}`,
+    title,
     description: details,
     url: leadUrl,
   });
