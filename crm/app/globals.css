@@ -101,8 +101,11 @@ p { margin: 0 0 10px; }
 }
 
 /* Layout shell */
-.shell { display: flex; min-height: 100vh; }
+.shell { display: flex; min-height: 100vh; max-width: 100%; }
 .sidebar {
+  /* flex: 0 0 — never let a wide table squeeze the menu. Without this the
+     sidebar shrinks and the labels get clipped. */
+  flex: 0 0 220px;
   width: 220px;
   background: var(--panel);
   border-right: 1px solid var(--border);
@@ -125,6 +128,9 @@ p { margin: 0 0 10px; }
   padding: 9px 12px;
   border-radius: 8px;
   font-weight: 500;
+  white-space: nowrap;      /* one line per item — no "Content / Studio" wrap */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .nav a:hover { background: var(--panel-2); text-decoration: none; }
 .nav a.active { background: var(--brand); color: #fff; }
@@ -157,7 +163,10 @@ p { margin: 0 0 10px; }
 .nav-group[open] > summary::after { transform: rotate(90deg); }
 .nav-group-items { display: flex; flex-direction: column; gap: 2px; }
 .sidebar-foot { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
-.content { flex: 1; padding: 28px 32px; max-width: 1500px; }
+/* min-width: 0 lets this column shrink below its content's natural width, so a
+   wide table scrolls inside its own card instead of pushing the sidebar. */
+.content { flex: 1 1 auto; min-width: 0; padding: 28px 32px; max-width: 1500px; }
+.card { max-width: 100%; }
 /* Mobile drawer chrome — hidden on desktop, shown in the phone media query. */
 .mobile-bar, .hamburger, .sidebar-close, .sidebar-backdrop { display: none; }
 
@@ -711,4 +720,14 @@ tbody tr:hover { background: var(--panel-2); }
   padding: 5px 11px;
   border-radius: 999px;
   animation: pulse 1.6s ease-in-out infinite;
+}
+
+/* Laptops, and any screen zoomed in far enough to get tight: give the menu a
+   little less room and the content a little more, before the mobile drawer
+   takes over at 760px. */
+@media (min-width: 761px) and (max-width: 1150px) {
+  .sidebar { flex-basis: 186px; width: 186px; padding: 16px 10px; }
+  .nav a { padding: 8px 10px; font-size: 0.92rem; }
+  .content { padding: 20px 18px; }
+  .brand img { max-width: 100%; }
 }
