@@ -72,7 +72,13 @@ export default async function Dashboard() {
   // Follow-ups for the calendar — every pending follow-up (a lead can have several).
   const followupLeads = (myFollowups || [])
     .filter((f) => f.lead && f.lead.status !== 'won' && f.lead.status !== 'lost')
-    .map((f) => ({ fu: f.id, lead_id: f.lead_id, name: f.lead?.name || 'Lead', date: f.due_on }));
+    .map((f) => ({
+      fu: f.id,
+      lead_id: f.lead_id,
+      name: f.lead?.name || 'Lead',
+      date: f.due_on,
+      ics: `/api/followups/${f.id}/ics`,
+    }));
   const hotQuiet = open.filter((l) => l.qualification === 'hot' && daysSince(l.updated_at) >= 3);
   const aboutToReturn = open
     .filter((l) => daysSince(l.updated_at) >= 8)

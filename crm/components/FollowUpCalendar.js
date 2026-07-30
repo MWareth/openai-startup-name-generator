@@ -136,7 +136,18 @@ export default function FollowUpCalendar({ leads = [], agents = [], showAgentFil
               {selectedLeads.map((l, i) => (
                 <div key={l.fu || `${l.lead_id || l.id}-${i}`} className="spread" style={{ borderBottom: '1px solid var(--border)', paddingBottom: 6 }}>
                   <Link href={`/leads/${l.lead_id || l.id}`}>{l.name}</Link>
-                  {l.agent_name ? <span className="small muted">{l.agent_name}</span> : null}
+                  <span className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
+                    {l.agent_name ? <span className="small muted">{l.agent_name}</span> : null}
+                    {l.ics ? (
+                      <a
+                        className="small"
+                        href={l.ics}
+                        title="Add this follow-up to Outlook, Google or Apple Calendar, with a 30-minute reminder"
+                      >
+                        📅 Calendar
+                      </a>
+                    ) : null}
+                  </span>
                 </div>
               ))}
             </div>

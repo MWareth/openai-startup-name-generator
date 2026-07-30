@@ -158,7 +158,16 @@ export default async function LeadDetail({ params, searchParams }) {
     }
     if (item.kind === 'fu_scheduled') {
       const f = item.data;
-      return { key: item.key, icon: '📅', title: 'Follow-up scheduled', whenLabel: `${formatDate(f.created_at)} · ${fmtTime(f.created_at)}`, note: `Due ${fmtDue(f)}${f.note ? ' — ' + f.note : ''}`, by: f.creator?.full_name };
+      return {
+        key: item.key,
+        icon: '📅',
+        title: 'Follow-up scheduled',
+        whenLabel: `${formatDate(f.created_at)} · ${fmtTime(f.created_at)}`,
+        note: `Due ${fmtDue(f)}${f.note ? ' — ' + f.note : ''}`,
+        by: f.creator?.full_name,
+        // Only worth offering while it's still outstanding.
+        icsHref: f.done ? null : `/api/followups/${f.id}/ics`,
+      };
     }
     if (item.kind === 'audit') {
       const e = item.data;
@@ -221,6 +230,16 @@ export default async function LeadDetail({ params, searchParams }) {
                   </div>
                   {r.note ? <div className="small" style={{ marginTop: 2, whiteSpace: 'pre-wrap' }}>{r.note}</div> : null}
                   {r.translate ? <TranslateButton text={r.translate} /> : null}
+                  {r.icsHref ? (
+                    <a
+                      className="btn ghost small"
+                      href={r.icsHref}
+                      style={{ marginTop: 6, display: 'inline-block' }}
+                      title="Adds a real event with a 30-minute reminder to Outlook, Google or Apple Calendar — and to your phone"
+                    >
+                      📅 Add to calendar
+                    </a>
+                  ) : null}
                   {r.by ? <div className="small muted" style={{ marginTop: 2 }}>{r.by}</div> : null}
                 </div>
               </li>
