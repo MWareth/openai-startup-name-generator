@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { githubBackupConfigured, putSnapshotToGithub } from '@/lib/backupGithub';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
@@ -72,16 +73,32 @@ export async function GET(request) {
   }
 
   const body = Buffer.from(JSON.stringify(snapshot));
+  const filename = `snapshot-${today}.json`;
+
+  // Two independent destinations. Either one alone is a valid backup, so the
+  // run succeeds if at least one lands — Storage being unavailable (or on a
+  // plan you don't have) must not mean no backup at all.
+  const destinations = {};
+
   const { error: upErr } = await admin.storage
     .from('backups')
-    .upload(`snapshot-${today}.json`, body, { contentType: 'application/json', upsert: true });
-  if (upErr) {
-    return NextResponse.json({ ok: false, error: upErr.message }, { status: 500 });
+    .upload(filename, body, { contentType: 'application/json', upsert: true });
+  destinations.storage = upErr ? { ok: false, error: upErr.message } : { ok: true };
+
+  if (githubBackupConfigured()) {
+    destinations.github = await putSnapshotToGithub(filename, body);
   }
 
-  // Prune snapshots past the retention window.
+  const anyLanded = Object.values(destinations).some((d) => d.ok);
+  if (!anyLanded) {
+    return NextResponse.json({ ok: false, destinations }, { status: 500 });
+  }
+
+  // Prune snapshots past the retention window (Storage only — GitHub keeps
+  // history by design, which is the point of backing up there).
   let pruned = 0;
   try {
+    if (!destinations.storage.ok) throw new Error('skip pruning');
     const { data: files } = await admin.storage.from('backups').list('', { limit: 200 });
     const cutoff = new Date(Date.now() - KEEP_DAYS * 86400000).toISOString().slice(0, 10);
     const old = (files || [])
@@ -95,5 +112,5 @@ export async function GET(request) {
     // pruning is best-effort — never fail the backup over it
   }
 
-  return NextResponse.json({ ok: true, file: `snapshot-${today}.json`, counts, pruned });
+  return NextResponse.json({ ok: true, file: filename, counts, pruned, destinations });
 }
