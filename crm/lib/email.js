@@ -33,14 +33,67 @@ function getTransporter() {
 }
 
 // Low-level send. to: string | string[]. Returns true on success.
-export async function sendEmail({ to, subject, html, text, icalEvent }) {
-  const t = getTransporter();
-  if (!t) {
-    lastEmailError = 'SMTP_USER / SMTP_PASS are not set in Vercel (or the deploy predates them).';
+// Sends through Resend's HTTP API. Used when RESEND_API_KEY is set, which is
+// the way out of a Microsoft tenant that blocks SMTP AUTH outright — nothing
+// to enable on the tenant, and better deliverability than a mailbox.
+async function sendViaResend({ to, subject, html, text, icalEvent, from }) {
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from,
+        to: Array.isArray(to) ? to : [to],
+        subject,
+        html,
+        text,
+        // The invite rides as an .ics attachment. Outlook shows it as a
+        // calendar item to add with one tap, rather than adding it silently
+        // the way a native SMTP invite does — the one thing lost by not
+        // going through SMTP.
+        ...(icalEvent?.content
+          ? {
+              attachments: [
+                {
+                  filename: icalEvent.filename || 'invite.ics',
+                  content: Buffer.from(icalEvent.content).toString('base64'),
+                },
+              ],
+            }
+          : {}),
+      }),
+    });
+    if (!res.ok) {
+      const detail = await res.text();
+      lastEmailError = `Resend ${res.status}: ${detail.slice(0, 240)}`;
+      return false;
+    }
+    return true;
+  } catch (e) {
+    lastEmailError = `Resend request failed: ${String(e?.message || e)}`;
     return false;
   }
+}
+
+export async function sendEmail({ to, subject, html, text, icalEvent }) {
   if (!to || !subject) {
     lastEmailError = 'No recipient or subject.';
+    return false;
+  }
+
+  // Resend takes precedence when configured — if it's set up, SMTP is the
+  // thing that wasn't working.
+  if (process.env.RESEND_API_KEY) {
+    const from = process.env.EMAIL_FROM || 'Bridges & Allies <onboarding@resend.dev>';
+    return sendViaResend({ to, subject, html, text, icalEvent, from });
+  }
+
+  const t = getTransporter();
+  if (!t) {
+    lastEmailError = 'No email provider configured — set RESEND_API_KEY, or SMTP_USER / SMTP_PASS, in Vercel.';
     return false;
   }
   // Gmail/Workspace requires From to match the authenticated user (or an alias),
