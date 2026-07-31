@@ -8,7 +8,7 @@ import { writeTolerant } from '@/lib/db';
 import { syncProjectsFromSheet } from '@/lib/projectsSync';
 import { sendPushToUser } from '@/lib/push';
 import { notify } from '@/lib/notify';
-import { sendEmail, notificationEmail } from '@/lib/email';
+import { sendEmail, notificationEmail , getLastEmailError } from '@/lib/email';
 
 // Send a test email to the signed-in admin to verify the email connection.
 // Reports back whether it actually sent (SMTP configured & accepted it).
@@ -24,7 +24,14 @@ export async function sendTestEmail() {
   });
   const sent = await sendEmail({ to: email, subject: 'CRM test email ✅', html, text });
   if (sent) redirect('/admin?ok=' + encodeURIComponent(`Test email sent to ${email}. Check your inbox (and spam).`));
-  redirect('/admin?error=' + encodeURIComponent('Email did NOT send — the SMTP keys are missing/wrong in Vercel, or Microsoft is blocking it. Check the setup and try again.'));
+  // Show the mail server's actual words. Guessing at the cause sent people to
+  // check the wrong thing — "wrong password" and "port blocked" look identical
+  // in a generic message and need completely different fixes.
+  const why = getLastEmailError();
+  redirect(
+    '/admin?error=' +
+      encodeURIComponent(`Email did NOT send. Server said: ${why || 'no details available'}`)
+  );
 }
 
 const ADMIN = '/admin';

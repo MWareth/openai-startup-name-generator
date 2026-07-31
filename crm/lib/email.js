@@ -35,7 +35,14 @@ function getTransporter() {
 // Low-level send. to: string | string[]. Returns true on success.
 export async function sendEmail({ to, subject, html, text, icalEvent }) {
   const t = getTransporter();
-  if (!t || !to || !subject) return false;
+  if (!t) {
+    lastEmailError = 'SMTP_USER / SMTP_PASS are not set in Vercel (or the deploy predates them).';
+    return false;
+  }
+  if (!to || !subject) {
+    lastEmailError = 'No recipient or subject.';
+    return false;
+  }
   // Gmail/Workspace requires From to match the authenticated user (or an alias),
   // so default the From address to the SMTP account.
   const from = process.env.EMAIL_FROM || `Bridges & Allies <${process.env.SMTP_USER}>`;
@@ -53,8 +60,20 @@ export async function sendEmail({ to, subject, html, text, icalEvent }) {
     });
     return true;
   } catch (e) {
+    // Keep the provider's own words — "535 authentication failed" and
+    // "connection timed out" need completely different fixes, and a generic
+    // message sends people to check the wrong thing.
+    lastEmailError = [e?.code, e?.responseCode, e?.response || e?.message]
+      .filter(Boolean)
+      .join(' · ');
     return false;
   }
+}
+
+// The reason the last send failed, for the admin test-email screen.
+let lastEmailError = null;
+export function getLastEmailError() {
+  return lastEmailError;
 }
 
 // Branded HTML wrapper for a simple notification email: a heading, a line of
