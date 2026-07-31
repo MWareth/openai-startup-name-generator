@@ -12,6 +12,7 @@ import { notify, notifyManagement, resolveNotifications } from '@/lib/notify';
 import { pickAgentForLead } from '@/lib/routing';
 import { isRealContact } from '@/lib/contact';
 import { logEvent } from '@/lib/audit';
+import { sendFollowUpInvite } from '@/lib/followupInvite';
 import { ACTIVITY_LABELS, STATUS_LABELS, QUAL_LABELS } from '@/lib/format';
 
 // Route a lead update to the right bell:
@@ -258,11 +259,13 @@ export async function addActivity(formData) {
       if (!Number.isNaN(d.getTime())) dueAt = d.toISOString();
     }
     // writeTolerant drops due_at if migration 0024 hasn't been applied yet.
-    await writeTolerant(
-      (p) => supabase.from('lead_followups').insert(p),
+    const { data: newFu } = await writeTolerant(
+      (p) => supabase.from('lead_followups').insert(p).select('id').single(),
       { lead_id: leadId, due_on: dueOn, due_at: dueAt, note: '', created_by: user.id }
     );
     await syncNextFollowUp(supabase, leadId);
+    // Lands on the agent's Outlook calendar by itself — no button to press.
+    if (newFu?.id) await sendFollowUpInvite(newFu.id);
     await logEvent({ userId: user.id, action: 'followup_set', leadId, detail: `Due ${dueOn}` });
   }
 
@@ -305,6 +308,8 @@ async function autoCompleteDueFollowUps(supabase, user, leadId, todayStr) {
     .eq('done', false)
     .lte('due_on', todayStr);
   if (error) return; // best-effort: never block the activity log itself
+  // Logging the update IS doing the follow-up, so clear it off the calendar.
+  for (const d of due) await sendFollowUpInvite(d.id, { cancel: true });
   await logEvent({ userId: user.id, action: 'followup_done', leadId, detail: 'Auto — update logged on the lead' });
   await syncNextFollowUp(supabase, leadId);
 }
@@ -318,14 +323,14 @@ export async function addFollowUp(formData) {
   // Scheduling a new follow-up supersedes whatever was already due — complete
   // the pending ones due today or earlier before inserting the new date.
   await autoCompleteDueFollowUps(supabase, user, leadId, new Date().toISOString().slice(0, 10));
-  const { error } = await supabase.from('lead_followups').insert({
-    lead_id: leadId,
-    due_on,
-    note,
-    created_by: user.id,
-  });
+  const { data: added, error } = await supabase
+    .from('lead_followups')
+    .insert({ lead_id: leadId, due_on, note, created_by: user.id })
+    .select('id')
+    .single();
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   await syncNextFollowUp(supabase, leadId);
+  if (added?.id) await sendFollowUpInvite(added.id);
   await logEvent({ userId: user.id, action: 'followup_set', leadId, detail: `Due ${due_on}` });
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/dashboard');
@@ -342,6 +347,9 @@ export async function completeFollowUp(formData) {
     .eq('id', id);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
   await syncNextFollowUp(supabase, leadId);
+  // Done means gone from the calendar too — a reminder for finished work is
+  // exactly the noise that makes people stop trusting their calendar.
+  await sendFollowUpInvite(id, { cancel: true });
   await logEvent({ userId: user.id, action: 'followup_done', leadId });
   revalidatePath(`/leads/${leadId}`);
   revalidatePath('/dashboard');

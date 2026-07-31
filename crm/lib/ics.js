@@ -81,3 +81,72 @@ export function followUpStart(dueOn, dueAt) {
   if (dueAt) return new Date(dueAt);
   return new Date(`${dueOn}T10:00:00+04:00`);
 }
+
+// A real meeting invitation, not a file to download.
+//
+// METHOD:REQUEST with an ORGANIZER and an ATTENDEE is what makes Outlook (and
+// Gmail) treat the email as a meeting and put it on the calendar by itself.
+// METHOD:CANCEL with the same UID removes it again — that's what keeps the
+// calendar honest when a follow-up is done or rescheduled, instead of leaving
+// dead reminders behind.
+//
+// SEQUENCE must increase on every update to the same UID, or calendars ignore
+// the change as stale.
+export function buildFollowUpInvite({
+  uid,
+  start,
+  minutes = 30,
+  alarmMinutes = 30,
+  title,
+  description,
+  url,
+  organizerEmail,
+  organizerName,
+  attendeeEmail,
+  attendeeName,
+  sequence = 0,
+  method = 'REQUEST',
+}) {
+  const end = new Date(new Date(start).getTime() + minutes * 60000);
+  const cancelling = method === 'CANCEL';
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Bullish Team CRM//Follow-up//EN',
+    'CALSCALE:GREGORIAN',
+    `METHOD:${method}`,
+    'BEGIN:VEVENT',
+    `UID:${esc(uid)}`,
+    `DTSTAMP:${stampUTC(new Date())}`,
+    `DTSTART:${stampUTC(start)}`,
+    `DTEND:${stampUTC(end)}`,
+    `SEQUENCE:${Math.max(0, Math.round(sequence))}`,
+    `SUMMARY:${esc(title)}`,
+    `DESCRIPTION:${esc(description)}`,
+    url ? `URL:${esc(url)}` : null,
+    organizerEmail
+      ? `ORGANIZER;CN=${esc(organizerName || 'Bullish Team CRM')}:mailto:${esc(organizerEmail)}`
+      : null,
+    attendeeEmail
+      ? `ATTENDEE;CN=${esc(attendeeName || attendeeEmail)};ROLE=REQ-PARTICIPANT;PARTSTAT=${
+          cancelling ? 'DECLINED' : 'NEEDS-ACTION'
+        };RSVP=FALSE:mailto:${esc(attendeeEmail)}`
+      : null,
+    `STATUS:${cancelling ? 'CANCELLED' : 'CONFIRMED'}`,
+    'TRANSP:OPAQUE',
+    // A cancellation carries no alarm — there's nothing left to be nudged about.
+    ...(cancelling
+      ? []
+      : [
+          'BEGIN:VALARM',
+          `TRIGGER:-PT${Math.max(0, Math.round(alarmMinutes))}M`,
+          'ACTION:DISPLAY',
+          `DESCRIPTION:${esc(title)}`,
+          'END:VALARM',
+        ]),
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ].filter(Boolean);
+
+  return lines.map(fold).join(CRLF) + CRLF;
+}

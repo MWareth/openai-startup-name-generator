@@ -33,14 +33,24 @@ function getTransporter() {
 }
 
 // Low-level send. to: string | string[]. Returns true on success.
-export async function sendEmail({ to, subject, html, text }) {
+export async function sendEmail({ to, subject, html, text, icalEvent }) {
   const t = getTransporter();
   if (!t || !to || !subject) return false;
   // Gmail/Workspace requires From to match the authenticated user (or an alias),
   // so default the From address to the SMTP account.
   const from = process.env.EMAIL_FROM || `Bridges & Allies <${process.env.SMTP_USER}>`;
   try {
-    await t.sendMail({ from, to: Array.isArray(to) ? to.join(', ') : to, subject, html, text });
+    await t.sendMail({
+      from,
+      to: Array.isArray(to) ? to.join(', ') : to,
+      subject,
+      html,
+      text,
+      // A calendar invite rather than a file to click: nodemailer sets the
+      // text/calendar part with the right METHOD, which is what makes Outlook
+      // treat it as a meeting and put it straight on the calendar.
+      ...(icalEvent ? { icalEvent } : {}),
+    });
     return true;
   } catch (e) {
     return false;

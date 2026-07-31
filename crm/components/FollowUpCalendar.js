@@ -138,17 +138,7 @@ export default function FollowUpCalendar({ leads = [], agents = [], showAgentFil
                   <Link href={`/leads/${l.lead_id || l.id}`}>{l.name}</Link>
                   <span className="row" style={{ gap: 8, flexWrap: 'nowrap' }}>
                     {l.agent_name ? <span className="small muted">{l.agent_name}</span> : null}
-                    {l.ics ? (
-                      <a
-                        className="small"
-                        href={l.ics}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Opens Google Calendar with this follow-up filled in — just press Save"
-                      >
-                        📅 Google Calendar
-                      </a>
-                    ) : null}
+
                   </span>
                 </div>
               ))}

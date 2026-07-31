@@ -168,8 +168,6 @@ export default async function LeadDetail({ params, searchParams }) {
         whenLabel: `${formatDate(f.created_at)} · ${fmtTime(f.created_at)}`,
         note: `Due ${fmtDue(f)}${f.note ? ' — ' + f.note : ''}`,
         by: f.creator?.full_name,
-        // Only worth offering while it's still outstanding.
-        icsHref: f.done ? null : `/api/followups/${f.id}/ics`,
       };
     }
     if (item.kind === 'audit') {
@@ -233,18 +231,7 @@ export default async function LeadDetail({ params, searchParams }) {
                   </div>
                   {r.note ? <div className="small" style={{ marginTop: 2, whiteSpace: 'pre-wrap' }}>{r.note}</div> : null}
                   {r.translate ? <TranslateButton text={r.translate} /> : null}
-                  {r.icsHref ? (
-                    <a
-                      className="btn ghost small"
-                      href={`${r.icsHref}?to=google`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ marginTop: 6, display: 'inline-block' }}
-                      title="Opens Google Calendar with the event filled in"
-                    >
-                      📅 Add to Google Calendar
-                    </a>
-                  ) : null}
+
                   {r.by ? <div className="small muted" style={{ marginTop: 2 }}>{r.by}</div> : null}
                 </div>
               </li>
@@ -404,39 +391,16 @@ export default async function LeadDetail({ params, searchParams }) {
                       <strong>{fmtDue(f)}</strong>
                       {f.note ? <div className="small muted">{f.note}</div> : null}
                     </div>
-                    <span className="row" style={{ gap: 6, flexWrap: 'wrap' }}>
-                      <a
-                        className="btn small"
-                        href={`/api/followups/${f.id}/ics?to=google`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Opens Google Calendar with the event filled in — just press Save"
-                      >
-                        📅 Add to Google Calendar
-                      </a>
-                      <a
-                        className="btn ghost small"
-                        href={`/api/followups/${f.id}/ics?to=outlook`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        title="Opens Outlook on the web with the event filled in"
-                      >
-                        Outlook
-                      </a>
-                      <a
-                        className="btn ghost small"
-                        href={`/api/followups/${f.id}/ics`}
-                        title="Download the event file — the only option that sets the 30-minute reminder itself"
-                      >
-                        ⬇️ .ics
-                      </a>
+                    <span className="small muted">
+                      📧 Invite emailed to the agent
                     </span>
                   </div>
                 ))}
               </div>
               <p className="small muted" style={{ margin: '10px 0 0' }}>
-                Rescheduled it? Tap again — your calendar updates the same event rather than
-                adding a second one.
+                Each follow-up is emailed to the assigned agent as a calendar invitation, so it
+                appears in Outlook on its own. Log an update or tick it off and the event is
+                removed automatically — nothing stale left sitting in the calendar.
               </p>
             </div>
           ) : null}
