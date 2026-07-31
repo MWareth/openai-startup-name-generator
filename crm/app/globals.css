@@ -267,7 +267,10 @@ p { margin: 0 0 10px; }
     flex-direction: column; flex: 1 1 auto; order: 0;
     overflow-x: hidden; overflow-y: auto; min-height: 0; gap: 2px;
   }
-  .nav a { padding: 12px; white-space: normal; }
+  /* Touch-sized but not sprawling — the whole menu should fit without
+     scrolling on a normal phone. */
+  .nav a { padding: 10px 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nav-group > summary { padding: 8px 12px; }
   .sidebar-foot {
     margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); display: block;
   }
