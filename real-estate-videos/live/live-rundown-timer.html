@@ -1,0 +1,372 @@
+<title>Live Rundown — Dubai Real Estate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#0D0F13; --panel:#161A21; --panel-2:#1C212A; --line:#262C36;
+    --ink:#EDF0F4; --muted:#7E8894; --dim:#525B67;
+    --blue:#2F6FED; --green:#2BD576; --amber:#F5B93B; --red:#F0454C;
+    --radius:12px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    font-size:15px; line-height:1.45;
+    padding:20px;
+  }
+  .arabic{font-family:system-ui,-apple-system,"Segoe UI","SF Arabic","Geeza Pro","Noto Sans Arabic",Tahoma,sans-serif}
+
+  .top{display:flex; align-items:baseline; justify-content:space-between; gap:16px; margin-bottom:16px; flex-wrap:wrap}
+  h1{font-size:19px; font-weight:700; letter-spacing:.01em}
+  h1 span{color:var(--muted); font-weight:500}
+  .meta{display:flex; gap:18px; color:var(--muted); font-size:13px; font-variant-numeric:tabular-nums}
+  .meta b{color:var(--ink); font-weight:600}
+
+  .grid{display:grid; grid-template-columns:340px minmax(0,1fr) 380px; gap:16px; align-items:start}
+  @media (max-width:1100px){ .grid{grid-template-columns:320px minmax(0,1fr)} .rundown{grid-column:1/-1} }
+  @media (max-width:760px){ .grid{grid-template-columns:1fr} }
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius)}
+
+  /* ---------- clock ---------- */
+  .clockCard{padding:18px 18px 16px; display:flex; flex-direction:column; gap:14px}
+  .clockHead{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  .segLabel{font-size:14px; font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .onair{
+    font-size:10px; font-weight:700; letter-spacing:.14em; padding:3px 8px; border-radius:4px;
+    color:var(--dim); border:1px solid var(--line); flex:none;
+  }
+  .onair.live{color:#fff; background:var(--red); border-color:var(--red)}
+  .digits{
+    font-size:88px; font-weight:800; line-height:1; letter-spacing:-.02em;
+    font-variant-numeric:tabular-nums; text-align:center; padding:6px 0 2px;
+  }
+  .digits.warn{color:var(--amber)}
+  .digits.crit{color:var(--red)}
+  .digits.over{color:var(--red)}
+  @keyframes blink{50%{opacity:.35}}
+  .digits.over.blink{animation:blink 1s step-end infinite}
+  @media (prefers-reduced-motion: reduce){ .digits.over.blink{animation:none} }
+  .overtag{text-align:center; font-size:11px; font-weight:700; letter-spacing:.16em; color:var(--red); height:14px}
+
+  .bar{height:8px; border-radius:4px; overflow:hidden; display:flex; background:var(--panel-2)}
+  .bar i{display:block; height:100%}
+  .bar .zg{background:var(--green)} .bar .za{background:var(--amber)} .bar .zr{background:var(--red)}
+  .bar .rest{background:var(--panel-2)}
+
+  .transport{display:grid; grid-template-columns:repeat(5,1fr); gap:8px}
+  button{
+    font:inherit; color:var(--ink); background:var(--panel-2); border:1px solid var(--line);
+    border-radius:8px; padding:10px 0; cursor:pointer; font-weight:600; font-size:14px;
+  }
+  button:hover{border-color:#3A4250}
+  button:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+  button.play{background:var(--green); border-color:var(--green); color:#08130C; font-size:16px}
+  button.play.pause{background:var(--amber); border-color:var(--amber); color:#171204}
+
+  .clockFoot{display:flex; justify-content:space-between; color:var(--muted); font-size:12.5px; font-variant-numeric:tabular-nums}
+  .clockFoot b{color:var(--ink); font-weight:600}
+
+  .nextup{border-top:1px solid var(--line); padding-top:12px; display:flex; align-items:center; gap:10px; font-size:13px; color:var(--muted)}
+  .nextup .k{font-size:10px; font-weight:700; letter-spacing:.14em; color:var(--dim); flex:none}
+  .nextup .t{color:var(--ink); font-weight:600; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+
+  /* ---------- notes ---------- */
+  .notesCard{padding:20px 22px; min-height:300px}
+  .notesHead{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; gap:10px}
+  .notesK{font-size:10px; font-weight:700; letter-spacing:.16em; color:var(--dim)}
+  .notesTitle{font-size:21px; font-weight:700; margin-bottom:14px; text-align:right; direction:rtl; text-wrap:balance}
+  .notes{direction:rtl; text-align:right; display:flex; flex-direction:column; gap:10px}
+  .note{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; font-size:16.5px; line-height:1.75;
+  }
+  .note.hook{border-right:3px solid var(--blue)}
+  .note.cta{border-right:3px solid var(--green)}
+  .note.warnnote{border-right:3px solid var(--amber)}
+  .note .tag{
+    display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.1em;
+    color:var(--muted); margin-left:8px; vertical-align:2px;
+  }
+
+  /* ---------- rundown ---------- */
+  .rundown{overflow:hidden}
+  .rundownHead{padding:14px 16px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center}
+  .rundownHead .k{font-size:10px; font-weight:700; letter-spacing:.16em; color:var(--dim)}
+  .rundownHead .sum{font-size:12.5px; color:var(--muted); font-variant-numeric:tabular-nums}
+  .rowlist{list-style:none}
+  .row{
+    display:grid; grid-template-columns:26px 52px minmax(0,1fr) 20px; gap:10px; align-items:center;
+    padding:11px 16px; cursor:pointer; border-bottom:1px solid var(--line);
+  }
+  .row:last-child{border-bottom:none}
+  .row:hover{background:var(--panel-2)}
+  .row:focus-visible{outline:2px solid var(--blue); outline-offset:-2px}
+  .row .n{color:var(--dim); font-size:12px; font-weight:600; font-variant-numeric:tabular-nums}
+  .row .d{color:var(--muted); font-weight:600; font-variant-numeric:tabular-nums; font-size:14px}
+  .row .t{font-weight:600; font-size:14.5px; direction:rtl; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .row .s{width:8px; height:8px; border-radius:50%; background:var(--line); justify-self:center}
+  .row.done{opacity:.45}
+  .row.done .s{background:var(--green)}
+  .row.active{background:var(--blue); border-bottom-color:var(--blue)}
+  .row.active .n,.row.active .d{color:rgba(255,255,255,.75)}
+  .row.active .t{color:#fff}
+  .row.active .s{background:#fff}
+  .row.active:hover{background:var(--blue)}
+</style>
+
+<div class="top">
+  <h1>Live Rundown <span>— عقارات دبي · TikTok LIVE</span></h1>
+  <div class="meta">
+    <div>Dubai <b id="wall">--:--:--</b></div>
+    <div>Show <b id="elapsed">00:00</b> / <b id="total">--:--</b></div>
+    <div>Est. end <b id="eta">--:--</b></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card clockCard">
+    <div class="clockHead">
+      <div class="segLabel arabic" id="segLabel"></div>
+      <div class="onair" id="onair">ON AIR</div>
+    </div>
+    <div class="digits" id="digits">0:00</div>
+    <div class="overtag" id="overtag"></div>
+    <div class="bar" id="bar"></div>
+    <div class="transport">
+      <button id="prev" title="Previous segment">⏮</button>
+      <button id="minus" title="Remove a minute">−1m</button>
+      <button class="play" id="play" title="Start / pause">▶</button>
+      <button id="plus" title="Add a minute">+1m</button>
+      <button id="next" title="Next segment">⏭</button>
+    </div>
+    <div class="clockFoot">
+      <div>Segment <b id="segNum">1/9</b></div>
+      <div>Planned <b id="segPlan">0:00</b></div>
+    </div>
+    <div class="nextup">
+      <span class="k">NEXT</span>
+      <span class="t arabic" id="nextTitle"></span>
+    </div>
+  </div>
+
+  <div class="card notesCard">
+    <div class="notesHead">
+      <span class="notesK">SPEAKER NOTES</span>
+      <span class="notesK" id="notesNum"></span>
+    </div>
+    <div class="notesTitle arabic" id="notesTitle"></div>
+    <div class="notes arabic" id="notes"></div>
+  </div>
+
+  <div class="card rundown">
+    <div class="rundownHead">
+      <span class="k">RUNDOWN</span>
+      <span class="sum" id="rundownSum"></span>
+    </div>
+    <ul class="rowlist" id="rows"></ul>
+  </div>
+</div>
+
+<script>
+const SEGMENTS = [
+  { min:3, title:"الافتتاحية — مين أنا؟", en:"Opener", notes:[
+    {tag:"HOOK", cls:"hook", text:"«معاك ٥٠٠ ألف درهم؟ النهاردة هوريك تشتري إيه في دبي بالظبط.»"},
+    {text:"عرّف نفسك في ٣٠ ثانية: اسمك، وشغلك في سوق العقارات في دبي."},
+    {text:"قول أجندة الحلقة: الاستثمار من بره الإمارات ← الفيزا ← ميزانية ٥٠٠ ألف ← مشروعين حقيقيين ← أسئلة."},
+    {tag:"CTA", cls:"cta", text:"«اكتب دبي في الكومنتات، وتابعني عشان يوصلك كل جديد.»"},
+  ]},
+  { min:8, title:"ازاي تستثمر من خارج الامارات", en:"Investing from overseas", notes:[
+    {text:"الخطوات بالترتيب: اختيار المشروع ← الحجز ← التوقيع عن بُعد ← التحويل البنكي ← التسجيل."},
+    {text:"مش لازم تيجي دبي: التوكيل والتوقيع الإلكتروني بيخلصوا كل حاجة وانت في بلدك."},
+    {tag:"RETENTION", cls:"hook", text:"أغلى ٣ أخطاء بيعملها المشتري وهو بره: ① يشتري من غير وسيط معتمد ② ما يدققش في سجل المطوّر ③ ينسى رسوم التسجيل والصيانة."},
+    {tag:"RE-HOOK", cls:"cta", text:"للي لسه داخل: «أنا بتكلم عن الاستثمار العقاري في دبي — اكتب دبي في الكومنتات.»"},
+  ]},
+  { min:8, title:"الفيزا والإقامة", en:"Visa / residency", notes:[
+    {text:"٧٥٠ ألف درهم عقار ← إقامة سنتين قابلة للتجديد."},
+    {text:"٢ مليون درهم ← جولدن فيزا ١٠ سنين، وينفع تجمع قيمة أكتر من وحدة."},
+    {text:"الفرق العملي بين الاتنين: العيلة، الكفالة، وحرية الدخول والخروج."},
+    {tag:"LEGAL", cls:"warnnote", text:"قول دايمًا: «حسب موافقة الجهات المختصة» — ممنوع تضمن فيزا على الهوا."},
+  ]},
+  { min:8, title:"معاك ٥٠٠ ألف درهم؟", en:"The 500K budget", notes:[
+    {text:"إيه اللي الـ٥٠٠ ألف تجيبه فعلًا: استوديو أو غرفة وصالة في مناطق زي دبي لاند و JVC."},
+    {text:"خطط السداد: مقدم ١٠–٢٠٪ والباقي أقساط على سنين — ده اللي بيفتح الباب للميزانيات دي."},
+    {text:"رقم واحد يفضل في دماغهم: القسط الشهري التقريبي، مش سعر الوحدة."},
+    {tag:"BRIDGE", cls:"cta", text:"«وعشان أوريك إن ده كلام عملي مش نظري… تعالوا نشوف مشروع حقيقي دلوقتي.»"},
+  ]},
+  { min:10, title:"عرض مشروع Celesto 4 — دبي لاند", en:"Celesto 4 presentation", notes:[
+    {tag:"SETUP", cls:"warnnote", text:"شير الشاشة وصغّر الكاميرا في الركن — ما تخفيهاش خالص."},
+    {text:"الترتيب: الموقع ← المطوّر ← الأسعار ← خطة السداد ← موعد التسليم."},
+    {text:"اربطه بالسيجمنت اللي فات: فين الوحدات اللي جوه حدود الـ٥٠٠ ألف؟"},
+    {tag:"CTA", cls:"cta", text:"«أي سؤال عن المشروع اكتبه دلوقتي — جايلكم على الأسئلة بعد العرض على طول.»"},
+  ]},
+  { min:6, title:"أسئلة وأجوبة ①", en:"Q&A 1", notes:[
+    {tag:"SETUP", cls:"warnnote", text:"رجّع الكاميرا كبيرة تاني — وش وعينين، مش شاشة."},
+    {text:"لو الشات هادي، ابدأ بنفسك: «الأقساط بتكمل بعد التسليم؟» — «ينفع أشتري وأنا مش موجود في دبي؟» — «الوحدة دي إيجارها يجيب كام؟»"},
+    {text:"اقرأ اسم صاحب السؤال بصوت عالي — بيرفع التفاعل فورًا."},
+  ]},
+  { min:10, title:"عرض مشروع Anarcia — Beyond", en:"Anarcia presentation", notes:[
+    {tag:"SETUP", cls:"warnnote", text:"نفس النظام: شير شاشة + كاميرا صغيرة في الركن."},
+    {text:"الترتيب: الموقع ← المطوّر ← الأسعار ← خطة السداد ← موعد التسليم."},
+    {text:"قارن في جملتين: Celesto لمين؟ و Anarcia لمين؟ — الميزانية، الموقع، هدف الاستثمار."},
+    {tag:"CTA", cls:"cta", text:"«اللي عايز تفاصيل أي مشروع فيهم يكتب اسم المشروع في الكومنتات.»"},
+  ]},
+  { min:6, title:"أسئلة وأجوبة ②", en:"Q&A 2", notes:[
+    {text:"آخر فرصة للأسئلة: «اسأل دلوقتي قبل ما نقفل.»"},
+    {text:"ركّز على أسئلة المشروعين — وأي سؤال كبير أجّله: «ده موضوع حلقة لوحده، هظبطه ليكم.»"},
+  ]},
+  { min:3, title:"الختام", en:"Closer", notes:[
+    {text:"لخّص في ٣ سطور: تقدر تشتري وانت بره ← الفيزا ليها حدود واضحة ← الـ٥٠٠ ألف ليها فرص حقيقية بخطط سداد."},
+    {tag:"TEASE", cls:"hook", text:"تيزر بكرة: «بكرة الساعة X هتكلم عن … ما تفوتش.»"},
+    {tag:"CTA", cls:"cta", text:"«تابعني واكتب دبي في الكومنتات — وأشوفكم بكرة إن شاء الله.»"},
+  ]},
+];
+
+const $ = id => document.getElementById(id);
+const state = { idx:0, remaining:SEGMENTS[0].min*60, running:false, last:0, spent:SEGMENTS.map(()=>0) };
+let wakeLock = null;
+
+function fmt(s){
+  const neg = s < 0; s = Math.abs(Math.round(s));
+  const m = Math.floor(s/60), sec = s%60;
+  return (neg?"-":"") + m + ":" + String(sec).padStart(2,"0");
+}
+function fmtLong(s){
+  s = Math.max(0, Math.round(s));
+  const m = Math.floor(s/60), sec = s%60;
+  return String(m).padStart(2,"0") + ":" + String(sec).padStart(2,"0");
+}
+
+function buildRows(){
+  const ul = $("rows"); ul.innerHTML = "";
+  SEGMENTS.forEach((seg,i)=>{
+    const li = document.createElement("li");
+    li.className = "row"; li.tabIndex = 0; li.dataset.i = i;
+    li.innerHTML = `<span class="n">${i+1}</span><span class="d">${seg.min}:00</span>` +
+      `<span class="t arabic">${seg.title}</span><span class="s"></span>`;
+    const go = ()=>{ jumpTo(i); };
+    li.addEventListener("click", go);
+    li.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } });
+    ul.appendChild(li);
+  });
+  const tot = SEGMENTS.reduce((a,s)=>a+s.min,0);
+  $("rundownSum").textContent = SEGMENTS.length + " segments · " + tot + " min";
+  $("total").textContent = tot + ":00";
+}
+
+function renderNotes(){
+  const seg = SEGMENTS[state.idx];
+  $("notesTitle").textContent = seg.title;
+  $("notesNum").textContent = (state.idx+1) + " / " + SEGMENTS.length + " — " + seg.en.toUpperCase();
+  const box = $("notes"); box.innerHTML = "";
+  seg.notes.forEach(n=>{
+    const d = document.createElement("div");
+    d.className = "note" + (n.cls ? " "+n.cls : "");
+    d.innerHTML = (n.tag ? `<span class="tag">${n.tag}</span>` : "") + n.text;
+    box.appendChild(d);
+  });
+}
+
+function renderStatic(){
+  const seg = SEGMENTS[state.idx];
+  $("segLabel").textContent = (state.idx+1) + " · " + seg.title;
+  $("segNum").textContent = (state.idx+1) + "/" + SEGMENTS.length;
+  $("segPlan").textContent = seg.min + ":00";
+  $("nextTitle").textContent = state.idx < SEGMENTS.length-1
+    ? SEGMENTS[state.idx+1].title : "— نهاية الحلقة";
+  document.querySelectorAll(".row").forEach((r,i)=>{
+    r.classList.toggle("active", i===state.idx);
+    r.classList.toggle("done", i<state.idx);
+  });
+  renderNotes();
+}
+
+function renderClock(){
+  const seg = SEGMENTS[state.idx];
+  const total = seg.min*60, rem = state.remaining;
+  const d = $("digits");
+  d.textContent = fmt(rem);
+  d.className = "digits";
+  if (rem < 0){ d.classList.add("over"); if(state.running) d.classList.add("blink"); }
+  else if (rem <= 60) d.classList.add("crit");
+  else if (rem <= total*0.2) d.classList.add("warn");
+  $("overtag").textContent = rem < 0 ? "OVERTIME" : "";
+
+  const frac = Math.min(1, Math.max(0, (total-rem)/total));
+  const aStart = 0.8, rStart = 1 - Math.min(60/total, 0.2)*0 - (60/total);
+  const g = Math.min(frac, aStart);
+  const a = Math.min(Math.max(frac-aStart,0), Math.max(rStart-aStart,0));
+  const r = Math.max(frac-Math.max(rStart,aStart), 0);
+  $("bar").innerHTML =
+    `<i class="zg" style="width:${g*100}%"></i>` +
+    `<i class="za" style="width:${a*100}%"></i>` +
+    `<i class="zr" style="width:${r*100}%"></i>` +
+    `<i class="rest" style="flex:1"></i>`;
+
+  const spentNow = state.spent.reduce((x,y)=>x+y,0) + (SEGMENTS[state.idx].min*60 - rem);
+  $("elapsed").textContent = fmtLong(spentNow);
+  const remainingShow = SEGMENTS.slice(state.idx+1).reduce((x,s)=>x+s.min*60,0) + Math.max(rem,0);
+  const eta = new Date(Date.now() + remainingShow*1000);
+  $("eta").textContent = eta.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Dubai"});
+}
+
+function tick(now){
+  if (state.running){
+    const dt = (now - state.last)/1000;
+    state.last = now;
+    state.remaining -= dt;
+  }
+  renderClock();
+  requestAnimationFrame(tick);
+}
+
+async function setRunning(on){
+  state.running = on;
+  state.last = performance.now();
+  const p = $("play");
+  p.textContent = on ? "❚❚" : "▶";
+  p.classList.toggle("pause", on);
+  $("onair").classList.toggle("live", on);
+  try{
+    if (on && "wakeLock" in navigator){ wakeLock = await navigator.wakeLock.request("screen"); }
+    else if (!on && wakeLock){ await wakeLock.release(); wakeLock = null; }
+  }catch(e){}
+}
+
+function jumpTo(i, keepRunning){
+  state.spent[state.idx] = SEGMENTS[state.idx].min*60 - state.remaining;
+  state.idx = Math.max(0, Math.min(SEGMENTS.length-1, i));
+  state.remaining = SEGMENTS[state.idx].min*60 - (state.spent[state.idx]||0)*0;
+  state.remaining = SEGMENTS[state.idx].min*60;
+  state.spent[state.idx] = 0;
+  state.last = performance.now();
+  renderStatic();
+}
+
+$("play").addEventListener("click", ()=> setRunning(!state.running));
+$("next").addEventListener("click", ()=> jumpTo(state.idx+1));
+$("prev").addEventListener("click", ()=> jumpTo(state.idx-1));
+$("plus").addEventListener("click", ()=> { state.remaining += 60; });
+$("minus").addEventListener("click", ()=> { state.remaining -= 60; });
+document.addEventListener("keydown", e=>{
+  if (e.target.tagName === "BUTTON") return;
+  if (e.key === " "){ e.preventDefault(); setRunning(!state.running); }
+  if (e.key === "ArrowRight") jumpTo(state.idx+1);
+  if (e.key === "ArrowLeft") jumpTo(state.idx-1);
+});
+document.addEventListener("visibilitychange", ()=>{
+  if (document.visibilityState === "visible" && state.running && "wakeLock" in navigator){
+    navigator.wakeLock.request("screen").then(w=>wakeLock=w).catch(()=>{});
+  }
+});
+
+setInterval(()=>{
+  $("wall").textContent = new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit",timeZone:"Asia/Dubai"});
+}, 500);
+
+buildRows();
+renderStatic();
+renderClock();
+requestAnimationFrame(tick);
+</script>
