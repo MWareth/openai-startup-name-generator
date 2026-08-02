@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>اشتري وقت الأزمة — Live Pointers</title>
+<style>
+  @page{ size:486pt 864pt; margin:0 }
+  :root{
+    --bg:#0A1622; --bg2:#0E1F30; --panel:#122840; --line:#1F3A54;
+    --ink:#F3EFE6; --muted:#8FA0B0; --sand:#D8AC63; --sand-2:#B98C42; --green:#3ECF8E;
+    --radius:10pt;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+  body{font-family:"Noto Sans Arabic","DejaVu Sans",sans-serif; color:var(--ink)}
+  a{color:inherit; text-decoration:none}
+  .page{
+    width:486pt; height:864pt; overflow:hidden; page-break-after:always; position:relative;
+    background:radial-gradient(130% 70% at 80% 6%, var(--bg2) 0%, var(--bg) 55%), var(--bg);
+    background-color:var(--bg);
+    padding:44pt 36pt 70pt; direction:rtl;
+    display:flex; flex-direction:column; justify-content:center; gap:14pt;
+  }
+  .page:last-child{page-break-after:auto}
+  .eyebrow{color:var(--sand); font-size:11pt; font-weight:700; letter-spacing:.05em}
+  h1{font-size:31pt; font-weight:800; line-height:1.28}
+  h2{font-size:24pt; font-weight:800; line-height:1.3}
+  .accent{color:var(--sand)}
+  .mins{color:var(--muted); font-size:12pt; font-weight:600}
+
+  /* pointers */
+  .pts{display:flex; flex-direction:column; gap:10pt}
+  .pt{
+    background:var(--panel); border:1pt solid var(--line); border-radius:var(--radius);
+    padding:13pt 15pt; font-size:16pt; font-weight:600; line-height:1.6;
+  }
+  .pt.key{border-right:4pt solid var(--sand)}
+  .pt.key .tag{color:var(--sand)}
+  .pt.cta{border-right:4pt solid var(--green)}
+  .pt.cta .tag{color:var(--green)}
+  .pt .tag{display:block; font-size:9pt; font-weight:800; letter-spacing:.12em; color:var(--muted); margin-bottom:3pt}
+
+  /* agenda */
+  .toc{display:flex; flex-direction:column; gap:7pt}
+  .toc a{
+    display:flex; align-items:center; gap:10pt; background:var(--panel);
+    border:1pt solid var(--line); border-radius:var(--radius); padding:10pt 13pt;
+  }
+  .toc .n{
+    width:20pt; height:20pt; flex:none; border-radius:50%; background:var(--sand); color:#1A1204;
+    font-weight:800; font-size:11pt; display:flex; align-items:center; justify-content:center;
+  }
+  .toc .t{font-size:13.5pt; font-weight:700; flex:1}
+  .toc .m{color:var(--muted); font-size:11pt; font-weight:600}
+
+  /* nav bar */
+  .nav{
+    position:absolute; bottom:0; right:0; left:0; height:52pt;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 36pt; border-top:1pt solid var(--line); background:var(--bg);
+  }
+  .nav a{
+    font-size:11.5pt; font-weight:700; color:var(--muted);
+    border:1pt solid var(--line); border-radius:8pt; padding:6pt 14pt; background:var(--panel);
+  }
+  .nav a.next{background:var(--sand); border-color:var(--sand); color:#1A1204}
+  .nav .home{font-size:13pt}
+  .pageno{position:absolute; bottom:18pt; left:50%; transform:translateX(-50%); color:var(--muted); font-size:9pt; font-weight:600}
+</style>
+</head>
+<body>
+
+<!-- 1 · agenda -->
+<section class="page" id="p1">
+  <div class="eyebrow">لايف اليوم · ٦٠ دقيقة</div>
+  <h1>اشتري <span class="accent">وقت الأزمة</span></h1>
+  <div class="toc">
+    <a href="#p2"><span class="n">١</span><span class="t">الافتتاحية</span><span class="m">٣ د</span></a>
+    <a href="#p3"><span class="n">٢</span><span class="t">ليه الأزمة فرصة؟</span><span class="m">٨ د</span></a>
+    <a href="#p4"><span class="n">٣</span><span class="t">فلوس العالم رايحة فين؟</span><span class="m">٧ د</span></a>
+    <a href="#p5"><span class="n">٤</span><span class="t">اسكن في النص · استثمر على الأطراف</span><span class="m">٨ د</span></a>
+    <a href="#p6"><span class="n">٥</span><span class="t">الفرص والمطوّرين الكبار</span><span class="m">١٠ د</span></a>
+    <a href="#p7"><span class="n">٦</span><span class="t">أسئلة وأجوبة ①</span><span class="m">٨ د</span></a>
+    <a href="#p8"><span class="n">٧</span><span class="t">غلطة اليوم</span><span class="m">٧ د</span></a>
+    <a href="#p9"><span class="n">٨</span><span class="t">أسئلة وأجوبة ②</span><span class="m">٦ د</span></a>
+    <a href="#p10"><span class="n">٩</span><span class="t">الختام</span><span class="m">٣ د</span></a>
+  </div>
+  <div class="nav"><span></span><a class="next" href="#p2">ابدأ ←</a></div>
+</section>
+
+<!-- 2 -->
+<section class="page" id="p2">
+  <div class="eyebrow">١ / ٩ · ٣ دقايق</div>
+  <h2>الافتتاحية</h2>
+  <div class="pts">
+    <div class="pt key"><span class="tag">الهوك</span>«متبيعش وقت الأزمة… اشتري وقت الأزمة»</div>
+    <div class="pt">مين أنا — ٣٠ ثانية</div>
+    <div class="pt">أجندة الحلقة بسرعة</div>
+    <div class="pt cta"><span class="tag">للمشاهدين</span>تابعني + اكتب «دبي» في الكومنتات</div>
+  </div>
+  <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p3">التالي ←</a></div>
+</section>
+
+<!-- 3 -->
+<section class="page" id="p3">
+  <div class="eyebrow">٢ / ٩ · ٨ دقايق</div>
+  <h2>ليه الأزمة <span class="accent">فرصة</span>؟</h2>
+  <div class="pts">
+    <div class="pt">«أشتري دلوقتي؟!» — السؤال اللي في دماغ كل واحد</div>
+    <div class="pt key"><span class="tag">الفكرة</span>الناس نوعين: يخاف ويبيع · يفهم ويشتري</div>
+    <div class="pt">اللي اشترى بعد ٢٠٠٨ و٢٠٢٠ حصل له إيه؟</div>
+    <div class="pt cta"><span class="tag">للمشاهدين</span>لسه داخل؟ اكتب «دبي» وتابع</div>
+  </div>
+  <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p4">التالي ←</a></div>
+</section>
+
+<!-- 4 -->
+<section class="page" id="p4">
+  <div class="eyebrow">٣ / ٩ · ٧ دقايق</div>
+  <h2>فلوس العالم رايحة <span class="accent">فين</span>؟</h2>
+  <div class="pts">
+    <div class="pt">هجرة المليونيرات والشركات والمكاتب الخاصة → الإمارات</div>
+    <div class="pt key"><span class="tag">الجملة المفتاحية</span>«بيجوا عشان الأزمة… مش رغمها»</div>
+  </div>
+  <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p5">التالي ←</a></div>
+</section>
+
+<!-- 5 -->
+<section class="page" id="p5">
+  <div class="eyebrow">٤ / ٩ · ٨ دقايق</div>
+  <h2>اسكن في النص · <span class="accent">استثمر على الأطراف</span></h2>
+  <div class="pts">
+    <div class="pt key"><span class="tag">القاعدة</span>اسكن بالإيجار في النص · استثمر في اللي بيكبر</div>
+    <div class="pt">ليه: بتدخل قبل ما السعر يوصل (دبي لاند، JVC)</div>
+    <div class="pt">جاهز = دخل من أول شهر · أوف بلان = دخول أرخص</div>
+    <div class="pt cta"><span class="tag">السؤال الجاي</span>«طيب تشتري حوالين مين؟»</div>
+  </div>
+  <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p6">التالي ←</a></div>
+</section>
+
+<!-- 6 -->
+<section class="page" id="p6">
+  <div class="eyebrow">٥ / ٩ · ١٠ دقايق</div>
+  <h2>الفرص والمطوّرين <span class="accent">الكبار</span></h2>
+  <div class="pts">
+    <div class="pt">المطوّر أهم من الوحدة: تسليم · جودة · إعادة بيع</div>
+    <div class="pt key"><span class="tag">الفكرة الذهبية</span>اشتري حوالين مشاريع الكبار</div>
+    <div class="pt">Emaar: داون تاون · كريك هاربور · ذا فالي</div>
+    <div class="pt">Meraas: سيتي ووك · بلوواترز · بورت دو لا مير</div>
+    <div class="pt">ماستر بلان جديد = أرخص نقطة دخول</div>
+    <div class="pt cta"><span class="tag">للمشاهدين</span>اكتب اسم مطوّر أو منطقة تهمك</div>
+  </div>
+  <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p7">التالي ←</a></div>
+</section>
+
+<!-- 7 -->
+<section class="page" id="p7">
+  <div class="eyebrow">٦ / ٩ · ٨ دقايق</div>
+  <h2>أسئلة وأجوبة <span class="accent">①</span></h2>
+  <div class="pts">
+    <div class="pt cta"><span class="tag">دلوقتي</span>اسأل في الكومنتات — برد بالاسم</div>
+    <div class="pt">أسئلة بتتكرر: Emaar ولا Meraas؟ · أبدأ بكام؟ · وأنا بره الإمارات؟</div>
+  </div>
+  <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p8">التالي ←</a></div>
+</section>
+
+<!-- 8 -->
+<section class="page" id="p8">
+  <div class="eyebrow">٧ / ٩ · ٧ دقايق</div>
+  <h2>غلطة <span class="accent">اليوم</span></h2>
+  <div class="pts">
+    <div class="pt key"><span class="tag">الغلطة</span>«هستنى لما الدنيا تهدى»</div>
+    <div class="pt">تكلفة الانتظار: إيجار أغلى + سعر أعلى</div>
+    <div class="pt">البديل: ابدأ صغير بخطة سداد</div>
+  </div>
+  <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p9">التالي ←</a></div>
+</section>
+
+<!-- 9 -->
+<section class="page" id="p9">
+  <div class="eyebrow">٨ / ٩ · ٦ دقايق</div>
+  <h2>أسئلة وأجوبة <span class="accent">②</span></h2>
+  <div class="pts">
+    <div class="pt cta"><span class="tag">آخر فرصة</span>اسأل قبل ما نقفل</div>
+    <div class="pt">سؤال كبير → حلقة بكرة</div>
+  </div>
+  <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p10">التالي ←</a></div>
+</section>
+
+<!-- 10 -->
+<section class="page" id="p10">
+  <div class="eyebrow">٩ / ٩ · ٣ دقايق</div>
+  <h2>الختام</h2>
+  <div class="pts">
+    <div class="pt">ملخص في ٣ سطور</div>
+    <div class="pt key"><span class="tag">القفلة</span>«السؤال مش الوقت… السؤال: انت جاهز؟»</div>
+    <div class="pt cta"><span class="tag">للمشاهدين</span>تابعني + اكتب «دبي» — وأشوفكم بكرة</div>
+  </div>
+  <div class="nav"><a href="#p1" class="home">⌂ الأجندة</a><span></span></div>
+</section>
+
+</body>
+</html>
