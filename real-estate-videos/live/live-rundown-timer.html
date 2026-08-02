@@ -90,6 +90,19 @@
     display:inline-block; font-size:10.5px; font-weight:700; letter-spacing:.1em;
     color:var(--muted); margin-left:8px; vertical-align:2px;
   }
+  .notesCard.previewing{border-color:var(--amber)}
+  .previewbar{
+    display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+    background:rgba(245,185,59,.12); border:1px solid var(--amber); border-radius:10px;
+    padding:10px 14px; font-size:14px; color:var(--amber); font-weight:600;
+  }
+  .previewbar .pvbtns{display:flex; gap:8px}
+  .previewbar button{
+    font:inherit; font-size:13px; font-weight:700; cursor:pointer; border-radius:7px; padding:6px 12px;
+    background:var(--amber); color:#171204; border:1px solid var(--amber);
+  }
+  .previewbar button.ghost{background:transparent; color:var(--amber)}
+  .row.previewed{outline:1px dashed var(--amber); outline-offset:-3px}
 
   /* ---------- rundown ---------- */
   .rundown{overflow:hidden}
@@ -231,7 +244,7 @@ const SEGMENTS = [
 ];
 
 const $ = id => document.getElementById(id);
-const state = { idx:0, remaining:SEGMENTS[0].min*60, running:false, last:0, spent:SEGMENTS.map(()=>0) };
+const state = { idx:0, remaining:SEGMENTS[0].min*60, running:false, last:0, spent:SEGMENTS.map(()=>0), preview:null };
 let wakeLock = null;
 
 function fmt(s){
@@ -252,8 +265,9 @@ function buildRows(){
     li.className = "row"; li.tabIndex = 0; li.dataset.i = i;
     li.innerHTML = `<span class="n">${i+1}</span><span class="d">${seg.min}:00</span>` +
       `<span class="t arabic">${seg.title}</span><span class="s"></span>`;
-    const go = ()=>{ jumpTo(i); };
+    const go = ()=>{ state.preview = (i===state.idx ? null : i); renderNotes(); };
     li.addEventListener("click", go);
+    li.addEventListener("dblclick", ()=>jumpTo(i));
     li.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); go(); } });
     ul.appendChild(li);
   });
@@ -263,16 +277,31 @@ function buildRows(){
 }
 
 function renderNotes(){
-  const seg = SEGMENTS[state.idx];
+  const isPreview = state.preview !== null && state.preview !== state.idx;
+  const idx = isPreview ? state.preview : state.idx;
+  const seg = SEGMENTS[idx];
+  document.querySelector(".notesCard").classList.toggle("previewing", isPreview);
+  document.querySelectorAll(".row").forEach((r,i)=>r.classList.toggle("previewed", isPreview && i===idx));
   $("notesTitle").textContent = seg.title;
-  $("notesNum").textContent = (state.idx+1) + " / " + SEGMENTS.length + " — " + seg.en.toUpperCase();
+  $("notesNum").textContent = (idx+1) + " / " + SEGMENTS.length + " — " + seg.en.toUpperCase();
   const box = $("notes"); box.innerHTML = "";
+  if (isPreview){
+    const bar = document.createElement("div");
+    bar.className = "previewbar";
+    bar.innerHTML = `<span>👀 معاينة بس — التايمر شغال على سيجمنت تاني</span>` +
+      `<span class="pvbtns"><button id="pvStart">▶ ابدأ من هنا</button><button id="pvBack" class="ghost">رجوع للحالي</button></span>`;
+    box.appendChild(bar);
+  }
   seg.notes.forEach(n=>{
     const d = document.createElement("div");
     d.className = "note" + (n.cls ? " "+n.cls : "");
     d.innerHTML = (n.tag ? `<span class="tag">${n.tag}</span>` : "") + n.text;
     box.appendChild(d);
   });
+  if (isPreview){
+    $("pvStart").addEventListener("click", ()=>jumpTo(idx));
+    $("pvBack").addEventListener("click", ()=>{ state.preview = null; renderNotes(); });
+  }
 }
 
 function renderStatic(){
@@ -342,6 +371,7 @@ async function setRunning(on){
 }
 
 function jumpTo(i, keepRunning){
+  state.preview = null;
   state.spent[state.idx] = SEGMENTS[state.idx].min*60 - state.remaining;
   state.idx = Math.max(0, Math.min(SEGMENTS.length-1, i));
   state.remaining = SEGMENTS[state.idx].min*60 - (state.spent[state.idx]||0)*0;
