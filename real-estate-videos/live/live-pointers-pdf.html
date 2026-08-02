@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<title>اشتري وقت الأزمة — Live Pointers</title>
+<title>عقارات الإمارات — Live Pointers</title>
 <style>
   @page{ size:486pt 864pt; margin:0 }
   :root{
@@ -17,27 +17,44 @@
     width:486pt; height:864pt; overflow:hidden; page-break-after:always; position:relative;
     background:radial-gradient(130% 70% at 80% 6%, var(--bg2) 0%, var(--bg) 55%), var(--bg);
     background-color:var(--bg);
-    padding:44pt 36pt 70pt; direction:rtl;
-    display:flex; flex-direction:column; justify-content:center; gap:14pt;
+    padding:40pt 36pt 70pt; direction:rtl;
+    display:flex; flex-direction:column; justify-content:center; gap:13pt;
   }
   .page:last-child{page-break-after:auto}
   .eyebrow{color:var(--sand); font-size:11pt; font-weight:700; letter-spacing:.05em}
-  h1{font-size:31pt; font-weight:800; line-height:1.28}
-  h2{font-size:24pt; font-weight:800; line-height:1.3}
+  h1{font-size:36pt; font-weight:800; line-height:1.25}
+  h2{font-size:23pt; font-weight:800; line-height:1.3}
   .accent{color:var(--sand)}
-  .mins{color:var(--muted); font-size:12pt; font-weight:600}
+  .sub{color:var(--muted); font-size:13pt; line-height:1.7}
 
-  /* pointers */
-  .pts{display:flex; flex-direction:column; gap:10pt}
-  .pt{
+  /* visual card */
+  .viz{
     background:var(--panel); border:1pt solid var(--line); border-radius:var(--radius);
-    padding:13pt 15pt; font-size:16pt; font-weight:600; line-height:1.6;
+    overflow:hidden; flex:none;
+  }
+  .viz svg{display:block; width:100%; height:auto}
+  .vlbl{fill:#8FA0B0; font-size:13px; font-weight:700; font-family:"Noto Sans Arabic","DejaVu Sans",sans-serif}
+  .vlbl.gold{fill:#D8AC63}
+
+  /* indexed pointers */
+  .pts{display:flex; flex-direction:column; gap:9pt}
+  .pt{
+    display:flex; align-items:flex-start; gap:10pt;
+    background:var(--panel); border:1pt solid var(--line); border-radius:var(--radius);
+    padding:11pt 13pt; font-size:15pt; font-weight:600; line-height:1.55;
+  }
+  .pt .ix{
+    width:19pt; height:19pt; flex:none; margin-top:1pt; border-radius:50%;
+    background:transparent; border:1.4pt solid var(--sand-2); color:var(--sand);
+    font-weight:800; font-size:10.5pt; display:flex; align-items:center; justify-content:center;
   }
   .pt.key{border-right:4pt solid var(--sand)}
-  .pt.key .tag{color:var(--sand)}
   .pt.cta{border-right:4pt solid var(--green)}
+  .pt.cta .ix{border-color:var(--green); color:var(--green)}
+  .pt .tag{display:block; font-size:9pt; font-weight:800; letter-spacing:.1em; color:var(--muted); margin-bottom:2pt}
+  .pt.key .tag{color:var(--sand)}
   .pt.cta .tag{color:var(--green)}
-  .pt .tag{display:block; font-size:9pt; font-weight:800; letter-spacing:.12em; color:var(--muted); margin-bottom:3pt}
+  .pt .tx{flex:1}
 
   /* agenda */
   .toc{display:flex; flex-direction:column; gap:7pt}
@@ -49,10 +66,9 @@
     width:20pt; height:20pt; flex:none; border-radius:50%; background:var(--sand); color:#1A1204;
     font-weight:800; font-size:11pt; display:flex; align-items:center; justify-content:center;
   }
-  .toc .t{font-size:13.5pt; font-weight:700; flex:1}
-  .toc .m{color:var(--muted); font-size:11pt; font-weight:600}
+  .toc .t{font-size:14pt; font-weight:700; flex:1}
 
-  /* nav bar */
+  /* nav */
   .nav{
     position:absolute; bottom:0; right:0; left:0; height:52pt;
     display:flex; align-items:center; justify-content:space-between;
@@ -64,136 +80,244 @@
   }
   .nav a.next{background:var(--sand); border-color:var(--sand); color:#1A1204}
   .nav .home{font-size:13pt}
-  .pageno{position:absolute; bottom:18pt; left:50%; transform:translateX(-50%); color:var(--muted); font-size:9pt; font-weight:600}
 </style>
 </head>
 <body>
 
-<!-- 1 · agenda -->
+<!-- 1 · cover / agenda -->
 <section class="page" id="p1">
-  <div class="eyebrow">لايف اليوم · ٦٠ دقيقة</div>
-  <h1>اشتري <span class="accent">وقت الأزمة</span></h1>
+  <div class="eyebrow">لايف يومي</div>
+  <h1>عقارات <span class="accent">الإمارات</span></h1>
+  <div class="sub">حلقة اليوم: اشتري وقت الأزمة</div>
+  <div class="viz"><svg viewBox="0 0 414 120">
+    <line x1="20" y1="100" x2="394" y2="100" stroke="#1F3A54" stroke-width="2"/>
+    <rect x="50" y="58" width="26" height="42" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <rect x="86" y="42" width="30" height="58" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <polygon points="150,100 165,18 180,100" fill="none" stroke="#D8AC63" stroke-width="2.4"/>
+    <line x1="165" y1="18" x2="165" y2="6" stroke="#D8AC63" stroke-width="2.4"/>
+    <rect x="196" y="50" width="28" height="50" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <path d="M240,100 L240,44 Q254,30 268,44 L268,100" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <rect x="286" y="62" width="24" height="38" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <rect x="322" y="48" width="30" height="52" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <circle cx="370" cy="30" r="12" fill="none" stroke="#D8AC63" stroke-width="2"/>
+  </svg></div>
   <div class="toc">
-    <a href="#p2"><span class="n">١</span><span class="t">الافتتاحية</span><span class="m">٣ د</span></a>
-    <a href="#p3"><span class="n">٢</span><span class="t">ليه الأزمة فرصة؟</span><span class="m">٨ د</span></a>
-    <a href="#p4"><span class="n">٣</span><span class="t">فلوس العالم رايحة فين؟</span><span class="m">٧ د</span></a>
-    <a href="#p5"><span class="n">٤</span><span class="t">اسكن في النص · استثمر على الأطراف</span><span class="m">٨ د</span></a>
-    <a href="#p6"><span class="n">٥</span><span class="t">الفرص والمطوّرين الكبار</span><span class="m">١٠ د</span></a>
-    <a href="#p7"><span class="n">٦</span><span class="t">أسئلة وأجوبة ①</span><span class="m">٨ د</span></a>
-    <a href="#p8"><span class="n">٧</span><span class="t">غلطة اليوم</span><span class="m">٧ د</span></a>
-    <a href="#p9"><span class="n">٨</span><span class="t">أسئلة وأجوبة ②</span><span class="m">٦ د</span></a>
-    <a href="#p10"><span class="n">٩</span><span class="t">الختام</span><span class="m">٣ د</span></a>
+    <a href="#p2"><span class="n">١</span><span class="t">الافتتاحية</span></a>
+    <a href="#p3"><span class="n">٢</span><span class="t">ليه الأزمة فرصة؟</span></a>
+    <a href="#p4"><span class="n">٣</span><span class="t">فلوس العالم رايحة فين؟</span></a>
+    <a href="#p5"><span class="n">٤</span><span class="t">اسكن في النص · استثمر على الأطراف</span></a>
+    <a href="#p6"><span class="n">٥</span><span class="t">الفرص والمطوّرين الكبار</span></a>
+    <a href="#p7"><span class="n">٦</span><span class="t">أسئلة وأجوبة ①</span></a>
+    <a href="#p8"><span class="n">٧</span><span class="t">غلطة اليوم</span></a>
+    <a href="#p9"><span class="n">٨</span><span class="t">أسئلة وأجوبة ②</span></a>
+    <a href="#p10"><span class="n">٩</span><span class="t">الختام</span></a>
   </div>
   <div class="nav"><span></span><a class="next" href="#p2">ابدأ ←</a></div>
 </section>
 
-<!-- 2 -->
+<!-- 2 · opener -->
 <section class="page" id="p2">
-  <div class="eyebrow">١ / ٩ · ٣ دقايق</div>
+  <div class="eyebrow">١ / ٩</div>
   <h2>الافتتاحية</h2>
+  <div class="viz"><svg viewBox="0 0 414 110">
+    <circle cx="207" cy="52" r="30" fill="none" stroke="#D8AC63" stroke-width="2.4"/>
+    <polygon points="198,38 198,66 224,52" fill="#D8AC63"/>
+    <path d="M156,30 Q140,52 156,74" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <path d="M258,30 Q274,52 258,74" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <path d="M140,20 Q118,52 140,84" fill="none" stroke="#1F3A54" stroke-width="2"/>
+    <path d="M274,20 Q296,52 274,84" fill="none" stroke="#1F3A54" stroke-width="2"/>
+  </svg></div>
   <div class="pts">
-    <div class="pt key"><span class="tag">الهوك</span>«متبيعش وقت الأزمة… اشتري وقت الأزمة»</div>
-    <div class="pt">مين أنا — ٣٠ ثانية</div>
-    <div class="pt">أجندة الحلقة بسرعة</div>
-    <div class="pt cta"><span class="tag">للمشاهدين</span>تابعني + اكتب «دبي» في الكومنتات</div>
+    <div class="pt key"><span class="ix">١</span><span class="tx"><span class="tag">الهوك</span>«متبيعش وقت الأزمة… اشتري وقت الأزمة»</span></div>
+    <div class="pt"><span class="ix">٢</span><span class="tx">مين أنا</span></div>
+    <div class="pt"><span class="ix">٣</span><span class="tx">أجندة الحلقة</span></div>
+    <div class="pt cta"><span class="ix">٤</span><span class="tx"><span class="tag">للمشاهدين</span>تابعني + اكتب «دبي»</span></div>
   </div>
   <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p3">التالي ←</a></div>
 </section>
 
-<!-- 3 -->
+<!-- 3 · crisis -->
 <section class="page" id="p3">
-  <div class="eyebrow">٢ / ٩ · ٨ دقايق</div>
+  <div class="eyebrow">٢ / ٩</div>
   <h2>ليه الأزمة <span class="accent">فرصة</span>؟</h2>
+  <div class="viz"><svg viewBox="0 0 414 130">
+    <line x1="30" y1="108" x2="384" y2="108" stroke="#1F3A54" stroke-width="2"/>
+    <polyline points="40,34 105,52 150,88 190,96" fill="none" stroke="#8FA0B0" stroke-width="2.6"/>
+    <polyline points="190,96 240,70 300,44 352,22" fill="none" stroke="#D8AC63" stroke-width="3"/>
+    <polygon points="352,22 338,24 346,36" fill="#D8AC63"/>
+    <circle cx="190" cy="96" r="5" fill="#D8AC63"/>
+    <text class="vlbl" x="150" y="122" text-anchor="middle">الخوف</text>
+    <text class="vlbl gold" x="300" y="30" text-anchor="middle">الفرصة</text>
+  </svg></div>
   <div class="pts">
-    <div class="pt">«أشتري دلوقتي؟!» — السؤال اللي في دماغ كل واحد</div>
-    <div class="pt key"><span class="tag">الفكرة</span>الناس نوعين: يخاف ويبيع · يفهم ويشتري</div>
-    <div class="pt">اللي اشترى بعد ٢٠٠٨ و٢٠٢٠ حصل له إيه؟</div>
-    <div class="pt cta"><span class="tag">للمشاهدين</span>لسه داخل؟ اكتب «دبي» وتابع</div>
+    <div class="pt"><span class="ix">١</span><span class="tx">«أشتري دلوقتي؟!» — سؤال كل واحد</span></div>
+    <div class="pt key"><span class="ix">٢</span><span class="tx"><span class="tag">الفكرة</span>الناس نوعين: يخاف ويبيع · يفهم ويشتري</span></div>
+    <div class="pt"><span class="ix">٣</span><span class="tx">اللي اشترى بعد ٢٠٠٨ و٢٠٢٠</span></div>
+    <div class="pt cta"><span class="ix">٤</span><span class="tx"><span class="tag">للمشاهدين</span>لسه داخل؟ اكتب «دبي»</span></div>
   </div>
   <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p4">التالي ←</a></div>
 </section>
 
-<!-- 4 -->
+<!-- 4 · money migration -->
 <section class="page" id="p4">
-  <div class="eyebrow">٣ / ٩ · ٧ دقايق</div>
+  <div class="eyebrow">٣ / ٩</div>
   <h2>فلوس العالم رايحة <span class="accent">فين</span>؟</h2>
+  <div class="viz"><svg viewBox="0 0 414 130">
+    <circle cx="207" cy="65" r="34" fill="none" stroke="#D8AC63" stroke-width="2.6"/>
+    <text class="vlbl gold" x="207" y="71" text-anchor="middle" font-size="16">الإمارات</text>
+    <line x1="52" y1="24" x2="160" y2="50" stroke="#8FA0B0" stroke-width="2.2"/>
+    <polygon points="166,52 150,42 152,56" fill="#8FA0B0"/>
+    <line x1="44" y1="102" x2="158" y2="80" stroke="#8FA0B0" stroke-width="2.2"/>
+    <polygon points="164,78 148,74 152,88" fill="#8FA0B0"/>
+    <line x1="366" y1="26" x2="256" y2="50" stroke="#8FA0B0" stroke-width="2.2"/>
+    <polygon points="250,52 266,42 264,56" fill="#8FA0B0"/>
+    <line x1="372" y1="100" x2="258" y2="80" stroke="#8FA0B0" stroke-width="2.2"/>
+    <polygon points="252,78 268,74 264,88" fill="#8FA0B0"/>
+    <circle cx="44" cy="20" r="7" fill="none" stroke="#8FA0B0" stroke-width="1.6"/>
+    <circle cx="36" cy="104" r="7" fill="none" stroke="#8FA0B0" stroke-width="1.6"/>
+    <circle cx="374" cy="22" r="7" fill="none" stroke="#8FA0B0" stroke-width="1.6"/>
+    <circle cx="380" cy="102" r="7" fill="none" stroke="#8FA0B0" stroke-width="1.6"/>
+  </svg></div>
   <div class="pts">
-    <div class="pt">هجرة المليونيرات والشركات والمكاتب الخاصة → الإمارات</div>
-    <div class="pt key"><span class="tag">الجملة المفتاحية</span>«بيجوا عشان الأزمة… مش رغمها»</div>
+    <div class="pt"><span class="ix">١</span><span class="tx">المليونيرات · الشركات · المكاتب الخاصة → الإمارات</span></div>
+    <div class="pt key"><span class="ix">٢</span><span class="tx"><span class="tag">الجملة المفتاحية</span>«بيجوا عشان الأزمة… مش رغمها»</span></div>
   </div>
   <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p5">التالي ←</a></div>
 </section>
 
-<!-- 5 -->
+<!-- 5 · strategy -->
 <section class="page" id="p5">
-  <div class="eyebrow">٤ / ٩ · ٨ دقايق</div>
+  <div class="eyebrow">٤ / ٩</div>
   <h2>اسكن في النص · <span class="accent">استثمر على الأطراف</span></h2>
+  <div class="viz"><svg viewBox="0 0 414 140">
+    <circle cx="207" cy="70" r="26" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <circle cx="207" cy="70" r="52" fill="none" stroke="#1F3A54" stroke-width="2"/>
+    <circle cx="207" cy="70" r="62" fill="none" stroke="#D8AC63" stroke-width="2.4" stroke-dasharray="5 6"/>
+    <rect x="199" y="64" width="16" height="13" fill="none" stroke="#8FA0B0" stroke-width="1.8"/>
+    <polyline points="196,65 207,55 218,65" fill="none" stroke="#8FA0B0" stroke-width="1.8"/>
+    <circle cx="207" cy="8"  r="6" fill="#D8AC63"/>
+    <circle cx="269" cy="70" r="6" fill="#D8AC63"/>
+    <circle cx="145" cy="70" r="6" fill="#D8AC63"/>
+    <circle cx="252" cy="115" r="6" fill="#D8AC63"/>
+    <circle cx="162" cy="115" r="6" fill="#D8AC63"/>
+    <text class="vlbl" x="207" y="102" text-anchor="middle">اسكن</text>
+    <text class="vlbl gold" x="310" y="120" text-anchor="middle">استثمر</text>
+  </svg></div>
   <div class="pts">
-    <div class="pt key"><span class="tag">القاعدة</span>اسكن بالإيجار في النص · استثمر في اللي بيكبر</div>
-    <div class="pt">ليه: بتدخل قبل ما السعر يوصل (دبي لاند، JVC)</div>
-    <div class="pt">جاهز = دخل من أول شهر · أوف بلان = دخول أرخص</div>
-    <div class="pt cta"><span class="tag">السؤال الجاي</span>«طيب تشتري حوالين مين؟»</div>
+    <div class="pt key"><span class="ix">١</span><span class="tx"><span class="tag">القاعدة</span>اسكن بالإيجار في النص · استثمر في اللي بيكبر</span></div>
+    <div class="pt"><span class="ix">٢</span><span class="tx">بتدخل قبل ما السعر يوصل (دبي لاند، JVC)</span></div>
+    <div class="pt"><span class="ix">٣</span><span class="tx">جاهز = دخل فوري · أوف بلان = دخول أرخص</span></div>
+    <div class="pt cta"><span class="ix">٤</span><span class="tx"><span class="tag">السؤال الجاي</span>«طيب تشتري حوالين مين؟»</span></div>
   </div>
   <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p6">التالي ←</a></div>
 </section>
 
-<!-- 6 -->
+<!-- 6 · developers -->
 <section class="page" id="p6">
-  <div class="eyebrow">٥ / ٩ · ١٠ دقايق</div>
+  <div class="eyebrow">٥ / ٩</div>
   <h2>الفرص والمطوّرين <span class="accent">الكبار</span></h2>
+  <div class="viz"><svg viewBox="0 0 414 130">
+    <line x1="24" y1="110" x2="390" y2="110" stroke="#1F3A54" stroke-width="2"/>
+    <rect x="60" y="64" width="30" height="46" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <rect x="104" y="44" width="34" height="66" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <polygon points="170,110 187,14 204,110" fill="none" stroke="#D8AC63" stroke-width="2.6"/>
+    <line x1="187" y1="14" x2="187" y2="4" stroke="#D8AC63" stroke-width="2.6"/>
+    <rect x="222" y="52" width="32" height="58" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <rect x="268" y="70" width="28" height="40" fill="none" stroke="#8FA0B0" stroke-width="2"/>
+    <line x1="310" y1="110" x2="310" y2="34" stroke="#8FA0B0" stroke-width="2"/>
+    <line x1="310" y1="34" x2="376" y2="34" stroke="#8FA0B0" stroke-width="2"/>
+    <line x1="356" y1="34" x2="356" y2="52" stroke="#8FA0B0" stroke-width="1.6"/>
+    <rect x="349" y="52" width="14" height="12" fill="none" stroke="#D8AC63" stroke-width="1.8"/>
+  </svg></div>
   <div class="pts">
-    <div class="pt">المطوّر أهم من الوحدة: تسليم · جودة · إعادة بيع</div>
-    <div class="pt key"><span class="tag">الفكرة الذهبية</span>اشتري حوالين مشاريع الكبار</div>
-    <div class="pt">Emaar: داون تاون · كريك هاربور · ذا فالي</div>
-    <div class="pt">Meraas: سيتي ووك · بلوواترز · بورت دو لا مير</div>
-    <div class="pt">ماستر بلان جديد = أرخص نقطة دخول</div>
-    <div class="pt cta"><span class="tag">للمشاهدين</span>اكتب اسم مطوّر أو منطقة تهمك</div>
+    <div class="pt"><span class="ix">١</span><span class="tx">المطوّر أهم من الوحدة: تسليم · جودة · إعادة بيع</span></div>
+    <div class="pt key"><span class="ix">٢</span><span class="tx"><span class="tag">الفكرة الذهبية</span>اشتري حوالين مشاريع الكبار</span></div>
+    <div class="pt"><span class="ix">٣</span><span class="tx">Emaar: داون تاون · كريك هاربور · ذا فالي</span></div>
+    <div class="pt"><span class="ix">٤</span><span class="tx">Meraas: سيتي ووك · بلوواترز · بورت دو لا مير</span></div>
+    <div class="pt"><span class="ix">٥</span><span class="tx">ماستر بلان جديد = أرخص نقطة دخول</span></div>
+    <div class="pt cta"><span class="ix">٦</span><span class="tx"><span class="tag">للمشاهدين</span>اكتب اسم مطوّر أو منطقة</span></div>
   </div>
   <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p7">التالي ←</a></div>
 </section>
 
-<!-- 7 -->
+<!-- 7 · Q&A 1 -->
 <section class="page" id="p7">
-  <div class="eyebrow">٦ / ٩ · ٨ دقايق</div>
+  <div class="eyebrow">٦ / ٩</div>
   <h2>أسئلة وأجوبة <span class="accent">①</span></h2>
+  <div class="viz"><svg viewBox="0 0 414 120">
+    <path d="M96,20 h130 a12,12 0 0 1 12,12 v34 a12,12 0 0 1 -12,12 h-92 l-22,20 v-20 h-16 a12,12 0 0 1 -12,-12 v-34 a12,12 0 0 1 12,-12 z" fill="none" stroke="#8FA0B0" stroke-width="2.2"/>
+    <text class="vlbl" x="162" y="58" text-anchor="middle" font-size="26">؟</text>
+    <path d="M262,34 h96 a12,12 0 0 1 12,12 v28 a12,12 0 0 1 -12,12 h-58 l-20,18 v-18 h-18 a12,12 0 0 1 -12,-12 v-28 a12,12 0 0 1 12,-12 z" fill="none" stroke="#D8AC63" stroke-width="2.2"/>
+    <text class="vlbl gold" x="310" y="66" text-anchor="middle" font-size="24">!</text>
+  </svg></div>
   <div class="pts">
-    <div class="pt cta"><span class="tag">دلوقتي</span>اسأل في الكومنتات — برد بالاسم</div>
-    <div class="pt">أسئلة بتتكرر: Emaar ولا Meraas؟ · أبدأ بكام؟ · وأنا بره الإمارات؟</div>
+    <div class="pt cta"><span class="ix">١</span><span class="tx"><span class="tag">دلوقتي</span>اسأل في الكومنتات — برد بالاسم</span></div>
+    <div class="pt"><span class="ix">٢</span><span class="tx">Emaar ولا Meraas؟ · أبدأ بكام؟ · وأنا بره؟</span></div>
   </div>
   <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p8">التالي ←</a></div>
 </section>
 
-<!-- 8 -->
+<!-- 8 · mistake -->
 <section class="page" id="p8">
-  <div class="eyebrow">٧ / ٩ · ٧ دقايق</div>
+  <div class="eyebrow">٧ / ٩</div>
   <h2>غلطة <span class="accent">اليوم</span></h2>
+  <div class="viz"><svg viewBox="0 0 414 130">
+    <circle cx="160" cy="65" r="42" fill="none" stroke="#8FA0B0" stroke-width="2.4"/>
+    <line x1="160" y1="65" x2="160" y2="36" stroke="#8FA0B0" stroke-width="2.4"/>
+    <line x1="160" y1="65" x2="182" y2="78" stroke="#D8AC63" stroke-width="2.4"/>
+    <line x1="160" y1="14" x2="160" y2="22" stroke="#8FA0B0" stroke-width="2"/>
+    <line x1="160" y1="108" x2="160" y2="116" stroke="#8FA0B0" stroke-width="2"/>
+    <line x1="109" y1="65" x2="117" y2="65" stroke="#8FA0B0" stroke-width="2"/>
+    <line x1="203" y1="65" x2="211" y2="65" stroke="#8FA0B0" stroke-width="2"/>
+    <line x1="272" y1="18" x2="328" y2="18" stroke="#D8AC63" stroke-width="2.6"/>
+    <line x1="272" y1="86" x2="328" y2="86" stroke="#D8AC63" stroke-width="2.6"/>
+    <path d="M278,18 C278,42 322,42 322,52 C322,42 322,62 300,52 C278,62 278,42 278,52 C278,42 322,42 322,18" fill="none" stroke="#D8AC63" stroke-width="0"/>
+    <polygon points="280,20 320,20 300,50" fill="none" stroke="#D8AC63" stroke-width="2.2"/>
+    <polygon points="280,84 320,84 300,54" fill="none" stroke="#D8AC63" stroke-width="2.2"/>
+    <polygon points="292,78 308,78 300,66" fill="#D8AC63"/>
+    <text class="vlbl" x="300" y="108" text-anchor="middle">«لما الدنيا تهدى»</text>
+  </svg></div>
   <div class="pts">
-    <div class="pt key"><span class="tag">الغلطة</span>«هستنى لما الدنيا تهدى»</div>
-    <div class="pt">تكلفة الانتظار: إيجار أغلى + سعر أعلى</div>
-    <div class="pt">البديل: ابدأ صغير بخطة سداد</div>
+    <div class="pt key"><span class="ix">١</span><span class="tx"><span class="tag">الغلطة</span>«هستنى لما الدنيا تهدى»</span></div>
+    <div class="pt"><span class="ix">٢</span><span class="tx">تكلفة الانتظار: إيجار أغلى + سعر أعلى</span></div>
+    <div class="pt"><span class="ix">٣</span><span class="tx">البديل: ابدأ صغير بخطة سداد</span></div>
   </div>
   <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p9">التالي ←</a></div>
 </section>
 
-<!-- 9 -->
+<!-- 9 · Q&A 2 -->
 <section class="page" id="p9">
-  <div class="eyebrow">٨ / ٩ · ٦ دقايق</div>
+  <div class="eyebrow">٨ / ٩</div>
   <h2>أسئلة وأجوبة <span class="accent">②</span></h2>
+  <div class="viz"><svg viewBox="0 0 414 120">
+    <path d="M120,26 h174 a14,14 0 0 1 14,14 v36 a14,14 0 0 1 -14,14 h-120 l-26,22 v-22 h-28 a14,14 0 0 1 -14,-14 v-36 a14,14 0 0 1 14,-14 z" fill="none" stroke="#D8AC63" stroke-width="2.4"/>
+    <circle cx="165" cy="58" r="4.5" fill="#8FA0B0"/>
+    <circle cx="207" cy="58" r="4.5" fill="#8FA0B0"/>
+    <circle cx="249" cy="58" r="4.5" fill="#8FA0B0"/>
+  </svg></div>
   <div class="pts">
-    <div class="pt cta"><span class="tag">آخر فرصة</span>اسأل قبل ما نقفل</div>
-    <div class="pt">سؤال كبير → حلقة بكرة</div>
+    <div class="pt cta"><span class="ix">١</span><span class="tx"><span class="tag">آخر فرصة</span>اسأل قبل ما نقفل</span></div>
+    <div class="pt"><span class="ix">٢</span><span class="tx">سؤال كبير → حلقة بكرة</span></div>
   </div>
   <div class="nav"><a href="#p1" class="home">⌂</a><a class="next" href="#p10">التالي ←</a></div>
 </section>
 
-<!-- 10 -->
+<!-- 10 · closer -->
 <section class="page" id="p10">
-  <div class="eyebrow">٩ / ٩ · ٣ دقايق</div>
+  <div class="eyebrow">٩ / ٩</div>
   <h2>الختام</h2>
+  <div class="viz"><svg viewBox="0 0 414 120">
+    <circle cx="207" cy="60" r="38" fill="none" stroke="#D8AC63" stroke-width="2.6"/>
+    <polyline points="188,60 202,74 228,46" fill="none" stroke="#D8AC63" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="120" cy="30" r="3.5" fill="#8FA0B0"/>
+    <circle cx="296" cy="28" r="3.5" fill="#8FA0B0"/>
+    <circle cx="106" cy="90" r="3.5" fill="#8FA0B0"/>
+    <circle cx="308" cy="92" r="3.5" fill="#8FA0B0"/>
+  </svg></div>
   <div class="pts">
-    <div class="pt">ملخص في ٣ سطور</div>
-    <div class="pt key"><span class="tag">القفلة</span>«السؤال مش الوقت… السؤال: انت جاهز؟»</div>
-    <div class="pt cta"><span class="tag">للمشاهدين</span>تابعني + اكتب «دبي» — وأشوفكم بكرة</div>
+    <div class="pt"><span class="ix">١</span><span class="tx">ملخص في ٣ سطور</span></div>
+    <div class="pt key"><span class="ix">٢</span><span class="tx"><span class="tag">القفلة</span>«السؤال مش الوقت… السؤال: انت جاهز؟»</span></div>
+    <div class="pt cta"><span class="ix">٣</span><span class="tx"><span class="tag">للمشاهدين</span>تابعني + اكتب «دبي» — وأشوفكم بكرة</span></div>
   </div>
   <div class="nav"><a href="#p1" class="home">⌂ الأجندة</a><span></span></div>
 </section>
