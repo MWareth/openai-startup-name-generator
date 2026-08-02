@@ -4,6 +4,7 @@ One folder per campaign. Each campaign keeps its brief, shot lists, and copy tog
 
 ## Active
 - **`world-cup/`** — World Cup–themed set across all six menu items. Three-shot structure per item (Stadium → Trophy/Walkout → Showcase), cinematic and consistent for cohesion. Meta, Send Message objective, Dubai-targeted.
+- **`fitness-wellness/`** — Fitness & Wellness set for Dubai's gym crowd. Three cuts (Warm-up → Peak → Refuel): Healthy Carrot Balls as hero, carrot cake muffins, and a San Sebastian "rest day" balance play. No nutrition claims, no gym logos. Meta, Send Message objective, Dubai-targeted.
 
 ## Rules (apply to every campaign)
 - **CTA:** every cut ends on a clear *Send Message / DM to order* prompt.
