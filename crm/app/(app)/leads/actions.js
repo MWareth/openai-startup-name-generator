@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { ORIGIN_IDS, deriveOrigin } from '@/lib/leadOrigin';
 import { redirect } from 'next/navigation';
-import { requireUser, requireStaff, hasAdminAccess, hasStaffAccess, canRouteLeads, STAFF_ROLES } from '@/lib/auth';
+import { requireUser, requireStaff, hasAdminAccess, hasStaffAccess, isOwner, canRouteLeads, STAFF_ROLES } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { writeTolerant } from '@/lib/db';
 import { computeCommission } from '@/lib/commission';
@@ -518,15 +518,28 @@ export async function updateLeadDetails(formData) {
 
 // Permanently delete a lead (and its activities/follow-ups via cascade). Closed
 // deals are kept but unlinked. Staff only (admin/support/oversight).
+// Deleting a lead takes its activities and follow-ups with it and cannot be
+// undone, so it is the owner's alone — not directors, not support.
 export async function deleteLead(formData) {
-  const { profile } = await requireUser();
-  if (!hasStaffAccess(profile)) {
-    redirect('/leads?error=' + encodeURIComponent('Only admin/support can delete leads.'));
+  const { user, profile, supabase } = await requireUser();
+  if (!isOwner(profile)) {
+    redirect('/leads?error=' + encodeURIComponent('Only the owner can delete a lead.'));
   }
   const leadId = String(formData.get('lead_id'));
-  const admin = createAdminClient();
-  const { error } = await admin.from('leads').delete().eq('id', leadId);
+
+  // Deliberately the CALLER's client, not the service role: the service role
+  // bypasses RLS, which would make the database policy decorative and leave
+  // this check as the only thing standing between anyone and a deleted lead.
+  const { data: lead } = await supabase.from('leads').select('name').eq('id', leadId).single();
+  const { error } = await supabase.from('leads').delete().eq('id', leadId);
   if (error) redirect(`/leads/${leadId}?error=` + encodeURIComponent(error.message));
+
+  // Who deleted what, kept after the lead itself is gone.
+  await logEvent({
+    userId: user.id,
+    action: 'lead_deleted',
+    detail: `Deleted lead "${lead?.name || leadId}"`,
+  });
   revalidatePath('/leads');
   redirect('/leads?ok=' + encodeURIComponent('Lead deleted.'));
 }

@@ -27,6 +27,13 @@ export function hasAdminAccess(profile) {
   return !!profile && ADMIN_ROLES.includes(profile.role);
 }
 
+// The single owner account. Deliberately narrower than hasAdminAccess, which
+// includes directors and C-suite: destructive, unrecoverable actions are the
+// owner's alone, and widening ADMIN_ROLES later must not silently grant them.
+export function isOwner(profile) {
+  return !!profile && profile.role === 'admin';
+}
+
 export async function requireAdmin() {
   const ctx = await requireUser();
   if (!hasAdminAccess(ctx.profile)) redirect('/dashboard');

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireUser, hasStaffAccess, hasMarketingAccess, canRouteLeads, canCarryLeads } from '@/lib/auth';
+import { requireUser, hasStaffAccess, hasMarketingAccess, isOwner, canRouteLeads, canCarryLeads } from '@/lib/auth';
 import { createAdminClient } from '@/lib/supabase/admin';
 import SubmitButton from '@/components/SubmitButton';
 import {
@@ -514,7 +514,7 @@ export default async function LeadDetail({ params, searchParams }) {
         </div>
       ) : null}
 
-      {isAdmin ? (
+      {isOwner(profile) ? (
         <div className="card" style={{ borderColor: 'var(--red)' }}>
           <h3 style={{ color: 'var(--red)' }}>Danger zone</h3>
           <details>
