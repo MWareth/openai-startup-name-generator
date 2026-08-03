@@ -10,6 +10,10 @@ code is unused and kept only so the fork's history stays intact.
 
 ---
 
+> **Running it day to day?** See the [Operations Runbook](RUNBOOK.md) — backups,
+> restores, deploys, migrations, moving the repo, and what to do when something
+> breaks.
+
 ## Contents
 
 - [Repository layout](#repository-layout)
