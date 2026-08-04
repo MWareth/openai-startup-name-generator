@@ -15,6 +15,24 @@
     padding:12px 16px;
   }
   header h1{font-size:16px; font-weight:800; color:var(--sand); margin-bottom:8px}
+  .timerbar{
+    display:flex; align-items:center; gap:10px; margin-bottom:10px;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:8px 12px;
+  }
+  .timerbar .clock{
+    font-size:30px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.01em; min-width:92px; text-align:center;
+  }
+  .timerbar .clock.warn{color:var(--amber)}
+  .timerbar .clock.over{color:#F0454C}
+  .timerbar .seg{flex:1; min-width:0; font-size:13.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .timerbar .seg small{display:block; color:var(--muted); font-weight:600; font-size:11px}
+  .timerbar button{
+    font:inherit; background:#1C2E44; color:var(--ink); border:1px solid var(--line); border-radius:8px;
+    padding:8px 12px; cursor:pointer; font-weight:700; font-size:14px; flex:none;
+  }
+  .timerbar button.play{background:var(--green); border-color:var(--green); color:#08130C; font-size:15px; padding:8px 16px}
+  .timerbar button.play.pause{background:var(--amber); border-color:var(--amber); color:#171204}
+  .timerbar button:focus-visible{outline:2px solid var(--sand); outline-offset:2px}
   .chips{display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch}
   .chips a{
     flex:none; font-size:12.5px; font-weight:700; color:var(--muted); text-decoration:none;
@@ -43,7 +61,13 @@
 </style>
 
 <header id="top">
-  <h1>سكريبت اللايف — اشتري وقت الأزمة · ~٦٥ دقيقة</h1>
+  <h1>سكريبت اللايف — اشتري وقت الأزمة · ~٦٢ دقيقة</h1>
+  <div class="timerbar">
+    <button class="play" id="tPlay">▶</button>
+    <div class="clock" id="tClock">4:00</div>
+    <div class="seg"><span id="tName">الافتتاحية</span><small id="tNext">بعدها: الخوف بالأرقام</small></div>
+    <button id="tSkip">التالي ⏭</button>
+  </div>
   <div class="chips">
     <a href="#s1">١ الافتتاحية</a><a href="#s2">٢ الخوف</a><a href="#s3">٣ الحقيقة</a>
     <a href="#s4">٤ أسئلة ١</a><a href="#s5">٥ مين بيشتري</a><a href="#s6">٦ أسئلة ٢</a>
@@ -163,3 +187,69 @@
 </section>
 
 </main>
+
+<script>
+const SEGS = [
+  {id:"s1",  name:"الافتتاحية", min:4},
+  {id:"s2",  name:"الخوف بالأرقام", min:8},
+  {id:"s3",  name:"الحقيقة ورا الأرقام", min:8},
+  {id:"s4",  name:"أسئلة وأجوبة ①", min:4},
+  {id:"s5",  name:"مين بيشتري؟", min:8},
+  {id:"s6",  name:"أسئلة وأجوبة ②", min:4},
+  {id:"s7",  name:"فين تشتري؟ — ليوان", min:9},
+  {id:"s8",  name:"المليون — الريسيل", min:8},
+  {id:"s9",  name:"فين تاخد بالك؟", min:5},
+  {id:"s10", name:"الختام", min:4},
+];
+let idx = 0, remaining = SEGS[0].min*60, running = false, last = 0, wakeLock = null;
+const $ = id => document.getElementById(id);
+
+function fmt(s){
+  const neg = s < 0; s = Math.abs(Math.round(s));
+  return (neg?"-":"") + Math.floor(s/60) + ":" + String(s%60).padStart(2,"0");
+}
+function renderMeta(){
+  $("tName").textContent = (idx+1) + " · " + SEGS[idx].name;
+  $("tNext").textContent = idx < SEGS.length-1 ? "بعدها: " + SEGS[idx+1].name : "آخر جزء — بعده القفلة";
+}
+function renderClock(){
+  const c = $("tClock");
+  c.textContent = fmt(remaining);
+  c.className = "clock" + (remaining < 0 ? " over" : (remaining <= 60 ? " warn" : ""));
+}
+function setSeg(i, scroll){
+  idx = Math.max(0, Math.min(SEGS.length-1, i));
+  remaining = SEGS[idx].min*60;
+  last = performance.now();
+  renderMeta(); renderClock();
+  if (scroll) document.getElementById(SEGS[idx].id).scrollIntoView({behavior:"smooth", block:"start"});
+}
+async function setRunning(on){
+  running = on; last = performance.now();
+  const b = $("tPlay");
+  b.textContent = on ? "❚❚" : "▶";
+  b.classList.toggle("pause", on);
+  try{
+    if (on && "wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen");
+    else if (!on && wakeLock){ await wakeLock.release(); wakeLock = null; }
+  }catch(e){}
+}
+function tick(now){
+  if (running){ remaining -= (now - last)/1000; }
+  last = now;
+  renderClock();
+  requestAnimationFrame(tick);
+}
+$("tPlay").addEventListener("click", ()=>setRunning(!running));
+$("tSkip").addEventListener("click", ()=>setSeg(idx+1, true));
+document.querySelectorAll(".chips a").forEach((a,i)=>{
+  a.addEventListener("click", ()=>setSeg(i, false));
+});
+document.addEventListener("visibilitychange", ()=>{
+  if (document.visibilityState === "visible" && running && "wakeLock" in navigator){
+    navigator.wakeLock.request("screen").then(w=>wakeLock=w).catch(()=>{});
+  }
+});
+renderMeta(); renderClock();
+requestAnimationFrame(tick);
+</script>
