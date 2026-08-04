@@ -42,3 +42,10 @@ Sourced research for the TikTok MENA boosted live. Cite sources on air («حسب
 - Inflow volume: 1.05M new residence permits issued by Dubai in H1 2026 alone (GDRFA) · 4.18M new UAE work permits in 2025 (MoHRE)
 - Outflow: NO official departure/cancellation numbers published — only net. Private churn estimates 8–23%/yr by sector (Korn Ferry / Dubai Chamber). On air: say «صافي» and own the gap — it builds credibility
 - Millionaire contrast 2025 (Henley): UK −16,500 · China −7,800 · India −3,500 vs UAE +9,800 · 2026 projection: UAE +12,000 (methodology changed in 2026 — don't compare directly)
+
+## ليوان والمناطق الجديدة (added — replaces JVC in buy examples)
+- Liwan: yield 6.5–8.7% gross (Gulfhaven/Bayut/PF 2025) · studios AED 325–400K · ~AED 1,080/sqft new listings, legacy Queue Point stock far cheaper (AED 562/sqft DLD sale Dec 2024) · prices flat/soft now = entry window, but growth has LAGGED neighbors — say it honestly
+- Liwan location story: E311×E66 junction · Metro Blue Line (Sept 2029) terminus at Academic City NEXT DOOR — no station in Liwan itself · new wave: Parkgreen (Q2 2028), Symbolic Altus (Q3 2027), Alma
+- DLRC (next door): the star mover — +11.9% Apr–Oct 2025 (Khaleej Times), avg deal AED 871K, yields 6.5–9%
+- Majan: 7–9% yields · Town Square: 6.5–8.5%, apartments from AED 420K · Al Warsan/Intl City: ~10% highest in Dubai · Dubai South: +22.8% 2025, 8.1%
+- JVC supply verification: published sources = ~16,852 units scheduled 2025–2027 (Excel Properties) · JVC was ~20% of ALL Dubai H1 2025 handovers (Betterhomes) · "300K citywide by 2028 led by JVC" (Cavendish Maxwell/PF). The 30K+/2028 figure is NOT in published reports — if it's from Property Monitor, attribute it on air: «حسب بيانات Property Monitor»
