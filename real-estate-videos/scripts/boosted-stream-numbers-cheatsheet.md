@@ -36,3 +36,9 @@ Sourced research for the TikTok MENA boosted live. Cite sources on air («حسب
 ## نقطة أمانة على الهوا
 - 2026 sources conflict: some show +6–9% YoY (Anarock/E&V), ValuStrat shows a dip-and-recover. Say both: «في مؤشرات بتقول كذا ومؤشرات بتقول كذا — وده نفسه بيقولك إحنا في لحظة تفاوض مش لحظة جري»
 - Never guarantee returns/visas. Always «حسب بيانات [المصدر]» و«تاريخيًا».
+
+## مين داخل ومين خارج (migration in/out — added)
+- Dubai population END-2025: 4.58M, net +332K in 2025 (+7.5%) — DSC revised series via WAM. (Series was restated upward in 2025 — cite the revised numbers)
+- Inflow volume: 1.05M new residence permits issued by Dubai in H1 2026 alone (GDRFA) · 4.18M new UAE work permits in 2025 (MoHRE)
+- Outflow: NO official departure/cancellation numbers published — only net. Private churn estimates 8–23%/yr by sector (Korn Ferry / Dubai Chamber). On air: say «صافي» and own the gap — it builds credibility
+- Millionaire contrast 2025 (Henley): UK −16,500 · China −7,800 · India −3,500 vs UAE +9,800 · 2026 projection: UAE +12,000 (methodology changed in 2026 — don't compare directly)
