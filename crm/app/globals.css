@@ -121,6 +121,10 @@ p { margin: 0 0 10px; }
 .brand span { color: var(--gold); }
 /* Nav list fills the space between the logo and footer and scrolls on its own. */
 .nav { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
+/* Items must never shrink. As flex children they default to flex-shrink: 1, so
+   a menu taller than the space squashes them into each other instead of
+   scrolling — which is what happens on a short window or at high zoom. */
+.nav > *, .nav-group-items > * { flex: 0 0 auto; }
 .nav::-webkit-scrollbar { width: 6px; }
 .nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 .nav a {
