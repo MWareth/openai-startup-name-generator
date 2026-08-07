@@ -49,3 +49,14 @@ Sourced research for the TikTok MENA boosted live. Cite sources on air («حسب
 - DLRC (next door): the star mover — +11.9% Apr–Oct 2025 (Khaleej Times), avg deal AED 871K, yields 6.5–9%
 - Majan: 7–9% yields · Town Square: 6.5–8.5%, apartments from AED 420K · Al Warsan/Intl City: ~10% highest in Dubai · Dubai South: +22.8% 2025, 8.1%
 - JVC supply verification: published sources = ~16,852 units scheduled 2025–2027 (Excel Properties) · JVC was ~20% of ALL Dubai H1 2025 handovers (Betterhomes) · "300K citywide by 2028 led by JVC" (Cavendish Maxwell/PF). The 30K+/2028 figure is NOT in published reports — if it's from Property Monitor, attribute it on air: «حسب بيانات Property Monitor»
+
+## نشرة ٥ أغسطس ٢٠٢٦ (daily news backup)
+- July 2026 DLD: AED 25.95bn residential / 12,748 transactions / off-plan 70.8% of volume (Springfield via Economy Middle East; wider all-transaction measures differ — quote the residential set)
+- CBUAE held base rate at 3.65% (July 29, WAM) after Fed hold 3.50–3.75%
+- JGE record: AED 110M villa, 6BR/21,714 sqft, previous record 58M (Aug 2-3, BusinessWire/Gulf News) — buyer saw it as a design showcase
+- Trump Tower SZR: podium contract awarded to Gulf Asia Contracting, ~350m/80 floors, enabling works done by Sept (Aug 6 dateline, The National/Reuters)
+- IPS 2026: Sept 7–9, DWTC, DLD-backed, +38% exhibition space (Aug 3)
+- H1 2026 handovers: ~24,800 units (+38%) — 18,900 apts / 5,900 villas; Q2: 27,300 completions vs only 5,335 launched; rents −6.2% QoQ (Cavendish Maxwell)
+- Emaar H1: revenue AED 23.9bn (+21%), backlog AED 164.9bn (Zawya)
+- ⚠️ UNVERIFIED before saying on air: KT report that 2-yr investor visa minimum property value was REMOVED April 2026 for sole owners — verify, then attribute
+- ⚠️ Do NOT quote "4.74M population" (contradicts KT's 4M in June) — sources conflict
