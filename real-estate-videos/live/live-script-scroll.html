@@ -1,0 +1,200 @@
+<title>سكريبت اللايف — عقارات الإمارات</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#0A1622; --panel:#122840; --line:#1F3A54; --ink:#F3EFE6;
+    --muted:#8FA0B0; --sand:#D8AC63; --green:#3ECF8E; --amber:#F5B93B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{
+    background:var(--bg); color:var(--ink); direction:rtl;
+    font-family:system-ui,-apple-system,"Segoe UI","SF Arabic","Geeza Pro","Noto Sans Arabic",Tahoma,sans-serif;
+  }
+  header{
+    position:sticky; top:0; z-index:5; background:rgba(10,22,34,.97); border-bottom:1px solid var(--line);
+    padding:12px 16px;
+  }
+  header h1{font-size:16px; font-weight:800; color:var(--sand); margin-bottom:8px}
+  .timerbar{
+    display:flex; align-items:center; gap:10px; margin-bottom:10px;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:8px 12px;
+  }
+  .timerbar .clock{
+    font-size:30px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.01em; min-width:92px; text-align:center;
+  }
+  .timerbar .clock.warn{color:var(--amber)}
+  .timerbar .clock.over{color:#F0454C}
+  .timerbar .seg{flex:1; min-width:0; font-size:13.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .timerbar .seg small{display:block; color:var(--muted); font-weight:600; font-size:11px}
+  .timerbar button{
+    font:inherit; background:#1C2E44; color:var(--ink); border:1px solid var(--line); border-radius:8px;
+    padding:8px 12px; cursor:pointer; font-weight:700; font-size:14px; flex:none;
+  }
+  .timerbar button.play{background:var(--green); border-color:var(--green); color:#08130C; font-size:15px; padding:8px 16px}
+  .timerbar button.play.pause{background:var(--amber); border-color:var(--amber); color:#171204}
+  .timerbar button:focus-visible{outline:2px solid var(--sand); outline-offset:2px}
+  .chips{display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch}
+  .chips a{
+    flex:none; font-size:12.5px; font-weight:700; color:var(--muted); text-decoration:none;
+    border:1px solid var(--line); border-radius:999px; padding:5px 12px; background:var(--panel);
+  }
+  .chips a:active{color:var(--sand)}
+  main{max-width:720px; margin:0 auto; padding:20px 18px 120px}
+  section{padding:26px 0; border-bottom:1px solid var(--line)}
+  .eyebrow{color:var(--sand); font-size:13px; font-weight:800; letter-spacing:.06em; margin-bottom:6px}
+  h2{font-size:26px; font-weight:800; line-height:1.35; margin-bottom:16px}
+  h2 small{color:var(--muted); font-size:14px; font-weight:600}
+  .line{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:16px 18px; margin-bottom:12px;
+    font-size:20px; line-height:1.9; font-weight:500;
+  }
+  .line.key{border-right:4px solid var(--sand)}
+  .line.cta{border-right:4px solid var(--green)}
+  .line .lbl{display:block; font-size:11px; font-weight:800; letter-spacing:.1em; color:var(--muted); margin-bottom:4px}
+  .line.key .lbl{color:var(--sand)} .line.cta .lbl{color:var(--green)}
+  .warn{
+    background:rgba(245,185,59,.08); border:1px solid var(--amber); border-radius:10px;
+    padding:10px 14px; margin-bottom:12px; font-size:14px; color:var(--amber); font-weight:600; line-height:1.7;
+  }
+  .top{display:inline-block; margin-top:10px; color:var(--muted); font-size:13px; text-decoration:none; font-weight:700}
+</style>
+
+<header id="top">
+  <h1>لايف النهاردة — نشرة أخبار عقارات دبي · ~٣٠ دقيقة</h1>
+  <div class="timerbar">
+    <button class="play" id="tPlay">▶</button>
+    <div class="clock" id="tClock">3:00</div>
+    <div class="seg"><span id="tName">الافتتاحية</span><small id="tNext">بعدها: خبر اليوم</small></div>
+    <button id="tSkip">التالي ⏭</button>
+  </div>
+  <div class="chips">
+    <a href="#s1">١ الافتتاحية</a><a href="#s2">٢ خبر اليوم</a><a href="#s3">٣ أخبار سريعة</a>
+    <a href="#s4">٤ أسئلة</a><a href="#s5">٥ زاوية المستثمر</a><a href="#s6">٦ الختام</a>
+  </div>
+</header>
+
+<main>
+
+<section id="s1">
+  <div class="eyebrow">١ / ٦</div>
+  <h2>الافتتاحية <small>· ٣ دقايق</small></h2>
+  <div class="line key"><span class="lbl">الهوك</span>«مساء الخير يا جماعة… النهاردة عندنا حلقة أخبار دسمة: فيلا اتباعت بـ١١٠ مليون درهم — والراجل أصلًا ماكانش ناوي يشتري. وأرقام شهر يوليو نزلت رسمي وفيها مفاجأة تهم أي حد ناوي يشتري في دبي.»</div>
+  <div class="line">«أنا مروان، بتكلم كل يوم عن عقارات دبي ببساطة — للي عايز يفهم قبل ما يدفع.»</div>
+  <div class="line cta"><span class="lbl">CTA</span>«دوس فولو من دلوقتي، واكتب دبي في الكومنتات — أي حد يسأل النهاردة برد عليه بالاسم.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s2">
+  <div class="eyebrow">٢ / ٦ · المصدر: بيانات دائرة الأراضي — يوليو ٢٠٢٦</div>
+  <h2>خبر اليوم — أرقام يوليو نزلت <small>· ٧ دقايق</small></h2>
+  <div class="line">«الخبر الرئيسي بتاع النهاردة: أرقام شهر يوليو نزلت رسمي من دائرة الأراضي. دبي باعت عقارات سكنية بحوالي ٢٦ مليار درهم… في شهر واحد. وده شهر الصيف اللي المفروض يكون هادي!»</div>
+  <div class="line">«حوالي ١٢ ألف و٧٠٠ صفقة سكنية في يوليو بس. يعني كل يوم بيتباع أكتر من ٤٠٠ بيت في دبي.»</div>
+  <div class="line key"><span class="lbl">المفاجأة</span>«بس المفاجأة الحقيقية هنا: من كل ١٠ بيوت اتباعوا… ٧ منهم أوف بلان. سبعة من عشرة! السوق كله رايح على خطط السداد.»</div>
+  <div class="line">«يعني إيه ليك انت؟ حاجتين: أولًا — لو بتدور على أوف بلان، انت مش لوحدك، والوحدات الحلوة بتخلص بسرعة. ثانيًا — العقار الجاهز بقى أهدى وأقل منافسة… وده معناه فرصة تفاوض أحسن للي عايز يستلم مفتاح على طول.»</div>
+  <div class="line cta"><span class="lbl">CTA</span>«لسه داخل؟ بنتكلم في أرقام يوليو الرسمية — اكتب دبي وتابعني.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s3">
+  <div class="eyebrow">٣ / ٦</div>
+  <h2>أخبار سريعة <small>· ٦ دقايق — إيقاع سريع</small></h2>
+  <div class="line key"><span class="lbl">خبر ١ — الفيلا</span>«فيلا في جميرا جولف استيتس اتباعت بـ١١٠ مليون درهم — ضعف الرقم القياسي القديم للمنطقة تقريبًا. والحكاية الأغرب؟ الراجل ماكانش ناوي يشتري أصلًا… راح يتفرج على التصميم، عجبته، قفلها على طول. ست غرف، سينما خاصة، وأوضة كوافير جوه الفيلا. أوضة كوافير يا جماعة.»</div>
+  <div class="line"><span class="lbl">خبر ٢ — الفايدة</span>«البنك المركزي ثبّت الفايدة عند ٣٫٦٥٪ الأسبوع اللي فات. يعني اللي مستني الأقساط ترخّص… مش قريب. واللي عنده تمويل عقاري بينتهي خلال سنة — ابدأ قارن عروض إعادة التمويل من دلوقتي.»</div>
+  <div class="line"><span class="lbl">خبر ٣ — برج ترامب</span>«برج ترامب في شارع الشيخ زايد — مشروع المليار دولار — دخل مرحلة إنشاءات جديدة الأسبوع ده وتم توقيع عقد البوديوم. ليه الخبر ده مهم؟ عشان الفرق بين مشروع على الورق ومشروع حقيقي… هو عقود المقاولات دي بالظبط.»</div>
+  <div class="line"><span class="lbl">خبر ٤ — للمهتمين</span>«ومعرض العقارات الدولي IPS جاي ٧ لـ٩ سبتمبر في مركز دبي التجاري العالمي — برعاية دائرة الأراضي. لو ناوي تشتري، ده أحسن مكان تقارن فيه كل المطوّرين وعروضهم في يوم واحد. سجّل التاريخ عندك.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s4">
+  <div class="eyebrow">٤ / ٦</div>
+  <h2>أسئلة وأجوبة <small>· ٥ دقايق</small></h2>
+  <div class="line">«طب أسئلتكم — اكتبوا وأنا برد بالاسم.»</div>
+  <div class="line">لو الشات هادي: «سؤال بييجي كتير: الفايدة هتنزل امتى؟ الصراحة محدش يعرف — بس القاعدة: متبنيش قرار الشرا على توقع الفايدة. اشتري لما تكون جاهز انت، مش لما البنك يكون جاهز.»</div>
+  <div class="line">«وسؤال تاني: بعد أرقام يوليو — أشتري أوف بلان ولا جاهز؟ الأوف بلان فيه الزحمة والدخول أرخص… والجاهز فيه التفاوض والدخل الفوري. حسب هدفك — وده موضوع حلقة كاملة لو عايزينها، اكتبوا (حلقة) في الكومنتات.»</div>
+  <div class="line cta"><span class="lbl">CTA</span>«اكتب دبي وهبعتلك التفاصيل على الخاص.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s5">
+  <div class="eyebrow">٥ / ٦ · المصدر: Cavendish Maxwell H1 2026</div>
+  <h2>زاوية المستثمر — موجة التسليمات <small>· ٦ دقايق</small></h2>
+  <div class="line">«دلوقتي أهم جزء للي بيفكر بجد: دبي سلّمت حوالي ٢٥ ألف وحدة سكنية في أول ست شهور من السنة — زيادة ٣٨ في المية عن السنة اللي فاتت. وفي نفس الوقت… الإطلاقات الجديدة قلّت جدًا.»</div>
+  <div class="line">«والنتيجة ظهرت خلاص: الإيجارات نزلت حوالي ٦ في المية في ٣ شهور. أول مرة من سنين المستأجر يبقى معاه كارت يلعب بيه.»</div>
+  <div class="line key"><span class="lbl">يعني إيه ليك</span>«لو انت مستأجر وجالك التجديد: فاوض — السوق معاك دلوقتي. لو انت مشتري: العقار الجاهز بقى سوق تفاوض. ولو انت واخد أوف بلان: بص على صحة المطوّر المالية — إيمار مثلًا معاها أعمال متعاقد عليها بـ١٦٥ مليار درهم، وده معناه إن التسليمات ماشية.»</div>
+  <div class="warn">⚠️ متقولهاش على الهوا لسه: في تقرير بيقول إن شرط الحد الأدنى لفيزا السنتين اتشال من إبريل ٢٠٢٦ للملكية الكاملة — اتأكد من مصدرك الأول، ولو اتأكدت قولها منسوبة: «حسب التعديل الأخير»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s6">
+  <div class="eyebrow">٦ / ٦</div>
+  <h2>الختام <small>· ٣ دقايق</small></h2>
+  <div class="line">«نلخص النهاردة في ٣ سطور: يوليو شهر قياسي و٧ من ١٠ بيوت اتباعوا أوف بلان… الفايدة ثابتة فمتستناش قسط أرخص… والتسليمات نازلة بقوة والمستأجر بقى يقدر يفاوض.»</div>
+  <div class="line key"><span class="lbl">القفلة</span>«السوق بيتحرك كل يوم — واللي بيتابع الأخبار بيسبق اللي بيستنى الحظ.»</div>
+  <div class="line cta"><span class="lbl">CTA الأخير</span>«تابعني واكتب دبي في الكومنتات — وبكرة نفس المعاد في نشرة جديدة. سلام.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+</main>
+
+<script>
+const SEGS = [
+  {id:"s1", name:"الافتتاحية", min:3},
+  {id:"s2", name:"خبر اليوم — أرقام يوليو", min:7},
+  {id:"s3", name:"أخبار سريعة", min:6},
+  {id:"s4", name:"أسئلة وأجوبة", min:5},
+  {id:"s5", name:"زاوية المستثمر", min:6},
+  {id:"s6", name:"الختام", min:3},
+];
+let idx = 0, remaining = SEGS[0].min*60, running = false, last = 0, wakeLock = null;
+const $ = id => document.getElementById(id);
+
+function fmt(s){
+  const neg = s < 0; s = Math.abs(Math.round(s));
+  return (neg?"-":"") + Math.floor(s/60) + ":" + String(s%60).padStart(2,"0");
+}
+function renderMeta(){
+  $("tName").textContent = (idx+1) + " · " + SEGS[idx].name;
+  $("tNext").textContent = idx < SEGS.length-1 ? "بعدها: " + SEGS[idx+1].name : "آخر جزء — بعده القفلة";
+}
+function renderClock(){
+  const c = $("tClock");
+  c.textContent = fmt(remaining);
+  c.className = "clock" + (remaining < 0 ? " over" : (remaining <= 60 ? " warn" : ""));
+}
+function setSeg(i, scroll){
+  idx = Math.max(0, Math.min(SEGS.length-1, i));
+  remaining = SEGS[idx].min*60;
+  last = performance.now();
+  renderMeta(); renderClock();
+  if (scroll) document.getElementById(SEGS[idx].id).scrollIntoView({behavior:"smooth", block:"start"});
+}
+async function setRunning(on){
+  running = on; last = performance.now();
+  const b = $("tPlay");
+  b.textContent = on ? "❚❚" : "▶";
+  b.classList.toggle("pause", on);
+  try{
+    if (on && "wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen");
+    else if (!on && wakeLock){ await wakeLock.release(); wakeLock = null; }
+  }catch(e){}
+}
+function tick(now){
+  if (running){ remaining -= (now - last)/1000; }
+  last = now;
+  renderClock();
+  requestAnimationFrame(tick);
+}
+$("tPlay").addEventListener("click", ()=>setRunning(!running));
+$("tSkip").addEventListener("click", ()=>setSeg(idx+1, true));
+document.querySelectorAll(".chips a").forEach((a,i)=>{
+  a.addEventListener("click", ()=>setSeg(i, false));
+});
+document.addEventListener("visibilitychange", ()=>{
+  if (document.visibilityState === "visible" && running && "wakeLock" in navigator){
+    navigator.wakeLock.request("screen").then(w=>wakeLock=w).catch(()=>{});
+  }
+});
+renderMeta(); renderClock();
+requestAnimationFrame(tick);
+</script>

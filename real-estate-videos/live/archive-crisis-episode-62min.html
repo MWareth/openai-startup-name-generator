@@ -1,0 +1,255 @@
+<title>سكريبت اللايف — عقارات الإمارات</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#0A1622; --panel:#122840; --line:#1F3A54; --ink:#F3EFE6;
+    --muted:#8FA0B0; --sand:#D8AC63; --green:#3ECF8E; --amber:#F5B93B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{
+    background:var(--bg); color:var(--ink); direction:rtl;
+    font-family:system-ui,-apple-system,"Segoe UI","SF Arabic","Geeza Pro","Noto Sans Arabic",Tahoma,sans-serif;
+  }
+  header{
+    position:sticky; top:0; z-index:5; background:rgba(10,22,34,.97); border-bottom:1px solid var(--line);
+    padding:12px 16px;
+  }
+  header h1{font-size:16px; font-weight:800; color:var(--sand); margin-bottom:8px}
+  .timerbar{
+    display:flex; align-items:center; gap:10px; margin-bottom:10px;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:8px 12px;
+  }
+  .timerbar .clock{
+    font-size:30px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.01em; min-width:92px; text-align:center;
+  }
+  .timerbar .clock.warn{color:var(--amber)}
+  .timerbar .clock.over{color:#F0454C}
+  .timerbar .seg{flex:1; min-width:0; font-size:13.5px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .timerbar .seg small{display:block; color:var(--muted); font-weight:600; font-size:11px}
+  .timerbar button{
+    font:inherit; background:#1C2E44; color:var(--ink); border:1px solid var(--line); border-radius:8px;
+    padding:8px 12px; cursor:pointer; font-weight:700; font-size:14px; flex:none;
+  }
+  .timerbar button.play{background:var(--green); border-color:var(--green); color:#08130C; font-size:15px; padding:8px 16px}
+  .timerbar button.play.pause{background:var(--amber); border-color:var(--amber); color:#171204}
+  .timerbar button:focus-visible{outline:2px solid var(--sand); outline-offset:2px}
+  .chips{display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; -webkit-overflow-scrolling:touch}
+  .chips a{
+    flex:none; font-size:12.5px; font-weight:700; color:var(--muted); text-decoration:none;
+    border:1px solid var(--line); border-radius:999px; padding:5px 12px; background:var(--panel);
+  }
+  .chips a:active{color:var(--sand)}
+  main{max-width:720px; margin:0 auto; padding:20px 18px 120px}
+  section{padding:26px 0; border-bottom:1px solid var(--line)}
+  .eyebrow{color:var(--sand); font-size:13px; font-weight:800; letter-spacing:.06em; margin-bottom:6px}
+  h2{font-size:26px; font-weight:800; line-height:1.35; margin-bottom:16px}
+  h2 small{color:var(--muted); font-size:14px; font-weight:600}
+  .line{
+    background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:16px 18px; margin-bottom:12px;
+    font-size:20px; line-height:1.9; font-weight:500;
+  }
+  .line.key{border-right:4px solid var(--sand)}
+  .line.cta{border-right:4px solid var(--green)}
+  .line .lbl{display:block; font-size:11px; font-weight:800; letter-spacing:.1em; color:var(--muted); margin-bottom:4px}
+  .line.key .lbl{color:var(--sand)} .line.cta .lbl{color:var(--green)}
+  .warn{
+    background:rgba(245,185,59,.08); border:1px solid var(--amber); border-radius:10px;
+    padding:10px 14px; margin-bottom:12px; font-size:14px; color:var(--amber); font-weight:600; line-height:1.7;
+  }
+  .top{display:inline-block; margin-top:10px; color:var(--muted); font-size:13px; text-decoration:none; font-weight:700}
+</style>
+
+<header id="top">
+  <h1>سكريبت اللايف — اشتري وقت الأزمة · ~٦٢ دقيقة</h1>
+  <div class="timerbar">
+    <button class="play" id="tPlay">▶</button>
+    <div class="clock" id="tClock">4:00</div>
+    <div class="seg"><span id="tName">الافتتاحية</span><small id="tNext">بعدها: إيه اللي بيحصل في السوق؟</small></div>
+    <button id="tSkip">التالي ⏭</button>
+  </div>
+  <div class="chips">
+    <a href="#s1">١ الافتتاحية</a><a href="#s2">٢ السوق</a><a href="#s3">٣ الحقيقة</a>
+    <a href="#s4">٤ أسئلة ١</a><a href="#s5">٥ مين بيشتري</a><a href="#s6">٦ أسئلة ٢</a>
+    <a href="#s7">٧ فين تشتري</a><a href="#s8">٨ المليون</a><a href="#s9">٩ خد بالك</a><a href="#s10">١٠ الختام</a>
+  </div>
+</header>
+
+<main>
+
+<section id="s1">
+  <div class="eyebrow">١ / ١٠</div>
+  <h2>الافتتاحية <small>· ٤ دقايق</small></h2>
+  <div class="line">«السلام عليكم يا جماعة… النهاردة مش حلقة عادية. النهاردة هقولك الأرقام اللي محدش بيحب يقولها على الهوا.»</div>
+  <div class="line">«المبيعات نازلة، الإيجارات نازلة، والناس خايفة. وأنا هقولك ليه ده ممكن يكون أحسن خبر سمعته السنة دي.»</div>
+  <div class="line key"><span class="lbl">الهوك</span>«قاعدة النهاردة: متبيعش وقت الأزمة… اشتري وقت الأزمة. اثبت معايا وهتفهم.»</div>
+  <div class="line cta"><span class="lbl">CTA</span>«قبل ما نبدأ — دوس فولو واكتب دبي في الكومنتات، عشان في آخر الحلقة هبعت تقرير فيه كل الأرقام دي لكل اللي كتب.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s2">
+  <div class="eyebrow">٢ / ١٠</div>
+  <h2>إيه اللي بيحصل في السوق؟ <small>· ٨ دقايق — ببساطة</small></h2>
+  <div class="line">«خليني أقولك اللي بيحصل في السوق دلوقتي ببساطة كده، من غير تعقيد: الأسعار هدت شوية، والإيجارات نزلت شوية، والناس بقت خايفة تشتري.»</div>
+  <div class="line">«وده طبيعي جدًا. السوق كان طالع بسرعة تلات سنين ورا بعض — ودلوقتي واقف بياخد نفسه. زي أي حد جري كتير… لازم يقف يتنفس.»</div>
+  <div class="line">«عشان تاخد فكرة بس: العقار الجاهز نزل سعره حوالي ١٠ في المية في كام شهر. مش انهيار — خصم.»</div>
+  <div class="line key"><span class="lbl">الفكرة</span>«يعني إيه بالنسبالك انت؟ يعني البايع اللي من سنة كان مش بيرد على تليفونك… بقى النهاردة هو اللي بيتصل بيك ويقولك: تعالى نتفاهم.»</div>
+  <div class="line">«والناس وقت الكلام ده نوعين: ناس بتقول مش وقته وبتستنى… وناس فاهمة إن ده بالظبط الوقت اللي بتتعمل فيه الصفقات الحلوة.»</div>
+  <div class="line key"><span class="lbl">الكوبري</span>«طب أنا ليه متطمن والناس خايفة؟ مش كلام مني — تعالى أوريك مين اللي جاي على دبي دلوقتي بفلوسه.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s3">
+  <div class="eyebrow">٣ / ١٠</div>
+  <h2>الحقيقة ورا الأرقام <small>· ٨ دقايق</small></h2>
+  <div class="line">«السنة اللي فاتت كانت أعلى سنة في تاريخ عقارات دبي — ٩١٧ مليار درهم صفقات. السوق مش بينهار… السوق بياخد نفسه بعد جري تلات سنين.»</div>
+  <div class="line">«وخد المفاجأة: في يونيو، أول ما الأسعار هدت، المبيعات قفزت ٣٣ في المية في شهر واحد. الناس كانت مستنية على الباب.»</div>
+  <div class="line key"><span class="lbl">أقوى جملة</span>«والأغرب؟ الأوف بلان أصلًا ما نزلش — زاد ١٢ في المية في نفس الفترة. اللي نزل هو الجاهز والإيجارات بس. يعني الفلوس الذكية شايفة إيه؟ شايفة خصم مؤقت… مش نهاية سوق.»</div>
+  <div class="line">«ولما الخبراء نفسهم مختلفين — واحد يقول هينزل وواحد يقول هيثبت — ده معناه حاجة واحدة: البايع مستعد يسمعك. ودي أحسن لحظة تشتري فيها.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s4">
+  <div class="eyebrow">٤ / ١٠</div>
+  <h2>أسئلة وأجوبة ① <small>· ٤ دقايق</small></h2>
+  <div class="line">«في سؤال بييجي لي كل يوم: طب لو نزل تاني بعد ما أشتري؟ هقولك: اللي بيشتري بخطة سداد طويلة مش مضطر يبيع في النزول — البيع الاضطراري هو اللي بيخسّر، مش النزول نفسه.»</div>
+  <div class="line">«وسؤال تاني: أبدأ بكام؟ في مناطق في دبي تدخلها بأقل من ٤٠٠ ألف درهم — استنى معايا هقولك عليها بالاسم كمان شوية.»</div>
+  <div class="line cta"><span class="lbl">CTA</span>«اكتب دبي في الكومنتات وهبعتلك تقرير الأرقام على الخاص.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s5">
+  <div class="eyebrow">٥ / ١٠</div>
+  <h2>مين بيشتري؟ — هجرة الفلوس <small>· ٨ دقايق</small></h2>
+  <div class="line">«دلوقتي ركز معايا في الرقم ده: السنة اللي فاتت، ٩ آلاف و٨٠٠ مليونير نقلوا فلوسهم وعيشتهم للإمارات. صافي. يعني بعد ما نحسب اللي مشي.»</div>
+  <div class="line">«وفي نفس السنة: بريطانيا خسرت ١٦ ألف مليونير. الصين خسرت ٨ آلاف. هم رايحين فين؟ … بالظبط.»</div>
+  <div class="line">«دبي فيها دلوقتي ٨١ ألف مليونير — العدد ده اتضاعف في عشر سنين. ولا مدينة كبيرة في العالم عملت كده.»</div>
+  <div class="line">«ومش أغنيا وبس — ٣٣٢ ألف ساكن جديد في سنة واحدة. و٧١ ألف شركة جديدة. والخطة الرسمية توصل ٦ مليون ساكن تقريبًا في ٢٠٤٠.»</div>
+  <div class="line key"><span class="lbl">الأمانة + القفلة</span>«وعشان أكون أمين معاك: الحكومة بتنشر الصافي — مفيش رقم رسمي لعدد اللي بيسيبوا. بس المحصلة النهائية زيادة تلت مليون بني آدم في سنة. وكل واحد فيهم محتاج يسكن… في عقار حد تاني مالكه. السؤال: ليه ميكونش انت؟»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s6">
+  <div class="eyebrow">٦ / ١٠</div>
+  <h2>أسئلة وأجوبة ② <small>· ٤ دقايق</small></h2>
+  <div class="line">«هيقولي واحد: طب أنا مش مليونير، إيه اللي يخصني؟ يا صديقي — المليونيرات بيرفعوا الطلب والإيجارات في السوق كله. انت المفروض تكون المالك اللي بيقبض، مش المستأجر اللي بيدفع.»</div>
+  <div class="line">«وليه بييجوا أصلًا؟ أمان، وصفر ضريبة على الدخل، وإقامة مربوطة بالعقار، ومطار يوصلك نص العالم في ٨ ساعات.»</div>
+  <div class="line cta"><span class="lbl">الكوبري</span>«الجاي دلوقتي أهم جزء في الحلقة: فين تشتري بالظبط — بالاسم وبالأرقام.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s7">
+  <div class="eyebrow">٧ / ١٠</div>
+  <h2>فين تشتري؟ — ليوان والمناطق الجديدة <small>· ٩ دقايق</small></h2>
+  <div class="line key"><span class="lbl">القاعدة</span>«القاعدة اللي طلعت من كل الأرقام: أي منطقة تحت ألف وخمسمية درهم للقدم… بتجيب عائد ٧ ونص في المية وأكتر. ثابتة.»</div>
+  <div class="line">«وأول اسم النهاردة: ليوان. عائد بيوصل ٨ ونص في المية، وستوديو تدخله بأقل من ٤٠٠ ألف، وواقعة على تقاطع أكبر طريقين في دبي.»</div>
+  <div class="line">«وهقولك حاجة بصراحة: أسعار ليوان لسه واقفة مكانها. والبعض شايف ده عيب — أنا شايفه بالظبط معنى كلمة فرصة. ليه؟»</div>
+  <div class="line">«عشان جارتها اللي جنبها على طول — مجمع دبي لاند السكني — طلعت ١٢ في المية في سنة واحدة، وهي أسرع منطقة متوسطة طالعة في دبي. والعدوى في العقار بتنتقل.»</div>
+  <div class="line">«وكمان: مترو الخط الأزرق جاي ٢٠٢٩ ومحطته النهائية في المدينة الأكاديمية — يعني جنب ليوان على طول.»</div>
+  <div class="line">«وعندك دبي ساوث — أعلى نمو في دبي السنة اللي فاتت ٢٢ في المية وحوالين المطار الجديد. وإنترناشونال سيتي لو عايز أعلى عائد إيجاري في دبي كله — ١٠ في المية.»</div>
+  <div class="line cta"><span class="lbl">CTA</span>«اكتب اسم منطقتك في الكومنتات وهقولك رأيي فيها بالأرقام.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s8">
+  <div class="eyebrow">٨ / ١٠</div>
+  <h2>معاك مليون درهم؟ — العب في الريسيل <small>· ٨ دقايق</small></h2>
+  <div class="line key"><span class="lbl">الهوك</span>«طيب خلينا نلعب لعبة. معاك مليون درهم في إيدك دلوقتي. كل الناس هتقولك روح على الأوف بلان… وأنا هقولك لأ. المليون دلوقتي لعبته اسمها الريسيل — العقار الجاهز من مالك تاني. وهقولك ليه.»</div>
+  <div class="line">«افتكر اللي قلته في الأول: أسعار الجاهز هي اللي نزلت ١٠ في المية — مش الأوف بلان. يعني الخصم الحقيقي في السوق كله موجود فين؟ في الريسيل. والبايع اللي حاطط وحدته من شهور… بقى مستعد يسمع أي عرض.»</div>
+  <div class="line">«وفي الريسيل مفيش مفاجآت: الوحدة قدامك بتشوفها، والإيجار الفعلي مكتوب في العقد، ورسوم الخدمات معروفة بالفلس. مش صورة في بروشور وتسليم بعد تلات سنين.»</div>
+  <div class="line key"><span class="lbl">القلبة</span>«ودلوقتي هقولك حاجة هتستغربها. فاكر لما قلت خد بالك من JVC وأرجان عشان زحمة التسليمات؟ نفس الزحمة دي بالظبط… هي اللي بتخلي الريسيل هناك فرصة. اللي بيخوّف مشتري الأوف بلان — هو نفسه اللي بيديك انت الخصم.»</div>
+  <div class="line">«بالأرقام: غرفة وصالة في JVC متوسط المعروض حوالين مليون ومية. انت معاك مليون؟ قدّم عرضك وفاوض — العروض كتير والبايعين مستنيين. لو قفلتها بمليون، بتأجرها بحوالين ٧٠ ألف في السنة — يعني ٧ في المية من أول شهر.»</div>
+  <div class="line">«أو أرجان: ستوديو بحوالين ٦٠٠ لـ٧٠٠ ألف بعائد قريب من نفس النسبة — ويفضل معاك من المليون سيولة محترمة على جنب.»</div>
+  <div class="line">«وقاعدة التفاوض في السوق ده: قدّم أقل من السعر المطلوب ٨ لـ١٠ في المية… وسيب التليفون شغال. هتتفاجئ مين هيرد عليك.»</div>
+  <div class="line">«وبما إن الوحدة فوق ٧٥٠ ألف — انت كده مؤهل لإقامة سنتين حسب موافقة الجهات. عقار ودخل وإقامة… في صفقة واحدة.»</div>
+  <div class="line">«بس أمانة عليا أقولك: الإيجارات هناك لسه تحت ضغط لحد ما السوق يهضم المعروض الجديد. فاشتري بسعر يستحمل إن الإيجار ينزل شوية — وده بالظبط ليه بقولك فاوض جامد.»</div>
+  <div class="line cta"><span class="lbl">CTA</span>«معاك رقم تاني؟ ٥٠٠ ألف؟ ٢ مليون؟ اكتبه في الكومنتات وهقولك خطة الريسيل بتاعتك على الهوا.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s9">
+  <div class="eyebrow">٩ / ١٠</div>
+  <h2>فين تاخد بالك؟ <small>· ٥ دقايق</small></h2>
+  <div class="line">«ومش كل حاجة وردي — في تلات حاجات لازم تاخد بالك منها.»</div>
+  <div class="line">«واحد: المناطق اللي فيها زحمة تسليمات. JVC لوحدها فيها ١٧ ألف وحدة جاية في تلات سنين — وإيجاراتها نزلت ١٠ في المية خلاص. المعروض الكتير بياكل العائد.»</div>
+  <div class="line">«اتنين: رسوم الخدمات. في أبراج بتدفع فيها ٤٠ و٥٠ درهم للقدم في السنة. على شقة عادية ده ممكن يفرق ٢٨ ألف درهم كل سنة — يعني ياكل تلت العائد بتاعك.»</div>
+  <div class="line">«تلاتة: الأوف بلان مع مطوّر صغير من غير سجل — التأخير عنده بيوصل سنة ونص. اسأل دايمًا: سلّم قبل كده؟ فين؟ وامتى؟»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+<section id="s10">
+  <div class="eyebrow">١٠ / ١٠</div>
+  <h2>الختام <small>· ٤ دقايق</small></h2>
+  <div class="line">«نلخص بقى في أربع سطور: السوق في نافذة تفاوض مش أزمة… الفلوس العالمية لسه جاية بأرقام قياسية… العائد الحلو تحت الألف وخمسمية للقدم… وابعد عن زحمة التسليمات.»</div>
+  <div class="line key"><span class="lbl">القفلة</span>«ومش لازم تجيب صفقة العمر. يكفي صفقة صح تبدأ بيها. السؤال مش هو ده الوقت الصح — السؤال: انت جاهز؟»</div>
+  <div class="line cta"><span class="lbl">CTA الأخير</span>«اللي كتب دبي في الكومنتات — التقرير جايلك على الخاص النهاردة. واللي لسه — اكتبها دلوقتي وتابعني، عشان بكرة نفس المعاد هجاوب على أكتر سؤال اتكرر النهاردة. سلام.»</div>
+  <a class="top" href="#top">⌂ فوق</a>
+</section>
+
+</main>
+
+<script>
+const SEGS = [
+  {id:"s1",  name:"الافتتاحية", min:4},
+  {id:"s2",  name:"إيه اللي بيحصل في السوق؟", min:8},
+  {id:"s3",  name:"الحقيقة ورا الأرقام", min:8},
+  {id:"s4",  name:"أسئلة وأجوبة ①", min:4},
+  {id:"s5",  name:"مين بيشتري؟", min:8},
+  {id:"s6",  name:"أسئلة وأجوبة ②", min:4},
+  {id:"s7",  name:"فين تشتري؟ — ليوان", min:9},
+  {id:"s8",  name:"المليون — الريسيل", min:8},
+  {id:"s9",  name:"فين تاخد بالك؟", min:5},
+  {id:"s10", name:"الختام", min:4},
+];
+let idx = 0, remaining = SEGS[0].min*60, running = false, last = 0, wakeLock = null;
+const $ = id => document.getElementById(id);
+
+function fmt(s){
+  const neg = s < 0; s = Math.abs(Math.round(s));
+  return (neg?"-":"") + Math.floor(s/60) + ":" + String(s%60).padStart(2,"0");
+}
+function renderMeta(){
+  $("tName").textContent = (idx+1) + " · " + SEGS[idx].name;
+  $("tNext").textContent = idx < SEGS.length-1 ? "بعدها: " + SEGS[idx+1].name : "آخر جزء — بعده القفلة";
+}
+function renderClock(){
+  const c = $("tClock");
+  c.textContent = fmt(remaining);
+  c.className = "clock" + (remaining < 0 ? " over" : (remaining <= 60 ? " warn" : ""));
+}
+function setSeg(i, scroll){
+  idx = Math.max(0, Math.min(SEGS.length-1, i));
+  remaining = SEGS[idx].min*60;
+  last = performance.now();
+  renderMeta(); renderClock();
+  if (scroll) document.getElementById(SEGS[idx].id).scrollIntoView({behavior:"smooth", block:"start"});
+}
+async function setRunning(on){
+  running = on; last = performance.now();
+  const b = $("tPlay");
+  b.textContent = on ? "❚❚" : "▶";
+  b.classList.toggle("pause", on);
+  try{
+    if (on && "wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen");
+    else if (!on && wakeLock){ await wakeLock.release(); wakeLock = null; }
+  }catch(e){}
+}
+function tick(now){
+  if (running){ remaining -= (now - last)/1000; }
+  last = now;
+  renderClock();
+  requestAnimationFrame(tick);
+}
+$("tPlay").addEventListener("click", ()=>setRunning(!running));
+$("tSkip").addEventListener("click", ()=>setSeg(idx+1, true));
+document.querySelectorAll(".chips a").forEach((a,i)=>{
+  a.addEventListener("click", ()=>setSeg(i, false));
+});
+document.addEventListener("visibilitychange", ()=>{
+  if (document.visibilityState === "visible" && running && "wakeLock" in navigator){
+    navigator.wakeLock.request("screen").then(w=>wakeLock=w).catch(()=>{});
+  }
+});
+renderMeta(); renderClock();
+requestAnimationFrame(tick);
+</script>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>عقارات الإمارات — تقرير سوق دبي</title>
+<style>
+  @page{ size:595pt 842pt; margin:0 }
+  :root{
+    --bg:#FBFAF7; --panel:#FFFFFF; --line:#E5E1D8; --navy:#0E2233; --navy-2:#1B3A54;
+    --ink:#22303C; --muted:#6B7885; --sand:#B98C42; --sand-2:#D8AC63; --green:#1F7A4D; --red:#B23B36;
+    --radius:8pt;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-print-color-adjust:exact; print-color-adjust:exact}
+  body{font-family:"Noto Sans Arabic","DejaVu Sans",sans-serif; color:var(--ink); font-size:11pt; line-height:1.7}
+  .page{
+    width:595pt; height:842pt; overflow:hidden; page-break-after:always; position:relative;
+    background:var(--bg); padding:52pt 48pt 64pt; direction:rtl;
+    display:flex; flex-direction:column; gap:12pt;
+  }
+  .page:last-child{page-break-after:auto}
+
+  .brand{position:absolute; top:20pt; left:48pt; direction:ltr; font-size:8.5pt; color:var(--muted); font-weight:600}
+  .pgfoot{
+    position:absolute; bottom:0; right:0; left:0; height:36pt; background:var(--navy);
+    display:flex; align-items:center; justify-content:space-between; padding:0 48pt;
+    color:#C8D2DC; font-size:7.5pt;
+  }
+  .pgfoot b{color:var(--sand-2)}
+
+  .eyebrow{color:var(--sand); font-size:10pt; font-weight:800; letter-spacing:.06em}
+  h1{font-size:30pt; font-weight:800; line-height:1.3; color:var(--navy)}
+  h2{font-size:19pt; font-weight:800; color:var(--navy); line-height:1.35}
+  h3{font-size:12.5pt; font-weight:800; color:var(--navy)}
+  .sub{color:var(--muted); font-size:11pt}
+
+  .cover{justify-content:center; background:linear-gradient(160deg,#0E2233 0%, #16324A 60%, #0E2233 100%)}
+  .cover .eyebrow{color:var(--sand-2)}
+  .cover h1{color:#F3EFE6; font-size:34pt}
+  .cover .sub{color:#9FB0BF}
+  .coverbox{
+    background:rgba(255,255,255,.06); border:1pt solid rgba(216,172,99,.4); border-radius:10pt;
+    padding:16pt 18pt; color:#E8E3D7; font-size:11.5pt; line-height:1.9;
+  }
+  .coverbox b{color:var(--sand-2)}
+  .disc{font-size:8pt; color:#8FA0B0; line-height:1.6}
+
+  .card{background:var(--panel); border:1pt solid var(--line); border-radius:var(--radius); padding:12pt 14pt}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10pt}
+
+  .stat{border-right:3pt solid var(--sand-2); padding-right:10pt}
+  .stat .v{font-size:17pt; font-weight:800; color:var(--navy); line-height:1.3}
+  .stat .v.up{color:var(--green)} .stat .v.dn{color:var(--red)}
+  .stat .k{font-size:9.5pt; color:var(--muted)}
+  .stat .s{font-size:8pt; color:var(--sand); font-weight:700}
+
+  table{width:100%; border-collapse:collapse; font-size:9.5pt}
+  th{background:var(--navy); color:#F3EFE6; font-weight:700; padding:7pt 8pt; text-align:right}
+  th:first-child{border-radius:0 6pt 0 0} th:last-child{border-radius:6pt 0 0 0}
+  td{padding:6.5pt 8pt; border-bottom:1pt solid var(--line)}
+  tr:nth-child(even) td{background:#F6F4EE}
+  td.good{color:var(--green); font-weight:800}
+  td.bad{color:var(--red); font-weight:800}
+  td b{color:var(--navy)}
+  .src{font-size:7.5pt; color:var(--muted)}
+
+  ul.pts{list-style:none; display:flex; flex-direction:column; gap:7pt}
+  ul.pts li{padding-right:14pt; position:relative; font-size:10.5pt}
+  ul.pts li::before{content:""; position:absolute; right:0; top:7pt; width:6pt; height:6pt; border-radius:50%; background:var(--sand-2)}
+  ul.pts li.warn::before{background:var(--red)}
+  ul.pts li b{color:var(--navy)}
+
+  .note{
+    background:#F4EFE3; border:1pt solid var(--sand-2); border-radius:var(--radius);
+    padding:9pt 12pt; font-size:9.5pt; color:#6B5A33;
+  }
+  .cta{
+    background:var(--navy); color:#F3EFE6; border-radius:var(--radius); padding:14pt 16pt;
+    font-size:13pt; font-weight:800; text-align:center;
+  }
+  .cta span{color:var(--sand-2)}
+</style>
+</head>
+<body>
+
+<!-- 1 · COVER -->
+<section class="page cover">
+  <div class="eyebrow">عقارات الإمارات · تقرير خاص</div>
+  <h1>سوق دبي بالأرقام<br>أغسطس ٢٠٢٦</h1>
+  <div class="sub">الخوف اللي في السوق… والفرصة اللي وراه — بالمصادر</div>
+  <div class="coverbox">
+    <b>جوه التقرير:</b><br>
+    ١ · السوق عامل إيه فعلًا دلوقتي (الأرقام الحقيقية)<br>
+    ٢ · مين بيشتري وقت ما الناس خايفة — أرقام هجرة الثروات<br>
+    ٣ · المناطق اللي الأرقام بترشحها والعائد المتوقع<br>
+    ٤ · فين تاخد بالك: التشبع ورسوم الخدمات وتأخير التسليم
+  </div>
+  <div class="disc">هذا التقرير لأغراض تعليمية وبحثية فقط وليس نصيحة استثمارية أو مالية. جميع الأرقام من مصادر منشورة مذكورة بجانبها، وقد تتغير. استشر دائمًا مختصين مرخّصين قبل أي قرار.</div>
+  <div class="pgfoot"><span>عقارات الإمارات — Dubai Real Estate Daily Live</span><b>TikTok Live · اكتب «دبي»</b></div>
+</section>
+
+<!-- 2 · MARKET PULSE -->
+<section class="page">
+  <div class="brand">3AQARAT EL EMARAAT — AUG 2026</div>
+  <div class="eyebrow">٠١ · نبض السوق</div>
+  <h2>السوق مش منهار… السوق <span style="color:var(--sand)">بيتنفس</span></h2>
+  <div class="grid2">
+    <div class="card stat"><div class="v">٩١٧ مليار درهم</div><div class="k">قيمة تعاملات ٢٠٢٥ — سنة قياسية (+٢٧٠ ألف صفقة)</div><div class="s">دائرة الأراضي والأملاك (DLD)</div></div>
+    <div class="card stat"><div class="v dn">−١٤٪</div><div class="k">حجم المبيعات السكنية في النص الأول من ٢٠٢٦ مقارنة بـ٢٠٢٥</div><div class="s">Anarock — H1 2026</div></div>
+    <div class="card stat"><div class="v dn">−٦٫٢٪</div><div class="k">الإيجارات من الربع الأول للتاني ٢٠٢٦ — المستأجر رجع يفاوض</div><div class="s">CBRE — Q2 2026</div></div>
+    <div class="card stat"><div class="v up">+٣٣٫٥٪</div><div class="k">قفزة المبيعات شهريًا في يونيو ٢٠٢٦ بعد استقرار الأسعار</div><div class="s">ValuStrat — June 2026</div></div>
+  </div>
+  <div class="card">
+    <h3>يعني إيه الكلام ده؟</h3>
+    <ul class="pts">
+      <li>٢٠٢٥ كانت سنة قياسية بكل المقاييس — والسوق في ٢٠٢٦ واخد نفَس بعد صعود ~٦٠٪ من ٢٠٢٢</li>
+      <li>مؤشر ValuStrat سجّل هبوط ~١٠٪ بين فبراير ويونيو ٢٠٢٦ بعد التوتر الإقليمي… وبعدين استقر ورجع النشاط</li>
+      <li>في نفس الوقت مصادر تانية (Anarock / Engel & Völkers) بتسجل الأسعار أعلى من السنة اللي فاتت — <b>السوق في لحظة تفاوض مش لحظة جري</b></li>
+      <li>توقعات ٢٠٢٦ متباينة: Knight Frank ‏+١٪ إلى +٣٪ · CBRE ‏+٣–٦٪ · فيتش بتحذر من تصحيح حتى −١٥٪ · S&P شايفة مفيش تخمة شاملة</li>
+    </ul>
+  </div>
+  <div class="note">قاعدة الحلقة: لما المؤشرات تختلف، ده نفسه المعلومة — السوق متردد، والمتردد بيقبل يتفاوض. اللي بيكسب في اللحظات دي هو اللي بيشتري صح مش اللي بيستنى اليقين.</div>
+  <div class="pgfoot"><span>لأغراض تعليمية فقط — ليس نصيحة استثمارية</span><b>صفحة ٢</b></div>
+</section>
+
+<!-- 3 · MONEY MIGRATION -->
+<section class="page">
+  <div class="brand">3AQARAT EL EMARAAT — AUG 2026</div>
+  <div class="eyebrow">٠٢ · فلوس العالم رايحة فين؟</div>
+  <h2>الأذكياء بيشتروا وقت الخوف — <span style="color:var(--sand)">والأرقام بتقول جايين هنا</span></h2>
+  <div class="grid2">
+    <div class="card stat"><div class="v up">+٩٬٨٠٠</div><div class="k">صافي مليونير انتقلوا للإمارات في ٢٠٢٥ — رقم قياسي، ونفس التوقع لـ٢٠٢٦. المركز الأول عالميًا للسنة الخامسة</div><div class="s">Henley & Partners 2025/2026</div></div>
+    <div class="card stat"><div class="v">٨١٬٢٠٠</div><div class="k">مليونير مقيم في دبي — نمو +١٠٢٪ في عشر سنين، أسرع مدينة كبرى في العالم</div><div class="s">Henley / New World Wealth 2026</div></div>
+    <div class="card stat"><div class="v">٧١٬٨٣٠</div><div class="k">شركة جديدة انضمت لغرفة تجارة دبي في ٢٠٢٥ (+١٣٪ في العضوية)</div><div class="s">Dubai Chambers 2026</div></div>
+    <div class="card stat"><div class="v">٦٦٬٠٠٠</div><div class="k">فيزا ذهبية أصدرتها دبي في النص الأول من ٢٠٢٦ فقط + أكتر من مليون إقامة جديدة</div><div class="s">GDRFA — H1 2026</div></div>
+  </div>
+  <div class="card">
+    <h3>مين داخل ومين خارج؟ (بالأمانة)</h3>
+    <ul class="pts">
+      <li><b>الداخلين لدبي:</b> صافي <b>+٣٣٢ ألف ساكن جديد في ٢٠٢٥</b> (+٧٫٥٪ — من أعلى معدلات النمو في تاريخها) ليوصل عدد السكان <b>٤٫٥٨ مليون</b> بنهاية ٢٠٢٥ (مؤسسة دبي للبيانات والإحصاء / وام)</li>
+      <li><b>حجم الحركة:</b> أكتر من <b>مليون إقامة جديدة</b> أصدرتها دبي في النص الأول من ٢٠٢٦ بس (GDRFA) · و<b>٤٫١٨ مليون</b> تصريح عمل جديد على مستوى الإمارات في ٢٠٢٥ (وزارة الموارد البشرية)</li>
+      <li><b>الخارجين:</b> الجهات الرسمية بتنشر الصافي مش الإجمالي — مفيش رقم رسمي للمغادرين. تقديرات دوران الموظفين في السوق الخاص ٨–٢٣٪ سنويًا حسب القطاع (Korn Ferry / غرفة دبي) — في ناس بتمشي فعلًا، بس المحصلة النهائية زيادة ثلث مليون في سنة واحدة</li>
+      <li><b>المقارنة العالمية للمليونيرات ٢٠٢٥:</b> بريطانيا <span style="color:var(--red); font-weight:800">−١٦٬٥٠٠</span> · الصين <span style="color:var(--red); font-weight:800">−٧٬٨٠٠</span> · الهند <span style="color:var(--red); font-weight:800">−٣٬٥٠٠</span> ⟵ مقابل الإمارات <span style="color:var(--green); font-weight:800">+٩٬٨٠٠</span> (وتوقع +١٢ ألف في ٢٠٢٦) — Henley & Partners</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>والمدى الطويل؟</h3>
+    <ul class="pts">
+      <li>الخطة الرسمية ٢٠٤٠: <b>٥٫٨ مليون ساكن</b> — الطلب على السكن لسه في أوله</li>
+      <li>عائد الإيجار في دبي ~٦٫٧–٧٪ إجمالي مقابل لندن ٣–٤٪ ونيويورك ٤–٥٪ وسنغافورة ٢–٣٪ (Engel & Völkers 2026)</li>
+    </ul>
+  </div>
+  <div class="pgfoot"><span>لأغراض تعليمية فقط — ليس نصيحة استثمارية</span><b>صفحة ٣</b></div>
+</section>
+
+<!-- 4 · WHERE TO BUY -->
+<section class="page">
+  <div class="brand">3AQARAT EL EMARAAT — AUG 2026</div>
+  <div class="eyebrow">٠٣ · فين الأرقام بتقول اشتري؟</div>
+  <h2>المناطق اللي البيانات بترشحها</h2>
+  <table>
+    <tr><th>المنطقة</th><th>العائد الإجمالي</th><th>نمو السعر ٢٠٢٥</th><th>سعر الدخول التقريبي</th></tr>
+    <tr><td><b>دبي ساوث</b></td><td class="good">٨٫١٪</td><td class="good">+٢٢٫٨٪ (الأعلى في دبي)</td><td>ستوديو من ~٤٧٠ ألف · 1BR أوف بلان من ~٤٦٠ ألف</td></tr>
+    <tr><td><b>إنترناشونال سيتي</b></td><td class="good">٨٫٩–١٠٪ (ملك العائد)</td><td>+١–٧٪</td><td>ستوديو من ~٢٨٠–٣٨٠ ألف — أرخص دخول في دبي</td></tr>
+    <tr><td><b>ليوان</b></td><td class="good">٦٫٥–٨٫٧٪</td><td>مستقر — سعر دخول لسه واقف</td><td>ستوديو من ~٣٢٥–٤٠٠ ألف</td></tr>
+    <tr><td><b>مجمع دبي لاند السكني DLRC</b></td><td class="good">٦٫٥–٩٪</td><td class="good">+١١٫٩٪ (أسرع صاعد متوسط الفئة)</td><td>متوسط الصفقة ~٨٧١ ألف</td></tr>
+    <tr><td><b>الفرجان</b></td><td class="good">٧٫٦٩٪ (أفضل متوسط الفئة H1 2026)</td><td>—</td><td>1BR متوسط الصفقات ~١٫٠٤ مليون</td></tr>
+    <tr><td><b>واحة السيليكون</b></td><td class="good">٨٫٥٪</td><td class="good">+١٨٫٢٪</td><td>—</td></tr>
+    <tr><td><b>دبي كريك هاربور</b></td><td>٦–٧٪</td><td class="good">+١٧٫٩٪</td><td>1BR جاهز ~١٫٦–١٫٩ مليون</td></tr>
+  </table>
+  <div class="src">المصادر: Bayut FY2025 & H1 2026 · Property Finder 2025 · Khaleej Times (DLRC) · Gulfhaven/Bayut (ليوان) · Driven Properties 2026 — عوائد إجمالية؛ الصافي أقل ~١٫٥–٢٫٥ نقطة بعد رسوم الخدمات والشواغر</div>
+  <div class="card">
+    <h3>القواعد اللي طالعة من الأرقام</h3>
+    <ul class="pts">
+      <li><b>تحت ١٬٥٠٠ درهم للقدم = عائد ٧٫٥٪+</b> بشكل ثابت (قاعدة Property Finder)</li>
+      <li>دبي ساوث الوحيدة تقريبًا اللي لسه بتسجل نمو سعري في ٢٠٢٦ (+٣٫٢٧٪ للقدم — Bayut H1 2026) — المطار الجديد بيشتغل لصالحها</li>
+      <li><b>ليوان:</b> عوائد قريبة من الأعلى في دبي وسعر دخول لسه تحت ٤٠٠ ألف — على تقاطع E311×E66، وجارتها DLRC طلعت +١١٫٩٪ · محطة مترو الخط الأزرق (٢٠٢٩) هتقف في الأكاديمية المجاورة</li>
+      <li>أبطال النمو ٢٠٢٥: دبي ساوث +٢٢٫٨٪ · دبي هيلز +٢٠٫٣٪ · داماك هيلز +١٩٫١٪ · النخلة +١٨٫٥٪</li>
+    </ul>
+  </div>
+  <div class="pgfoot"><span>لأغراض تعليمية فقط — ليس نصيحة استثمارية</span><b>صفحة ٤</b></div>
+</section>
+
+<!-- 5 · WHERE TO BE CAREFUL -->
+<section class="page">
+  <div class="brand">3AQARAT EL EMARAAT — AUG 2026</div>
+  <div class="eyebrow">٠٤ · فين تاخد بالك؟</div>
+  <h2>مش كره للمناطق… <span style="color:var(--sand)">ده حساب</span></h2>
+  <div class="card">
+    <h3>١ · مناطق التسليمات المتزاحمة</h3>
+    <ul class="pts">
+      <li class="warn">~<b>١٢٠ ألف وحدة</b> مجدولة للتسليم في ٢٠٢٦ (فيتش) — والتركيز في: JVC · أرجان · بيزنس باي · محور دبي لاند</li>
+      <li class="warn"><b>JVC تحديدًا = أكبر منطقة تسليمات في دبي:</b> ~١٧ ألف وحدة مجدولة ٢٠٢٥–٢٠٢٧ (Excel Properties) وكانت ~٢٠٪ من كل تسليمات دبي في H1 2025 (Betterhomes) — والإيجارات فيها نزلت <b>−١٠٫٣٪</b> في ٢٠٢٦</li>
+      <li class="warn">منطقة برج خليفة <b>−١٠٫٢٪</b> و JBR ‏<b>−٩٫٩٪</b> إيجارات في ٢٠٢٦ — التسليمات الكتير بتضغط الإيجار</li>
+      <li>لكن واقعيًا: ~٤٦–٤٨٪ بس من الوحدات المجدولة بتتسلم في معادها (Knight Frank/Moody's) — الخطر أقل من العناوين، بس اختيار المنطقة بقى أهم</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>٢ · فخ رسوم الخدمات</h3>
+    <ul class="pts">
+      <li class="warn">داون تاون: <b>١١–٦٨ درهم/قدم</b> · مقابل إنترناشونال سيتي ٦–١٠ · JVC ‏٨–١٤ · الفلل ٢–٦ (Driven Properties Index 2026)</li>
+      <li>على شقة ١٠٠٠ قدم: الفرق بين ١٢ و٤٠ درهم/قدم = <b>٢٨ ألف درهم سنويًا</b> — بياكل نقطتين+ من العائد</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>٣ · الأوف بلان — المطوّر هو كل الحكاية</h3>
+    <ul class="pts">
+      <li class="warn">~٤٠–٥٠٪ من مشاريع الأوف بلان بتتأخر — الكبار ٣–٥ شهور، الصغار ١٢–١٨ شهر (بيانات صناعة السوق)</li>
+      <li>حسابات الضمان (Escrow) بتحمي فلوسك حسب نسبة الإنجاز — بس وقتك مالوش تأمين: اختار مطوّر بسجل تسليم</li>
+    </ul>
+  </div>
+  <div class="note">فيتش بتحذر من تصحيح حتى −١٥٪ · S&P شايفة السكان هيستوعبوا المعروض ومفيش تخمة شاملة (سيناريو ضغطها −٥ إلى −١٠٪ في المناطق المتخمة فقط) — الاتنين متفقين على حاجة واحدة: <b>الفرق هيبقى بين منطقة ومنطقة، مش سوق كله طالع أو كله نازل.</b></div>
+  <div class="pgfoot"><span>لأغراض تعليمية فقط — ليس نصيحة استثمارية</span><b>صفحة ٥</b></div>
+</section>
+
+<!-- 6 · SUMMARY + CTA -->
+<section class="page">
+  <div class="brand">3AQARAT EL EMARAAT — AUG 2026</div>
+  <div class="eyebrow">٠٥ · الخلاصة</div>
+  <h2>اللي الأرقام بتقوله في ٥ سطور</h2>
+  <ul class="pts" style="font-size:11.5pt">
+    <li>السوق واخد نفَس في ٢٠٢٦ بعد سنة قياسية — دي <b>نافذة تفاوض</b> مش أزمة</li>
+    <li>الثروات العالمية لسه جاية: المركز الأول عالميًا ٥ سنين ورا بعض</li>
+    <li>الطلب طويل المدى محسوم: ٤٫٥٨ مليون ساكن (+٣٣٢ ألف في ٢٠٢٥) → هدف ٥٫٨ مليون في ٢٠٤٠</li>
+    <li>العائد بيتركز تحت ١٬٥٠٠ درهم/قدم: دبي ساوث · ليوان · DLRC · إنترناشونال سيتي</li>
+    <li>الحذر واجب في مناطق التسليمات المتزاحمة ورسوم الخدمات العالية والمطوّرين بدون سجل</li>
+  </ul>
+  <div class="cta">عايز تعرف إيه اللي يناسب ميزانيتك بالظبط؟<br><span>تابعنا على تيك توك واكتب «دبي» في الكومنتات أو ابعتلنا رسالة</span></div>
+  <div class="card">
+    <h3>إخلاء مسؤولية كامل</h3>
+    <div style="font-size:8.5pt; color:var(--muted); line-height:1.8">هذا التقرير أُعدّ لأغراض تعليمية وبحثية فقط وهو ليس نصيحة استثمارية أو مالية أو قانونية. جميع الأرقام مأخوذة من مصادر منشورة علنًا مذكورة بجانب كل رقم (دائرة الأراضي والأملاك، Henley & Partners، Bayut، Property Finder، CBRE، Knight Frank، فيتش، S&P وغيرها) وهي عرضة للتغيير والاختلاف بين المصادر. العوائد المذكورة إجمالية وقد تقل بعد التكاليف. الأداء السابق لا يضمن النتائج المستقبلية. لا نضمن أي عائد أو تأشيرة أو نتيجة — جميع طلبات الإقامة تخضع لموافقة الجهات المختصة. استشر دائمًا مختصين مرخّصين وقم بالفحص النافي للجهالة قبل أي قرار شراء أو استثمار.</div>
+  </div>
+  <div class="pgfoot"><span>عقارات الإمارات — Dubai Real Estate Daily Live</span><b>TikTok Live · اكتب «دبي»</b></div>
+</section>
+
+</body>
+</html>

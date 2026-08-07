@@ -1,0 +1,369 @@
+<title>استثمر في دبي — Live Deck (Vertical)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#0A1622; --bg2:#0E1F30; --panel:#122840; --line:#1F3A54;
+    --ink:#F3EFE6; --muted:#8FA0B0; --sand:#D8AC63; --sand-2:#B98C42;
+    --map-bg:#F7F6F3; --radius:14px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  html,body{height:100%}
+  body{
+    background:#05090E; color:var(--ink); overflow:hidden;
+    font-family:system-ui,-apple-system,"Segoe UI","SF Arabic","Geeza Pro","Noto Sans Arabic",Tahoma,sans-serif;
+    display:flex; align-items:center; justify-content:center;
+  }
+  /* 9:16 stage — share/crop this frame in TikTok LIVE Studio */
+  .frame{
+    height:100vh; aspect-ratio:9/16; max-width:100vw;
+    background:var(--bg); position:relative; overflow:hidden;
+    display:flex; flex-direction:column;
+    box-shadow:0 0 0 1px var(--line);
+  }
+  @media (max-aspect-ratio:9/16){ .frame{width:100vw; height:auto; aspect-ratio:9/16; max-height:100vh} }
+
+  .stage{flex:1; position:relative; min-height:0}
+  .slide{
+    position:absolute; inset:0; padding:5% 6%; direction:rtl;
+    display:none; flex-direction:column; justify-content:center; gap:2.4vh;
+    background:radial-gradient(130% 70% at 80% 6%, var(--bg2) 0%, var(--bg) 55%);
+  }
+  .slide.on{display:flex}
+
+  .eyebrow{color:var(--sand); font-size:1.5vh; font-weight:700; letter-spacing:.06em}
+  h1{font-size:4.6vh; font-weight:800; line-height:1.22; text-wrap:balance}
+  h2{font-size:3.4vh; font-weight:800; line-height:1.25; text-wrap:balance}
+  .sub{color:var(--muted); font-size:1.9vh; line-height:1.65}
+  .accent{color:var(--sand)}
+
+  .steps{display:flex; flex-direction:column; gap:1.2vh; counter-reset:st}
+  .step{
+    display:flex; align-items:center; gap:12px; background:var(--panel);
+    border:1px solid var(--line); border-radius:var(--radius);
+    padding:1.5vh 14px; font-size:1.9vh; font-weight:600; line-height:1.5;
+  }
+  .step::before{
+    counter-increment:st; content:counter(st);
+    width:3.2vh; height:3.2vh; flex:none; border-radius:50%;
+    background:var(--sand); color:#1A1204; font-weight:800;
+    display:flex; align-items:center; justify-content:center; font-size:1.7vh;
+  }
+  .step small{color:var(--muted); font-weight:500; font-size:.8em}
+  .steps.plain .step::before{content:"✓"; background:transparent; color:var(--sand); border:1px solid var(--sand-2)}
+
+  .cards{display:flex; flex-direction:column; gap:1.4vh}
+  .vcard{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:1.8vh 16px; display:flex; flex-direction:column; gap:.5vh;
+  }
+  .vcard .big{font-size:3.4vh; font-weight:800; color:var(--sand); font-variant-numeric:tabular-nums}
+  .vcard .lbl{font-size:2vh; font-weight:700}
+  .vcard .note{color:var(--muted); font-size:1.6vh; line-height:1.6}
+
+  .facts{display:grid; grid-template-columns:1fr 1fr; gap:1.2vh}
+  .fact{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:1.4vh 14px}
+  .fact .k{color:var(--muted); font-size:1.4vh; margin-bottom:.4vh}
+  .fact .v{font-size:2.2vh; font-weight:800; font-variant-numeric:tabular-nums}
+  .fact .v.todo{color:var(--sand)}
+
+  .legal{
+    display:inline-flex; align-items:center; gap:8px; align-self:flex-start;
+    border:1px solid var(--sand-2); color:var(--sand); border-radius:999px;
+    padding:.9vh 14px; font-size:1.5vh; font-weight:600; line-height:1.5;
+  }
+
+  /* footer / nav */
+  .foot{
+    flex:none; display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:1.1vh 12px; border-top:1px solid var(--line); background:var(--bg);
+  }
+  .dots{display:flex; gap:6px; direction:rtl; flex-wrap:wrap}
+  .dot{width:1.1vh; height:1.1vh; border-radius:50%; background:var(--line); border:none; cursor:pointer; padding:0}
+  .dot.on{background:var(--sand)}
+  .dot:focus-visible{outline:2px solid var(--sand); outline-offset:2px}
+  .navbtns{display:flex; gap:6px}
+  .navbtns button{
+    font:inherit; background:var(--panel); color:var(--ink); border:1px solid var(--line);
+    border-radius:8px; padding:.9vh 12px; cursor:pointer; font-size:1.6vh; font-weight:600;
+  }
+  .navbtns button:hover{border-color:var(--sand-2)}
+  .navbtns button:focus-visible{outline:2px solid var(--sand); outline-offset:2px}
+
+  /* ---------- map slide (stacked vertical) ---------- */
+  .maplayout{display:flex; flex-direction:column; gap:1.4vh; flex:1; min-height:0}
+  .mapwrap{
+    background:var(--map-bg); border-radius:var(--radius); position:relative; overflow:hidden;
+    border:1px solid #E6E4DE; flex:1.15; min-height:0;
+  }
+  .mapwrap svg{position:absolute; inset:0; width:100%; height:100%}
+  .roadlbl{fill:#6B7280; font-size:13px; font-weight:600; letter-spacing:.04em}
+  .arealbl{fill:#9AA1AB; font-size:14px; font-weight:700; letter-spacing:.16em}
+  .waterlbl{fill:#7FB3C8; font-size:12px; font-weight:600; letter-spacing:.14em}
+
+  .pin{cursor:pointer}
+  .pin circle.body{fill:#fff; stroke:#C9C6BF; stroke-width:1.5; transition:all .2s}
+  .pin text{font-weight:800; text-anchor:middle; dominant-baseline:central; fill:#0A1622; font-size:15px}
+  .pin.featured circle.body{fill:var(--sand); stroke:var(--sand-2); stroke-width:2}
+  .pin.featured text{fill:#1A1204}
+  .pulse{fill:none; stroke:var(--sand); stroke-width:2; opacity:0}
+  .pin.featured .pulse{opacity:1; animation:pulse 1.6s ease-out infinite}
+  @keyframes pulse{ from{r:18; opacity:.8} to{r:40; opacity:0} }
+  @media (prefers-reduced-motion: reduce){ .pin.featured .pulse{animation:none; r:28; opacity:.5} }
+
+  .mapnote{
+    position:absolute; bottom:8px; left:10px; direction:ltr;
+    font-size:10px; color:#9AA1AB; background:rgba(255,255,255,.85); border-radius:6px; padding:3px 8px;
+  }
+
+  .projcard{
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:1.6vh 16px; display:flex; flex-direction:column; gap:1vh; flex:1; min-height:0; overflow:auto;
+  }
+  .projcard .k{color:var(--muted); font-size:1.4vh}
+  .projcard h3{font-size:2.8vh; font-weight:800; color:var(--sand); display:inline}
+  .projcard .dev{color:var(--muted); font-size:1.6vh}
+  .projfacts{display:flex; flex-direction:column; gap:.9vh}
+  .pf{display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid var(--line); padding-bottom:.9vh; font-size:1.8vh}
+  .pf:last-child{border-bottom:none}
+  .pf .pk{color:var(--muted)}
+  .pf .pv{font-weight:700; font-variant-numeric:tabular-nums}
+  .pf .pv.todo{color:var(--sand)}
+  .projcta{
+    margin-top:auto; background:var(--sand); color:#1A1204; border-radius:10px;
+    text-align:center; padding:1.2vh; font-weight:800; font-size:1.8vh;
+  }
+</style>
+
+<div class="frame">
+  <div class="stage" id="stage">
+
+    <!-- 1 · title -->
+    <section class="slide on">
+      <div class="eyebrow">بث مباشر يومي · عقارات دبي</div>
+      <h1>استثمر في دبي<br><span class="accent">وانت في بلدك</span></h1>
+      <p class="sub">الاستثمار من بره الإمارات · الفيزا والإقامة · إيه اللي تجيبه بـ٥٠٠ ألف درهم · مشروعين حقيقيين على الخريطة</p>
+      <div class="legal">اكتب «دبي» في الكومنتات وتابعنا يوميًا</div>
+    </section>
+
+    <!-- 2 · overseas steps -->
+    <section class="slide">
+      <div class="eyebrow">٠١ — الاستثمار من بره</div>
+      <h2>ازاي تستثمر من خارج الإمارات؟</h2>
+      <div class="steps">
+        <div class="step">اختار المشروع والوحدة <small>— مع وسيط معتمد</small></div>
+        <div class="step">احجز وادفع رسوم الحجز أونلاين</div>
+        <div class="step">وقّع العقود عن بُعد <small>— توقيع إلكتروني أو توكيل</small></div>
+        <div class="step">حوّل الدفعات حسب خطة السداد</div>
+        <div class="step">سجّل الوحدة باسمك <small>— من غير ما تيجي دبي</small></div>
+      </div>
+    </section>
+
+    <!-- 3 · mistakes -->
+    <section class="slide">
+      <div class="eyebrow">٠١ — الاستثمار من بره</div>
+      <h2>أغلى <span class="accent">٣ أخطاء</span> وانت بتشتري من بره</h2>
+      <div class="cards">
+        <div class="vcard"><div class="lbl">١ · تشتري من غير وسيط معتمد</div><div class="note">اتأكد إن الوسيط مرخّص قبل أي درهم يتحرك.</div></div>
+        <div class="vcard"><div class="lbl">٢ · ما تدققش في سجل المطوّر</div><div class="note">مشاريعه السابقة اتسلمت في معادها ولا لأ؟</div></div>
+        <div class="vcard"><div class="lbl">٣ · تنسى الرسوم الإضافية</div><div class="note">رسوم التسجيل والصيانة جزء من الحساب مش مفاجأة.</div></div>
+      </div>
+    </section>
+
+    <!-- 4 · visa -->
+    <section class="slide">
+      <div class="eyebrow">٠٢ — الفيزا والإقامة</div>
+      <h2>عقارك ممكن يجيبلك <span class="accent">إقامة</span></h2>
+      <div class="cards">
+        <div class="vcard">
+          <div class="big">٧٥٠ ألف درهم</div>
+          <div class="lbl">إقامة سنتين قابلة للتجديد</div>
+          <div class="note">عقار جاهز أو حسب شروط الجهة المختصة.</div>
+        </div>
+        <div class="vcard">
+          <div class="big">٢ مليون درهم</div>
+          <div class="lbl">جولدن فيزا — ١٠ سنين</div>
+          <div class="note">ينفع تجمع قيمة أكتر من وحدة للوصول للحد المطلوب.</div>
+        </div>
+      </div>
+      <div class="legal">⚖️ حسب موافقة الجهات المختصة — مفيش ضمان فيزا</div>
+    </section>
+
+    <!-- 5 · 500K -->
+    <section class="slide">
+      <div class="eyebrow">٠٣ — الميزانية</div>
+      <h2>معاك <span class="accent">٥٠٠ ألف درهم</span>؟</h2>
+      <div class="cards">
+        <div class="vcard"><div class="big">استوديو / 1BR</div><div class="lbl">في مناطق زي ليوان ودبي ساوث</div><div class="note">مشاريع تحت الإنشاء بخطط سداد مريحة.</div></div>
+        <div class="vcard"><div class="big">١٠–٢٠٪ مقدم بس</div><div class="note">والباقي أقساط على سنين — مش مطلوب المبلغ كله قدام.</div></div>
+        <div class="vcard"><div class="big">قسط شهري ≈ إيجار</div><div class="note">بس الفرق: في الآخر الأصل بيبقى ملكك.</div></div>
+      </div>
+    </section>
+
+    <!-- 6 · Celesto 4 -->
+    <section class="slide">
+      <div class="eyebrow">٠٤ — مشروع اليوم</div>
+      <h2>Celesto 4 <span class="accent">— دبي لاند</span></h2>
+      <div class="facts">
+        <div class="fact"><div class="k">المطوّر</div><div class="v todo">—</div></div>
+        <div class="fact"><div class="k">الأسعار تبدأ من</div><div class="v todo">—</div></div>
+        <div class="fact"><div class="k">خطة السداد</div><div class="v todo">—</div></div>
+        <div class="fact"><div class="k">التسليم</div><div class="v todo">—</div></div>
+        <div class="fact"><div class="k">أنواع الوحدات</div><div class="v todo">—</div></div>
+        <div class="fact"><div class="k">أقرب معلم</div><div class="v todo">—</div></div>
+      </div>
+      <div class="legal">اكتب «Celesto» في الكومنتات للتفاصيل</div>
+    </section>
+
+    <!-- 7 · Anarcia -->
+    <section class="slide">
+      <div class="eyebrow">٠٤ — مشروع اليوم</div>
+      <h2>Anarcia <span class="accent">— Beyond</span></h2>
+      <div class="facts">
+        <div class="fact"><div class="k">المطوّر</div><div class="v">Beyond</div></div>
+        <div class="fact"><div class="k">المنطقة</div><div class="v todo">—</div></div>
+        <div class="fact"><div class="k">الأسعار تبدأ من</div><div class="v todo">—</div></div>
+        <div class="fact"><div class="k">خطة السداد</div><div class="v todo">—</div></div>
+        <div class="fact"><div class="k">التسليم</div><div class="v todo">—</div></div>
+        <div class="fact"><div class="k">أنواع الوحدات</div><div class="v todo">—</div></div>
+      </div>
+      <div class="legal">اكتب «Anarcia» في الكومنتات للتفاصيل</div>
+    </section>
+
+    <!-- 8 · map -->
+    <section class="slide" id="mapSlide" style="justify-content:flex-start; padding-top:4%">
+      <div class="eyebrow">٠٥ — الخريطة</div>
+      <h2 style="font-size:2.6vh">فين المشاريع دي؟ <span class="sub" style="font-size:.7em">— دوس على أي مشروع</span></h2>
+      <div class="maplayout">
+        <div class="mapwrap">
+          <svg viewBox="0 0 720 640" role="img" aria-label="خريطة مبسطة لمشاريع دبي">
+            <!-- water -->
+            <path d="M0,0 L720,0 L720,95 C540,140 380,115 250,160 C160,190 60,185 0,230 Z" fill="#DCEDF3"/>
+            <text class="waterlbl" x="60" y="55">ARABIAN GULF</text>
+            <!-- palm -->
+            <circle cx="225" cy="145" r="22" fill="#EDEBE6" stroke="#DCD9D2"/>
+            <circle cx="225" cy="145" r="10" fill="#F7F6F3"/>
+            <!-- roads -->
+            <path d="M20,255 C200,195 420,180 710,135" stroke="#E2E0DA" stroke-width="9" fill="none"/>
+            <text class="roadlbl" x="270" y="192">Sheikh Zayed Rd — E11</text>
+            <path d="M30,390 C240,320 480,295 710,245" stroke="#E9E7E1" stroke-width="7" fill="none"/>
+            <text class="roadlbl" x="210" y="330">SMBZ Rd — E311</text>
+            <path d="M60,560 C300,480 520,455 710,400" stroke="#E9E7E1" stroke-width="7" fill="none"/>
+            <text class="roadlbl" x="280" y="486">Emirates Rd — E611</text>
+            <path d="M505,95 C520,270 535,440 550,630" stroke="#E9E7E1" stroke-width="6" fill="none"/>
+            <text class="roadlbl" x="536" y="380" transform="rotate(84 536 380)">Dubai – Al Ain Rd</text>
+            <!-- areas -->
+            <text class="arealbl" x="330" y="165">DOWNTOWN</text>
+            <text class="arealbl" x="95" y="238">MARINA</text>
+            <text class="arealbl" x="330" y="360">JVC</text>
+            <text class="arealbl" x="555" y="520">DUBAILAND</text>
+            <text class="arealbl" x="565" y="88">DUBAI ISLANDS</text>
+            <!-- ambient dots -->
+            <circle cx="380" cy="250" r="5" fill="#E7B7A6"/><circle cx="440" cy="290" r="5" fill="#C6CCD4"/>
+            <circle cx="300" cy="275" r="5" fill="#C6CCD4"/><circle cx="500" cy="320" r="5" fill="#E7B7A6"/>
+            <circle cx="620" cy="360" r="5" fill="#C6CCD4"/><circle cx="210" cy="300" r="5" fill="#E7B7A6"/>
+            <g id="pins"></g>
+          </svg>
+          <div class="mapnote">Schematic — مواقع تقريبية للتوضيح</div>
+        </div>
+        <div class="projcard" id="projcard"></div>
+      </div>
+    </section>
+
+    <!-- 9 · closer -->
+    <section class="slide">
+      <div class="eyebrow">قبل ما نقفل</div>
+      <h2>اللي خدناه النهاردة</h2>
+      <div class="steps plain">
+        <div class="step">تقدر تشتري في دبي وانت في بلدك — عن بُعد بالكامل</div>
+        <div class="step">الفيزا ليها حدود واضحة: ٧٥٠ ألف و ٢ مليون درهم</div>
+        <div class="step">الـ٥٠٠ ألف ليها فرص حقيقية بخطط سداد مريحة</div>
+      </div>
+      <h2 class="accent">تابعنا + اكتب «دبي» في الكومنتات 👋</h2>
+    </section>
+  </div>
+
+  <div class="foot">
+    <div class="dots" id="dots"></div>
+    <div class="navbtns">
+      <button id="pv">السابق</button>
+      <button id="nx">التالي</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- slides ---------- */
+const slides = [...document.querySelectorAll(".slide")];
+let cur = 0;
+const dots = document.getElementById("dots");
+slides.forEach((s,i)=>{
+  const b = document.createElement("button");
+  b.className = "dot"; b.title = "Slide " + (i+1);
+  b.addEventListener("click", ()=>go(i));
+  dots.appendChild(b);
+});
+function go(i){
+  cur = (i + slides.length) % slides.length;
+  slides.forEach((s,j)=>s.classList.toggle("on", j===cur));
+  [...dots.children].forEach((d,j)=>d.classList.toggle("on", j===cur));
+}
+document.getElementById("nx").addEventListener("click", ()=>go(cur+1));
+document.getElementById("pv").addEventListener("click", ()=>go(cur-1));
+document.addEventListener("keydown", e=>{
+  if(["ArrowRight","PageDown"," "].includes(e.key)){ e.preventDefault(); go(cur+1); }
+  if(["ArrowLeft","PageUp"].includes(e.key)){ e.preventDefault(); go(cur-1); }
+  if(e.key==="m"||e.key==="M") go(slides.findIndex(s=>s.id==="mapSlide"));
+  if(/^[1-9]$/.test(e.key) && +e.key<=slides.length) go(+e.key-1);
+});
+go(0);
+
+/* ---------- interactive map ---------- */
+const PROJECTS = [
+  {
+    id:"celesto", initial:"C", name:"Celesto 4", dev:"—", area:"دبي لاند",
+    x:565, y:465,
+    facts:[["المنطقة","دبي لاند"],["الأسعار تبدأ من","—"],["خطة السداد","—"],["التسليم","—"],["أنواع الوحدات","—"]],
+    cta:"اكتب «Celesto» في الكومنتات"
+  },
+  {
+    id:"anarcia", initial:"A", name:"Anarcia", dev:"Beyond", area:"—",
+    x:600, y:120,
+    facts:[["المنطقة","— (هنحدّدها)"],["الأسعار تبدأ من","—"],["خطة السداد","—"],["التسليم","—"],["أنواع الوحدات","—"]],
+    cta:"اكتب «Anarcia» في الكومنتات"
+  },
+];
+const pinsG = document.getElementById("pins");
+const card = document.getElementById("projcard");
+let featured = PROJECTS[0].id;
+
+function drawPins(){
+  pinsG.innerHTML = "";
+  PROJECTS.forEach(p=>{
+    const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+    g.setAttribute("class", "pin" + (p.id===featured ? " featured" : ""));
+    g.setAttribute("tabindex","0");
+    g.setAttribute("role","button");
+    g.setAttribute("aria-label", p.name);
+    g.innerHTML =
+      `<circle class="pulse" cx="${p.x}" cy="${p.y}" r="18"/>` +
+      `<circle class="body" cx="${p.x}" cy="${p.y}" r="${p.id===featured?22:16}"/>` +
+      `<text x="${p.x}" y="${p.y}">${p.initial}</text>`;
+    const pick = ()=>{ featured = p.id; drawPins(); renderCard(); };
+    g.addEventListener("click", pick);
+    g.addEventListener("keydown", e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pick(); } });
+    pinsG.appendChild(g);
+  });
+}
+function renderCard(){
+  const p = PROJECTS.find(x=>x.id===featured);
+  card.innerHTML =
+    `<div class="k">المشروع المميّز دلوقتي</div>` +
+    `<div><h3>${p.name}</h3> <span class="dev">· المطوّر: ${p.dev}</span></div>` +
+    `<div class="projfacts">` +
+      p.facts.map(([k,v])=>`<div class="pf"><span class="pk">${k}</span><span class="pv${v.startsWith("—")?" todo":""}">${v}</span></div>`).join("") +
+    `</div>` +
+    `<div class="projcta">${p.cta}</div>`;
+}
+drawPins();
+renderCard();
+</script>
