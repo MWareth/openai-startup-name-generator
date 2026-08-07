@@ -1,0 +1,139 @@
+{
+  "brand": {
+    "company": "Bridges and Allies Real Estate",
+    "presented_by": "Marwan Wareth",
+    "tagline": "Property Research & Advisory",
+    "logo": false,
+    "hide_disclaimer": true,
+    "contact": { "title": "Real Estate Consultant" }
+  },
+  "address": "Sway Residences — Dubai Hills Estate, 1BR / 763 sqft",
+  "price": "Est. Value ~AED 1,480,000   ·   Rent ~AED 110,000/yr",
+  "overall_score": 76,
+  "property_details": {
+    "beds": "1",
+    "baths": "1-2",
+    "sqft": "763",
+    "year_built": "Ready / near-ready",
+    "lot_size": "N/A (Apartment)",
+    "property_type": "1BR Apartment — freehold, Dubai Hills Estate"
+  },
+  "categories": {
+    "Value & Comps": {"score": 70, "weight": "25%"},
+    "Income Potential": {"score": 78, "weight": "20%"},
+    "Neighborhood Quality": {"score": 86, "weight": "20%"},
+    "Investment Upside": {"score": 78, "weight": "20%"},
+    "Market Conditions": {"score": 70, "weight": "15%"}
+  },
+  "rent_snapshot": {
+    "highlight_row": 2,
+    "rows": [
+      {"scenario": "Conservative", "rent": "AED 98,000", "per_sqft": "AED 128", "gross_yield": "6.6%", "net_yield": "4.6%"},
+      {"scenario": "Most-likely", "rent": "AED 110,000", "per_sqft": "AED 144", "gross_yield": "7.4%", "net_yield": "5.3%"},
+      {"scenario": "Optimistic (furnished)", "rent": "AED 125,000", "per_sqft": "AED 164", "gross_yield": "8.4%", "net_yield": "6.0%"}
+    ],
+    "verdict": "<b>Rent & value note:</b> The “from AED 965k” headline is for Sway's smallest (~450–600 sqft) units only. A genuine 763 sqft 1BR realistically sits at <b>~AED 1.40M–1.55M</b>. Yields above are on the ~AED 1.48M fair value; if a 763 sqft unit is secured near <b>AED 1.25M</b>, gross rises to ~8.8% and net to ~6.3%. Occupancy is >94% community-wide with a deep professional/family tenant pool."
+  },
+  "cashflow": {
+    "items": [
+      {"item": "Gross Rental Income", "monthly": "AED 9,167", "annual": "AED 110,000"},
+      {"item": "Service Charge (~16/sqft)", "monthly": "-AED 1,017", "annual": "-AED 12,200"},
+      {"item": "Property Management (8%)", "monthly": "-AED 733", "annual": "-AED 8,800"},
+      {"item": "Maintenance", "monthly": "-AED 275", "annual": "-AED 3,300"},
+      {"item": "Vacancy Allowance (5%)", "monthly": "-AED 458", "annual": "-AED 5,500"},
+      {"item": "Insurance / Misc", "monthly": "-AED 100", "annual": "-AED 1,200"},
+      {"item": "Property Tax (Dubai)", "monthly": "AED 0", "annual": "AED 0"},
+      {"item": "Net Operating Income", "monthly": "AED 6,584", "annual": "AED 79,000"}
+    ]
+  },
+  "investment_metrics": {
+    "cap_rate": "5.3% net",
+    "cap_rate_status": "Gross 7.4% at fair value; ~8.8% if bought near AED 1.25M",
+    "cash_on_cash": "~5.1% (80% LTV)",
+    "coc_status": "Positive leverage — cheap 4.4% debt vs ~6% net yield",
+    "grm": "13.5x",
+    "grm_status": "Price-to-annual-rent at fair value; ~11.4x at AED 1.25M",
+    "dscr": "~1.19",
+    "dscr_status": "Slightly below 1.25 ideal at 80% LTV — use 60% LTV as investor base",
+    "one_pct": "0.62%/mo",
+    "one_pct_status": "Below 1% rule — normal for Dubai capital-growth markets",
+    "breakeven": "Hold 5+ yrs",
+    "breakeven_status": "Buy-and-hold; flip needs ~11-13% appreciation to clear costs"
+  },
+  "mortgage": {
+    "purchase_price": "AED 1,480,000",
+    "down_payment": "AED 296,000 (20%) / AED 592,000 (40%)",
+    "loan_amount": "AED 1,184,000 (80% LTV)",
+    "rate": "~4.4% (EIBOR-linked)",
+    "term": "25-year",
+    "monthly_pi": "AED 6,500",
+    "monthly_piti": "AED 7,517 (incl. service charge)"
+  },
+  "neighborhood": {
+    "scores": {
+      "Schools": 85,
+      "Safety": 95,
+      "Amenities & Walkability": 90,
+      "Demographics": 90,
+      "Growth Trajectory": 70
+    },
+    "details": [
+      {"factor": "Schools", "detail": "GEMS New Millennium (KHDA Very Good)", "notes": "Kings' Dubai Hills, GEMS Wellington nearby"},
+      {"factor": "Safety", "detail": "Gated Emaar community, smart security", "notes": "Among world's safest cities"},
+      {"factor": "Amenities", "detail": "Dubai Hills Mall (650 outlets), 180k sqm park, golf", "notes": "King's College Hospital on-community"},
+      {"factor": "Connectivity", "detail": "Al Khail Rd; Downtown ~15 min", "notes": "DIFC/Marina ~20-25 min; no metro until Blue Line"},
+      {"factor": "Demographics", "detail": "25,000+ residents, affluent expats", "notes": "Strong family + young-professional mix"},
+      {"factor": "Growth", "detail": "Apts +45%, rents +52% (2022-Q1'25)", "notes": "Brookfield + Alshaya 480k sqft mixed-use catalyst"}
+    ],
+    "demographics": {
+      "population_growth": "Dubai +5%/yr (~4.47M)",
+      "median_age": "Young professionals & families",
+      "employment_rate": "Diversified premium economy (~5% GDP growth)",
+      "major_employers": "Downtown, Business Bay, DIFC, TECOM (nearby)"
+    }
+  },
+  "strategies": [
+    {"strategy": "Buy & Hold (80% LTV)", "projected_return": "~21%/yr equity return (5-yr)", "timeframe": "5+ years",
+     "pros": "Positive leverage, tax-free income + gains, resilient end-user community",
+     "risk": "Supply wave; DSCR thin if rates rise above 5%"},
+    {"strategy": "Light-Reno Reposition", "projected_return": "+AED 8-12k/yr rent", "timeframe": "1-2 months",
+     "pros": "Faster leasing, small resale premium",
+     "risk": "Capped upside on a ready unit"},
+    {"strategy": "Flip / Resale", "projected_return": "Upcycle-only", "timeframe": "<12 months",
+     "pros": "DHE liquidity, dual buyer pool",
+     "risk": "~8.5-9% round-trip; needs ~11-13% appreciation to profit"}
+  ],
+  "appreciation_projections": [
+    {"year": "Year 1", "conservative": "AED 1,509,600", "moderate": "AED 1,554,000", "aggressive": "AED 1,598,400"},
+    {"year": "Year 3", "conservative": "AED 1,601,200", "moderate": "AED 1,713,200", "aggressive": "AED 1,813,400"},
+    {"year": "Year 5", "conservative": "AED 1,716,000", "moderate": "AED 1,888,800", "aggressive": "AED 2,075,800"},
+    {"year": "Year 10", "conservative": "AED 1,989,200", "moderate": "AED 2,410,800", "aggressive": "AED 2,911,300"}
+  ],
+  "scenarios": [
+    {"scenario": "Bull Case", "probability": "25%", "return": "+8% to +12%/yr",
+     "trigger": "Population surge, Blue Line momentum, DHE outperforms, supply absorbed"},
+    {"scenario": "Base Case", "probability": "50%", "return": "+3% to +6%/yr",
+     "trigger": "Maturing cycle: modest price growth, flat-to-soft apartment rents"},
+    {"scenario": "Bear Case", "probability": "25%", "return": "-5% to flat",
+     "trigger": "120k city-wide handovers oversupply apartments, rents discount, EIBOR >5%"}
+  ],
+  "recommendation": {
+    "signal": "BUY",
+    "summary": "Sway Residences offers value entry into a Grade-A community (neighborhood 86/100) at a ~10-25% per-sqft discount to adjacent Emaar towers. Income is strong and resilient — ~7.4% gross / ~5.3% net at fair value, rising to ~8.8%/6.3% if secured near AED 1.25M, with >94% occupancy and positive leveraged cash flow. As an end-user-driven community, Dubai Hills offers liquidity, price stability, and a dual buyer pool on exit. Main watch-items: a maturing market (QoQ price growth ~0%) and a heavy 2026 city-wide apartment supply wave — so buy on yield, hold 5+ years, and treat this as buy-and-hold rather than a flip.",
+    "suggested_offer": "Target ≤ AED 1,450,000 (ideal AED 1.25-1.35M if a true 763 sqft unit is available)",
+    "action_items": [
+      "Verify the exact size/price pairing — confirm 763 sqft against the live price list (the 965k headline is for smaller units)",
+      "Pull DLD sold comps for Sway 1BR to confirm fair value before offering",
+      "Confirm the current service charge (AED/sqft) and reserve-fund health",
+      "Model financing at 60% LTV (investor reality) and stress-test at +1% EIBOR",
+      "Hold 5+ years; do not underwrite this as a short-term flip"
+    ]
+  },
+  "risk_factors": [
+    {"factor": "Apartment Supply Wave 2026", "probability": "High", "impact": "Medium", "notes": "~120k city-wide handovers + ~5,600 DHE pipeline pressures the apartment segment"},
+    {"factor": "Price/Size Data Conflict", "probability": "High", "impact": "Medium", "notes": "‘From 965k’ is for ~450-600 sqft units; verify the 763 sqft price and DLD records"},
+    {"factor": "Service-Charge Inflation", "probability": "Medium", "impact": "Medium", "notes": "DHE charges trending up; each +AED 2/sqft cuts ~AED 1,526/yr from NOI"},
+    {"factor": "Leverage / Rate Risk", "probability": "Medium", "impact": "Medium", "notes": "DSCR ~1.19 at 80% LTV; thin if EIBOR rises above 5%"},
+    {"factor": "Maturing Market", "probability": "Medium", "impact": "Low-Med", "notes": "QoQ price growth ~0%; ~1% Dubai-wide forecast 2026 — capital growth modest near-term"}
+  ]
+}

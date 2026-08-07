@@ -1,0 +1,195 @@
+{
+  "brand": {
+    "presented_by": "Marwan Wareth",
+    "prepared_for": "Mr Bilal",
+    "logo": false,
+    "hide_disclaimer": true,
+    "contact": { "title": "Real Estate Consultant" }
+  },
+  "address": "Beachfront Gates 2 (BG2) — Dubai South",
+  "price": "1-Bed from AED 1.42M  ·  2-Bed from AED 1.50M  ·  2-Year Post-Handover",
+  "overall_score": 72,
+  "property_details": {
+    "beds": "1 – 3",
+    "baths": "1 – 4",
+    "sqft": "1,058 – 1,951 (total)",
+    "year_built": "Handover ~Q4 2026 / Q1 2027",
+    "lot_size": "N/A (Apartment)",
+    "property_type": "Beachfront / lagoon apartments — Dubai South Properties (govt-backed)"
+  },
+  "categories": {
+    "Value & Comps": {"score": 70, "weight": "25%"},
+    "Income Potential": {"score": 68, "weight": "20%"},
+    "Neighborhood Quality": {"score": 74, "weight": "20%"},
+    "Investment Upside": {"score": 78, "weight": "20%"},
+    "Market Conditions": {"score": 70, "weight": "15%"}
+  },
+  "comps": [
+    {"address": "1-Bed (2 avail)", "price": "from AED 1.42M", "sqft": "1,058–1,220", "price_sqft": "~1,310–1,345", "sold_date": "Off-plan", "distance": "—"},
+    {"address": "2-Bed Community", "price": "from AED 1.50M", "sqft": "~1,216", "price_sqft": "~1,237", "sold_date": "Off-plan", "distance": "—"},
+    {"address": "2-Bed Pool–Lagoon", "price": "AED 1.77–2.13M", "sqft": "1,333–1,649", "price_sqft": "~1,290–1,335", "sold_date": "Off-plan", "distance": "—"},
+    {"address": "3-Bed (3 avail)", "price": "AED 2.48–2.63M", "sqft": "1,944–1,951", "price_sqft": "~1,270–1,352", "sold_date": "Off-plan", "distance": "—"}
+  ],
+  "comp_summary": {
+    "avg_price": "Live list — 1BR fr 1.42M · 2BR fr 1.50M · 3BR fr 2.48M",
+    "avg_price_sqft": "~AED 1,240–1,350 / sqft"
+  },
+  "inventory": {
+    "title": "Current Availability (Live Price List)",
+    "subtitle": "Available units at Beachfront Gates 2. 'Pool–Lagoon' view carries a premium over 'Community' view.",
+    "columns": ["Unit", "Beds", "View", "Size (sqft)", "Price (AED)"],
+    "col_widths": [50, 42, 130, 96, 110],
+    "highlight_rows": [4, 6, 12],
+    "rows": [
+      ["101", "2", "Pool – Lagoon", "1,625", "2,077,443"],
+      ["102", "1", "Pool – Lagoon", "1,220", "1,596,538"],
+      ["103", "2", "Pool – Lagoon", "1,578", "2,032,958"],
+      ["104", "1", "Pool – Lagoon", "1,058", "1,422,499"],
+      ["111", "2", "Community", "1,216", "1,510,162"],
+      ["112", "2", "Community", "1,216", "1,504,278"],
+      ["120", "2", "Pool – Lagoon", "1,601", "2,046,348"],
+      ["121", "2", "Pool – Lagoon", "1,610", "2,074,985"],
+      ["122", "2", "Pool – Lagoon", "1,625", "2,110,667"],
+      ["123", "2", "Pool – Lagoon", "1,649", "2,125,195"],
+      ["201", "2", "Pool – Lagoon", "1,335", "1,774,879"],
+      ["205", "3", "Pool – Lagoon", "1,951", "2,477,407"],
+      ["211", "2", "Community", "1,216", "1,516,447"],
+      ["212", "2", "Community", "1,216", "1,511,098"],
+      ["223", "2", "Pool – Lagoon", "1,333", "1,779,342"],
+      ["301", "2", "Pool – Lagoon", "1,335", "1,781,785"],
+      ["311", "2", "Community", "1,216", "1,522,465"],
+      ["323", "2", "Pool – Lagoon", "1,333", "1,786,239"],
+      ["401", "2", "Pool – Lagoon", "1,335", "1,788,692"],
+      ["405", "3", "Pool – Lagoon", "1,951", "2,517,204"],
+      ["411", "2", "Community", "1,216", "1,528,482"],
+      ["501", "2", "Pool – Lagoon", "1,335", "1,795,598"],
+      ["601", "2", "Pool – Lagoon", "1,335", "1,802,504"],
+      ["605", "3", "Pool – Lagoon", "1,951", "2,557,002"],
+      ["619", "3", "Pool – Lagoon", "1,944", "2,626,996"],
+      ["701", "2", "Pool – Lagoon", "1,623", "2,183,886"]
+    ],
+    "note": "Highlighted rows = best-value entry per bedroom type (Unit 104 = entry 1-bed; Unit 112 = entry 2-bed; Unit 205 = entry 3-bed). Prices exclude 4% DLD + fees. Confirm live availability, floor/view and the 2-year post-handover plan with Dubai South Properties before reserving."
+  },
+  "payment_plan": {
+    "title": "Payment Plan — 2-Year Post-Handover",
+    "highlight_row": 4,
+    "rows": [
+      {"stage": "Down payment (on booking)", "percent": "10%", "when": "At reservation / SPA"},
+      {"stage": "During construction", "percent": "40%", "when": "Milestone-linked, to handover"},
+      {"stage": "On handover", "percent": "10%", "when": "~Q4 2026 / Q1 2027"},
+      {"stage": "Post-handover (2 years)", "percent": "40%", "when": "Over 24 months after handover"}
+    ],
+    "note": "Headline feature: a 2-YEAR POST-HANDOVER payment plan — roughly 40% of the price is spread over 24 months AFTER handover, so the unit can be leased and rental income applied toward the installments. This sharply reduces capital-at-risk versus a pay-on-handover plan. Percentages are indicative of a typical Dubai South structure — confirm the exact split, tenor, milestones, DLD/Oqood registration and fees with Dubai South Properties before reserving."
+  },
+  "rent_snapshot": {
+    "highlight_row": 2,
+    "rows": [
+      {"scenario": "Conservative", "rent": "AED 85,000", "per_sqft": "AED 70", "gross_yield": "5.6%", "net_yield": "3.5%"},
+      {"scenario": "Most-likely", "rent": "AED 95,000", "per_sqft": "AED 78", "gross_yield": "6.3%", "net_yield": "4.1%"},
+      {"scenario": "Optimistic (lagoon / furnished)", "rent": "AED 108,000", "per_sqft": "AED 89", "gross_yield": "7.2%", "net_yield": "5.0%"}
+    ],
+    "verdict": "<b>Pricing reality check:</b> the AED 1.0M marketing headline is NOT in the live list — actual entry is <b>~AED 1.42M (1-bed, Unit 104)</b> and <b>~AED 1.50M (2-bed Community, Unit 112)</b>; lagoon-view 2-beds run AED 1.77–2.13M. Yields here are on a ~AED 1.51M 2-bed Community unit. Dubai South 2-beds let at ~AED 85–110k with the beachfront premium. The <b>2-year post-handover plan</b> is the real edge — lease on handover (~Q4 2026) and let rent fund the remaining ~40%."
+  },
+  "cashflow": {
+    "items": [
+      {"item": "Gross Rental Income", "monthly": "AED 7,917", "annual": "AED 95,000"},
+      {"item": "Service Charge (~14/sqft)", "monthly": "-AED 1,419", "annual": "-AED 17,024"},
+      {"item": "Property Management (8%)", "monthly": "-AED 633", "annual": "-AED 7,600"},
+      {"item": "Maintenance", "monthly": "-AED 238", "annual": "-AED 2,850"},
+      {"item": "Vacancy Allowance (5%)", "monthly": "-AED 396", "annual": "-AED 4,750"},
+      {"item": "Insurance / Misc", "monthly": "-AED 117", "annual": "-AED 1,400"},
+      {"item": "Property Tax (Dubai)", "monthly": "AED 0", "annual": "AED 0"},
+      {"item": "Net Operating Income", "monthly": "AED 5,114", "annual": "AED 61,376"}
+    ]
+  },
+  "investment_metrics": {
+    "cap_rate": "4.1% net",
+    "cap_rate_status": "Gross 6.3% on a ~AED 1.51M 2-bed Community unit; lagoon units price higher, similar yield",
+    "cash_on_cash": "High on deployed cash",
+    "coc_status": "2-yr post-handover plan keeps capital-at-risk low pre-completion",
+    "grm": "15.9x",
+    "grm_status": "Price-to-annual-rent on the entry 2-bed Community unit",
+    "dscr": "n/a",
+    "dscr_status": "Staged in cash via the developer plan; mortgage optional post-handover",
+    "one_pct": "0.63%/mo",
+    "one_pct_status": "Below 1% rule — normal for Dubai capital-growth markets",
+    "breakeven": "On handover",
+    "breakeven_status": "Lease on handover; rent helps fund post-handover installments"
+  },
+  "mortgage": {
+    "purchase_price": "AED 1,510,000 (2-Bed Community)",
+    "down_payment": "AED 151,000 (10% on booking)",
+    "loan_amount": "Optional post-handover mortgage",
+    "rate": "~4.4% (EIBOR-linked)",
+    "term": "25-year",
+    "monthly_pi": "~AED 6,650 (if mortgaged post-handover)",
+    "monthly_piti": "~AED 8,069 (incl. service charge)"
+  },
+  "neighborhood": {
+    "scores": {
+      "Schools": 60,
+      "Safety": 85,
+      "Amenities & Beach": 72,
+      "Connectivity": 75,
+      "Growth Trajectory": 90
+    },
+    "details": [
+      {"factor": "Location", "detail": "Dubai South, near Expo City", "notes": "Beachfront / lagoon-view community"},
+      {"factor": "Airport", "detail": "Al Maktoum Int'l (DWC) expansion", "notes": "$35B build-out → world's largest hub; #1 demand driver"},
+      {"factor": "Metro", "detail": "Expo City metro (Red Line / Route 2020) nearby", "notes": "Future Al Maktoum + Etihad Rail links planned"},
+      {"factor": "Developer", "detail": "Dubai South Properties (government-backed)", "notes": "Lower delivery risk than private mid-market"},
+      {"factor": "Amenities", "detail": "Pools, lagoons, kids pool, gym, yoga, sauna", "notes": "Resort-style; growing community retail"},
+      {"factor": "Growth", "detail": "Dubai South sales +30% YoY; rents +20%", "notes": "Strong infrastructure-led trajectory"}
+    ],
+    "demographics": {
+      "population_growth": "Dubai +5%/yr (~4.47M)",
+      "median_age": "Aviation, logistics & young families",
+      "employment_rate": "Expo City + Al Maktoum + free-zone jobs",
+      "major_employers": "Aviation/logistics, Expo City, EZW, DWC free zone"
+    }
+  },
+  "strategies": [
+    {"strategy": "Buy & Hold (primary)", "projected_return": "~6.3% gross / ~4.1% net + appreciation", "timeframe": "5+ years",
+     "pros": "Government developer, airport-corridor growth, lagoon concept, 2-yr post-handover cash cushion",
+     "risk": "Dubai South near-term apartment oversupply; metro/rail future-dated"},
+    {"strategy": "Off-Plan Assignment", "projected_return": "Construction-phase uplift", "timeframe": "Before handover",
+     "pros": "Low capital-at-risk on the plan; assign before completion if market rises",
+     "risk": "Resale liquidity thin during the supply wave; assignment fees apply"},
+    {"strategy": "Flip / Resale", "projected_return": "Upcycle-only", "timeframe": "Post-handover",
+     "pros": "Lagoon-view scarcity in Dubai South; dual buyer pool",
+     "risk": "~8-9% round-trip costs; needs meaningful appreciation to profit"}
+  ],
+  "appreciation_projections": [
+    {"year": "Year 1", "conservative": "AED 1,555,000", "moderate": "AED 1,601,000", "aggressive": "AED 1,646,000"},
+    {"year": "Year 3", "conservative": "AED 1,650,000", "moderate": "AED 1,798,000", "aggressive": "AED 1,955,000"},
+    {"year": "Year 5", "conservative": "AED 1,751,000", "moderate": "AED 2,020,000", "aggressive": "AED 2,325,000"},
+    {"year": "Year 10", "conservative": "AED 2,029,000", "moderate": "AED 2,704,000", "aggressive": "AED 3,260,000"}
+  ],
+  "scenarios": [
+    {"scenario": "Bull Case", "probability": "30%", "return": "+8% to +14%/yr",
+     "trigger": "Airport build-out accelerates, Expo City momentum, lagoon scarcity, supply absorbed"},
+    {"scenario": "Base Case", "probability": "45%", "return": "+3% to +6%/yr",
+     "trigger": "Steady infrastructure-led growth; flat-to-soft rents during 2026-28 supply wave"},
+    {"scenario": "Bear Case", "probability": "25%", "return": "-5% to flat",
+     "trigger": "Dubai South apartment oversupply outpaces demand; rents discount; rates rise"}
+  ],
+  "recommendation": {
+    "signal": "BUY",
+    "summary": "Beachfront Gates 2 pairs a government-backed developer (Dubai South Properties) with a lagoon/beachfront concept on Dubai's strongest infrastructure-growth corridor — the $35B Al Maktoum Airport + Expo City. Note the live price list starts at ~AED 1.42M (1-bed) and ~AED 1.50M (2-bed Community) — above the AED 1.0M marketing headline — with lagoon-view 2-beds at AED 1.77–2.13M. Yields are moderate (~6.3% gross / ~4.1% net on the entry 2-bed), so the thesis is capital growth + the standout 2-YEAR POST-HANDOVER plan, which lets you hand over (~Q4 2026), lease, and fund the final ~40% from rent — minimal capital-at-risk. Underwrite on yield, hold 5+ years, and confirm the exact payment split.",
+    "suggested_offer": "Best value: 2-bed Community (Unit 112/212) ~AED 1.50–1.52M, or 1-bed (Unit 104) ~AED 1.42M; lagoon-view 2-beds from ~AED 1.77M",
+    "action_items": [
+      "Confirm the EXACT payment-plan split (down %, construction %, post-handover % and tenor) in the SPA",
+      "Verify the service charge (AED/sqft) and reserve fund — beachfront amenities can run high",
+      "Prioritise lagoon-view (premium rent/resale) vs Community (best entry price) per the live list",
+      "Check DLD/Oqood registration and the developer's escrow + delivery track record",
+      "Underwrite rents conservatively for 2026-28 and plan a 5+ year hold"
+    ]
+  },
+  "risk_factors": [
+    {"factor": "Pricing vs Headline", "probability": "High", "impact": "Medium", "notes": "Live entry (~AED 1.42M+) is above the AED 1.0M marketing line — set client expectations on real list prices"},
+    {"factor": "Dubai South Supply Wave", "probability": "High", "impact": "Medium", "notes": "Elevated 2026-28 apartment deliveries near Expo/DWC may soften rents and slow resale"},
+    {"factor": "Transit Future-Dated", "probability": "Medium", "impact": "Medium", "notes": "Metro/Etihad Rail links to DWC planned but not operational at handover — car-dependent for now"},
+    {"factor": "Service-Charge Inflation", "probability": "Medium", "impact": "Medium", "notes": "Lagoon/beach amenities can carry higher charges — verify exact figure before reserving"},
+    {"factor": "Exit Liquidity", "probability": "Medium", "impact": "Low-Med", "notes": "Resale/assignment may be slower during the supply wave; buy-and-hold is the base case"}
+  ]
+}
